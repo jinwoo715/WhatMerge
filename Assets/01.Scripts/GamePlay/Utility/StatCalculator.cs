@@ -38,8 +38,6 @@ public static class StatCalculator
 
     public static float GetDamageReductionRate(float amour, float percentPenetration, float flatPenetration)
     {
-
-        Debug.Log($"{amour}, {percentPenetration}, {flatPenetration}");
         // 1. % 방관 먼저 적용 (적 방어력의 30%를 날려버림)
         float armorAfterPercent = amour * (1f - percentPenetration);
 

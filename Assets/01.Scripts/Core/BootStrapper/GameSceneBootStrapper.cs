@@ -20,6 +20,7 @@ namespace Core.BootStrapper
 
         [Header("Map")]
         [SerializeField] private MapBoard _map;
+        [SerializeField] private TileSelecter _tileSelecter;
 
         [Header("HUD")]
         [SerializeField] private HeroSummmonPresenter _heroSummonPresenter;
@@ -59,6 +60,9 @@ namespace Core.BootStrapper
             _skillContext.Register<IAttackRegister>(_battleManager);
 
             _battleManager.OnApplyDamage += _damageViewer.ShowDamageText;
+
+            _tileSelecter.OnPointDownTile += _heroManager.OnPointDownHero;
+            _tileSelecter.OnPointUpTile += _heroManager.OnPointUpHero;
         }
     }
 }

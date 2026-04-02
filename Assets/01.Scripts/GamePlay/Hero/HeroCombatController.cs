@@ -76,7 +76,6 @@ namespace Combat
 
             _currentHitCount++;
             skill.PayCost(this);
-            Debug.Log($"Hit Count : {_currentHitCount}");
 
             yield return StartCoroutine(skill.Excute());
             

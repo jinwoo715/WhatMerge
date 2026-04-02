@@ -36,10 +36,11 @@ namespace Heros
         
         [SerializeField] private Hero _heroPrefab;
 
+        private Dictionary<Tile, Hero> _fieldHeros = new Dictionary<Tile, Hero>();
+        private Hero _clickedHero = null;
+
         IHeroMapService _heroMapService;
-
         ISkillCreater _skillCreater;
-
         ISpriteAtlasRepository _spriteAtlasRepository;
 
         public void Init(IHeroMapService heroMapService, ISkillCreater skillCreater, ISpriteAtlasRepository spriteAtlasRepository)
@@ -48,7 +49,6 @@ namespace Heros
             _skillCreater = skillCreater;
             _spriteAtlasRepository = spriteAtlasRepository;
         }
-
         public void SpawnRandomHero()
         {
             if (_heroMapService.TryGetNextHeroTile(out Tile tile))
@@ -72,6 +72,8 @@ namespace Heros
                 List<ISkill> skills = _skillCreater.CreateActiveSkill(skillBundle, ownerContext);
 
                 hero.SetSkill(skills);
+
+                _fieldHeros.Add(tile, hero);
             }
         }
         private Hero GetHero()
@@ -81,6 +83,25 @@ namespace Heros
             hero.OnOccupiedTile += _heroMapService.OccupyHeroTile;
             hero.OnFreeTile += _heroMapService.FreeHeroTile;
             return hero;
+        }
+
+        public void OnPointUpHero(Tile tile)
+        {
+            if (_clickedHero == null) return;
+            
+            if(_fieldHeros.TryGetValue(tile, out var hero))
+            {
+                if (hero != _clickedHero) return;                
+            }
+
+            _clickedHero.SetTile(tile, _heroMapService.GetTileWorldPosition(tile));
+        }
+        public void OnPointDownHero(Tile tile)
+        {
+            if (_fieldHeros.TryGetValue(tile, out var hero))
+            {
+                _clickedHero = hero;
+            }
         }
     }
 }
