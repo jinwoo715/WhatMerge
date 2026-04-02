@@ -1,0 +1,4 @@
+SkillUID,HeroUID,Name,Description,SkillType,SkillSlot,ExcuteTrigger,TriggerValue,TargetType,TargetCount,StartupDelay,ActionHoldTime,P1,P2,P3
+1,1,Attack,기본 공격,SingleMeleeAttack,1,None,0,SingleEnemy,1,0.2,0.2,100,0,0
+2,1,MegaHit,지면을 강타해 1명의 적에게 {P1}% 데미지를 입힌다.,SingleMeleeAttack,2,HitCount,3,SingleEnemy,1,0.2,0.2,560,0,0
+3,1,Slashing,검을 크게 휘둘러 범위내 적에게 {P1}% 데미지를 입힌다.,ConeMelee,3,Mana,10,SingleEnemy,1,0.2,0.2,120,0,0

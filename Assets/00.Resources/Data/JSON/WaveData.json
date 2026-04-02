@@ -1,0 +1,110 @@
+[
+  {
+    "StageUID": 1,
+    "StartWave": 1,
+    "EndWave": 3,
+    "StartDelay": 0.0,
+    "EnemyUID": 1,
+    "SpawnCount": 3,
+    "SpawnInterval": 0.5
+  },
+  {
+    "StageUID": 1,
+    "StartWave": 4,
+    "EndWave": 4,
+    "StartDelay": 0.0,
+    "EnemyUID": 2,
+    "SpawnCount": 1,
+    "SpawnInterval": 0.5
+  },
+  {
+    "StageUID": 1,
+    "StartWave": 5,
+    "EndWave": 7,
+    "StartDelay": 0.0,
+    "EnemyUID": 3,
+    "SpawnCount": 3,
+    "SpawnInterval": 0.5
+  },
+  {
+    "StageUID": 1,
+    "StartWave": 8,
+    "EndWave": 8,
+    "StartDelay": 0.0,
+    "EnemyUID": 4,
+    "SpawnCount": 1,
+    "SpawnInterval": 0.5
+  },
+  {
+    "StageUID": 1,
+    "StartWave": 9,
+    "EndWave": 11,
+    "StartDelay": 0.0,
+    "EnemyUID": 5,
+    "SpawnCount": 5,
+    "SpawnInterval": 0.5
+  },
+  {
+    "StageUID": 1,
+    "StartWave": 12,
+    "EndWave": 12,
+    "StartDelay": 0.0,
+    "EnemyUID": 6,
+    "SpawnCount": 1,
+    "SpawnInterval": 0.5
+  },
+  {
+    "StageUID": 1,
+    "StartWave": 13,
+    "EndWave": 15,
+    "StartDelay": 0.0,
+    "EnemyUID": 7,
+    "SpawnCount": 5,
+    "SpawnInterval": 0.5
+  },
+  {
+    "StageUID": 1,
+    "StartWave": 16,
+    "EndWave": 16,
+    "StartDelay": 0.0,
+    "EnemyUID": 8,
+    "SpawnCount": 1,
+    "SpawnInterval": 0.5
+  },
+  {
+    "StageUID": 1,
+    "StartWave": 17,
+    "EndWave": 19,
+    "StartDelay": 0.0,
+    "EnemyUID": 9,
+    "SpawnCount": 7,
+    "SpawnInterval": 0.5
+  },
+  {
+    "StageUID": 1,
+    "StartWave": 20,
+    "EndWave": 20,
+    "StartDelay": 0.0,
+    "EnemyUID": 10,
+    "SpawnCount": 1,
+    "SpawnInterval": 0.5
+  },
+  {
+    "StageUID": 1,
+    "StartWave": 21,
+    "EndWave": 23,
+    "StartDelay": 0.0,
+    "EnemyUID": 11,
+    "SpawnCount": 7,
+    "SpawnInterval": 0.5
+  },
+  {
+    "StageUID": 1,
+    "StartWave": 24,
+    "EndWave": 24,
+    "StartDelay": 0.0,
+    "EnemyUID": 12,
+    "SpawnCount": 1,
+    "SpawnInterval": 0.5
+  }
+]

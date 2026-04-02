@@ -1,0 +1,53 @@
+[
+  {
+    "UID": 1,
+    "HeroUID": 1,
+    "Name": "Attack",
+    "Description": "기본 공격",
+    "SkillType": "SingleMeleeAttack",
+    "SkillSlot": 1,
+    "TriggerType": 0,
+    "TriggerValue": 0.0,
+    "TargetType": 0,
+    "TargetCount": 1,
+    "StartupDelay": 0.2,
+    "ActionHoldTime": 0.2,
+    "P1": 100.0,
+    "P2": 0.0,
+    "P3": 0.0
+  },
+  {
+    "UID": 2,
+    "HeroUID": 1,
+    "Name": "MegaHit",
+    "Description": "지면을 강타해 1명의 적에게 {P1}% 데미지를 입힌다.",
+    "SkillType": "SingleMeleeAttack",
+    "SkillSlot": 2,
+    "TriggerType": 1,
+    "TriggerValue": 3.0,
+    "TargetType": 0,
+    "TargetCount": 1,
+    "StartupDelay": 0.2,
+    "ActionHoldTime": 0.2,
+    "P1": 560.0,
+    "P2": 0.0,
+    "P3": 0.0
+  },
+  {
+    "UID": 3,
+    "HeroUID": 1,
+    "Name": "Slashing",
+    "Description": "검을 크게 휘둘러 범위내 적에게 {P1}% 데미지를 입힌다.",
+    "SkillType": "ConeMelee",
+    "SkillSlot": 3,
+    "TriggerType": 2,
+    "TriggerValue": 10.0,
+    "TargetType": 0,
+    "TargetCount": 1,
+    "StartupDelay": 0.2,
+    "ActionHoldTime": 0.2,
+    "P1": 120.0,
+    "P2": 0.0,
+    "P3": 0.0
+  }
+]

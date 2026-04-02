@@ -1,0 +1,17 @@
+namespace Enemies
+{
+    [System.Serializable]
+    public class EnemyData
+    {
+        public int UID;
+        public string Name;
+        public string Description;
+        public float HP;
+        public float Amour;
+        public float MoveSpeed;
+        public EAttribute Attribute;
+        public int Coin;
+        public float MoveAnimationSpeed;
+        public int SkillUID;
+    }
+}

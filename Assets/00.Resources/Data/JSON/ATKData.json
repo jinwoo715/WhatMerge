@@ -1,0 +1,10 @@
+[
+  {
+    "UID": 1,
+    "BaseATK": 100,
+    "GrowthRatio": 0.03,
+    "TierMultiplier": 1.2,
+    "FirstMuliplier": 1.3,
+    "SecondMultiplier": 1.6
+  }
+]
