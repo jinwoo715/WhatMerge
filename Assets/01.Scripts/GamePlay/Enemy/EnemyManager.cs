@@ -18,6 +18,10 @@ namespace Enemies
         List<Enemy> GetAllFieldEnemy();
         event Action<int> OnSpawnEnemy;
         event Action<int> OnDieEnemy;
+        event Action<int> OnChangedActiveEnemyCount;
+        event Action OnDeathBossEnemy;
+
+        bool IsAliveBoss();
     }
 
     public class EnemyManager : MonoBehaviour, IEnemySpawnService, IFieldEnemyService
@@ -25,21 +29,28 @@ namespace Enemies
         [SerializeField] private Enemy _enemyPrefab;
         [SerializeField] private EnemyData _data;
 
+        private ObjectPool<Enemy> _enemyPool = new ObjectPool<Enemy>();
+
         Dictionary<string, List<Sprite>> _enemySpriteByName = new Dictionary<string, List<Sprite>>();
 
-        private List<Enemy> _activeEnemies;
+        private List<Enemy> _activeEnemies = new List<Enemy>();
+
+        private Enemy _bossEnemy;
 
         IEnemyMapService _mapService;
 
-        private WaveData _currentWaveData;
-        
         public event Action OnEndWaveSpawn;
         public event Action<int> OnSpawnEnemy;
         public event Action<int> OnDieEnemy;
-        
+        public event Action<int> OnChangedActiveEnemyCount;
+        public event Action OnDeathBossEnemy;
+
         public void Init(IEnemyMapService enemyMapService, int stageUID)
         {
             _mapService = enemyMapService;
+
+            _enemyPool.OnCreateEvent += InitializeSpawnEnemy;
+            _enemyPool.Init(this.transform, _enemyPrefab, 10);
 
             SpriteAtlas enemyAtlas = GameManager.Data.GetEnemyAtlas(stageUID);
             Sprite[] sprites = new Sprite[enemyAtlas.spriteCount];
@@ -95,20 +106,42 @@ namespace Enemies
 
             OnEndWaveSpawn?.Invoke();
         }
+
         public void SpawnEnemy(int uid)
         {
             EnemyData data = GameManager.Data.GetEnemyData(uid);
 
-            Enemy enemy = Instantiate(_enemyPrefab, this.transform);
-            enemy.Initialize();
-            enemy.transform.position = _mapService.EnemySpawnPosition;
 
+            Enemy enemy = _enemyPool.GetItem(_mapService.EnemySpawnPosition);
             var sprites = _enemySpriteByName[data.Name];
             enemy.Init(data, sprites);
-
-            enemy.OnReachedDestination += AssignEnemyMove;
-
             AssignEnemyMove(enemy);
+
+            _activeEnemies.Add(enemy);
+
+            if (data.IsBoss)
+                _bossEnemy = enemy;
+
+            OnChangedActiveEnemyCount?.Invoke(_activeEnemies.Count);
+        }
+
+        public void InitializeSpawnEnemy(Enemy enemy)
+        {
+            enemy.Initialize();
+            enemy.OnReachedDestination += AssignEnemyMove;
+            enemy.OnDeath += DeathEnemy;
+        }
+        public void DeathEnemy(Enemy enemy)
+        {
+            _activeEnemies.Remove(enemy);
+            _enemyPool.ReturnItem(enemy);
+            OnChangedActiveEnemyCount?.Invoke(_activeEnemies.Count);
+
+            if (enemy == _bossEnemy)
+            {
+                _bossEnemy = null;
+                OnDeathBossEnemy?.Invoke();
+            }
         }
 
         private void AssignEnemyMove(Enemy enemy)
@@ -123,6 +156,11 @@ namespace Enemies
         public List<Enemy> GetAllFieldEnemy()
         {
             return _activeEnemies;
+        }
+
+        public bool IsAliveBoss()
+        {
+            return _bossEnemy != null;
         }
     }
 }

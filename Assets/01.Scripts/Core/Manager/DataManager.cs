@@ -50,7 +50,9 @@ public class DataManager : MonoBehaviour, ISkillRepository, ISpriteAtlasReposito
     private Dictionary<int, ActiveSkillData> _activeSkillDatas = new Dictionary<int, ActiveSkillData>();
     private Dictionary<int, ATKData> _atkDatas = new Dictionary<int, ATKData>();
 
-    public StageConfig StageConfig => _gameConfig.StageConfig;
+    public StageSettingConfig StageConfig => _gameConfig.StageConfig;
+    public GameEconomyConfig GameEconomy => _gameConfig.GameEconomy;
+
     public void Init()
     {
         var stageDatas = JsonConvert.DeserializeObject<List<StageData>>(_StageDataText.text);

@@ -91,8 +91,6 @@ namespace Combat
             {
                 if (_skill[i].IsUseable(skillContext))
                 {
-                    Debug.Log($"{i}번째 스킬 공격!!!!");
-
                     skill = _skill[i];
                     return true;
                 }

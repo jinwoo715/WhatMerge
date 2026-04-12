@@ -38,6 +38,9 @@ namespace Map
                     tile.transform.position = _gridWorld.GridToWorldPosition(tile);
 
                     _grid[i, j] = tile;
+
+                    if (i == 0 || i == _xSize-1 || j == 0 || j == _ySize-1)
+                        tile.gameObject.layer = 0;
                 }
             }
 

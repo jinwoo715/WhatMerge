@@ -1,5 +1,5 @@
 UID,Name,Description,ATKUID,AS,Range,BasicSkill,FirstSkill,SecondSkill,SpecialSkill
-1,Warrior,Warrior,1,1,2,1,2,3,0
+1,Warrior,Warrior,1,2,2,1,2,3,0
 2,ShieldSoldier,ShieldSoldier,2,1,2,4,5,6,0
 3,Spearman,Spearman,3,1,2,7,8,9,0
 4,Thief,Thief,4,1,2,10,11,12,0

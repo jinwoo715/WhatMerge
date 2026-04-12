@@ -5,7 +5,7 @@
     "Description": "Warrior",
     "ATKUID": 1,
     "AS": 2.0,
-    "Radius": 1.0,
+    "Radius": 2.0,
     "BaseAttack": 1,
     "FirstSkill": 2,
     "SecondSkill": 3,

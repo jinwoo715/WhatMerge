@@ -1,6 +1,7 @@
 using Entity;
 using Map;
 using Skill;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -9,9 +10,11 @@ using UnityEngine.U2D;
 
 namespace Heros
 {
-    public interface IHeroSpawnService
+    public interface IHeroSummonService
     {
-        void SpawnRandomHero();
+        int SpawnedCount { get; }
+        bool TrySpawnRandomHero();
+        event Action OnSpawndRanHero;
     }
 
     public struct HeroSkillBundle
@@ -30,7 +33,15 @@ namespace Heros
         }
     }
 
-    public class HeroManager : MonoBehaviour, IHeroSpawnService
+    //HeroManager
+    //HeroSummonPresenter
+    //HeroSummonViewer
+
+    //스폰 버튼
+    //현재 금액
+    //레전더리
+
+    public class HeroManager : MonoBehaviour, IHeroSummonService
     {
         public int SpawnHeroUid;
         
@@ -43,13 +54,18 @@ namespace Heros
         ISkillCreater _skillCreater;
         ISpriteAtlasRepository _spriteAtlasRepository;
 
+        public event Action OnSpawndRanHero;
+
+        private int _spawnRanHeroCount;
+        public int SpawnedCount => _spawnRanHeroCount;
+
         public void Init(IHeroMapService heroMapService, ISkillCreater skillCreater, ISpriteAtlasRepository spriteAtlasRepository)
         {
             _heroMapService = heroMapService;
             _skillCreater = skillCreater;
             _spriteAtlasRepository = spriteAtlasRepository;
         }
-        public void SpawnRandomHero()
+        public bool TrySpawnRandomHero()
         {
             if (_heroMapService.TryGetNextHeroTile(out Tile tile))
             {
@@ -74,7 +90,14 @@ namespace Heros
                 hero.SetSkill(skills);
 
                 _fieldHeros.Add(tile, hero);
+
+                _spawnRanHeroCount++;
+                OnSpawndRanHero?.Invoke();
+
+                return true;
             }
+
+            return false;
         }
         private Hero GetHero()
         {

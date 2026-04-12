@@ -71,7 +71,6 @@ namespace Entity
             float setAtk = StatCalculator.ATK(_level, atkData.BaseATK, atkData.GrowthRatio, atkData.TierMultiplier);
             _stat.SetBaseValue(EHeroStat.Damage, setAtk);
 
-            Debug.Log(_stat.GetStat(EHeroStat.Damage));
             _stat.SetBaseValue(EHeroStat.AttackSpeed, data.AS);
 
             _spriteController.Init(spriteAtlas, _heroData.Name, _level);

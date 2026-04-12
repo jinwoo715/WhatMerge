@@ -1,18 +1,39 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
-public class StageInfoPresenter : MonoBehaviour
+namespace Stage
 {
-    // Start is called before the first frame update
-    void Start()
+    public class StageInfoPresenter : MonoBehaviour
     {
-        
-    }
+        private IWaveInfoProvider _model;
+        private IStageView _view;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        public void Init(IWaveInfoProvider waveInfoProvider, IStageView viewer)
+        {
+            _model = waveInfoProvider;
+            _view = viewer;
+
+            _model.OnChangeCurrentWave += UpdateWave;
+            _model.OnChangeRemainTime += UpdateWaveTime;
+            _model.OnChangeAliveEnemy += UpdateActiveEnemyCount;
+        }
+
+        public void UpdateWave(int currentWave)
+        {
+            string waveText = $"Wave : {currentWave}";
+            _view.SetCurrentWaveText(waveText);
+        }
+        public void UpdateWaveTime(float remainTime)
+        {
+            TimeSpan time = TimeSpan.FromSeconds((int)remainTime);
+            string timeText = string.Format("{0:D2}:{1:D2}", time.Minutes, time.Seconds);
+            _view.SetRemainTime(timeText);
+        }
+        public void UpdateActiveEnemyCount(int currentCount, int maxCount)
+        {
+            string text = $"{currentCount} / {maxCount}";
+            float ratio = currentCount / (float)maxCount;
+            _view.SetActiveEnemy(text, ratio);
+        }
     }
 }

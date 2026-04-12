@@ -14,4 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   StageConfig:
     WaveTime: 4
-    FailEnemyCount: 100
+    BossWaveTime: 10
+    BossWavePivot: 10
+    MaxEnemy: 100
+    StartMoney: 10
+    StartWaveIndex: 10
+  GameEconomy:
+    StartMoney: 100
+    StartSpawnCost: 30
+    IncreaseSpawnCost: 5

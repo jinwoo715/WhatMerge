@@ -4,12 +4,34 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "GameConfig", menuName = "Config", order = 0)]
 public class GameConfig : ScriptableObject
 {
-    public StageConfig StageConfig;
+    public StageSettingConfig StageConfig;
+    public GameEconomyConfig GameEconomy;
 }
 
 [System.Serializable]
-public class StageConfig
+public class GameEconomyConfig
 {
-    public float WaveTime;
-    public int FailEnemyCount;
+    public int StartMoney;
+    public int StartSpawnCost;
+    public int IncreaseSpawnCost;
+}
+
+[System.Serializable]
+public class StageSettingConfig
+{
+    [Header("Time")]
+    public int WaveTime;
+    public int BossWaveTime;
+
+    [Header("BossWave")]
+    public int BossWavePivot;
+
+    [Header("Enemy")]
+    public int MaxEnemy;
+
+    [Header("Player")]
+    public int StartMoney;
+
+    [Header("Start Wave")]
+    public int StartWaveIndex;
 }

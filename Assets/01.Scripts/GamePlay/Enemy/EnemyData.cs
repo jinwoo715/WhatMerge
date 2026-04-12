@@ -11,7 +11,7 @@ namespace Enemies
         public float MoveSpeed;
         public EAttribute Attribute;
         public int Coin;
-        public float MoveAnimationSpeed;
         public int SkillUID;
+        public bool IsBoss;
     }
 }

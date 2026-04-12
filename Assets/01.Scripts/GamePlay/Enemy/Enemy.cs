@@ -6,19 +6,21 @@ using UnityEngine;
 
 namespace Enemies
 {
-    public class Enemy : MonoBehaviour, IDamageable
+    public class Enemy : MonoBehaviour, IDamageable, IPooledItem<Enemy>
     {
         [SerializeField] private MoveController _move;
         [SerializeField] private EnemySpriteController _spriteController;
 
         public event Action<Enemy> OnReachedDestination;
+        public event Action<Enemy> OnDeath;
+        public event Action<Enemy> OnReturn;
 
         private int _currentMoveDestinationIndex = 0;
         public int CurrentMoveDestinationIndex => _currentMoveDestinationIndex;
 
         public Vector3 HitPosition => this.transform.position;
 
-        public int CurrentHP => 100;
+        public int CurrentHP => _currentHP;
 
         public int Amour => (int)_data.Amour;
 
@@ -27,6 +29,8 @@ namespace Enemies
         public EAttribute Attribute => EAttribute.None;
 
         public bool IsActive => true;
+
+        private int _currentHP;
 
         public void Initialize()
         {
@@ -37,9 +41,10 @@ namespace Enemies
         public void Init(EnemyData data, List<Sprite> sprites)
         {
             _data = data;
+            _currentHP = (int)_data.HP;
             _currentMoveDestinationIndex = 0;
             _move.Init(this.transform, data.MoveSpeed);
-            _spriteController.Init(sprites, data.MoveAnimationSpeed);
+            _spriteController.Init(sprites, 0.25f);
         }
 
         private void FlipEnemy(EMoveDirection moveDirection)
@@ -58,6 +63,16 @@ namespace Enemies
 
         public void TakeDamage(AttackResultPayload resultPayload)
         {
+            _currentHP -= resultPayload.Damage;
+
+            if (_currentHP < 0)
+                Death();
         }
+        private void Death()
+        {
+            OnDeath?.Invoke(this);
+        }
+        public void OnSpawn() { }
+        public void OnDespawn() { }
     }
 }

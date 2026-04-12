@@ -1,26 +1,58 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Heros.UI
 {
-    public class HeroSummmonPresenter : MonoBehaviour
+    [Serializable]
+    public class HeroSummmonPresenter
     {
-        [SerializeField] private HeroSummonViewer _viewer;
-        
-        private IHeroSpawnService _heroSpawnService;
+        private int _spawnCost;
+        private int _currentCost;
+        private int _increaseCost;
 
-        public void Init(IHeroSpawnService heroSpawnService)
+        //SpawnCount ¿©±â
+        private IHeroSummonService _heroSpawnService;
+
+        private IHeroSummonViewer _heroViewer;
+        private IEconomyService _economy;
+
+        public void Init(IHeroSummonService heroSpawnService, IHeroSummonViewer heroSummonViewer, IEconomyService economyService, GameEconomyConfig gameEconomy)
         {
             _heroSpawnService = heroSpawnService;
+            _economy = economyService;
+            _heroViewer = heroSummonViewer;
 
-            _viewer.Init();
-            _viewer.OnHeroSpawn += HeroSpawn;
+            _spawnCost = gameEconomy.StartSpawnCost;
+
+            _increaseCost = gameEconomy.IncreaseSpawnCost;
+
+            _heroViewer.OnSpawnRandomHero += SpawnRandomHero;
+
+            UpdateSpawnCost();
         }
-        private void HeroSpawn()
+
+        private void SpawnRandomHero()
         {
-            Debug.Log("Presenter");
-            _heroSpawnService.SpawnRandomHero();
+            if(_heroSpawnService.TrySpawnRandomHero())
+            {
+                _economy.UseMoney(_currentCost);
+
+                UpdateSpawnCost();
+            }
+        }
+
+        private void UpdateSpawnCost()
+        {
+            _currentCost = _spawnCost + (_increaseCost * _heroSpawnService.SpawnedCount);
+            _heroViewer.SetButtonInteractable(HaveMoneyToSpawnCost(_currentCost));
+            _heroViewer.SetSpawnCost(_currentCost);
+        }
+
+        private bool HaveMoneyToSpawnCost(int spawnCost)
+        {
+            return _economy.CurrentMony >= spawnCost;
         }
     }
 }
