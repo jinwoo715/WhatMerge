@@ -10,10 +10,10 @@ namespace Map
         void OccupyHeroTile(IReadOnlyTile tile);
         void FreeHeroTile(IReadOnlyTile tile);
     }
-    public interface IEnemyMapService
+
+    public interface IPathProvider
     {
-        int MapEnemyDestinationCount { get; }
-        Vector2 EnemySpawnPosition { get; }
-        Vector2 GetEnemyNextDestination(int currentIndex);
+        public Vector3 GetDestination(int index);
+        public int GetNextIndex(int currentIndex);
     }
 }

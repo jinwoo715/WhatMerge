@@ -4,7 +4,7 @@
     "HeroUID": 1,
     "Name": "Attack",
     "Description": "기본 공격",
-    "SkillType": "SingleMeleeAttack",
+    "SkillType": "ConeMeleeAttack",
     "SkillSlot": 1,
     "TriggerType": 0,
     "TriggerValue": 0.0,

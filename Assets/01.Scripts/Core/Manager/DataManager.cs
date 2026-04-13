@@ -25,7 +25,7 @@ public interface ISpriteAtlasRepository
     SpriteAtlas GetStageEnemySpriteAtlas(int uid);
 }
 
-public class DataManager : MonoBehaviour, ISkillRepository, ISpriteAtlasRepository
+public class DataManager : MonoBehaviour, ISkillRepository, ISpriteAtlasRepository, IEnemyDataRepository
 {
     [Header("SpriteAtlas")]
     public List<HeroSpriteSpriteBundle> _heroSpriteAtlas;
@@ -206,6 +206,19 @@ public class DataManager : MonoBehaviour, ISkillRepository, ISpriteAtlasReposito
         else
         {
             Debug.LogError($"Not Exist Stage UID : {uid}");
+            return default;
+        }
+    }
+
+    public EnemyData GetData(int uid)
+    {
+        if(_enemyDataByUID.TryGetValue(uid, out EnemyData data))
+        {
+            return data;
+        }
+        else
+        {
+            Debug.LogError($"Not Exist Enemy Data : {uid}");
             return default;
         }
     }

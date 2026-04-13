@@ -62,6 +62,7 @@ public class ObjectPool<T> where T : MonoBehaviour, IPooledItem<T>
 public class DamageViewer : MonoBehaviour
 {
     [SerializeField] private DamageValueTextItem _damageItem;
+    [SerializeField] private Transform _itemParent;
 
     private ObjectPool<DamageValueTextItem> _damageItemPool = new ObjectPool<DamageValueTextItem>();
     private int _initPoolCount = 10;
@@ -71,7 +72,7 @@ public class DamageViewer : MonoBehaviour
     internal void Init()
     {
         _damageItemPool.OnCreateEvent += (value) => value.Init(_showTimer, _moveVelocity);
-        _damageItemPool.Init(this.transform, _damageItem, _initPoolCount);
+        _damageItemPool.Init(_itemParent, _damageItem, _initPoolCount);
     }
 
     public void ShowDamageText(Vector3 position, int value)

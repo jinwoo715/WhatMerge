@@ -9,6 +9,7 @@ using Skill;
 using Combat;
 using UnityEngine.UI;
 using System;
+using UnityEngine.U2D;
 
 namespace Core.BootStrapper
 {
@@ -17,20 +18,23 @@ namespace Core.BootStrapper
         [Header("Managers")]
         [SerializeField] private GameSceneManager _sceneManager;
         [SerializeField] private HeroManager _heroManager;
-        [SerializeField] private EnemyManager _enemyManager;
         [SerializeField] private StageManager _stage;
         private GameEconomyManager _economy = new GameEconomyManager();
 
         [Header("Controller")]
         private TimeController _timeController = new TimeController();
 
-        [Header("Map")]
+        [Header("Ref")]
+        EnemySpriteRepository _enemySpriteRepository = new EnemySpriteRepository();
+
+        [Header("World")]
         [SerializeField] private MapBoard _map;
         [SerializeField] private TileSelecter _tileSelecter;
+        [SerializeField] private EnemySpawner _enemySpawner;
+        private EnemyTracker _enemyTracker = new EnemyTracker();
 
         [Header("Presenter")]
-        [SerializeField] private StageInfoPresenter _stageInfoPresenter;
-        [SerializeField] private DamageViewer _damageViewer;
+        private StageInfoPresenter _stageInfoPresenter = new StageInfoPresenter();
         private HeroSummmonPresenter _heroSummonPresenter = new HeroSummmonPresenter();
         private TimePresenter _timePresenter = new TimePresenter();
 
@@ -38,6 +42,7 @@ namespace Core.BootStrapper
         [SerializeField] private StageInfoViewer _stageInfoViewer;
         [SerializeField] private HeroSummonViewer _heroSummonViewer;
         [SerializeField] private TimeViewer _timeViewer;
+        [SerializeField] private DamageViewer _damageViewer;
 
 
         private SkillContext _skillContext = new SkillContext();
@@ -53,20 +58,18 @@ namespace Core.BootStrapper
         private void Init()
         {
             _timePresenter.Init(_timeController, _timeViewer);
-
             _sceneManager.Init(_stage);
-
             _map.Init();
-
             _heroManager.Init(_map, _heroSkillFactory, GameManager.Data);
+            _enemySpawner.Init(_map, _enemySpriteRepository, GameManager.Data);
 
             int stageUID = GameManager.Payload.StageUID;
-            _enemyManager.Init(_map, stageUID);
+            SpriteAtlas enemyAtlas = GameManager.Data.GetEnemyAtlas(stageUID);
+            _enemySpriteRepository.Init(enemyAtlas);
 
             var stageConfig = GameManager.Data.StageConfig;
-
             var stage = GameManager.Data.GetStageData(stageUID);
-            _stage.Init(_enemyManager, _enemyManager, stage, stageConfig);
+            _stage.Init(_enemySpawner, _enemyTracker, stage, stageConfig);
 
             var economy = GameManager.Data.GameEconomy;
             _economy.Init(economy);
@@ -80,7 +83,7 @@ namespace Core.BootStrapper
         }
         private void Bind()
         {
-            _skillContext.Register<IFieldEnemyService>(_enemyManager);
+            _skillContext.Register<IFieldEnemyService>(_enemyTracker);
             _skillContext.Register<IAttackRegister>(_battleManager);
 
             _battleManager.OnApplyDamage += _damageViewer.ShowDamageText;
@@ -90,6 +93,8 @@ namespace Core.BootStrapper
 
             _stage.OnChangeCurrentWave += _stageInfoPresenter.UpdateWave;
             _stage.OnChangeRemainTime += _stageInfoPresenter.UpdateWaveTime;
+
+            _enemySpawner.OnSpawnEnemy += _enemyTracker.AddFieldEnemy;
         }
     }
 }

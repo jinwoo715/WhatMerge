@@ -18,7 +18,7 @@ MonoBehaviour:
     BossWavePivot: 10
     MaxEnemy: 100
     StartMoney: 10
-    StartWaveIndex: 10
+    StartWaveIndex: 1
   GameEconomy:
     StartMoney: 100
     StartSpawnCost: 30

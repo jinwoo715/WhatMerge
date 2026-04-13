@@ -4,9 +4,7 @@ using UnityEngine;
 
 namespace Map
 {
-
-
-    public class MapBoard : MonoBehaviour, IHeroMapService, IEnemyMapService
+    public class MapBoard : MonoBehaviour, IHeroMapService, IPathProvider
     {
         [SerializeField] private Tile _tilePrefab;
         [SerializeField] private int _xSize = 5;
@@ -15,14 +13,11 @@ namespace Map
         private Tile[,] _grid;
         private GridWorld _gridWorld;
 
-        public Vector2 EnemySpawnPosition => _gridWorld.GridToWorldPosition(_enemyDestinations[0]);
         private List<Tile> _enemyDestinations = new List<Tile>();
 
         private HashSet<IReadOnlyTile> OccupiedTiles = new HashSet<IReadOnlyTile>();
         private Tile _nextHeroEmptyTile = null;
         public bool HasEmptyHeroTile => _nextHeroEmptyTile != null;
-
-        public int MapEnemyDestinationCount => _enemyDestinations.Count;
 
         public void Init()
         {
@@ -120,15 +115,23 @@ namespace Map
             return _grid[readOnlyTile.X, readOnlyTile.Y];
         }
 
-        public Vector2 GetEnemyNextDestination(int currentIndex)
-        {
-            Tile nextTile = _enemyDestinations[currentIndex];
 
-            return _gridWorld.GridToWorldPosition(nextTile);
-        }
         public Vector2 GetTileWorldPosition(IReadOnlyTile tile)
         {
             return _gridWorld.GridToWorldPosition(tile);
+        }
+
+        public Vector3 GetDestination(int index)
+        {
+            Tile tile = _enemyDestinations[index];
+            return _gridWorld.GridToWorldPosition(tile);
+        }
+
+        public int GetNextIndex(int currentIndex)
+        {
+            int nextIndex = currentIndex + 1;
+            nextIndex = nextIndex % _enemyDestinations.Count;
+            return nextIndex;
         }
     }
 }

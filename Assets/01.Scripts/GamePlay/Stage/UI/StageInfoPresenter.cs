@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Stage
 {
-    public class StageInfoPresenter : MonoBehaviour
+    public class StageInfoPresenter
     {
         private IWaveInfoProvider _model;
         private IStageView _view;

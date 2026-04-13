@@ -1,0 +1,65 @@
+using Map;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace Enemies
+{
+    public class EnemySpawner : MonoBehaviour, IEnemySpawnService
+    {
+        [SerializeField] private Enemy _enemyPrefab;
+
+        public event Action OnEndWaveSpawn;
+        public event Action<Enemy> OnSpawnEnemy;
+
+        private ObjectPool<Enemy> _enemyPool = new ObjectPool<Enemy>();
+
+        ISpriteRepository _spriteRepository;
+        IEnemyDataRepository _enemyDataRepository;
+        IPathProvider _pathProvider;
+
+        public void Init(IPathProvider pathProvider, ISpriteRepository spriteRepository, IEnemyDataRepository enemyDataRepository)
+        {
+            _spriteRepository = spriteRepository;
+            _pathProvider = pathProvider;
+            _enemyDataRepository = enemyDataRepository;
+
+            _enemyPool.OnCreateEvent += InitializeSpawnEnemy;
+            _enemyPool.Init(this.transform, _enemyPrefab, 10);
+        }
+
+        public void StartWaveEnemySpawn(WaveData data)
+        {
+            StartCoroutine(SpawnWaveEnemy(data));
+        }
+        public IEnumerator SpawnWaveEnemy(WaveData data)
+        {
+            yield return new WaitForSeconds(data.StartDelay);
+
+            EnemyData enemyData = _enemyDataRepository.GetData(data.EnemyUID);
+
+            for (int i = 0; i < data.SpawnCount; i++)
+            {
+                SpawnEnemy(enemyData);
+
+                yield return new WaitForSeconds(data.SpawnInterval);
+            }
+
+            OnEndWaveSpawn?.Invoke();
+        }
+        public void SpawnEnemy(EnemyData enemyData)
+        {
+            Enemy enemy = _enemyPool.GetItem(_pathProvider.GetDestination(0));
+            var sprites = _spriteRepository.GetSprites(enemyData.Name);
+            enemy.Init(enemyData, sprites);
+            OnSpawnEnemy?.Invoke(enemy);
+        }
+
+        public void InitializeSpawnEnemy(Enemy enemy)
+        {
+            enemy.Initialize(_pathProvider);
+            enemy.OnDeath += _enemyPool.ReturnItem;
+        }
+    }
+}

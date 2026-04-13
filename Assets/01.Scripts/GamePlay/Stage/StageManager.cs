@@ -69,6 +69,7 @@ namespace Stage
         }
         private void HandleEnemyCount(int aliveEnemy)
         {
+            Debug.Log(aliveEnemy);
             OnChangeAliveEnemy?.Invoke(aliveEnemy, _maxEnemyCount);
 
             if (aliveEnemy > _maxEnemyCount)
@@ -94,7 +95,7 @@ namespace Stage
         {
             if (IsBossWave())
             {
-                if (_fieldEnemyService.IsAliveBoss())
+                if (_fieldEnemyService.IsAliveBoss)
                 {
                     _isStart = false;
                     OnTimeOut?.Invoke();
@@ -151,7 +152,7 @@ namespace Stage
 
                 for (int i = 0; i < _activeWaves.Count; i++)
                 {
-                    _enemySpawnService.RequestWaveStart(_activeWaves[i]);
+                    _enemySpawnService.StartWaveEnemySpawn(_activeWaves[i]);
                 }
             }
         }

@@ -1,4 +1,5 @@
 using Combat;
+using Map;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,7 +12,6 @@ namespace Enemies
         [SerializeField] private MoveController _move;
         [SerializeField] private EnemySpriteController _spriteController;
 
-        public event Action<Enemy> OnReachedDestination;
         public event Action<Enemy> OnDeath;
         public event Action<Enemy> OnReturn;
 
@@ -19,12 +19,11 @@ namespace Enemies
         public int CurrentMoveDestinationIndex => _currentMoveDestinationIndex;
 
         public Vector3 HitPosition => this.transform.position;
-
         public int CurrentHP => _currentHP;
-
         public int Amour => (int)_data.Amour;
-
         public EnemyData _data;
+
+        public bool IsBoss => _data.IsBoss;
 
         public EAttribute Attribute => EAttribute.None;
 
@@ -32,10 +31,10 @@ namespace Enemies
 
         private int _currentHP;
 
-        public void Initialize()
+        public void Initialize(IPathProvider pathProvider)
         {
-            _move.OnArrivedDestination += () => OnReachedDestination(this);
             _move.OnDirectionChanged += FlipEnemy;
+            _move.Initialize(transform, pathProvider);
         }
 
         public void Init(EnemyData data, List<Sprite> sprites)
@@ -43,7 +42,7 @@ namespace Enemies
             _data = data;
             _currentHP = (int)_data.HP;
             _currentMoveDestinationIndex = 0;
-            _move.Init(this.transform, data.MoveSpeed);
+            _move.Init(data.MoveSpeed);
             _spriteController.Init(sprites, 0.25f);
         }
 
@@ -53,12 +52,6 @@ namespace Enemies
                 _spriteController.Flip(true);
             else
                 _spriteController.Flip(false);
-        }
-
-        public void Move(Vector3 destination, int destinationIndex)
-        {
-            _currentMoveDestinationIndex = destinationIndex;
-            _move.MoveToDestination(destination);
         }
 
         public void TakeDamage(AttackResultPayload resultPayload)
