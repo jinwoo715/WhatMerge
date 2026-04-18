@@ -35,9 +35,16 @@ public enum EAttackStatType
     AttackSpeed
 }
 
+
+public interface IHeros : ICreature
+{
+    IHeroInfoProvider Provider { get; }
+    IAttackStatProvider StatProvider { get; }
+}
+
 namespace Entity
 {
-    public class Hero : MonoBehaviour, ITileObject, IHeroInfoProvider, IAttackStatProvider
+    public class Hero : MonoBehaviour, ITileObject, IHeroInfoProvider, IAttackStatProvider, ICreature
     {
         [SerializeField] private HeroCombatController _heroCombat;
         [SerializeField] private HeroSpriteController _spriteController;
@@ -58,6 +65,10 @@ namespace Entity
         public int Level => _level;
 
         public ISpriteChanger SpriteChanger => _spriteController;
+
+        public bool IsActive => throw new NotImplementedException();
+
+        public Vector3 Position => throw new NotImplementedException();
 
         public void SpawnInit()
         {
@@ -124,13 +135,6 @@ namespace Entity
                     break;
             }
             return 1;
-        }
-
-        public float radius;
-        void OnDrawGizmos()
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, radius);
         }
     }
 }

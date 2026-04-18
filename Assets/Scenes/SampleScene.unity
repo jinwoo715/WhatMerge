@@ -2231,6 +2231,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 948605356}
   m_CullTransparentMesh: 1
+--- !u!1 &990700996
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 990700997}
+  m_Layer: 0
+  m_Name: EconomyViewer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &990700997
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 990700996}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2044558683}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1002024228
 GameObject:
   m_ObjectHideFlags: 0
@@ -3639,6 +3670,14 @@ MonoBehaviour:
   _heroSpriteAtlas:
   - HeroUid: 1
     SpriteAtlas: {fileID: 100100200, guid: 8ccf073de3519384c9c983b4a073d1b7, type: 3}
+  - HeroUid: 1
+    SpriteAtlas: {fileID: 100100200, guid: 8ccf073de3519384c9c983b4a073d1b7, type: 3}
+  - HeroUid: 1
+    SpriteAtlas: {fileID: 100100200, guid: 8ccf073de3519384c9c983b4a073d1b7, type: 3}
+  - HeroUid: 1
+    SpriteAtlas: {fileID: 100100200, guid: 8ccf073de3519384c9c983b4a073d1b7, type: 3}
+  - HeroUid: 1
+    SpriteAtlas: {fileID: 100100200, guid: 8ccf073de3519384c9c983b4a073d1b7, type: 3}
   _stageEnemySpriteBundles:
   - StageUID: 1
     SpriteAtlas: {fileID: 100100200, guid: b33fd5fb51b27ec49a181955a74aae3a, type: 3}
@@ -4946,6 +4985,7 @@ Transform:
   - {fileID: 1002024229}
   - {fileID: 452779306}
   - {fileID: 1006936468}
+  - {fileID: 990700997}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2073634818

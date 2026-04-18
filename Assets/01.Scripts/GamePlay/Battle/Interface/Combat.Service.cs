@@ -8,11 +8,11 @@ namespace Combat
     public interface ICreature
     {
         bool IsActive { get; }
+        Vector3 Position { get; }
     }
 
     public interface IDamageable : ICreature
     {
-        Vector3 HitPosition { get; }
         int CurrentHP { get; }
         int Amour { get; }
         EAttribute Attribute { get; }

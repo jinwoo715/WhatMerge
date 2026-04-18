@@ -17,7 +17,7 @@ namespace Combat
 
             damageContext.Target.TakeDamage(new AttackResultPayload(appliedDamage));
 
-            OnApplyDamage?.Invoke(damageContext.Target.HitPosition, appliedDamage);
+            OnApplyDamage?.Invoke(damageContext.Target.Position, appliedDamage);
         }
 
         private int CalculateFinalDamage(IDamageable target, AttackPayload payload)

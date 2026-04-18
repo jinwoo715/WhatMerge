@@ -1,3 +1,4 @@
+using Combat;
 using Entity;
 using Map;
 using Skill;
@@ -15,6 +16,13 @@ namespace Heros
         int SpawnedCount { get; }
         bool TrySpawnRandomHero();
         event Action OnSpawndRanHero;
+    }
+
+    public interface IFieldHeroService
+    {
+        int GetActiveHeroCount { get; }
+        IReadOnlyList<Hero> GetAllFieldHero { get; }
+        void AddFieldEnemy(Hero enemy);
     }
 
     public struct HeroSkillBundle
@@ -69,9 +77,10 @@ namespace Heros
         {
             if (_heroMapService.TryGetNextHeroTile(out Tile tile))
             {
-                var hero = GetHero();
+                Hero hero = GetHero();
 
                 SkillContext ownerContext = new SkillContext();
+                ownerContext.Register<ICreature>(hero);
                 ownerContext.Register<Transform>(hero.transform);
                 ownerContext.Register<IHeroInfoProvider>(hero);
                 ownerContext.Register<ISpriteChanger>(hero.SpriteChanger);

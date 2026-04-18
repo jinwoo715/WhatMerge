@@ -13,7 +13,7 @@
     "StartupDelay": 0.2,
     "ActionHoldTime": 0.2,
     "P1": 100.0,
-    "P2": 0.0,
+    "P2": 60.0,
     "P3": 0.0
   },
   {
@@ -47,7 +47,7 @@
     "StartupDelay": 0.2,
     "ActionHoldTime": 0.2,
     "P1": 120.0,
-    "P2": 0.0,
+    "P2": 60.0,
     "P3": 0.0
   }
 ]

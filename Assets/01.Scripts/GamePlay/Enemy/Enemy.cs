@@ -18,7 +18,7 @@ namespace Enemies
         private int _currentMoveDestinationIndex = 0;
         public int CurrentMoveDestinationIndex => _currentMoveDestinationIndex;
 
-        public Vector3 HitPosition => this.transform.position;
+        public Vector3 Position => this.transform.position;
         public int CurrentHP => _currentHP;
         public int Amour => (int)_data.Amour;
         public EnemyData _data;

@@ -10,51 +10,86 @@ public static class CreatureFinder
     private static string _enemyLayer = "Enemy";
     private static string _heroLayer = "Hero";
 
-    public static bool TryFindNearEnemy(Vector2 position, float radius, out IDamageable target, out Vector2 targetPosition)
+    public static bool TryFindNearDamageable(Vector2 position, float radius, out IDamageable target)
     {
         int count = Physics2D.OverlapCircleNonAlloc(position, radius, _results, LayerMask.GetMask(_enemyLayer));
 
         if(count == 0)
         {
             target = default;
-            targetPosition = Vector3.zero;
             return false;
         }
 
         IDamageable nearestTarget = null;
         float minDistance = float.MaxValue;
-        Vector2 nearPosition = Vector2.zero;
         for (int i = 0; i < count; i++)
         {
             if (_results[i].TryGetComponent<IDamageable>(out IDamageable damageable)) 
             {
+                if (!damageable.IsActive) continue;
+
                 float distance = Vector2.SqrMagnitude((Vector2)_results[i].transform.position - position);
 
                 if (distance < minDistance)
                 {
                     minDistance = distance;
                     nearestTarget = damageable;
-                    nearPosition = (Vector2)_results[i].transform.position;
                 }
             }
         }
 
         target = nearestTarget;
-        targetPosition = nearPosition;
         return true;
     }
-
-    public static bool TryFindNearConeEnemies(Vector2 position, float radius, Vector2 dir, float angle, out List<IDamageable> enemies)
+    public static bool TryFindNearEnemyTransform(Vector2 position, float radius, out Transform target)
     {
         int count = Physics2D.OverlapCircleNonAlloc(position, radius, _results, LayerMask.GetMask(_enemyLayer));
 
         if (count == 0)
         {
-            enemies = default;
+            target = default;
             return false;
         }
 
-        enemies = new List<IDamageable>();
+        Transform nearestTarget = null;
+        float minDistance = float.MaxValue;
+        for (int i = 0; i < count; i++)
+        {
+            Transform tr = _results[i].transform;
+            float distance = Vector2.SqrMagnitude((Vector2)_results[i].transform.position - position);
+
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                nearestTarget = tr;
+            }
+        }
+
+        target = nearestTarget;
+        return true;
+    }
+
+    public static List<IHeros> TryFindNearHeors(Vector2 position, float radius)
+    {
+        int count = Physics2D.OverlapCircleNonAlloc(position, radius, _results, LayerMask.GetMask(_enemyLayer));
+
+        List<IHeros> heros = new List<IHeros>();
+
+        for (int i = 0; i < count; i++)
+        {
+            if (_results[i] is IHeros) continue;
+
+            heros.Add(_results[i].GetComponent<IHeros>());
+        }
+
+        return heros;
+    }
+
+    public static List<IDamageable> FindNearEnemiesInConeArea(Vector2 position, float radius, Vector2 dir, float angle)
+    {
+        int count = Physics2D.OverlapCircleNonAlloc(position, radius, _results, LayerMask.GetMask(_enemyLayer));
+
+        List<IDamageable> enemies = new List<IDamageable>();
 
         for (int i = 0; i < count; i++)
         {
@@ -70,6 +105,6 @@ public static class CreatureFinder
             }
         }
         
-        return true;
+        return enemies;
     }
 }

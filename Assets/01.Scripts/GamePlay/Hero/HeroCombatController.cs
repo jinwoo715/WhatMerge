@@ -84,7 +84,6 @@ namespace Combat
             _currentTime = 0;
             _isUseingSkill = false;
         }
-
         private bool TryGetUseableSkill(out ISkill skill, SkillTriggerContext skillContext)
         {
             for (int i = _skill.Count-1; i >= 0 ; i--)
@@ -99,14 +98,12 @@ namespace Combat
             skill = null;
             return false;
         }
-
         public void ConsumeHitCount(int count)
         {
             _currentHitCount -= count;
 
             _currentHitCount = Mathf.Max(_currentHitCount, 0);
         }
-
         public void ConsumeManaCount(float count)
         {
             _currentMana -= count;

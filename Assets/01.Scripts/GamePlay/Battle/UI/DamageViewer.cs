@@ -5,6 +5,7 @@ using UnityEngine;
 
 public interface IPooledItem<T>
 {
+    public bool IsActive { get; }
     event Action<T> OnReturn;
     void OnSpawn();
     void OnDespawn();

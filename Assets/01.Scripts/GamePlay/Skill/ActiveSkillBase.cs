@@ -1,4 +1,5 @@
 using Combat;
+using Enemies;
 using Heros.Stat;
 using Skill;
 using System;
@@ -7,7 +8,7 @@ using UnityEngine;
 
 public enum ETargetType
 {
-    SingleEnemy,    // 기본 공격용 (가장 가까운 적)
+    NearestSingleEnemy,    // 기본 공격용 (가장 가까운 적)
     NearbyEnemies,  // 주변 적 전체 (광역기)
     AllEnemies,     // 맵 전체 적 (글로벌 궁극기)
     NearbyAllies,   // 주변 아군 (힐, 버프)
@@ -60,6 +61,9 @@ public abstract class ActiveSkillBase : ISkill
     private string _readySpriteName;
     private string _excuteSpriteName;
 
+    private Transform _owner;
+    private IAttackStatProvider _statProvider;
+
     public ActiveSkillBase(ActiveSkillData data, ISkillContext context, ISkillContext owner)
     {
         _data = data;
@@ -68,6 +72,9 @@ public abstract class ActiveSkillBase : ISkill
 
         owner.TryGet<IHeroInfoProvider>(out var hero);
         owner.TryGet<ISpriteChanger>(out _spriteChanger);
+
+        owner.TryGet(out _owner);
+        owner.TryGet(out _statProvider);
 
         _readySpriteName = $"{data.Name}_Ready";
         _excuteSpriteName = $"{data.Name}";
@@ -83,7 +90,6 @@ public abstract class ActiveSkillBase : ISkill
     {
         _spriteChanger.SetSprite(_excuteSpriteName);
     }
-    
     public abstract void BindService();
     public void BindSkillHelpService<T>(ref T service) where T : class 
     {
@@ -103,9 +109,7 @@ public abstract class ActiveSkillBase : ISkill
             service = getService;
         }
     }
-
     public abstract IEnumerator Excute();
-
     public bool IsUseable(SkillTriggerContext context)
     {
         if (!CheckTriggerCondition(context))
@@ -113,7 +117,6 @@ public abstract class ActiveSkillBase : ISkill
 
         return HasValidTarget();
     }
-
     private bool CheckTriggerCondition(SkillTriggerContext context)
     {
         switch (_data.TriggerType)
@@ -136,7 +139,6 @@ public abstract class ActiveSkillBase : ISkill
     {
         return false;
     }
-
     public void PayCost(ISkillResourceModifier skillResourceModifier)
     {
         switch (_data.TriggerType)
@@ -149,5 +151,45 @@ public abstract class ActiveSkillBase : ISkill
                 skillResourceModifier.ConsumeHitCount(1);
                 break;
         }
+    }
+    public bool IsFindTarget()
+    {
+        float findRadius = _statProvider.GetStat(EAttackStatType.Radius);
+
+
+        switch (_data.TargetType)
+        {
+            case ETargetType.NearestSingleEnemy:
+            case ETargetType.NearbyEnemies:
+                if (CreatureFinder.TryFindNearDamageable(_owner.position, findRadius, out var target))
+                {
+                    return true;
+                }
+                break;
+            case ETargetType.AllEnemies:
+                if(_context.TryGet<IFieldEnemyService>(out var fieldEnemyService))
+                {
+                    return fieldEnemyService.GetActiveEnemyCount != 0;
+                }
+                break;
+            case ETargetType.NearbyAllies:
+
+                if(CreatureFinder.TryFindNearHeors(_owner.position, findRadius).Count > 0)
+                {
+                    return true;
+                }
+
+                break;
+            case ETargetType.AllAllies:
+
+                break;
+            case ETargetType.Self:
+                if (_ownerContext.TryGet(out ICreature creature))
+                {
+                    return true;
+                }
+                break;
+        }
+        return false;
     }
 }
