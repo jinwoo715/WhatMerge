@@ -31,6 +31,8 @@ namespace Core.BootStrapper
         [SerializeField] private MapBoard _map;
         [SerializeField] private TileSelecter _tileSelecter;
         [SerializeField] private EnemySpawner _enemySpawner;
+        [SerializeField] private ProjectileSpawner _projectileSpawner;
+
         private EnemyTracker _enemyTracker = new EnemyTracker();
 
         [Header("Presenter")]

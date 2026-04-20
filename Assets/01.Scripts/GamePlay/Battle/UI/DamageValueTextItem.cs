@@ -14,6 +14,8 @@ public class DamageValueTextItem : MonoBehaviour, IPooledItem<DamageValueTextIte
     private float _returnTime;
     private float _currentTime;
 
+    public bool IsActive => throw new NotImplementedException();
+
     public void Init(float returnTime, float moveVelocity)
     {
         _returnTime = returnTime;

@@ -4,37 +4,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum EProjectileMoveType
-{
-    Line,
-    Homing,
-    Parabola
-}
 
-public enum EEffectType
-{
-    Hit,
-}
+//HeroData
 
-public enum EStatueType
-{
-
-}
-
-public class ProjectileData
-{
-    public int UID;
-    public string Name;
-    public int SpriteName;
-    public bool IsPiercing;
-
-    public string EffectType;   //Hit  //Summon
-    public int EffectUID;
-}
 
 //이동
 //종료
 //처리
+
+// 모든 스킬에 기본적으로 필요한 것
+
+// 이름, 설명, 계수, 
+//MeleeSkill 
+//ProjectileSkill
+//SummonSkill
+//BuffSkill
+
 
 public abstract class Projectile : MonoBehaviour, IPooledItem<Projectile>
 {
@@ -178,8 +163,6 @@ public class Parabola : IMoveStretagy
 #endregion
 
 #region Excute
-
-//때리기만함
 public class ProjectileHit : IHitEffect
 {
     public void Init(ICreature target, int summonUid, int p1, int p2)
@@ -206,10 +189,7 @@ public class SummonHit : IHitEffect
         throw new NotImplementedException();
     }
 }
-
-
 #endregion
-
 public interface IMoveStretagy
 {
     void Init(Transform owner, ICreature target, float speed);
@@ -220,4 +200,10 @@ public interface IHitEffect
 {
     void Init(ICreature target, int summonUid, int p1, int p2);
     void OnHit();
+}
+
+public interface IHitResolver
+{
+    void Init(ICreature target);
+    void Resolve();
 }

@@ -7,15 +7,12 @@ using UnityEngine;
 
 public interface ISkillCreater
 {
-    //ISkill CreateActiveSkill(int uid, ISkillContext ownerContext);
     List<ISkill> CreateActiveSkill(HeroSkillBundle skillBundle, ISkillContext ownerContext);
 }
-
 public interface ISkillRepository
 {
     ActiveSkillData GetActiveSkillData(int uid);
 }
-
 public class HeroSkillFactory : ISkillCreater
 {
     private ISkillContext _skillContext;
@@ -71,3 +68,117 @@ public class HeroSkillFactory : ISkillCreater
         return skills;
     }
 }
+
+//===========================================
+
+public class HeroSkillData
+{
+    public int HeroUID;
+    public int SlotIndex;
+    public string Name;
+    public string Description;
+    public string Motion;
+    public ESkillType SkillType;
+    public int SkillRefID;
+    public EExcuteTriggerType TriggerType;
+    public int TriggerValue;
+    public int DmgRate;
+}
+
+public enum ESkillType
+{
+    Melee,
+    Projectile,
+    Summon
+}
+
+public class SkillDataBase
+{
+    public int SkillUID;
+
+    public int P1;
+    public int P2;
+
+    public string VFX;
+    public List<int> EffectIds;
+}
+
+public class MeleeSkillData : SkillDataBase
+{
+    public EMeleeAttackType SkillType;
+}
+
+public enum EMeleeAttackType
+{
+    SingleAttack,
+    MultiAttack,
+    ConeAttack
+}
+
+public class ProjectileSkillData : SkillDataBase
+{
+    public EProjectileAttackType SkillType;
+    public int ProjectileUID;
+}
+
+public class EffectData
+{
+    public int EffectUID;
+    public EEffectType EffectType;
+    public int EffectRefID;
+}
+
+public enum EProjectileAttackType
+{
+    SingleShoot,
+    MultiShoot,
+    ChainShoot,
+}
+
+public class ProjectileData
+{
+    public int ProjectileUID;
+    public int SpriteName;
+    public float Speed;
+    public EProjectileMoveType MoveType;
+}
+
+public enum EEffectType
+{
+    Summon,
+    CC
+}
+
+public enum EProjectileMoveType
+{
+    Line,
+    Homing,
+    Parabola
+}
+
+public class SummonSkillData : SkillDataBase
+{
+    public ESummonSkillType SkillType;
+    public int SummonObjectUID;
+}
+
+public enum ESummonSkillType
+{
+    SingleSummon,
+    MultiSummon,
+    ChainSummon,
+}
+
+public class SummonObjectData
+{
+    public int ObjectUID;
+    public string SpriteName;
+    public ESummonObjectType ObjectType;
+}
+public enum ESummonObjectType
+{
+    Interval,
+    Delay,
+    Moving
+}
+

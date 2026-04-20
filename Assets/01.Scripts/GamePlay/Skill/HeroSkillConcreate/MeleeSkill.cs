@@ -176,3 +176,23 @@ public class SingleMeleeAttack : AttackSkill
         return true;
     }
 }
+
+public class SingleShootAttack : ActiveSkillBase
+{
+    public SingleShootAttack(ActiveSkillData data, ISkillContext context, ISkillContext owner) : base(data, context, owner) { }
+
+    public override void BindService()
+    {
+        
+    }
+
+    public override IEnumerator Excute()
+    {
+        yield break;
+    }
+
+    public override bool HasValidTarget()
+    {
+        return false;
+    }
+}
