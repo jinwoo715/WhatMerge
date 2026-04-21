@@ -44,7 +44,7 @@ public interface IHeros : ICreature
 
 namespace Entity
 {
-    public class Hero : MonoBehaviour, ITileObject, IHeroInfoProvider, IAttackStatProvider, ICreature
+    public class Hero : MonoBehaviour, ITileObject, IHeroInfoProvider, IAttackStatProvider, IAttackable
     {
         [SerializeField] private HeroCombatController _heroCombat;
         [SerializeField] private HeroSpriteController _spriteController;
@@ -66,9 +66,9 @@ namespace Entity
 
         public ISpriteChanger SpriteChanger => _spriteController;
 
-        public bool IsActive => throw new NotImplementedException();
+        public bool IsActive => true;
 
-        public Vector3 Position => throw new NotImplementedException();
+        public Vector3 Position => this.transform.position;
 
         public void SpawnInit()
         {
@@ -135,6 +135,16 @@ namespace Entity
                     break;
             }
             return 1;
+        }
+
+        public void RequestDamage(DamageContext dc)
+        {
+            throw new NotImplementedException();
+        }
+
+        public DamageContext CreateDamageContext()
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -3,7 +3,7 @@
     "UID": 1,
     "Name": "Slime",
     "Description": null,
-    "HP": 10000.0,
+    "HP": 5.0,
     "Amour": 0.0,
     "MoveSpeed": 1.0,
     "Attribute": 0,

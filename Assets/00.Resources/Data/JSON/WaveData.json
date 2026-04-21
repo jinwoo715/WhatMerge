@@ -5,8 +5,8 @@
     "EndWave": 9,
     "StartDelay": 0.0,
     "EnemyUID": 1,
-    "SpawnCount": 3,
-    "SpawnInterval": 0.5
+    "SpawnCount": 30,
+    "SpawnInterval": 0.25
   },
   {
     "StageUID": 1,

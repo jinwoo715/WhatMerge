@@ -28,25 +28,24 @@ public enum EExcuteTriggerType
 public class ActiveSkillData
 {
     public int UID;
-    public int HeroUID;
     public string Name;
     public string Description;
     
     public string SkillType;
     
-    public ESkillSlot SkillSlot;
     public EExcuteTriggerType TriggerType;
     public float TriggerValue;
 
-    public ETargetType TargetType;
-    public int TargetCount;
+    public float MotionDelay;
+    public float ResetDelay;
 
-    public float StartupDelay;
-    public float ActionHoldTime;
+    public int ValueRate;
 
     public float P1;
     public float P2;
     public float P3;
+
+    public string VFX;
 }
 
 public abstract class ActiveSkillBase : ISkill
@@ -55,13 +54,11 @@ public abstract class ActiveSkillBase : ISkill
     public ISkillContext _context { get; private set; }
     public ISkillContext _ownerContext { get; private set; }
 
-    public ESkillSlot SkillSlot => _data.SkillSlot;
-
     private ISpriteChanger _spriteChanger;
     private string _readySpriteName;
     private string _excuteSpriteName;
 
-    private Transform _owner;
+    protected IAttackable _owner;
     private IAttackStatProvider _statProvider;
 
     public ActiveSkillBase(ActiveSkillData data, ISkillContext context, ISkillContext owner)
@@ -151,45 +148,5 @@ public abstract class ActiveSkillBase : ISkill
                 skillResourceModifier.ConsumeHitCount(1);
                 break;
         }
-    }
-    public bool IsFindTarget()
-    {
-        float findRadius = _statProvider.GetStat(EAttackStatType.Radius);
-
-
-        switch (_data.TargetType)
-        {
-            case ETargetType.NearestSingleEnemy:
-            case ETargetType.NearbyEnemies:
-                if (CreatureFinder.TryFindNearDamageable(_owner.position, findRadius, out var target))
-                {
-                    return true;
-                }
-                break;
-            case ETargetType.AllEnemies:
-                if(_context.TryGet<IFieldEnemyService>(out var fieldEnemyService))
-                {
-                    return fieldEnemyService.GetActiveEnemyCount != 0;
-                }
-                break;
-            case ETargetType.NearbyAllies:
-
-                if(CreatureFinder.TryFindNearHeors(_owner.position, findRadius).Count > 0)
-                {
-                    return true;
-                }
-
-                break;
-            case ETargetType.AllAllies:
-
-                break;
-            case ETargetType.Self:
-                if (_ownerContext.TryGet(out ICreature creature))
-                {
-                    return true;
-                }
-                break;
-        }
-        return false;
     }
 }

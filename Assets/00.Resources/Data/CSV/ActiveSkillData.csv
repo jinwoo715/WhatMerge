@@ -1,4 +1,7 @@
-SkillUID,HeroUID,Name,Description,SkillType,SkillSlot,ExcuteTrigger,TriggerValue,TargetType,TargetCount,StartupDelay,ActionHoldTime,P1,P2,P3
-1,1,Attack,기본 공격,SingleMeleeAttack,1,None,0,SingleEnemy,1,0.2,0.2,100,0,0
-2,1,MegaHit,지면을 강타해 1명의 적에게 {P1}% 데미지를 입힌다.,SingleMeleeAttack,2,HitCount,3,SingleEnemy,1,0.2,0.2,560,0,0
-3,1,Slashing,검을 크게 휘둘러 범위내 적에게 {P1}% 데미지를 입힌다.,ConeMelee,3,Mana,10,SingleEnemy,1,0.2,0.2,120,0,0
+SkillUID,Name,Description,SkillType,ExcuteTrigger,TriggerValue,MotionDelay,ResetDelay,ValueRate,P1,P2,P3,VFX
+1001,Attack,기본 공격,SingleMeleeAttack,None,0,0.2,0.2,100,0,0,0,Sharp
+1002,MegaHit,지면을 강타해 1명의 적에게 {Value}% 데미지를 입힌다.,SingleMeleeAttack,HitCount,3,0.2,0.2,560,0,0,0,Sharp
+1003,Slashing,검을 크게 휘둘러 범위내 적에게 {Value}% 데미지를 입힌다.,ConeMelee,Mana,100,0.2,0.2,120,50,0,0,Moon
+1011,Attack,창병 기본 공격,SingleMeleeAttack,None,0,0.2,0.2,100,0,0,0,Sharp
+1012,Spiral,창병이 전방으로 창을 회전시키며 찔러 범위내 적에게 330% 데미지를 입힌다.,ConeMelee,HitCount,3,0.2,0.2,330,0,0,0,Moon
+1013,JavelinThrow,전방의 적에게 창을 투척하여 1명의 적에게 220% 데미지를 입힌다.,SingleProjectile,Mana,100,0.2,0.2,220,1,0,0,Sharp

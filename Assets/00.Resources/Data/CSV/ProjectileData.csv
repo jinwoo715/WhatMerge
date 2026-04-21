@@ -1,0 +1,2 @@
+ProjectileUID,SpriteName,MoveType,Speed,LevelSwap
+1,Spear,Homing,3,TRUE

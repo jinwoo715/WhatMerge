@@ -32,8 +32,10 @@ public class HeroSkillFactory : ISkillCreater
         }
 
         ActiveSkillData data = _skillRepository.GetActiveSkillData(uid);
-
+        Debug.Log(data.Name);
         Type type = Type.GetType(data.SkillType);
+
+        Debug.Log(type);
 
         if (type != null)
         {
@@ -64,6 +66,8 @@ public class HeroSkillFactory : ISkillCreater
 
         if (TryCreateActiveSkill(skillBundle.SpecialSkill, ownerContext, out var skill4))
             skills.Add(skill4);
+
+        Debug.Log($"Skill : {skills.Count}");
 
         return skills;
     }
@@ -138,9 +142,10 @@ public enum EProjectileAttackType
 public class ProjectileData
 {
     public int ProjectileUID;
-    public int SpriteName;
-    public float Speed;
+    public string SpriteName;
     public EProjectileMoveType MoveType;
+    public float Speed;
+    public bool LevelSwap;
 }
 
 public enum EEffectType

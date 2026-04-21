@@ -1,0 +1,9 @@
+[
+  {
+    "ProjectileUID": 1,
+    "SpriteName": "Spear",
+    "MoveType": 1,
+    "Speed": 3.0,
+    "LevelSwap": true
+  }
+]

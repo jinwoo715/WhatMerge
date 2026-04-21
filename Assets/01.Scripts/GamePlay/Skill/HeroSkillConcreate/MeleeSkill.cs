@@ -20,7 +20,7 @@ public abstract class AttackSkill : ActiveSkillBase
 }
 
 //TODO 
-public class ConeMeleeAttack : AttackSkill
+public class ConeMelee : AttackSkill
 {
     private Transform _ownerTransform;
     private IDamageable _target;
@@ -28,16 +28,16 @@ public class ConeMeleeAttack : AttackSkill
 
     private DrawUtility _du;
 
-    public ConeMeleeAttack(ActiveSkillData data, ISkillContext context, ISkillContext owner) : base(data, context, owner) 
+    public ConeMelee(ActiveSkillData data, ISkillContext context, ISkillContext owner) : base(data, context, owner) 
     {
-        _coneAngle = data.P2;
+        _coneAngle = data.P1;
     }
 
     public override IEnumerator Excute()
     {
         SetReadyMotion();
 
-        yield return new WaitForSeconds(_data.StartupDelay);
+        yield return new WaitForSeconds(_data.MotionDelay);
 
         float radius = _statProvider.GetStat(EAttackStatType.Radius);
 
@@ -49,21 +49,29 @@ public class ConeMeleeAttack : AttackSkill
 
             var enemies = CreatureFinder.FindNearEnemiesInConeArea(_ownerTransform.position, radius, dir, _coneAngle);
 
+            _attackRegister.RegisterAttack(new DamageContext(_target,_data.VFX, _owner));
+
+            float dmgMultiple = _data.ValueRate * 0.01f;
+            float damage = _statProvider.GetStat(EAttackStatType.Damage) * dmgMultiple;
+
+            int resultDamage = Mathf.RoundToInt(damage);
+
+            Debug.Log($"Count : {enemies.Count}");
+
+            int FlatPenetration = (int)_statProvider.GetStat(EAttackStatType.FlatPentration);
+            int PercentPenetration = (int)_statProvider.GetStat(EAttackStatType.PercentPenetration);
+
             for (int i = 0; i < enemies.Count; i++)
             {
-                int damage = (int)_statProvider.GetStat(EAttackStatType.Damage);
-                int FlatPenetration = (int)_statProvider.GetStat(EAttackStatType.FlatPentration);
-                int PercentPenetration = (int)_statProvider.GetStat(EAttackStatType.PercentPenetration);
-
-                AttackPayload ap = new AttackPayload(damage, FlatPenetration, PercentPenetration);
-                DamageContext dc = new DamageContext(ap, enemies[i]);
+                AttackPayload ap = new AttackPayload(resultDamage, FlatPenetration, PercentPenetration);
+                DamageContext dc = new DamageContext(ap, enemies[i], string.Empty, _owner);
                 _attackRegister.RegisterAttack(dc);
             }
         }
 
         SetExcuteMotion();
 
-        yield return new WaitForSeconds(_data.ActionHoldTime);
+        yield return new WaitForSeconds(_data.ResetDelay);
 
         _target = null;
     }
@@ -74,7 +82,7 @@ public class ConeMeleeAttack : AttackSkill
         BindOwnerHelpService(ref _ownerTransform);
 
         _du = _ownerTransform.gameObject.AddComponent<DrawUtility>();
-        _du.Init(_statProvider.GetStat(EAttackStatType.Radius), _data.P2);
+        _du.Init(_statProvider.GetStat(EAttackStatType.Radius), _data.P1*2);
     }
 
     public override bool HasValidTarget()
@@ -102,25 +110,24 @@ public class ConeMeleeAttack : AttackSkill
 
         return true;
     }
-}
 
+}
 //TODO
 public class SingleMeleeAttack : AttackSkill
 {
     public SingleMeleeAttack(ActiveSkillData data, ISkillContext context, ISkillContext owner) : base(data, context, owner) { }
 
-    private Transform _ownerTransform;
     private IDamageable _target;
 
     public override IEnumerator Excute()
     {
         SetReadyMotion();
 
-        yield return new WaitForSeconds(_data.StartupDelay);
+        yield return new WaitForSeconds(_data.MotionDelay);
 
         if(_target == null || _target.IsActive)
         {
-            if (CreatureFinder.TryFindNearDamageable(_ownerTransform.position, _statProvider.GetStat(EAttackStatType.Radius), out var target))
+            if (CreatureFinder.TryFindNearDamageable(_owner.Position, _statProvider.GetStat(EAttackStatType.Radius), out var target))
                 _target = target;
             else
                 yield break;
@@ -133,22 +140,17 @@ public class SingleMeleeAttack : AttackSkill
             int PercentPenetration = (int)_statProvider.GetStat(EAttackStatType.PercentPenetration);
 
             AttackPayload ap = new AttackPayload(damage, FlatPenetration, PercentPenetration);
-            DamageContext dc = new DamageContext(ap, _target);
+            DamageContext dc = new DamageContext(ap, _target, _data.VFX, _owner);
             _attackRegister.RegisterAttack(dc);
         }
 
         SetExcuteMotion();
 
-        yield return new WaitForSeconds(_data.ActionHoldTime);
+        yield return new WaitForSeconds(_data.ResetDelay);
         
         _target = null;
     }
 
-    public override void BindService()
-    {
-        base.BindService();
-        BindOwnerHelpService(ref _ownerTransform);
-    }
 
     public override bool HasValidTarget()
     {
@@ -156,7 +158,7 @@ public class SingleMeleeAttack : AttackSkill
 
         if(_target != null)
         {
-            float dist = Vector2.Distance(_target.Position, _ownerTransform.position);
+            float dist = Vector2.Distance(_target.Position, _owner.Position);
 
             if (dist > radius)
                 _target = null;
@@ -164,7 +166,7 @@ public class SingleMeleeAttack : AttackSkill
 
         if (_target == null)
         {
-            if (CreatureFinder.TryFindNearDamageable(_ownerTransform.position, radius, out var target))
+            if (CreatureFinder.TryFindNearDamageable(_owner.Position, radius, out var target))
             {
                 _target = target;
                 return true;
@@ -175,24 +177,69 @@ public class SingleMeleeAttack : AttackSkill
 
         return true;
     }
+
 }
 
-public class SingleShootAttack : ActiveSkillBase
+public class SingleProjectile : AttackSkill
 {
-    public SingleShootAttack(ActiveSkillData data, ISkillContext context, ISkillContext owner) : base(data, context, owner) { }
+    private IDamageable _target;
+    private IProjectileProvider _projectileProvider;
 
-    public override void BindService()
-    {
-        
-    }
+    public SingleProjectile(ActiveSkillData data, ISkillContext context, ISkillContext owner) : base(data, context, owner) { }
 
     public override IEnumerator Excute()
     {
-        yield break;
+        SetReadyMotion();
+
+        yield return new WaitForSeconds(_data.MotionDelay);
+
+        SetExcuteMotion();
+
+        ProjectilePayload projectilePayload = new ProjectilePayload();
+
+        projectilePayload.Attacker = _owner;
+        projectilePayload.Target = _target;
+        projectilePayload.SpawnPos = _owner.Position;
+        projectilePayload.UID = Mathf.RoundToInt(_data.P1);
+        projectilePayload.HeroLevel = _heroInfoProvider.Level;
+
+        _projectileProvider.SpawnProjectile(projectilePayload);
+
+        yield return new WaitForSeconds(_data.ResetDelay);
+    }
+
+    IHeroInfoProvider _heroInfoProvider;
+
+    public override void BindService()
+    {
+        base.BindService();
+        BindOwnerHelpService(ref _heroInfoProvider);
+        BindSkillHelpService(ref _projectileProvider);
     }
 
     public override bool HasValidTarget()
     {
-        return false;
+        float radius = _statProvider.GetStat(EAttackStatType.Radius);
+
+        if (_target != null)
+        {
+            float dist = Vector2.Distance(_target.Position, _owner.Position);
+
+            if (dist > radius)
+                _target = null;
+        }
+
+        if (_target == null)
+        {
+            if (CreatureFinder.TryFindNearDamageable(_owner.Position, radius, out var target))
+            {
+                _target = target;
+                return true;
+            }
+            else
+                return false;
+        }
+
+        return true;
     }
 }

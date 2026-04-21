@@ -6,5 +6,6 @@ namespace Enemies
     public interface ISpriteRepository
     {
         List<Sprite> GetSprites(string name);
+        Sprite GetSprite(string key);
     }
 }

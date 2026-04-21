@@ -69,7 +69,6 @@ namespace Stage
         }
         private void HandleEnemyCount(int aliveEnemy)
         {
-            Debug.Log(aliveEnemy);
             OnChangeAliveEnemy?.Invoke(aliveEnemy, _maxEnemyCount);
 
             if (aliveEnemy > _maxEnemyCount)

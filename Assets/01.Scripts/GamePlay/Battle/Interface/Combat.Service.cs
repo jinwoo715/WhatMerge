@@ -19,7 +19,7 @@ namespace Combat
         void TakeDamage(AttackResultPayload resultPayload);
     }
 
-    public interface IAttackable
+    public interface IAttackable : ICreature
     {
         void RequestDamage(DamageContext dc);
         DamageContext CreateDamageContext();

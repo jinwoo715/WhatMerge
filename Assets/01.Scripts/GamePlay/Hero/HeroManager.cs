@@ -81,6 +81,7 @@ namespace Heros
 
                 SkillContext ownerContext = new SkillContext();
                 ownerContext.Register<ICreature>(hero);
+                ownerContext.Register<IAttackable>(hero);
                 ownerContext.Register<Transform>(hero.transform);
                 ownerContext.Register<IHeroInfoProvider>(hero);
                 ownerContext.Register<ISpriteChanger>(hero.SpriteChanger);

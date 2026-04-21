@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GameConfig
   m_EditorClassIdentifier: 
   StageConfig:
-    WaveTime: 4
+    WaveTime: 20
     BossWaveTime: 10
     BossWavePivot: 10
     MaxEnemy: 100

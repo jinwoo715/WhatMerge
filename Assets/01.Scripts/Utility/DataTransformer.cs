@@ -22,13 +22,14 @@ public class DataTransformer : EditorWindow
     [MenuItem("Tools/Parse/CSV To Json %#K")]
     public static void ParseCSVDataToJson()
     {
+        
+        //ParseExcelDataToListJsonData<WaveData>("WaveData");
+        //ParseExcelDataToListJsonData<StageData>("StageData");
+        //ParseExcelDataToListJsonData<EnemyData>("EnemyData");
         //ParseExcelDataToListJsonData<ActiveSkillData>("ActiveSkillData");
-        ParseExcelDataToListJsonData<WaveData>("WaveData");
-        ParseExcelDataToListJsonData<StageData>("StageData");
-        ParseExcelDataToListJsonData<EnemyData>("EnemyData");
-        ParseExcelDataToListJsonData<ActiveSkillData>("ActiveSkillData");
-        ParseExcelDataToListJsonData<ATKData>("ATKData");
-        ParseExcelDataToListJsonData<HeroData>("HeroData");
+        //ParseExcelDataToListJsonData<ATKData>("ATKData");
+        //ParseExcelDataToListJsonData<HeroData>("HeroData");
+        ParseExcelDataToListJsonData<ProjectileData>("ProjectileData");
 
         Debug.Log("DataTransformer Completed");
     }

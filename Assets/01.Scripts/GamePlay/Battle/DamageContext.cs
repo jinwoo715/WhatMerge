@@ -30,13 +30,25 @@ namespace Combat
 
     public struct DamageContext
     {
+        public IAttackable Attacker;
         public IDamageable Target;
         public AttackPayload AttackPayload;
+        public string VFX;
 
-        public DamageContext(AttackPayload attackPayload, IDamageable target)
+        public DamageContext(IDamageable target, string vfx, IAttackable attacker)
+        {
+            AttackPayload = new AttackPayload(0,0,0);
+            Target = target;
+            VFX = vfx;
+            Attacker = attacker;
+        }
+
+        public DamageContext(AttackPayload attackPayload, IDamageable target, string vfx, IAttackable attacker)
         {
             AttackPayload = attackPayload;
             Target = target;
+            VFX = vfx;
+            Attacker = attacker;
         }
     }
 }

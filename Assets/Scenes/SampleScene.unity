@@ -2154,6 +2154,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1847714452}
+  - {fileID: 2061574386}
+  - {fileID: 1315662175}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &948605356
@@ -3059,6 +3061,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1259817328}
   m_CullTransparentMesh: 1
+--- !u!1 &1315662174
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1315662175}
+  - component: {fileID: 1315662176}
+  m_Layer: 0
+  m_Name: ProjectileSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1315662175
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1315662174}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 932491752}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1315662176
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1315662174}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f35f5dd4186f39f4ab9abcee68114d56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _prefab: {fileID: 8895749785945548426, guid: c96138af97be4584688a60e8f378be9c, type: 3}
 --- !u!1 &1322215839
 GameObject:
   m_ObjectHideFlags: 0
@@ -3670,23 +3717,20 @@ MonoBehaviour:
   _heroSpriteAtlas:
   - HeroUid: 1
     SpriteAtlas: {fileID: 100100200, guid: 8ccf073de3519384c9c983b4a073d1b7, type: 3}
-  - HeroUid: 1
-    SpriteAtlas: {fileID: 100100200, guid: 8ccf073de3519384c9c983b4a073d1b7, type: 3}
-  - HeroUid: 1
-    SpriteAtlas: {fileID: 100100200, guid: 8ccf073de3519384c9c983b4a073d1b7, type: 3}
-  - HeroUid: 1
-    SpriteAtlas: {fileID: 100100200, guid: 8ccf073de3519384c9c983b4a073d1b7, type: 3}
-  - HeroUid: 1
-    SpriteAtlas: {fileID: 100100200, guid: 8ccf073de3519384c9c983b4a073d1b7, type: 3}
+  - HeroUid: 3
+    SpriteAtlas: {fileID: 100100200, guid: f53072002c2d07a449b51533c36347d4, type: 3}
   _stageEnemySpriteBundles:
   - StageUID: 1
     SpriteAtlas: {fileID: 100100200, guid: b33fd5fb51b27ec49a181955a74aae3a, type: 3}
+  _effectAtlas: {fileID: 100100200, guid: d961a83914023a844af9347bbfbaf590, type: 3}
+  _projectileAtlas: {fileID: 100100200, guid: 0e2f9e8c3e44d90409d15c69ba17eec0, type: 3}
   _StageDataText: {fileID: 4900000, guid: f4c9d878f6e006849b8e9f7996d1814e, type: 3}
   _waveDataText: {fileID: 4900000, guid: 11bf87e260287e34a928500648095865, type: 3}
   _enemyDataText: {fileID: 4900000, guid: 44c538a4a54898f43a71b5cbf8c4a95d, type: 3}
   _activeSkillDataText: {fileID: 4900000, guid: 04d07651b9f8fbf4f98acc60eb6bfb59, type: 3}
   _atkDataText: {fileID: 4900000, guid: 8461cd8562da2c54b9cfc7249cf49d24, type: 3}
   _heroDataText: {fileID: 4900000, guid: 4d6d5fee74871974798069f01dbb8106, type: 3}
+  _projectileDataText: {fileID: 4900000, guid: 91ec005495e90aa4c8d3db23e58b58c7, type: 3}
   _gameConfig: {fileID: 11400000, guid: 3524e6ce7648fed4584c9cc74f89dc84, type: 2}
 --- !u!1 &1524418083
 GameObject:
@@ -4210,7 +4254,9 @@ MonoBehaviour:
   _stage: {fileID: 1431088736}
   _map: {fileID: 408302324}
   _tileSelecter: {fileID: 1639437555}
+  _vfxSpawner: {fileID: 2061574387}
   _enemySpawner: {fileID: 1847714454}
+  _projectileSpawner: {fileID: 1315662176}
   _stageInfoViewer: {fileID: 828544860}
   _heroSummonViewer: {fileID: 1002024230}
   _timeViewer: {fileID: 452779307}
@@ -4988,6 +5034,51 @@ Transform:
   - {fileID: 990700997}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2061574385
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2061574386}
+  - component: {fileID: 2061574387}
+  m_Layer: 0
+  m_Name: VFXSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2061574386
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2061574385}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 932491752}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2061574387
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2061574385}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 498d69e983ff33844be4a59a1001748d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _hitEffect: {fileID: 4557684482859132084, guid: 5b81bbf3f3e6eb847b27bf5ac2a74bb1, type: 3}
 --- !u!1 &2073634818
 GameObject:
   m_ObjectHideFlags: 0
@@ -5017,7 +5108,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 631a240cc65158f41b2a4b72d345e096, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SpawnHeroUid: 1
+  SpawnHeroUid: 3
   _heroPrefab: {fileID: 5889065611879671908, guid: 37dc9494e2d06714398d7013306a74c0, type: 3}
 --- !u!4 &2073634820
 Transform:

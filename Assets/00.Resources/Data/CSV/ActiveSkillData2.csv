@@ -1,0 +1,4 @@
+SkillUID,Name,Description,SkillType,ExcuteTrigger,TriggerValue,MotionDelay,ResetDelay,ValueRate,P1,P2,P3,VFX
+1001,Attack,기본 공격,SingleMeleeAttack,None,0,0.2,0.2,100,0,0,0,Sharp
+1002,MegaHit,지면을 강타해 1명의 적에게 {Value}% 데미지를 입힌다.,SingleMeleeAttack,HitCount,3,0.2,0.2,560,0,0,0,Sharp
+1003,Slashing,검을 크게 휘둘러 범위내 적에게 {Value}% 데미지를 입힌다.,ConeMelee,Mana,100,0.2,0.2,120,0,0,0,Moon

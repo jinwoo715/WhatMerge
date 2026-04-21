@@ -30,6 +30,9 @@ namespace Core.BootStrapper
         [Header("World")]
         [SerializeField] private MapBoard _map;
         [SerializeField] private TileSelecter _tileSelecter;
+
+        [Header("Spawner")]
+        [SerializeField] private VFXSpawner _vfxSpawner;
         [SerializeField] private EnemySpawner _enemySpawner;
         [SerializeField] private ProjectileSpawner _projectileSpawner;
 
@@ -46,8 +49,13 @@ namespace Core.BootStrapper
         [SerializeField] private TimeViewer _timeViewer;
         [SerializeField] private DamageViewer _damageViewer;
 
+        [Header("Repository")]
+        private VFXSpriteRepository _vfxRepository = new VFXSpriteRepository();
+        private VFXSpriteRepository _projectileRepository = new VFXSpriteRepository();
+
 
         private SkillContext _skillContext = new SkillContext();
+
         private BattleManager _battleManager = new BattleManager();
         private HeroSkillFactory _heroSkillFactory = new HeroSkillFactory();
 
@@ -64,6 +72,12 @@ namespace Core.BootStrapper
             _map.Init();
             _heroManager.Init(_map, _heroSkillFactory, GameManager.Data);
             _enemySpawner.Init(_map, _enemySpriteRepository, GameManager.Data);
+
+            var vfxAtlas = GameManager.Data.GetSpriteAtlas("HitEffect");
+
+            _vfxRepository.Init(vfxAtlas);
+            _projectileRepository.Init(GameManager.Data.GetProjectileAtlas());
+
 
             int stageUID = GameManager.Payload.StageUID;
             SpriteAtlas enemyAtlas = GameManager.Data.GetEnemyAtlas(stageUID);
@@ -82,11 +96,21 @@ namespace Core.BootStrapper
             _heroSkillFactory.Init(_skillContext, GameManager.Data);
 
             _damageViewer.Init();
+
+            _vfxSpawner.Init(_vfxRepository);
+
+            _battleManager.Init(_vfxSpawner);
+
+
+            var data = GameManager.Data;
+
+            _projectileSpawner.Init(data, _projectileRepository);
         }
         private void Bind()
         {
             _skillContext.Register<IFieldEnemyService>(_enemyTracker);
             _skillContext.Register<IAttackRegister>(_battleManager);
+            _skillContext.Register<IProjectileProvider>(_projectileSpawner);
 
             _battleManager.OnApplyDamage += _damageViewer.ShowDamageText;
 

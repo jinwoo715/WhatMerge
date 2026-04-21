@@ -23,13 +23,16 @@ public interface ISpriteAtlasRepository
 {
     SpriteAtlas GetHeroSpriteAtlas(int uid);
     SpriteAtlas GetStageEnemySpriteAtlas(int uid);
+    SpriteAtlas GetSpriteAtlas(string name);
 }
 
-public class DataManager : MonoBehaviour, ISkillRepository, ISpriteAtlasRepository, IEnemyDataRepository
+public class DataManager : MonoBehaviour, ISkillRepository, ISpriteAtlasRepository, IEnemyDataRepository, IDataProvider
 {
     [Header("SpriteAtlas")]
     public List<HeroSpriteSpriteBundle> _heroSpriteAtlas;
     public List<StageEnemySpriteBundle> _stageEnemySpriteBundles;
+    public SpriteAtlas _effectAtlas;
+    public SpriteAtlas _projectileAtlas;
 
     [Header("TextData")]
     public TextAsset _StageDataText;
@@ -38,6 +41,7 @@ public class DataManager : MonoBehaviour, ISkillRepository, ISpriteAtlasReposito
     public TextAsset _activeSkillDataText;
     public TextAsset _atkDataText;
     public TextAsset _heroDataText;
+    public TextAsset _projectileDataText;
 
     [Header("Config")]
     public GameConfig _gameConfig;
@@ -49,12 +53,17 @@ public class DataManager : MonoBehaviour, ISkillRepository, ISpriteAtlasReposito
     private Dictionary<int, StageData> _stageDataByUID = new Dictionary<int, StageData>();
     private Dictionary<int, ActiveSkillData> _activeSkillDatas = new Dictionary<int, ActiveSkillData>();
     private Dictionary<int, ATKData> _atkDatas = new Dictionary<int, ATKData>();
+    private Dictionary<int, ProjectileData> _projectileDatas = new Dictionary<int, ProjectileData>();
+
+    private Dictionary<string, SpriteAtlas> _spriteAtlas = new Dictionary<string, SpriteAtlas>();
 
     public StageSettingConfig StageConfig => _gameConfig.StageConfig;
     public GameEconomyConfig GameEconomy => _gameConfig.GameEconomy;
 
     public void Init()
     {
+        _spriteAtlas.Add(_effectAtlas.name, _effectAtlas);
+
         var stageDatas = JsonConvert.DeserializeObject<List<StageData>>(_StageDataText.text);
         for (int i = 0; i < stageDatas.Count; i++)
         {
@@ -106,6 +115,13 @@ public class DataManager : MonoBehaviour, ISkillRepository, ISpriteAtlasReposito
         {
             HeroData data = heroDatas[i];
             _heroDataByUID.Add(data.UID, data);
+        }
+
+        var projectileDatas = DeserializeTextData<ProjectileData>(_projectileDataText);
+        for (int i = 0; i < projectileDatas.Count; i++)
+        {
+            ProjectileData data = projectileDatas[i];
+            _projectileDatas.Add(data.ProjectileUID, data);
         }
 
         for (int i = 0; i < _stageEnemySpriteBundles.Count; i++)
@@ -221,5 +237,33 @@ public class DataManager : MonoBehaviour, ISkillRepository, ISpriteAtlasReposito
             Debug.LogError($"Not Exist Enemy Data : {uid}");
             return default;
         }
+    }
+
+    public SpriteAtlas GetSpriteAtlas(string name)
+    {
+        if(_spriteAtlas.TryGetValue(name, out SpriteAtlas atlas))
+            return atlas;
+
+        Debug.LogError($"Not Exist Atlas By : {name}");
+        return default;
+    }
+
+    public SpriteAtlas GetProjectileAtlas()
+    {
+        return _projectileAtlas;
+    }
+
+    public ProjectileData GetProjecTileData(int uid)
+    {
+        if (_projectileDatas.TryGetValue(uid, out ProjectileData data))
+            return data;
+
+        Debug.LogError($"Not Exist Data By : {uid}");
+        return default;
+    }
+
+    public SummonObjectData GetSummonData(int uid)
+    {
+        throw new System.NotImplementedException();
     }
 }

@@ -93,16 +93,31 @@ public static class CreatureFinder
 
         for (int i = 0; i < count; i++)
         {
+            
             Vector2 targetPosition = _results[i].transform.position;
             Vector2 directionToEnemy = (targetPosition - position).normalized;
 
-            float dotProduct = Vector3.Dot(dir, directionToEnemy);
-            float angleToEnemy = Mathf.Acos(dotProduct) * Mathf.Rad2Deg;
+            float dot = Vector2.Dot(dir, directionToEnemy);
+            float cos = Mathf.Cos(angle * Mathf.Deg2Rad);
 
-            if (angleToEnemy < angle)
+            if (dot >= cos)
             {
                 enemies.Add(_results[i].GetComponent<IDamageable>());
             }
+
+            //float dotProduct = Vector3.Dot(dir, directionToEnemy);
+            //dotProduct = Mathf.Clamp(dotProduct, -1f, 1f);
+
+            //float angleToEnemy = Mathf.Acos(dotProduct) * Mathf.Rad2Deg;
+
+            //if (angleToEnemy < angle)
+            //{
+            //    enemies.Add(_results[i].GetComponent<IDamageable>());
+            //}
+            //else
+            //{
+            //    Debug.Log($"Except : {_results[i].name}, {targetPosition}, {directionToEnemy}, {dotProduct}, {angleToEnemy}");
+            //}
         }
         
         return enemies;

@@ -27,14 +27,11 @@ namespace Enemies
             if (enemy.IsBoss)
                 _activeBoss = enemy;
 
-            Debug.Log("Spawn");
             OnChangedActiveEnemyCount?.Invoke(GetActiveEnemyCount);
         }
         public void DeathEnemy(Enemy enemy)
         {
             _activeEnemies.Remove(enemy);
-
-            Debug.Log("Die");
 
             enemy.OnDeath -= DeathEnemy;
 

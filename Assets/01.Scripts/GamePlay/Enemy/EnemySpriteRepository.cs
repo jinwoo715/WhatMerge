@@ -49,5 +49,10 @@ namespace Enemies
                 return new List<Sprite>();
             }
         }
+
+        public Sprite GetSprite(string key)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

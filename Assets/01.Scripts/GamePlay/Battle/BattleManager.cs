@@ -9,14 +9,22 @@ namespace Combat
 {
     public class BattleManager : IAttackRegister
     {
+        private IVFXService _vfx;
         public event Action<Vector3, int> OnApplyDamage;
+
+        public void Init(IVFXService vfx)
+        {
+            _vfx = vfx;
+        }
 
         public void RegisterAttack(DamageContext damageContext)
         {
+            _vfx.ShowEffect(damageContext.VFX, damageContext.Target.Position, damageContext.Attacker.Position);
+
             int appliedDamage = CalculateFinalDamage(damageContext.Target, damageContext.AttackPayload);
 
+            if(appliedDamage == 0) return;
             damageContext.Target.TakeDamage(new AttackResultPayload(appliedDamage));
-
             OnApplyDamage?.Invoke(damageContext.Target.Position, appliedDamage);
         }
 

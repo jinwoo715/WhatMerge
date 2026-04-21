@@ -26,7 +26,6 @@ public enum ESkillSlot
 
 public interface ISkill
 {
-    ESkillSlot SkillSlot { get; }
     IEnumerator Excute();
     bool IsUseable(SkillTriggerContext context);
     void PayCost(ISkillResourceModifier skillResourceModifier);

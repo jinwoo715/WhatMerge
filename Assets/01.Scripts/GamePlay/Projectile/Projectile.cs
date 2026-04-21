@@ -4,27 +4,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-//HeroData
-
-
-//이동
-//종료
-//처리
-
-// 모든 스킬에 기본적으로 필요한 것
-
-// 이름, 설명, 계수, 
-//MeleeSkill 
-//ProjectileSkill
-//SummonSkill
-//BuffSkill
-
-
-public abstract class Projectile : MonoBehaviour, IPooledItem<Projectile>
+public class Projectile : MonoBehaviour, IPooledItem<Projectile>
 {
+    [SerializeField] private SpriteRenderer _renderer;
+
+    private float _lifeTime;
+
     private IMoveStretagy _moveStretagy;
-    private IHitEffect _excuteStrategy;
+    private ICollision _excuteStrategy;
 
     private ProjectileData _projectileData;
 
@@ -35,23 +22,33 @@ public abstract class Projectile : MonoBehaviour, IPooledItem<Projectile>
 
     public event Action<Projectile> OnReturn;
 
-    public void Init(IMoveStretagy moveStretagy, IHitEffect excuteStrategy, ProjectileData projectileData)
+    public void Init(IMoveStretagy moveStretagy, ICollision excuteStrategy, ProjectileData projectileData, Sprite sprite, ICreature target)
     {
         _moveStretagy = moveStretagy;
         _excuteStrategy = excuteStrategy;
         _projectileData = projectileData;
-    }
 
-    public void InitGuidedProjectile(ICreature target, float speed, float duration, int summonUID)
-    {
         _target = target;
-        _speed = speed;
-
         _moveStretagy.Init(this.transform, _target, _speed);
+
+        _renderer.sprite = sprite;
+
+        _lifeTime = 0;
     }
+
     private void Update()
     {
         if (IsActive == false) return;
+
+        if(_lifeTime >= 3.0)
+        {
+            OnReturn?.Invoke(this);
+            return;
+        }
+
+        _lifeTime += Time.deltaTime;
+
+        Debug.Log($"{_lifeTime}, {_target}");
 
         if (_target == null)
         {
@@ -163,7 +160,7 @@ public class Parabola : IMoveStretagy
 #endregion
 
 #region Excute
-public class ProjectileHit : IHitEffect
+public class ProjectileHit : ICollision
 {
     public void Init(ICreature target, int summonUid, int p1, int p2)
     {
@@ -177,7 +174,7 @@ public class ProjectileHit : IHitEffect
 }
 
 //때리고 뭔가 소환함
-public class SummonHit : IHitEffect
+public class SummonHit : ICollision
 {
     public void Init(ICreature target, int summonUid, int p1, int p2)
     {
@@ -190,13 +187,19 @@ public class SummonHit : IHitEffect
     }
 }
 #endregion
+
+public class ProjectileCollision
+{
+
+}
+
 public interface IMoveStretagy
 {
     void Init(Transform owner, ICreature target, float speed);
     void OnMove();
     bool IsArrived(Transform t, ICreature target);
 }
-public interface IHitEffect
+public interface ICollision
 {
     void Init(ICreature target, int summonUid, int p1, int p2);
     void OnHit();

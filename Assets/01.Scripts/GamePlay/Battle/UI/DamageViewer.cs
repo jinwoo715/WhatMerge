@@ -39,13 +39,18 @@ public class ObjectPool<T> where T : MonoBehaviour, IPooledItem<T>
 
         return item;
     }
+
+    public int index = 0;
     public T CreateItem()
     {
         T item = GameObject.Instantiate(_origin, _parent);
+        
         item.gameObject.SetActive(false);
         item.OnReturn += ReturnItem;
         OnCreateEvent?.Invoke(item);
 
+        item.gameObject.name = index.ToString();
+        index++;
         return item;
     }
     public void ReturnItem(T item)

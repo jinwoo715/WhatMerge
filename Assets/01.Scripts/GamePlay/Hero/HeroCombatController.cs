@@ -17,9 +17,9 @@ namespace Combat
         private int _currentHitCount;
         private float _currentMana;
 
-        private float MaxMana = 5;
+        private float MaxMana = 100;
 
-        private float _manaChargeSpeed = 1;
+        private float _manaChargeSpeed = 5;
         private float _attackDelay;
 
         private float _currentTime = 0;
@@ -33,15 +33,6 @@ namespace Combat
         public void InjectSkill(List<ISkill> skills)
         {
             _skill = skills;
-
-            Debug.Log(_skill);
-
-            for (int i = 0; i < _skill.Count; i++)
-            {
-                Debug.Log(_skill[i]);
-            }
-
-            _skill.Sort((a, b) => a.SkillSlot.CompareTo(b.SkillSlot));
         }
         public void SetAttackDelay(float attackSpeed)
         {
@@ -51,7 +42,7 @@ namespace Combat
 
         private void Update()
         {
-            _currentMana += Time.deltaTime * _manaChargeSpeed;
+            _currentMana += Time.deltaTime * 10 * _manaChargeSpeed;
 
             _currentMana = Mathf.Min(_currentMana, MaxMana);
 
