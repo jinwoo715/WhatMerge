@@ -19,7 +19,7 @@ namespace Combat
 
         private float MaxMana = 100;
 
-        private float _manaChargeSpeed = 5;
+        private float _manaChargeSpeed = 1;
         private float _attackDelay;
 
         private float _currentTime = 0;

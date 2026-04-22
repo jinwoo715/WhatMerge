@@ -9,19 +9,28 @@ public interface IProjectileProvider
     public void SpawnProjectile(ProjectilePayload data);
 }
 
+public interface ISummonProvider
+{
+    public void SpawnProjectile(ProjectilePayload data);
+}
+
 public class ProjectilePayload
 {
     public IAttackable Attacker;
-    public ICreature Target;
+    public IDamageable Target;
+    public IAttackRegister attackRegister;
+    public IAttackStatProvider attackStatProvider;
     public Vector3 SpawnPos;
     public int UID;
     public int HeroLevel;
+    public int Value;
+    public string VFX;
 } 
 
 public interface IDataProvider
 {
     ProjectileData GetProjecTileData(int uid);
-    SummonObjectData GetSummonData(int uid);
+    SummonData GetSummonData(int uid);
 }
 
 public class MoveStretagyFactory
@@ -53,18 +62,14 @@ public class ProjectileSpawner : MonoBehaviour, IProjectileProvider
 
     public void SpawnProjectile(ProjectilePayload data)
     {
-        Debug.Log("Spawn");
-
         Projectile obj = _projectilePool.GetItem(data.SpawnPos);
         ProjectileData projectileData = _dataProvider.GetProjecTileData(data.UID);
 
         var move = GetMoveStretagy(projectileData.MoveType);
-
+        
         var sp = GetProjectileSprite(projectileData, data.HeroLevel);
 
-        obj.Init(GetMoveStretagy(projectileData.MoveType), null, projectileData, sp, data.Target);
-
-        //obj.Init(move, );
+        obj.Init(data, move, new ArriveDestory(), new SingleDamageResolver(), projectileData, sp, data.Target);
     }
 
     public Sprite GetProjectileSprite(ProjectileData projectileData, int level)
@@ -82,6 +87,19 @@ public class ProjectileSpawner : MonoBehaviour, IProjectileProvider
         }
     }
 
+    public IProjectileDestroyer GetProjectileDestroyer(EProjectileTrigger projectileTrigger)
+    {
+        switch (projectileTrigger)
+        {
+            case EProjectileTrigger.Continue:
+                break;
+            case EProjectileTrigger.Arrived:
+                break;
+            case EProjectileTrigger.TimeOut:
+                break;
+        }
+    }
+
     public IMoveStretagy GetMoveStretagy(EProjectileMoveType type)
     {
         if(_moveStretagy.TryGetValue(type, out var value))
@@ -89,6 +107,8 @@ public class ProjectileSpawner : MonoBehaviour, IProjectileProvider
             if (value.Count > 0)
                 return value.Pop();
         }
+
+        Debug.Log(type);
 
         IMoveStretagy moveStretagy = default;
 

@@ -56,8 +56,6 @@ public class ConeMelee : AttackSkill
 
             int resultDamage = Mathf.RoundToInt(damage);
 
-            Debug.Log($"Count : {enemies.Count}");
-
             int FlatPenetration = (int)_statProvider.GetStat(EAttackStatType.FlatPentration);
             int PercentPenetration = (int)_statProvider.GetStat(EAttackStatType.PercentPenetration);
 
@@ -202,6 +200,10 @@ public class SingleProjectile : AttackSkill
         projectilePayload.SpawnPos = _owner.Position;
         projectilePayload.UID = Mathf.RoundToInt(_data.P1);
         projectilePayload.HeroLevel = _heroInfoProvider.Level;
+        projectilePayload.attackRegister = _attackRegister;
+        projectilePayload.attackStatProvider = _statProvider;
+        projectilePayload.Value = _data.ValueRate;
+        projectilePayload.VFX = _data.VFX;
 
         _projectileProvider.SpawnProjectile(projectilePayload);
 
@@ -215,6 +217,74 @@ public class SingleProjectile : AttackSkill
         base.BindService();
         BindOwnerHelpService(ref _heroInfoProvider);
         BindSkillHelpService(ref _projectileProvider);
+    }
+
+    public override bool HasValidTarget()
+    {
+        float radius = _statProvider.GetStat(EAttackStatType.Radius);
+
+        if (_target != null)
+        {
+            float dist = Vector2.Distance(_target.Position, _owner.Position);
+
+            if (dist > radius)
+                _target = null;
+        }
+
+        if (_target == null)
+        {
+            if (CreatureFinder.TryFindNearDamageable(_owner.Position, radius, out var target))
+            {
+                _target = target;
+                return true;
+            }
+            else
+                return false;
+        }
+
+        return true;
+    }
+}
+
+public class SingleSummon : AttackSkill
+{
+    private IDamageable _target;
+    private ISummonProvider _summonProvider;
+
+    public SingleSummon(ActiveSkillData data, ISkillContext context, ISkillContext owner) : base(data, context, owner) { }
+
+    public override IEnumerator Excute()
+    {
+        SetReadyMotion();
+
+        yield return new WaitForSeconds(_data.MotionDelay);
+
+        SetExcuteMotion();
+
+        ProjectilePayload projectilePayload = new ProjectilePayload();
+
+        projectilePayload.Attacker = _owner;
+        projectilePayload.Target = _target;
+        projectilePayload.SpawnPos = _target.Position;
+        projectilePayload.UID = Mathf.RoundToInt(_data.P1);
+        projectilePayload.HeroLevel = _heroInfoProvider.Level;
+        projectilePayload.attackRegister = _attackRegister;
+        projectilePayload.attackStatProvider = _statProvider;
+        projectilePayload.Value = _data.ValueRate;
+        projectilePayload.VFX = _data.VFX;
+
+        _summonProvider.SpawnProjectile(projectilePayload);
+
+        yield return new WaitForSeconds(_data.ResetDelay);
+    }
+
+    IHeroInfoProvider _heroInfoProvider;
+
+    public override void BindService()
+    {
+        base.BindService();
+        BindOwnerHelpService(ref _heroInfoProvider);
+        BindSkillHelpService(ref _summonProvider);
     }
 
     public override bool HasValidTarget()

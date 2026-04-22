@@ -68,10 +68,9 @@ public static class CreatureFinder
         target = nearestTarget;
         return true;
     }
-
     public static List<IHeros> TryFindNearHeors(Vector2 position, float radius)
     {
-        int count = Physics2D.OverlapCircleNonAlloc(position, radius, _results, LayerMask.GetMask(_enemyLayer));
+        int count = Physics2D.OverlapCircleNonAlloc(position, radius, _results, LayerMask.GetMask(_heroLayer));
 
         List<IHeros> heros = new List<IHeros>();
 
@@ -80,6 +79,22 @@ public static class CreatureFinder
             if (_results[i] is IHeros) continue;
 
             heros.Add(_results[i].GetComponent<IHeros>());
+        }
+
+        return heros;
+    }
+
+    public static List<IDamageable> TryFindNearEnemies(Vector2 position, float radius)
+    {
+        int count = Physics2D.OverlapCircleNonAlloc(position, radius, _results, LayerMask.GetMask(_enemyLayer));
+
+        List<IDamageable> heros = new List<IDamageable>();
+
+        for (int i = 0; i < count; i++)
+        {
+            if (_results[i] is IDamageable) continue;
+
+            heros.Add(_results[i].GetComponent<IDamageable>());
         }
 
         return heros;

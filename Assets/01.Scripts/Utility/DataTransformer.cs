@@ -29,7 +29,8 @@ public class DataTransformer : EditorWindow
         //ParseExcelDataToListJsonData<ActiveSkillData>("ActiveSkillData");
         //ParseExcelDataToListJsonData<ATKData>("ATKData");
         //ParseExcelDataToListJsonData<HeroData>("HeroData");
-        ParseExcelDataToListJsonData<ProjectileData>("ProjectileData");
+        //ParseExcelDataToListJsonData<ProjectileData>("ProjectileData");
+        ParseExcelDataToListJsonData<SummonData>("SummonData");
 
         Debug.Log("DataTransformer Completed");
     }

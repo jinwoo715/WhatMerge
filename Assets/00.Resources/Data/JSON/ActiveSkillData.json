@@ -88,5 +88,50 @@
     "P2": 0.0,
     "P3": 0.0,
     "VFX": "Sharp"
+  },
+  {
+    "UID": 1021,
+    "Name": "Attack",
+    "Description": "마법사 기본 공격",
+    "SkillType": "SingleMeleeAttack",
+    "TriggerType": 0,
+    "TriggerValue": 0.0,
+    "MotionDelay": 0.2,
+    "ResetDelay": 0.2,
+    "ValueRate": 100,
+    "P1": 0.0,
+    "P2": 0.0,
+    "P3": 0.0,
+    "VFX": "Sharp"
+  },
+  {
+    "UID": 1022,
+    "Name": "ShadowBeat",
+    "Description": "마법사가 암흑 구체를 발사하여 1명의 적에게 (550% / 800% / 1050%) 의 데미지를 입힌다. (MP120)",
+    "SkillType": "SingleProjectile",
+    "TriggerType": 1,
+    "TriggerValue": 3.0,
+    "MotionDelay": 0.2,
+    "ResetDelay": 0.2,
+    "ValueRate": 550,
+    "P1": 2.0,
+    "P2": 0.0,
+    "P3": 0.0,
+    "VFX": "Sharp"
+  },
+  {
+    "UID": 1023,
+    "Name": "Junakrion",
+    "Description": "마법사가 혼돈 마법을 시전하여 범위내 적에게 (250% / 300% / 350%) 의 데미지를 입힌다. (6타)",
+    "SkillType": "SingleSummon",
+    "TriggerType": 2,
+    "TriggerValue": 100.0,
+    "MotionDelay": 0.2,
+    "ResetDelay": 0.2,
+    "ValueRate": 250,
+    "P1": 1.0,
+    "P2": 0.0,
+    "P3": 0.0,
+    "VFX": "Sharp"
   }
 ]

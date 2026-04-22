@@ -1,0 +1,13 @@
+[
+  {
+    "UID": 1,
+    "Sprite": "JunaCrion",
+    "LifeTime": 0.3,
+    "PivotPosType": 0,
+    "MoveType": 0,
+    "HitType": 0,
+    "Delay": 0.15,
+    "Interval": 0.0,
+    "Radius": 0.5
+  }
+]

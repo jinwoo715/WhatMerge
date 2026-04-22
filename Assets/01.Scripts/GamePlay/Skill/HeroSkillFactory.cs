@@ -144,9 +144,12 @@ public class ProjectileData
     public int ProjectileUID;
     public string SpriteName;
     public EProjectileMoveType MoveType;
+    public EProjectileTrigger DestoryType;
+
     public float Speed;
     public bool LevelSwap;
 }
+
 
 public enum EEffectType
 {
@@ -159,31 +162,5 @@ public enum EProjectileMoveType
     Line,
     Homing,
     Parabola
-}
-
-public class SummonSkillData : SkillDataBase
-{
-    public ESummonSkillType SkillType;
-    public int SummonObjectUID;
-}
-
-public enum ESummonSkillType
-{
-    SingleSummon,
-    MultiSummon,
-    ChainSummon,
-}
-
-public class SummonObjectData
-{
-    public int ObjectUID;
-    public string SpriteName;
-    public ESummonObjectType ObjectType;
-}
-public enum ESummonObjectType
-{
-    Interval,
-    Delay,
-    Moving
 }
 

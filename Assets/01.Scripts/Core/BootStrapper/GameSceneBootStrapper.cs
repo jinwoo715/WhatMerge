@@ -35,6 +35,7 @@ namespace Core.BootStrapper
         [SerializeField] private VFXSpawner _vfxSpawner;
         [SerializeField] private EnemySpawner _enemySpawner;
         [SerializeField] private ProjectileSpawner _projectileSpawner;
+        [SerializeField] private SummonSpawner _summonSpawner;
 
         private EnemyTracker _enemyTracker = new EnemyTracker();
 
@@ -105,12 +106,14 @@ namespace Core.BootStrapper
             var data = GameManager.Data;
 
             _projectileSpawner.Init(data, _projectileRepository);
+            _summonSpawner.Init(_projectileRepository, data);
         }
         private void Bind()
         {
             _skillContext.Register<IFieldEnemyService>(_enemyTracker);
             _skillContext.Register<IAttackRegister>(_battleManager);
             _skillContext.Register<IProjectileProvider>(_projectileSpawner);
+            _skillContext.Register<ISummonProvider>(_summonSpawner);
 
             _battleManager.OnApplyDamage += _damageViewer.ShowDamageText;
 

@@ -4,6 +4,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+// Projectile
+
+// 이동, 생명주기, Effect
+
+
 public class Projectile : MonoBehaviour, IPooledItem<Projectile>
 {
     [SerializeField] private SpriteRenderer _renderer;
@@ -11,9 +17,11 @@ public class Projectile : MonoBehaviour, IPooledItem<Projectile>
     private float _lifeTime;
 
     private IMoveStretagy _moveStretagy;
-    private ICollision _excuteStrategy;
+    private IProjectileDestroyer _destroyer;
+    private IProjectileEffectResolver _effectResolver;
 
     private ProjectileData _projectileData;
+    private ProjectilePayload _data;
 
     private ICreature _target;
     private float _speed;
@@ -22,14 +30,19 @@ public class Projectile : MonoBehaviour, IPooledItem<Projectile>
 
     public event Action<Projectile> OnReturn;
 
-    public void Init(IMoveStretagy moveStretagy, ICollision excuteStrategy, ProjectileData projectileData, Sprite sprite, ICreature target)
+    public void Init(ProjectilePayload data, IMoveStretagy moveStretagy, IProjectileDestroyer collision, IProjectileEffectResolver effectResolver, ProjectileData projectileData, Sprite sprite, ICreature target)
     {
+        _data = data;
         _moveStretagy = moveStretagy;
-        _excuteStrategy = excuteStrategy;
+        _destroyer = collision;
+        _effectResolver = effectResolver;
         _projectileData = projectileData;
 
+        _destroyer.OnDestory += Return;
+        _effectResolver.OnHitResolver += ExcuteEffect;
+
         _target = target;
-        _moveStretagy.Init(this.transform, _target, _speed);
+        _moveStretagy.Init(this.transform, _target, projectileData.Speed);
 
         _renderer.sprite = sprite;
 
@@ -42,13 +55,13 @@ public class Projectile : MonoBehaviour, IPooledItem<Projectile>
 
         if(_lifeTime >= 3.0)
         {
+            _destroyer.SetTrigget(EProjectileTrigger.TimeOut);
+            _effectResolver.SetTrigget(EProjectileTrigger.TimeOut);
             OnReturn?.Invoke(this);
             return;
         }
 
         _lifeTime += Time.deltaTime;
-
-        Debug.Log($"{_lifeTime}, {_target}");
 
         if (_target == null)
         {
@@ -58,11 +71,25 @@ public class Projectile : MonoBehaviour, IPooledItem<Projectile>
 
         _moveStretagy.OnMove();
 
+        _destroyer.SetTrigget(EProjectileTrigger.Continue);
+        _effectResolver.SetTrigget(EProjectileTrigger.Continue);
+
         if (_moveStretagy.IsArrived(this.transform, _target))
         {
-            _excuteStrategy.OnHit();
+            _effectResolver.SetTrigget(EProjectileTrigger.Arrived);
+            _destroyer.SetTrigget(EProjectileTrigger.Arrived);
         }
     }
+
+    public void Return()
+    {
+        OnReturn?.Invoke(this);
+    }
+    public void ExcuteEffect()
+    {
+        _effectResolver.Resolve(_data);
+    }
+
     public void OnDespawn()
     {
         IsActive = false;
@@ -159,38 +186,22 @@ public class Parabola : IMoveStretagy
 }
 #endregion
 
-#region Excute
-public class ProjectileHit : ICollision
+public interface ICollider
 {
-    public void Init(ICreature target, int summonUid, int p1, int p2)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void OnHit()
-    {
-        throw new NotImplementedException();
-    }
+    event Action<IDamageable> OnColliderEnter;
+    void CheckCollider();
 }
 
-//때리고 뭔가 소환함
-public class SummonHit : ICollision
+public class ArriveDestory : IProjectileDestroyer
 {
-    public void Init(ICreature target, int summonUid, int p1, int p2)
+    public event Action OnDestory;
+    public void SetTrigget(EProjectileTrigger projectileTrigger)
     {
-        throw new NotImplementedException();
+        if(projectileTrigger == EProjectileTrigger.Arrived)
+        {
+            OnDestory?.Invoke();
+        }
     }
-
-    public void OnHit()
-    {
-        throw new NotImplementedException();
-    }
-}
-#endregion
-
-public class ProjectileCollision
-{
-
 }
 
 public interface IMoveStretagy
@@ -199,14 +210,56 @@ public interface IMoveStretagy
     void OnMove();
     bool IsArrived(Transform t, ICreature target);
 }
-public interface ICollision
+public interface IProjectileDestroyer
 {
-    void Init(ICreature target, int summonUid, int p1, int p2);
-    void OnHit();
+    event Action OnDestory;
+    void SetTrigget(EProjectileTrigger projectileTrigger);
+}
+public enum EProjectileTrigger
+{
+    Continue,
+    Arrived,
+    TimeOut,
 }
 
-public interface IHitResolver
+
+//데미지 주기, 소환물 소환
+
+//데미지는 단일 or 범위
+public interface IProjectileEffectResolver
 {
-    void Init(ICreature target);
-    void Resolve();
+    public event Action OnHitResolver;
+    void SetTrigget(EProjectileTrigger projectileTrigger);
+    public void Resolve(ProjectilePayload data);
 }
+
+public class SingleDamageResolver : IProjectileEffectResolver
+{
+    public event Action OnHitResolver;
+
+    public void Resolve(ProjectilePayload data)
+    {
+        Debug.Log("Resolve");
+        float dmgMultiple = data.Value * 0.01f;
+        float damage = data.attackStatProvider.GetStat(EAttackStatType.Damage) * dmgMultiple;
+
+        int resultDamage = Mathf.RoundToInt(damage);
+
+        int FlatPenetration = (int)data.attackStatProvider.GetStat(EAttackStatType.FlatPentration);
+        int PercentPenetration = (int)data.attackStatProvider.GetStat(EAttackStatType.PercentPenetration);
+
+        AttackPayload ap = new AttackPayload(resultDamage, FlatPenetration, PercentPenetration);
+        DamageContext dc = new DamageContext(ap, data.Target, data.VFX, data.Attacker);
+
+        data.attackRegister.RegisterAttack(dc);
+    }
+
+    public void SetTrigget(EProjectileTrigger projectileTrigger)
+    {
+        if (projectileTrigger == EProjectileTrigger.Arrived)
+        {
+            OnHitResolver?.Invoke();
+        }
+    }
+}
+

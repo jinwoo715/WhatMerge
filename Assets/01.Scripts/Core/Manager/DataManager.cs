@@ -42,6 +42,7 @@ public class DataManager : MonoBehaviour, ISkillRepository, ISpriteAtlasReposito
     public TextAsset _atkDataText;
     public TextAsset _heroDataText;
     public TextAsset _projectileDataText;
+    public TextAsset _summonDataText;
 
     [Header("Config")]
     public GameConfig _gameConfig;
@@ -54,6 +55,7 @@ public class DataManager : MonoBehaviour, ISkillRepository, ISpriteAtlasReposito
     private Dictionary<int, ActiveSkillData> _activeSkillDatas = new Dictionary<int, ActiveSkillData>();
     private Dictionary<int, ATKData> _atkDatas = new Dictionary<int, ATKData>();
     private Dictionary<int, ProjectileData> _projectileDatas = new Dictionary<int, ProjectileData>();
+    private Dictionary<int, SummonData> _summonDatas = new Dictionary<int, SummonData>();
 
     private Dictionary<string, SpriteAtlas> _spriteAtlas = new Dictionary<string, SpriteAtlas>();
 
@@ -122,6 +124,13 @@ public class DataManager : MonoBehaviour, ISkillRepository, ISpriteAtlasReposito
         {
             ProjectileData data = projectileDatas[i];
             _projectileDatas.Add(data.ProjectileUID, data);
+        }
+
+        var summonDatas = DeserializeTextData<SummonData>(_summonDataText);
+        for (int i = 0; i < summonDatas.Count; i++)
+        {
+            SummonData data = summonDatas[i];
+            _summonDatas.Add(data.UID, data);
         }
 
         for (int i = 0; i < _stageEnemySpriteBundles.Count; i++)
@@ -262,8 +271,12 @@ public class DataManager : MonoBehaviour, ISkillRepository, ISpriteAtlasReposito
         return default;
     }
 
-    public SummonObjectData GetSummonData(int uid)
+    public SummonData GetSummonData(int uid)
     {
-        throw new System.NotImplementedException();
+        if (_summonDatas.TryGetValue(uid, out SummonData data))
+            return data;
+
+        Debug.LogError($"Not Exist Data By : {uid}");
+        return default;
     }
 }

@@ -19,6 +19,8 @@ namespace Combat
 
         public void RegisterAttack(DamageContext damageContext)
         {
+            Debug.Log("Attack");
+
             _vfx.ShowEffect(damageContext.VFX, damageContext.Target.Position, damageContext.Attacker.Position);
 
             int appliedDamage = CalculateFinalDamage(damageContext.Target, damageContext.AttackPayload);
