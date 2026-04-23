@@ -19,6 +19,7 @@ namespace Core.BootStrapper
         [SerializeField] private GameSceneManager _sceneManager;
         [SerializeField] private HeroManager _heroManager;
         [SerializeField] private StageManager _stage;
+        [SerializeField] private BuffManager _buff;
         private GameEconomyManager _economy = new GameEconomyManager();
 
         [Header("Controller")]
@@ -107,6 +108,7 @@ namespace Core.BootStrapper
 
             _projectileSpawner.Init(data, _projectileRepository);
             _summonSpawner.Init(_projectileRepository, data);
+            _buff.Init(data);
         }
         private void Bind()
         {
@@ -114,6 +116,7 @@ namespace Core.BootStrapper
             _skillContext.Register<IAttackRegister>(_battleManager);
             _skillContext.Register<IProjectileProvider>(_projectileSpawner);
             _skillContext.Register<ISummonProvider>(_summonSpawner);
+            _skillContext.Register<IBuffRegister>(_buff);
 
             _battleManager.OnApplyDamage += _damageViewer.ShowDamageText;
 

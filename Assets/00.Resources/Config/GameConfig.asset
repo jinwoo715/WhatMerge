@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: GameConfig
   m_EditorClassIdentifier: 
   StageConfig:
-    WaveTime: 20
-    BossWaveTime: 10
+    WaveTime: 2000
+    BossWaveTime: 1000
     BossWavePivot: 10
     MaxEnemy: 100
     StartMoney: 10
-    StartWaveIndex: 1
+    StartWaveIndex: 10
   GameEconomy:
     StartMoney: 100
     StartSpawnCost: 30

@@ -32,7 +32,6 @@ public class HeroSkillFactory : ISkillCreater
         }
 
         ActiveSkillData data = _skillRepository.GetActiveSkillData(uid);
-        Debug.Log(data.Name);
         Type type = Type.GetType(data.SkillType);
 
         Debug.Log(type);
@@ -119,35 +118,25 @@ public enum EMeleeAttackType
     ConeAttack
 }
 
-public class ProjectileSkillData : SkillDataBase
-{
-    public EProjectileAttackType SkillType;
-    public int ProjectileUID;
-}
 
-public class EffectData
-{
-    public int EffectUID;
-    public EEffectType EffectType;
-    public int EffectRefID;
-}
-
-public enum EProjectileAttackType
-{
-    SingleShoot,
-    MultiShoot,
-    ChainShoot,
-}
 
 public class ProjectileData
 {
     public int ProjectileUID;
     public string SpriteName;
     public EProjectileMoveType MoveType;
-    public EProjectileTrigger DestoryType;
-
     public float Speed;
+    public float LifeTime;
     public bool LevelSwap;
+    public EProjectileAttackType TargetType;
+    public EProjectileTrigger DestoryType;
+}
+
+public enum EProjectileAttackType
+{
+    Single,
+    Multiple,
+    Summon
 }
 
 

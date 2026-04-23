@@ -6,8 +6,21 @@
     "PivotPosType": 0,
     "MoveType": 0,
     "HitType": 0,
+    "SummonAttackTarget": 1,
     "Delay": 0.15,
     "Interval": 0.0,
-    "Radius": 0.5
+    "Radius": 1.0
+  },
+  {
+    "UID": 2,
+    "Sprite": "Barius",
+    "LifeTime": 0.6,
+    "PivotPosType": 3,
+    "MoveType": 2,
+    "HitType": 0,
+    "SummonAttackTarget": 0,
+    "Delay": 0.6,
+    "Interval": 0.0,
+    "Radius": 0.0
   }
 ]

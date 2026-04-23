@@ -1,0 +1,6 @@
+ProjectileUID,SpriteName,MoveType,Speed,LifeTime,LevelSwap,DestoryType
+1,Spear,Homing,6,3,TRUE,Arrived
+2,ShadowBeat,Homing,5,3,FALSE,Arrived
+3,Bomb,Parabola,5,3,FALSE,Arrived
+4,FlameBomb,Parabola,5,3,FALSE,Arrived
+5,TimeBomb,Parabola,5,3,FALSE,TimeOut

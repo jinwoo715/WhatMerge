@@ -8,3 +8,9 @@ SkillUID,Name,Description,SkillType,ExcuteTrigger,TriggerValue,MotionDelay,Reset
 1021,Attack,마법사 기본 공격,SingleMeleeAttack,None,0,0.2,0.2,100,0,0,0,Sharp
 1022,ShadowBeat,마법사가 암흑 구체를 발사하여 1명의 적에게 (550% / 800% / 1050%) 의 데미지를 입힌다. (MP120),SingleProjectile,HitCount,3,0.2,0.2,550,2,0,0,Sharp
 1023,Junakrion,마법사가 혼돈 마법을 시전하여 범위내 적에게 (250% / 300% / 350%) 의 데미지를 입힌다. (6타),SingleSummon,Mana,100,0.2,0.2,250,1,0,0,Sharp
+1031,Attack,성직자 기본 공격,SingleMeleeAttack,None,0,0.2,0.2,100,0,0,0,Sharp
+1032,Varius,성직자가 성검 바리우스를 1명의 적위에 소환해 300% 데미지를 입힌다.,SingleSummon,HitCount,3,0.2,0.2,300,2,0,0,Sharp
+1033,Blessing,범위2 내에서 있는 모든 아군의 공격력과 공격속도를 3초간 10% 증가시킨다.,Buff,Mana,100,0.2,0.2,10,0,0,0,Sharp
+1041,Attack,폭탄병 기본 공격,SingleProjectile,None,0,0.2,0.2,100,0,0,0,Sharp
+1042,FlameBullet,폭탄병이 전방에 화염탄을 투척하여 범위내 적에게 200% 데미지를 입히고 피격당한 적은 30% 확률로 화상 상태를 입는다.,SingleProjectile,HitCount,3,0.2,0.2,200,0,0,0,Sharp
+1043,TimeBomb,폭탄병이 1명의 적에게 시한폭탄을 던진다. 해당 폭탄은 3초뒤에 폭발하며 폭발시 440% 데미지를 입힌다.,SingleProjectile,Mana,100,0.2,0.2,440,0,0,0,Sharp

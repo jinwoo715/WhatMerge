@@ -49,7 +49,7 @@ public class ConeMelee : AttackSkill
 
             var enemies = CreatureFinder.FindNearEnemiesInConeArea(_ownerTransform.position, radius, dir, _coneAngle);
 
-            _attackRegister.RegisterAttack(new DamageContext(_target,_data.VFX, _owner));
+            _attackRegister.RegisterAttack(new DamageContext(_data.VFX, _target.Position, _owner));
 
             float dmgMultiple = _data.ValueRate * 0.01f;
             float damage = _statProvider.GetStat(EAttackStatType.Damage) * dmgMultiple;
@@ -202,7 +202,7 @@ public class SingleProjectile : AttackSkill
         projectilePayload.HeroLevel = _heroInfoProvider.Level;
         projectilePayload.attackRegister = _attackRegister;
         projectilePayload.attackStatProvider = _statProvider;
-        projectilePayload.Value = _data.ValueRate;
+        projectilePayload.DMGValue = _data.ValueRate;
         projectilePayload.VFX = _data.VFX;
 
         _projectileProvider.SpawnProjectile(projectilePayload);
@@ -270,7 +270,7 @@ public class SingleSummon : AttackSkill
         projectilePayload.HeroLevel = _heroInfoProvider.Level;
         projectilePayload.attackRegister = _attackRegister;
         projectilePayload.attackStatProvider = _statProvider;
-        projectilePayload.Value = _data.ValueRate;
+        projectilePayload.DMGValue = _data.ValueRate;
         projectilePayload.VFX = _data.VFX;
 
         _summonProvider.SpawnProjectile(projectilePayload);

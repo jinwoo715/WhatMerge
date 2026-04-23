@@ -90,9 +90,9 @@
     "ATKUID": 8,
     "AS": 1.0,
     "Radius": 2.0,
-    "BaseAttack": 22,
-    "FirstSkill": 23,
-    "SecondSkill": 24,
+    "BaseAttack": 1041,
+    "FirstSkill": 1042,
+    "SecondSkill": 1043,
     "SpecialSkill": 0
   },
   {
@@ -114,9 +114,9 @@
     "ATKUID": 10,
     "AS": 1.0,
     "Radius": 2.0,
-    "BaseAttack": 28,
-    "FirstSkill": 29,
-    "SecondSkill": 30,
+    "BaseAttack": 1031,
+    "FirstSkill": 1032,
+    "SecondSkill": 1033,
     "SpecialSkill": 0
   }
 ]

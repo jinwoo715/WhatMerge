@@ -26,23 +26,24 @@ public class SummonSpawner : MonoBehaviour, ISummonProvider
             case ESommonPosType.Center:
                 return pivot;
             case ESommonPosType.Left:
-                return pivot + Vector3.left;
+                return pivot + Vector3.left * 0.5f;
             case ESommonPosType.Right:
-                return pivot + Vector3.right;
+                return pivot + Vector3.right * 0.5f;
             case ESommonPosType.Upper:
-                return pivot + Vector3.up;
+                return pivot + Vector3.up * 0.5f;
             case ESommonPosType.Bottom:
-                return pivot + Vector3.down;
+                return pivot + Vector3.down * 0.5f;
         }
 
         return Vector3.zero;
     }
-
     public void SpawnProjectile(ProjectilePayload data)
     {
         var summonData = _dataProvider.GetSummonData(data.UID);
 
         Vector3 pos = GetSpawnPosition(data.SpawnPos, summonData.PivotPosType);
+
+        Debug.Log($"{data.SpawnPos}, {pos}");
 
         var item = _summonPool.GetItem(pos);
 
@@ -52,9 +53,22 @@ public class SummonSpawner : MonoBehaviour, ISummonProvider
 
         var effect = GetSummonEffect(summonData.HitType);
 
-        var hit = new MultiAttackEffect();
+        var hit = GetHitEffect(summonData.SummonAttackTarget);
 
         item.Init(data, summonData, sprite, move, effect, hit);
+    }
+
+    public IHitEffect GetHitEffect(ESummonAttackTarget attackTarget)
+    {
+        switch (attackTarget)
+        {
+            case ESummonAttackTarget.Single:
+                return new SingleAttackEffect();
+            case ESummonAttackTarget.Multi:
+                return new MultiAttackEffect();
+            default:
+                return default;
+        }
     }
 
     public ISummonEffect GetSummonEffect(ESummonExcuteType summonEffectType)
@@ -73,7 +87,6 @@ public class SummonSpawner : MonoBehaviour, ISummonProvider
 
         return summonEffect;
     }
-
     public ISummonMove GetMoveStrategy(ESummonMoveType moveType)
     {
         ISummonMove moveStrategy = default;
@@ -84,6 +97,9 @@ public class SummonSpawner : MonoBehaviour, ISummonProvider
                 break;
             case ESummonMoveType.Follow:
                 moveStrategy = new FollowSummon();
+                break;
+            case ESummonMoveType.Approach:
+                moveStrategy = new ApprochSummon();
                 break;
         }
 

@@ -23,7 +23,7 @@ public class ProjectilePayload
     public Vector3 SpawnPos;
     public int UID;
     public int HeroLevel;
-    public int Value;
+    public int DMGValue;
     public string VFX;
 } 
 
@@ -31,6 +31,7 @@ public interface IDataProvider
 {
     ProjectileData GetProjecTileData(int uid);
     SummonData GetSummonData(int uid);
+    List<BuffData> GetBuffDatas(int uid);
 }
 
 public class MoveStretagyFactory
@@ -69,7 +70,13 @@ public class ProjectileSpawner : MonoBehaviour, IProjectileProvider
         
         var sp = GetProjectileSprite(projectileData, data.HeroLevel);
 
-        obj.Init(data, move, new ArriveDestory(), new SingleDamageResolver(), projectileData, sp, data.Target);
+        var destroyer = new ProjectileDestoryer();
+        destroyer.Init(projectileData.DestoryType, 0);
+
+        var resolver = GetProjectileEffectResolver(projectileData.TargetType);
+        resolver.Init(projectileData.DestoryType);
+
+        obj.Init(data, move, destroyer, resolver, projectileData, sp, data.Target);
     }
 
     public Sprite GetProjectileSprite(ProjectileData projectileData, int level)
@@ -86,20 +93,6 @@ public class ProjectileSpawner : MonoBehaviour, IProjectileProvider
             return sp;
         }
     }
-
-    public IProjectileDestroyer GetProjectileDestroyer(EProjectileTrigger projectileTrigger)
-    {
-        switch (projectileTrigger)
-        {
-            case EProjectileTrigger.Continue:
-                break;
-            case EProjectileTrigger.Arrived:
-                break;
-            case EProjectileTrigger.TimeOut:
-                break;
-        }
-    }
-
     public IMoveStretagy GetMoveStretagy(EProjectileMoveType type)
     {
         if(_moveStretagy.TryGetValue(type, out var value))
@@ -126,5 +119,17 @@ public class ProjectileSpawner : MonoBehaviour, IProjectileProvider
         }
 
         return moveStretagy;
+    }
+    public IProjectileEffectResolver GetProjectileEffectResolver(EProjectileAttackType type)
+    {
+        switch (type)
+        {
+            case EProjectileAttackType.Single:
+                return new SingleDamageResolver();
+            case EProjectileAttackType.Multiple:
+                return new AreaDamageResolver();
+            default:
+                return default;
+        }
     }
 }

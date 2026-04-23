@@ -1,0 +1,48 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class BuffPayload
+{
+    public IStatModifier StatModifier { get; private set; }
+    public BuffData BuffData { get; private set; }
+
+    public BuffPayload(IStatModifier statModifier, BuffData buffData)
+    {
+        StatModifier = statModifier;
+        BuffData = buffData;
+    }
+}
+
+public class BuffEquipment
+{
+    public Action<BuffEquipment> OnEndBuff;
+
+    public IEnumerator CoApplyBuff(BuffPayload buffPayload)
+    {
+        BuffData data = buffPayload.BuffData;
+
+        buffPayload.StatModifier.ModifyStat(data.StatType, data.BuffValue);
+        yield return new WaitForSeconds(data.BuffTime);
+
+        buffPayload.StatModifier.ModifyStat(data.StatType, -data.BuffValue);
+        OnEndBuff?.Invoke(this);
+    }
+
+    //private void ApplyBuff(List<BuffData> buffDatas, IStatModifier target)
+    //{
+    //    for (int i = 0; i < buffDatas.Count; i++)
+    //    {
+    //        target.ModifyStat(buffDatas[i].BuffValue);
+    //    }
+    //}
+
+    //private void RevertBuff(List<BuffData> buffDatas, IStatModifier target)
+    //{
+    //    for (int i = 0; i < buffDatas.Count; i++)
+    //    {
+    //        target.ModifyStat(-buffDatas[i].BuffValue);
+    //    }
+    //}
+}

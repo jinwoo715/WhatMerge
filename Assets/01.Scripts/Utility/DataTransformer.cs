@@ -30,7 +30,9 @@ public class DataTransformer : EditorWindow
         //ParseExcelDataToListJsonData<ATKData>("ATKData");
         //ParseExcelDataToListJsonData<HeroData>("HeroData");
         //ParseExcelDataToListJsonData<ProjectileData>("ProjectileData");
-        ParseExcelDataToListJsonData<SummonData>("SummonData");
+        //ParseExcelDataToListJsonData<SummonData>("SummonData");
+        ParseExcelDataToListJsonData<BuffData>("BuffData");
+        ParseExcelDataToListJsonData<BuffDataBundle>("BuffDataBundle");
 
         Debug.Log("DataTransformer Completed");
     }

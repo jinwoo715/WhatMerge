@@ -34,13 +34,15 @@ namespace Combat
         public IDamageable Target;
         public AttackPayload AttackPayload;
         public string VFX;
+        public Vector3 VFXPosition;
 
-        public DamageContext(IDamageable target, string vfx, IAttackable attacker)
+        public DamageContext(string vfx, Vector3 vfxPosition, IAttackable attacker)
         {
             AttackPayload = new AttackPayload(0,0,0);
-            Target = target;
+            Target = null;
             VFX = vfx;
             Attacker = attacker;
+            VFXPosition = vfxPosition;
         }
 
         public DamageContext(AttackPayload attackPayload, IDamageable target, string vfx, IAttackable attacker)
@@ -49,6 +51,7 @@ namespace Combat
             Target = target;
             VFX = vfx;
             Attacker = attacker;
+            VFXPosition = target.Position;
         }
     }
 }

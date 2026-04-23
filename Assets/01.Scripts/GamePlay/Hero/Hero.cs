@@ -14,18 +14,17 @@ public interface IHeroInfoProvider
     public string Name { get; }
     public int Level { get; }
 }
-public interface IHeroStatProvider
-{
-    public int Damage { get; }
-    public int FlatPenetration { get; }
-    public float PercentPenetration { get; }
-    public float Radius { get; }
-}
 
 public interface IAttackStatProvider
 {
     float GetStat(EAttackStatType attackStatType);
 }
+
+public interface IStatModifier
+{
+    void ModifyStat(EHeroStatType stat, float value);
+}
+
 public enum EAttackStatType
 {
     Damage,
@@ -36,7 +35,7 @@ public enum EAttackStatType
 }
 
 
-public interface IHeros : ICreature
+public interface IHeros : ICreature, IStatModifier
 {
     IHeroInfoProvider Provider { get; }
     IAttackStatProvider StatProvider { get; }
@@ -44,7 +43,7 @@ public interface IHeros : ICreature
 
 namespace Entity
 {
-    public class Hero : MonoBehaviour, ITileObject, IHeroInfoProvider, IAttackStatProvider, IAttackable
+    public class Hero : MonoBehaviour, ITileObject, IHeroInfoProvider, IAttackStatProvider, IAttackable, IHeros
     {
         [SerializeField] private HeroCombatController _heroCombat;
         [SerializeField] private HeroSpriteController _spriteController;
@@ -69,6 +68,10 @@ namespace Entity
         public bool IsActive => true;
 
         public Vector3 Position => this.transform.position;
+
+        public IHeroInfoProvider Provider => throw new NotImplementedException();
+
+        public IAttackStatProvider StatProvider => throw new NotImplementedException();
 
         public void SpawnInit()
         {
@@ -145,6 +148,11 @@ namespace Entity
         public DamageContext CreateDamageContext()
         {
             throw new NotImplementedException();
+        }
+
+        public void ModifyStat(EHeroStatType stat, float value)
+        {
+            Debug.Log($"Apply Stat : {stat}, {value}");
         }
     }
 }

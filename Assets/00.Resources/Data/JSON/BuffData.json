@@ -1,0 +1,14 @@
+[
+  {
+    "StatType": 0,
+    "BuffValue": 10.0,
+    "BuffTime": 3.0,
+    "UID": 1
+  },
+  {
+    "StatType": 1,
+    "BuffValue": 10.0,
+    "BuffTime": 3.0,
+    "UID": 2
+  }
+]

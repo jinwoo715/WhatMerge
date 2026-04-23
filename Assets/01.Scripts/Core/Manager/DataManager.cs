@@ -43,6 +43,8 @@ public class DataManager : MonoBehaviour, ISkillRepository, ISpriteAtlasReposito
     public TextAsset _heroDataText;
     public TextAsset _projectileDataText;
     public TextAsset _summonDataText;
+    public TextAsset _buffDataBundleText;
+    public TextAsset _buffDataText;
 
     [Header("Config")]
     public GameConfig _gameConfig;
@@ -56,6 +58,9 @@ public class DataManager : MonoBehaviour, ISkillRepository, ISpriteAtlasReposito
     private Dictionary<int, ATKData> _atkDatas = new Dictionary<int, ATKData>();
     private Dictionary<int, ProjectileData> _projectileDatas = new Dictionary<int, ProjectileData>();
     private Dictionary<int, SummonData> _summonDatas = new Dictionary<int, SummonData>();
+
+    private Dictionary<int, BuffDataBundle> _buffDataBundle = new Dictionary<int, BuffDataBundle>();
+    private Dictionary<int, BuffData> _buffData = new Dictionary<int, BuffData>();
 
     private Dictionary<string, SpriteAtlas> _spriteAtlas = new Dictionary<string, SpriteAtlas>();
 
@@ -133,10 +138,23 @@ public class DataManager : MonoBehaviour, ISkillRepository, ISpriteAtlasReposito
             _summonDatas.Add(data.UID, data);
         }
 
+        InitDictionary(_buffDataBundle, _buffDataBundleText);
+        InitDictionary(_buffData, _buffDataText);
+
         for (int i = 0; i < _stageEnemySpriteBundles.Count; i++)
         {
             StageEnemySpriteBundle bundle = _stageEnemySpriteBundles[i];
             _EnemyAtlasByStageUID.Add(bundle.StageUID, bundle.SpriteAtlas);
+        }
+    }
+
+    private void InitDictionary<T>(Dictionary<int, T> dic, TextAsset text) where T : Data
+    {
+        var datas = DeserializeTextData<T>(text);
+        for (int i = 0; i < datas.Count; i++)
+        {
+            T data = datas[i];
+            dic.Add(data.UID, data);
         }
     }
 
@@ -278,5 +296,23 @@ public class DataManager : MonoBehaviour, ISkillRepository, ISpriteAtlasReposito
 
         Debug.LogError($"Not Exist Data By : {uid}");
         return default;
+    }
+
+    public List<BuffData> GetBuffDatas(int uid)
+    {
+        var bundleData = _buffDataBundle[uid];
+
+        List<BuffData> datas = new List<BuffData>();
+
+        if (bundleData.FirstBuff != 0)
+            datas.Add(_buffData[bundleData.FirstBuff]);
+
+        if (bundleData.SecondBuff != 0)
+            datas.Add(_buffData[bundleData.SecondBuff]);
+
+        if (bundleData.ThirdBuff != 0)
+            datas.Add(_buffData[bundleData.ThirdBuff]);
+
+        return datas;
     }
 }

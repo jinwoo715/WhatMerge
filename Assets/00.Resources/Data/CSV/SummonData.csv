@@ -1,2 +1,3 @@
 UID,Sprite,LifeTime,PivotPosType,MoveType,HitType,Delay,Interval,Radius
 1,JunaCrion,0.3,Center,Fix,Once,0.15,0,1
+2,Varius,0.3,Upper,Approach,Once,0.3,0,0

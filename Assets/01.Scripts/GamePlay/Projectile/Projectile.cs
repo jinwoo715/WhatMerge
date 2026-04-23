@@ -24,7 +24,8 @@ public class Projectile : MonoBehaviour, IPooledItem<Projectile>
     private ProjectilePayload _data;
 
     private ICreature _target;
-    private float _speed;
+
+    private bool _isArrived;
 
     public bool IsActive { get; private set; }
 
@@ -46,6 +47,8 @@ public class Projectile : MonoBehaviour, IPooledItem<Projectile>
 
         _renderer.sprite = sprite;
 
+        _isArrived = false;
+
         _lifeTime = 0;
     }
 
@@ -53,31 +56,33 @@ public class Projectile : MonoBehaviour, IPooledItem<Projectile>
     {
         if (IsActive == false) return;
 
-        if(_lifeTime >= 3.0)
+        if(_lifeTime >= _projectileData.LifeTime)
         {
             _destroyer.SetTrigget(EProjectileTrigger.TimeOut);
             _effectResolver.SetTrigget(EProjectileTrigger.TimeOut);
-            OnReturn?.Invoke(this);
             return;
         }
 
         _lifeTime += Time.deltaTime;
 
-        if (_target == null)
+        if(_target == null && _moveStretagy is HomingMove)
         {
-            OnReturn?.Invoke(this);
+            Return();
             return;
         }
 
-        _moveStretagy.OnMove();
-
         _destroyer.SetTrigget(EProjectileTrigger.Continue);
         _effectResolver.SetTrigget(EProjectileTrigger.Continue);
+
+        _moveStretagy.OnMove();
+
+        if (_isArrived) return;
 
         if (_moveStretagy.IsArrived(this.transform, _target))
         {
             _effectResolver.SetTrigget(EProjectileTrigger.Arrived);
             _destroyer.SetTrigget(EProjectileTrigger.Arrived);
+            _isArrived = true;
         }
     }
 
@@ -87,7 +92,7 @@ public class Projectile : MonoBehaviour, IPooledItem<Projectile>
     }
     public void ExcuteEffect()
     {
-        _effectResolver.Resolve(_data);
+        _effectResolver.Resolve(_data, this.transform.position);
     }
 
     public void OnDespawn()
@@ -136,18 +141,29 @@ public class HomingMove : IMoveStretagy
     ICreature _target;
     private float _speed;
 
+    private bool _isArrived;
+
     public void Init(Transform owner, ICreature target, float speed)
     {
         _owner = owner;
         _target = target;
         _speed = speed;
+        _isArrived = false;
     }
     public void OnMove()
     {
-        Vector3 dir = (_target.Position - _owner.position).normalized;
-        _owner.position += dir * Time.deltaTime * _speed;
+        if (_isArrived)
+        {
+            _owner.position = _target.Position;
+            return;
+        }
+        else
+        {
+            Vector3 dir = (_target.Position - _owner.position).normalized;
+            _owner.position += dir * Time.deltaTime * _speed;
 
-        RotationToTarget(dir);
+            RotationToTarget(dir);
+        }
     }
 
     private void RotationToTarget(Vector3 dir)
@@ -163,25 +179,48 @@ public class HomingMove : IMoveStretagy
     public bool IsArrived(Transform t, ICreature target)
     {
         float distance = Vector3.SqrMagnitude(_owner.position - target.Position);
-        return distance <= 0.001f;
+
+        _isArrived = distance <= 0.001f;
+
+        return _isArrived;
     }
 
 }
 public class Parabola : IMoveStretagy
 {
+    private Transform _owner;
+    private Vector3 _startPosition;
+    private Vector3 _destination;
+    private float _progress;
+    private float _speed;
     public void Init(Transform owner, ICreature target, float speed)
     {
-
+        _owner = owner;
+        _startPosition = owner.position;
+        _destination = target.Position;
+        _speed = speed;
+        _progress = 0;
     }
 
     public bool IsArrived(Transform t, ICreature target)
     {
-        return false;
+        float distance = Vector3.SqrMagnitude(_owner.position - _destination);
+        return distance <= 0.001f;
     }
 
     public void OnMove()
     {
+        _progress += Time.deltaTime * _speed;
+        float t = Mathf.Clamp01(_progress);
 
+        // 1. 기본 직선 보간
+        Vector3 pos = Vector3.Lerp(_startPosition, _destination, t);
+
+        // 2. 포물선(y) 추가 (sin 기반 아크)
+        float height = Mathf.Sin(t * Mathf.PI) * 0.9f;
+        pos.y += height;
+
+        _owner.position = pos;
     }
 }
 #endregion
@@ -192,14 +231,31 @@ public interface ICollider
     void CheckCollider();
 }
 
-public class ArriveDestory : IProjectileDestroyer
+public class ProjectileDestoryer : IProjectileDestroyer
 {
     public event Action OnDestory;
+    public EProjectileTrigger _destroyType;
+    private int _value;
+    public void Init(EProjectileTrigger destroyType, int value)
+    {
+        Debug.Log(destroyType);
+        _destroyType = destroyType;
+        _value = value;
+    }
+
     public void SetTrigget(EProjectileTrigger projectileTrigger)
     {
-        if(projectileTrigger == EProjectileTrigger.Arrived)
+        if(_destroyType == projectileTrigger)
         {
-            OnDestory?.Invoke();
+            if(_destroyType == EProjectileTrigger.Continue)
+            {
+
+            }
+            else
+            {
+                OnDestory?.Invoke();
+                Debug.Log("Destory");
+            }
         }
     }
 }
@@ -213,6 +269,7 @@ public interface IMoveStretagy
 public interface IProjectileDestroyer
 {
     event Action OnDestory;
+    public void Init(EProjectileTrigger destroyType, int value);
     void SetTrigget(EProjectileTrigger projectileTrigger);
 }
 public enum EProjectileTrigger
@@ -229,18 +286,25 @@ public enum EProjectileTrigger
 public interface IProjectileEffectResolver
 {
     public event Action OnHitResolver;
+    void Init(EProjectileTrigger type);
     void SetTrigget(EProjectileTrigger projectileTrigger);
-    public void Resolve(ProjectilePayload data);
+    public void Resolve(ProjectilePayload data, Vector3 destination);
 }
 
 public class SingleDamageResolver : IProjectileEffectResolver
 {
     public event Action OnHitResolver;
+    private EProjectileTrigger _triggerType;
 
-    public void Resolve(ProjectilePayload data)
+    public void Init(EProjectileTrigger type)
+    {
+        _triggerType = type;
+    }
+
+    public void Resolve(ProjectilePayload data, Vector3 destination)
     {
         Debug.Log("Resolve");
-        float dmgMultiple = data.Value * 0.01f;
+        float dmgMultiple = data.DMGValue * 0.01f;
         float damage = data.attackStatProvider.GetStat(EAttackStatType.Damage) * dmgMultiple;
 
         int resultDamage = Mathf.RoundToInt(damage);
@@ -256,7 +320,46 @@ public class SingleDamageResolver : IProjectileEffectResolver
 
     public void SetTrigget(EProjectileTrigger projectileTrigger)
     {
-        if (projectileTrigger == EProjectileTrigger.Arrived)
+        if (projectileTrigger == _triggerType)
+        {
+            OnHitResolver?.Invoke();
+        }
+    }
+}
+public class AreaDamageResolver : IProjectileEffectResolver
+{
+    public event Action OnHitResolver;
+    private EProjectileTrigger _triggerType;
+
+    public void Init(EProjectileTrigger type)
+    {
+        _triggerType = type;
+    }
+    public void Resolve(ProjectilePayload data, Vector3 destination)
+    {
+        var enemies = CreatureFinder.TryFindNearEnemies(destination, 0.5f);
+
+        float dmgMultiple = data.DMGValue * 0.01f;
+        float damage = data.attackStatProvider.GetStat(EAttackStatType.Damage) * dmgMultiple;
+
+        int resultDamage = Mathf.RoundToInt(damage);
+
+        int FlatPenetration = (int)data.attackStatProvider.GetStat(EAttackStatType.FlatPentration);
+        int PercentPenetration = (int)data.attackStatProvider.GetStat(EAttackStatType.PercentPenetration);
+
+        data.attackRegister.RegisterAttack(new DamageContext(data.VFX, destination, data.Attacker));
+
+        for (int i = 0; i < enemies.Count; i++)
+        {
+            AttackPayload ap = new AttackPayload(resultDamage, FlatPenetration, PercentPenetration);
+            DamageContext dc = new DamageContext(ap, enemies[i], string.Empty, data.Attacker);
+            data.attackRegister.RegisterAttack(dc);
+        }
+    }
+
+    public void SetTrigget(EProjectileTrigger projectileTrigger)
+    {
+        if (projectileTrigger == _triggerType)
         {
             OnHitResolver?.Invoke();
         }
