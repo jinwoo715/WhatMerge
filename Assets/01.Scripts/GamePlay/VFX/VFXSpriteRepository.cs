@@ -16,7 +16,6 @@ public class VFXSpriteRepository : ISpriteRepository
         {
             Sprite sp = sprites[i];
             string key = sp.name.Replace("(Clone)", "");
-            Debug.Log(key);
             _sprites.Add(key, sp);
         }
     }

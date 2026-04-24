@@ -34,8 +34,6 @@ public class HeroSkillFactory : ISkillCreater
         ActiveSkillData data = _skillRepository.GetActiveSkillData(uid);
         Type type = Type.GetType(data.SkillType);
 
-        Debug.Log(type);
-
         if (type != null)
         {
             object[] args = new object[] { data, _skillContext, ownerContext };
@@ -65,8 +63,6 @@ public class HeroSkillFactory : ISkillCreater
 
         if (TryCreateActiveSkill(skillBundle.SpecialSkill, ownerContext, out var skill4))
             skills.Add(skill4);
-
-        Debug.Log($"Skill : {skills.Count}");
 
         return skills;
     }

@@ -16,9 +16,9 @@ namespace Heros.UI
         private IHeroSummonService _heroSpawnService;
 
         private IHeroSummonViewer _heroViewer;
-        private IEconomyService _economy;
+        private IGameGoldService _economy;
 
-        public void Init(IHeroSummonService heroSpawnService, IHeroSummonViewer heroSummonViewer, IEconomyService economyService, GameEconomyConfig gameEconomy)
+        public void Init(IHeroSummonService heroSpawnService, IHeroSummonViewer heroSummonViewer, IGameGoldService economyService, GameEconomyConfig gameEconomy)
         {
             _heroSpawnService = heroSpawnService;
             _economy = economyService;
@@ -35,6 +35,9 @@ namespace Heros.UI
 
         private void SpawnRandomHero()
         {
+            if (!HaveMoneyToSpawnCost(_currentCost))
+                return;
+
             if(_heroSpawnService.TrySpawnRandomHero())
             {
                 _economy.UseMoney(_currentCost);
@@ -46,7 +49,6 @@ namespace Heros.UI
         private void UpdateSpawnCost()
         {
             _currentCost = _spawnCost + (_increaseCost * _heroSpawnService.SpawnedCount);
-            _heroViewer.SetButtonInteractable(HaveMoneyToSpawnCost(_currentCost));
             _heroViewer.SetSpawnCost(_currentCost);
         }
 

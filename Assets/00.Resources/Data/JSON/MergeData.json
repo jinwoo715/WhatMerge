@@ -1,0 +1,62 @@
+[
+  {
+    "First": 1,
+    "Second": 9,
+    "Result": 101
+  },
+  {
+    "First": 8,
+    "Second": 9,
+    "Result": 102
+  },
+  {
+    "First": 9,
+    "Second": 10,
+    "Result": 103
+  },
+  {
+    "First": 1,
+    "Second": 2,
+    "Result": 104
+  },
+  {
+    "First": 7,
+    "Second": 8,
+    "Result": 105
+  },
+  {
+    "First": 4,
+    "Second": 10,
+    "Result": 106
+  },
+  {
+    "First": 3,
+    "Second": 10,
+    "Result": 107
+  },
+  {
+    "First": 5,
+    "Second": 8,
+    "Result": 108
+  },
+  {
+    "First": 5,
+    "Second": 6,
+    "Result": 109
+  },
+  {
+    "First": 2,
+    "Second": 7,
+    "Result": 110
+  },
+  {
+    "First": 4,
+    "Second": 5,
+    "Result": 111
+  },
+  {
+    "First": 1,
+    "Second": 3,
+    "Result": 112
+  }
+]

@@ -3,18 +3,18 @@ using UnityEngine;
 
 public static class StatCalculator
 {
-    public static int BaseATK(int evolution, int baseATK, float firstMulti, float secondMulti)
+    public static int BaseATK(int evolution, ATKData atkData)
     {
-        float[] multiple = { firstMulti, secondMulti };
+        float[] multiple = { atkData.FirstMuliplier, atkData.SecondMultiplier};
 
-        float finalBaseATK = baseATK;
+        float finalBaseATK = atkData.BaseATK;
 
         for (int i = 0; i < evolution; i++)
         {
             finalBaseATK *= multiple[i];
         }
 
-        return baseATK;
+        return RoundInt(finalBaseATK);
     }
     public static int ATK(int level, int baseValue, float growthRate, float tierJumpValue)
     {

@@ -1,5 +1,6 @@
 using Combat;
 using Enemies;
+using Heros;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -27,12 +28,8 @@ public class ProjectilePayload
     public string VFX;
 } 
 
-public interface IDataProvider
-{
-    ProjectileData GetProjecTileData(int uid);
-    SummonData GetSummonData(int uid);
-    List<BuffData> GetBuffDatas(int uid);
-}
+
+
 
 public class MoveStretagyFactory
 {
@@ -100,8 +97,6 @@ public class ProjectileSpawner : MonoBehaviour, IProjectileProvider
             if (value.Count > 0)
                 return value.Pop();
         }
-
-        Debug.Log(type);
 
         IMoveStretagy moveStretagy = default;
 

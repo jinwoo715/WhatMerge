@@ -60,14 +60,6 @@ namespace Map
                 return false;
             }
         }
-        public void OccupyHeroTile(IReadOnlyTile tile)
-        {
-            OccupiedTiles.Add(tile);
-            Tile occupyTile = GetTile(tile);
-            occupyTile.OccupyTile();
-
-            SetNextEmptyHeroTile();
-        }
         private void SetNextEmptyHeroTile()
         {
             for (int i = 1; i < _ySize - 1; i++)
@@ -84,10 +76,17 @@ namespace Map
 
             _nextHeroEmptyTile = null;
         }
+        public void OccupyHeroTile(IReadOnlyTile tile)
+        {
+            OccupiedTiles.Add(tile);
+
+            Tile occupyTile = GetTile(tile);
+            occupyTile.OccupyTile();
+
+            SetNextEmptyHeroTile();
+        }
         public void FreeHeroTile(IReadOnlyTile tile)
         {
-            OccupiedTiles.Remove(tile);
-
             Tile freeTile = GetTile(tile);
             freeTile.UnOccupyTile();
 

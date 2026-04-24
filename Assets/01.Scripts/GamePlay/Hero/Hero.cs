@@ -1,6 +1,7 @@
 using Combat;
 using Heros.Stat;
 using Map;
+using Skill;
 using Stat;
 using System;
 using System.Collections;
@@ -12,7 +13,8 @@ public interface IHeroInfoProvider
 {
     public Transform Transform { get; }
     public string Name { get; }
-    public int Level { get; }
+    public int EvolutionLevel { get; }
+    public int UID { get; }
 }
 
 public interface IAttackStatProvider
@@ -43,7 +45,7 @@ public interface IHeros : ICreature, IStatModifier
 
 namespace Entity
 {
-    public class Hero : MonoBehaviour, ITileObject, IHeroInfoProvider, IAttackStatProvider, IAttackable, IHeros
+    public class Hero : MonoBehaviour, ITileObject, IHeroInfoProvider, IAttackStatProvider, IAttackable, IHeros, IPooledItem<Hero>
     {
         [SerializeField] private HeroCombatController _heroCombat;
         [SerializeField] private HeroSpriteController _spriteController;
@@ -57,11 +59,15 @@ namespace Entity
 
         public event Action<IReadOnlyTile> OnOccupiedTile;
         public event Action<IReadOnlyTile> OnFreeTile;
+        public event Action<Hero> OnReturn;
 
-        private int _level = 1;
+        public SkillContext Context { get; private set; }
+
+        private int _heroLevel = 1;
+        private int _evolutionLevel = 0;
         public Transform Transform => this.transform;
         public string Name => _heroData.Name;
-        public int Level => _level;
+        public int EvolutionLevel => _evolutionLevel;
 
         public ISpriteChanger SpriteChanger => _spriteController;
 
@@ -73,44 +79,62 @@ namespace Entity
 
         public IAttackStatProvider StatProvider => throw new NotImplementedException();
 
+        public int UID => _heroData.UID;
+
+        public IReadOnlyTile OccupiedTile => _underTile;
+
         public void SpawnInit()
         {
             _stat.OnStatChange += (type, value) => { if(type == EHeroStat.AttackSpeed) _heroCombat.SetAttackDelay(value); };
+            Context = new SkillContext();
+            Context.Register<ICreature>(this);
+            Context.Register<IAttackable>(this);
+            Context.Register<Transform>(this.transform);
+            Context.Register<IHeroInfoProvider>(this);
+            Context.Register<ISpriteChanger>(SpriteChanger);
+            Context.Register<IAttackStatProvider>(this);
         }
-        public void SetData(HeroData data, ATKData atkData, SpriteAtlas spriteAtlas)
+        public void SetData(HeroData data, ATKData atkData, SpriteAtlas spriteAtlas, int level)
         {
             _heroData = data;
             _atkData = atkData;
-
-            float setAtk = StatCalculator.ATK(_level, atkData.BaseATK, atkData.GrowthRatio, atkData.TierMultiplier);
-            _stat.SetBaseValue(EHeroStat.Damage, setAtk);
+            _heroLevel = level;
 
             _stat.SetBaseValue(EHeroStat.AttackSpeed, data.AS);
 
-            _spriteController.Init(spriteAtlas, _heroData.Name, _level);
+            _spriteController.Init(spriteAtlas, _heroData.Name, _evolutionLevel);
 
             _heroCombat.OnExcutedSkill += _spriteController.SetIdle;
         }
 
-        private void Update()
+        public void SetEvolution(int evolutionLevel)
         {
-            if (Input.GetKeyDown(KeyCode.Q))
-            {
-                _level++;
-                _spriteController.SetDefaultSpriteKey(_heroData.Name, _level);
-            }
+            _evolutionLevel = evolutionLevel;
+
+            int baseATK = StatCalculator.BaseATK(_evolutionLevel, _atkData);
+            float setAtk = StatCalculator.ATK(_heroLevel, baseATK, _atkData.GrowthRatio, _atkData.TierMultiplier);
+            _stat.SetBaseValue(EHeroStat.Damage, setAtk);
+
+            _spriteController.SetLevel(_evolutionLevel);
+        }
+
+        public void EvolutionUp()
+        {
+            _evolutionLevel++;
+            SetEvolution(_evolutionLevel);
         }
 
         public void SetSkill(List<ISkill> skills)
         {
+            _heroCombat.Clear();
             _heroCombat.InjectSkill(skills);
         }
         public void SetTile(IReadOnlyTile tile, Vector2 position)
         {
-            if (IsExistUnderTile())
-                OnFreeTile?.Invoke(_underTile);
+            //if (IsExistUnderTile())
+            //    OnFreeTile?.Invoke(_underTile);
 
-            OnOccupiedTile?.Invoke(tile);
+            //OnOccupiedTile?.Invoke(tile);
             _underTile = tile;
 
             this.transform.position = position;
@@ -153,6 +177,16 @@ namespace Entity
         public void ModifyStat(EHeroStatType stat, float value)
         {
             Debug.Log($"Apply Stat : {stat}, {value}");
+        }
+
+        public void OnSpawn()
+        {
+            
+        }
+
+        public void OnDespawn()
+        {
+            _heroCombat.Clear();
         }
     }
 }

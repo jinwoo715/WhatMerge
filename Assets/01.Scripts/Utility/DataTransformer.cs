@@ -9,6 +9,7 @@ using System.Collections;
 using System.ComponentModel;
 using Newtonsoft.Json;
 using Enemies;
+using Heros;
 
 public class DataTransformer : EditorWindow
 {
@@ -31,8 +32,9 @@ public class DataTransformer : EditorWindow
         //ParseExcelDataToListJsonData<HeroData>("HeroData");
         //ParseExcelDataToListJsonData<ProjectileData>("ProjectileData");
         //ParseExcelDataToListJsonData<SummonData>("SummonData");
-        ParseExcelDataToListJsonData<BuffData>("BuffData");
-        ParseExcelDataToListJsonData<BuffDataBundle>("BuffDataBundle");
+        //ParseExcelDataToListJsonData<BuffData>("BuffData");
+        //ParseExcelDataToListJsonData<BuffDataBundle>("BuffDataBundle");
+        ParseExcelDataToListJsonData<MergeData>("MergeData");
 
         Debug.Log("DataTransformer Completed");
     }

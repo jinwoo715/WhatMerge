@@ -15,17 +15,26 @@ public class HeroSpriteController : MonoBehaviour, ISpriteChanger
     [SerializeField] private SpriteRenderer _spriteRenderer;
     private SpriteAtlas _spriteAtlas;
     private string _heroName;
+    private string _spriteKey;
     private StringBuilder _builder = new StringBuilder();
 
     string idle = "Idle";
+
     public void Init(SpriteAtlas spriteAtlas, string heroName, int level)
     {
+        Debug.Log(spriteAtlas);
         _spriteAtlas = spriteAtlas;
-        SetDefaultSpriteKey(heroName, level);
+        _heroName = heroName;
     }
-    public void SetDefaultSpriteKey(string heroName, int level)
+
+    public void SetLevel(int level)
     {
-        _heroName = $"{heroName}_{level}_";
+        SetDefaultSpriteKey(level);
+    }
+
+    public void SetDefaultSpriteKey(int level)
+    {
+        _spriteKey = $"{_heroName}_{level+1}_";
         SetSprite(idle);
     }
 
@@ -36,7 +45,7 @@ public class HeroSpriteController : MonoBehaviour, ISpriteChanger
 
     public void SetSprite(string spriteName)
     {
-        _builder.Append(_heroName);
+        _builder.Append(_spriteKey);
         _builder.Append(spriteName);
 
         _spriteRenderer.sprite = _spriteAtlas.GetSprite(_builder.ToString());

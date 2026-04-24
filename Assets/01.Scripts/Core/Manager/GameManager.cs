@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
     private static GameManager _instance;
     public static GameManager Instance { get { Init(); return _instance; } }
 
-    public DataManager _data = new DataManager();
+    public DataManager _data;
 	public GamePayload _payload = new GamePayload();
 	
     public static DataManager Data { get { return Instance?._data; } }

@@ -20,7 +20,7 @@ namespace Core.BootStrapper
         [SerializeField] private HeroManager _heroManager;
         [SerializeField] private StageManager _stage;
         [SerializeField] private BuffManager _buff;
-        private GameEconomyManager _economy = new GameEconomyManager();
+        private GameEconomySystem _economy = new GameEconomySystem();
 
         [Header("Controller")]
         private TimeController _timeController = new TimeController();
@@ -37,6 +37,7 @@ namespace Core.BootStrapper
         [SerializeField] private EnemySpawner _enemySpawner;
         [SerializeField] private ProjectileSpawner _projectileSpawner;
         [SerializeField] private SummonSpawner _summonSpawner;
+        [SerializeField] private HeroSpawner _heroSpawner;
 
         private EnemyTracker _enemyTracker = new EnemyTracker();
 
@@ -50,16 +51,21 @@ namespace Core.BootStrapper
         [SerializeField] private HeroSummonViewer _heroSummonViewer;
         [SerializeField] private TimeViewer _timeViewer;
         [SerializeField] private DamageViewer _damageViewer;
+        [SerializeField] private EconomyViewer _economyViewer;
 
         [Header("Repository")]
         private VFXSpriteRepository _vfxRepository = new VFXSpriteRepository();
         private VFXSpriteRepository _projectileRepository = new VFXSpriteRepository();
 
-
         private SkillContext _skillContext = new SkillContext();
 
         private BattleManager _battleManager = new BattleManager();
         private HeroSkillFactory _heroSkillFactory = new HeroSkillFactory();
+
+        private RewardSystem _rewardSystem = new RewardSystem();
+
+        private MergeRepository _mergeRepository = new MergeRepository();
+        private HeroOverlapProcessor _heroOverlapProcessor = new HeroOverlapProcessor();
 
         private void Start()
         {
@@ -69,17 +75,22 @@ namespace Core.BootStrapper
 
         private void Init()
         {
+            var PlayerConfig = GameManager.Data.PlayerConfig;
+
+            var deck = PlayerConfig.HeroDecks[0];
+
             _timePresenter.Init(_timeController, _timeViewer);
             _sceneManager.Init(_stage);
             _map.Init();
-            _heroManager.Init(_map, _heroSkillFactory, GameManager.Data);
+            _heroManager.Init(_heroOverlapProcessor, _map, deck, _heroSpawner);
+            _heroSpawner.Init(_heroSkillFactory, GameManager.Data);
+
             _enemySpawner.Init(_map, _enemySpriteRepository, GameManager.Data);
 
             var vfxAtlas = GameManager.Data.GetSpriteAtlas("HitEffect");
 
             _vfxRepository.Init(vfxAtlas);
             _projectileRepository.Init(GameManager.Data.GetProjectileAtlas());
-
 
             int stageUID = GameManager.Payload.StageUID;
             SpriteAtlas enemyAtlas = GameManager.Data.GetEnemyAtlas(stageUID);
@@ -90,7 +101,8 @@ namespace Core.BootStrapper
             _stage.Init(_enemySpawner, _enemyTracker, stage, stageConfig);
 
             var economy = GameManager.Data.GameEconomy;
-            _economy.Init(economy);
+            _economy.Init(economy.StartMoney);
+
             _heroSummonPresenter.Init(_heroManager, _heroSummonViewer, _economy, economy);
 
             _stageInfoPresenter.Init(_stage, _stageInfoViewer);
@@ -103,12 +115,15 @@ namespace Core.BootStrapper
 
             _battleManager.Init(_vfxSpawner);
 
+            _rewardSystem.Init(_economy);
 
             var data = GameManager.Data;
 
             _projectileSpawner.Init(data, _projectileRepository);
             _summonSpawner.Init(_projectileRepository, data);
             _buff.Init(data);
+            _mergeRepository.Init(GameManager.Data.MergeData);
+            _heroOverlapProcessor.Init(_mergeRepository);
         }
         private void Bind()
         {
@@ -127,6 +142,10 @@ namespace Core.BootStrapper
             _stage.OnChangeRemainTime += _stageInfoPresenter.UpdateWaveTime;
 
             _enemySpawner.OnSpawnEnemy += _enemyTracker.AddFieldEnemy;
+
+            _economy.OnChangeMoney += _economyViewer.UpdateMoneyText;
+
+            _enemyTracker.OnEnemyDeath += _rewardSystem.OccurRewards;
         }
     }
 }

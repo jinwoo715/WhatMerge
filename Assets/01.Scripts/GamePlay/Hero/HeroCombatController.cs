@@ -30,6 +30,16 @@ namespace Combat
 
         public Action OnExcutedSkill;
 
+        public void Clear()
+        {
+            StopAllCoroutines();
+            _skill = null;
+            _currentHitCount = 0;
+            _currentMana = 0;
+            _currentTime = 0;
+            _isUseingSkill = false;
+        }
+
         public void InjectSkill(List<ISkill> skills)
         {
             _skill = skills;

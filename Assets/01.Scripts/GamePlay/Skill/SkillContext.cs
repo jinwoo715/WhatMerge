@@ -21,7 +21,6 @@ namespace Skill
         public void Register<T>(T service) where T : class
         {
             _services.Add(typeof(T), service);
-            Debug.Log(typeof(T));
         }
 
         public bool TryGet<T>(out T service) where T : class

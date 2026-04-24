@@ -17,6 +17,7 @@ namespace Enemies
         public event Action<int> OnChangedActiveEnemyCount;
         public event Action OnDeathBossEnemy;
         public event Action OnDeathAllEnemy;
+        public event Action<Enemy> OnEnemyDeath;
 
         public void AddFieldEnemy(Enemy enemy)
         {
@@ -32,6 +33,8 @@ namespace Enemies
         public void DeathEnemy(Enemy enemy)
         {
             _activeEnemies.Remove(enemy);
+
+            OnEnemyDeath?.Invoke(enemy);
 
             enemy.OnDeath -= DeathEnemy;
 

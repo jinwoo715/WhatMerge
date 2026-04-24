@@ -199,7 +199,7 @@ public class SingleProjectile : AttackSkill
         projectilePayload.Target = _target;
         projectilePayload.SpawnPos = _owner.Position;
         projectilePayload.UID = Mathf.RoundToInt(_data.P1);
-        projectilePayload.HeroLevel = _heroInfoProvider.Level;
+        projectilePayload.HeroLevel = _heroInfoProvider.EvolutionLevel;
         projectilePayload.attackRegister = _attackRegister;
         projectilePayload.attackStatProvider = _statProvider;
         projectilePayload.DMGValue = _data.ValueRate;
@@ -267,7 +267,7 @@ public class SingleSummon : AttackSkill
         projectilePayload.Target = _target;
         projectilePayload.SpawnPos = _target.Position;
         projectilePayload.UID = Mathf.RoundToInt(_data.P1);
-        projectilePayload.HeroLevel = _heroInfoProvider.Level;
+        projectilePayload.HeroLevel = _heroInfoProvider.EvolutionLevel;
         projectilePayload.attackRegister = _attackRegister;
         projectilePayload.attackStatProvider = _statProvider;
         projectilePayload.DMGValue = _data.ValueRate;

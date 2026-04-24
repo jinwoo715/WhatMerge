@@ -1,4 +1,5 @@
 using Enemies;
+using Heros;
 using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
@@ -26,6 +27,14 @@ public interface ISpriteAtlasRepository
     SpriteAtlas GetSpriteAtlas(string name);
 }
 
+public interface IDataProvider
+{
+    ProjectileData GetProjecTileData(int uid);
+    SummonData GetSummonData(int uid);
+    List<BuffData> GetBuffDatas(int uid);
+    List<MergeData> MergeData {get;}
+}
+
 public class DataManager : MonoBehaviour, ISkillRepository, ISpriteAtlasRepository, IEnemyDataRepository, IDataProvider
 {
     [Header("SpriteAtlas")]
@@ -45,6 +54,7 @@ public class DataManager : MonoBehaviour, ISkillRepository, ISpriteAtlasReposito
     public TextAsset _summonDataText;
     public TextAsset _buffDataBundleText;
     public TextAsset _buffDataText;
+    public TextAsset _mergeDataText;
 
     [Header("Config")]
     public GameConfig _gameConfig;
@@ -64,8 +74,24 @@ public class DataManager : MonoBehaviour, ISkillRepository, ISpriteAtlasReposito
 
     private Dictionary<string, SpriteAtlas> _spriteAtlas = new Dictionary<string, SpriteAtlas>();
 
+    private Dictionary<int, HeroSaveData> _saveHeroData = new Dictionary<int, HeroSaveData>();
+
+    private List<MergeData> _mergeDatas = new List<MergeData>();
+
     public StageSettingConfig StageConfig => _gameConfig.StageConfig;
     public GameEconomyConfig GameEconomy => _gameConfig.GameEconomy;
+    public PlayerInfoConfig PlayerConfig => _gameConfig.PlayerConfig;
+
+    public List<MergeData> MergeData => _mergeDatas;
+
+    internal HeroSaveData GetSaveHeroData(int heroUid)
+    {
+        if (_saveHeroData.TryGetValue(heroUid, out var data))
+        {
+            return data;
+        }
+        else return new HeroSaveData();
+    }
 
     public void Init()
     {
@@ -141,10 +167,17 @@ public class DataManager : MonoBehaviour, ISkillRepository, ISpriteAtlasReposito
         InitDictionary(_buffDataBundle, _buffDataBundleText);
         InitDictionary(_buffData, _buffDataText);
 
+        _mergeDatas = DeserializeTextData<MergeData>(_mergeDataText);
+
         for (int i = 0; i < _stageEnemySpriteBundles.Count; i++)
         {
             StageEnemySpriteBundle bundle = _stageEnemySpriteBundles[i];
             _EnemyAtlasByStageUID.Add(bundle.StageUID, bundle.SpriteAtlas);
+        }
+
+        foreach (var item in PlayerConfig.HaveHeros)
+        {
+            _saveHeroData.Add(item.HeroUID, item);
         }
     }
 
@@ -315,4 +348,5 @@ public class DataManager : MonoBehaviour, ISkillRepository, ISpriteAtlasReposito
 
         return datas;
     }
+
 }

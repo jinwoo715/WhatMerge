@@ -18,8 +18,23 @@ MonoBehaviour:
     BossWavePivot: 10
     MaxEnemy: 100
     StartMoney: 10
-    StartWaveIndex: 10
+    StartWaveIndex: 1
   GameEconomy:
-    StartMoney: 100
+    StartMoney: 1000
     StartSpawnCost: 30
     IncreaseSpawnCost: 5
+  PlayerConfig:
+    SelectDeckIndex: 0
+    HeroDecks:
+    - Heros: 010000000300000008000000090000000a000000
+    HaveHeros:
+    - HeroUID: 1
+      Level: 1
+    - HeroUID: 3
+      Level: 1
+    - HeroUID: 8
+      Level: 1
+    - HeroUID: 9
+      Level: 1
+    - HeroUID: 10
+      Level: 1

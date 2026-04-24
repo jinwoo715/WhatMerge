@@ -7,13 +7,16 @@ using UnityEngine;
 
 namespace Enemies
 {
-    public class Enemy : MonoBehaviour, IDamageable, IPooledItem<Enemy>
+
+
+    public class Enemy : MonoBehaviour, IDamageable, IPooledItem<Enemy>, IRewardProvider
     {
         [SerializeField] private MoveController _move;
         [SerializeField] private EnemySpriteController _spriteController;
 
         public event Action<Enemy> OnDeath;
         public event Action<Enemy> OnReturn;
+        public event Action<ECompensationType, int> OccurCompensation;
 
         private int _currentMoveDestinationIndex = 0;
         public int CurrentMoveDestinationIndex => _currentMoveDestinationIndex;
@@ -67,5 +70,14 @@ namespace Enemies
         }
         public void OnSpawn() { }
         public void OnDespawn() { }
+
+        public RewardData GetRewardData()
+        {
+            var reward = new RewardData();
+            reward.CompensationType = ECompensationType.Gold;
+            reward.Value = _data.Coin;
+
+            return reward;
+        }
     }
 }

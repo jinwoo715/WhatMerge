@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -6,6 +7,7 @@ public class GameConfig : ScriptableObject
 {
     public StageSettingConfig StageConfig;
     public GameEconomyConfig GameEconomy;
+    public PlayerInfoConfig PlayerConfig;
 }
 
 [System.Serializable]
@@ -34,4 +36,33 @@ public class StageSettingConfig
 
     [Header("Start Wave")]
     public int StartWaveIndex;
+}
+
+[System.Serializable]
+public class PlayerInfoConfig
+{
+    public int SelectDeckIndex;
+
+    public HeroDeck[] HeroDecks;
+
+    public List<HeroSaveData> HaveHeros;
+}
+
+[System.Serializable]
+public class HeroDeck
+{
+    public int[] Heros;
+
+    public int RanHeroUID()
+    {
+        int index = Random.Range(0, 5);
+        return Heros[index];
+    }
+}
+
+[System.Serializable]
+public class HeroSaveData
+{
+    public int HeroUID;
+    public int Level = 1;
 }

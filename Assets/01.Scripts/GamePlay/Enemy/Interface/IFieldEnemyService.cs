@@ -9,6 +9,8 @@ namespace Enemies
         IReadOnlyList<Enemy> GetAllFieldEnemy { get; }
         bool IsAliveBoss { get; }
 
+        event Action<Enemy> OnEnemyDeath;
+
         event Action<int> OnChangedActiveEnemyCount;
 
         event Action OnDeathAllEnemy;
