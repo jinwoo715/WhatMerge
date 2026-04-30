@@ -1,17 +1,33 @@
 using Entity;
 using Heros;
+using Map;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.U2D;
 
-public class HeroSpawner : MonoBehaviour
+
+public interface IHeroInfoRepository
+{
+    HeroData GetHeroData(int uid);
+    ATKData GetATKData(int heroUid);
+    HeroSaveData GetHeroSaveData(int uid);
+}
+
+public class HeroSpawner : MonoBehaviour, IHeroSummonService
 {
     [SerializeField] private Hero _heroPrefab;
     private ObjectPool<Hero> _heroPool = new ObjectPool<Hero>();
 
+    IHeroMapService _heroMapService;
+    IHeroInfoRepository _heroInfoRepository;
     ISpriteAtlasRepository _spriteAtlasRepository;
     ISkillCreater _skillCreater;
+
+    public event Action<Hero> OnSpawndRanHero;
+
+    public int SpawnedCount => throw new NotImplementedException();
 
     public void Init(ISkillCreater skillCreater, ISpriteAtlasRepository spriteAtlasRepository)
     {
@@ -27,8 +43,6 @@ public class HeroSpawner : MonoBehaviour
         Hero hero = _heroPool.GetItem(spawnPos);
 
         HeroSaveData saveData = GameManager.Data.GetSaveHeroData(heroUid);
-
-
 
         HeroData data = GameManager.Data.GetHeroData(heroUid);
         ATKData atkData = GameManager.Data.GetATKData(data.ATKUID);
@@ -52,5 +66,10 @@ public class HeroSpawner : MonoBehaviour
     public void ReturnHero(Hero hero)
     {
         _heroPool.ReturnItem(hero);
+    }
+
+    public bool TrySpawnRandomHero()
+    {
+        throw new NotImplementedException();
     }
 }

@@ -9,15 +9,15 @@ public interface ISkillCreater
 {
     List<ISkill> CreateActiveSkill(HeroSkillBundle skillBundle, ISkillContext ownerContext);
 }
-public interface ISkillRepository
+public interface ISkillDataRepository
 {
     ActiveSkillData GetActiveSkillData(int uid);
 }
 public class HeroSkillFactory : ISkillCreater
 {
     private ISkillContext _skillContext;
-    private ISkillRepository _skillRepository;
-    public void Init(ISkillContext skillContext, ISkillRepository skillRepository)
+    private ISkillDataRepository _skillRepository;
+    public void Init(ISkillContext skillContext, ISkillDataRepository skillRepository)
     {
         _skillContext = skillContext;
         _skillRepository = skillRepository;

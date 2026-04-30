@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Data
+  m_EditorClassIdentifier: 
+  m_GroupName: Data
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 3af1bd20a41d80844b896d92359291b4
+  m_SerializeEntries:
+  - m_GUID: 04d07651b9f8fbf4f98acc60eb6bfb59
+    m_Address: ActiveSkillData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - TextData
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 11bf87e260287e34a928500648095865
+    m_Address: WaveData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - TextData
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1279d2cd046f8064a8c9934f67c51bae
+    m_Address: BuffData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - TextData
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3bb6fc8b263f0014395aeca5d69a1a83
+    m_Address: SummonData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - TextData
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 44c538a4a54898f43a71b5cbf8c4a95d
+    m_Address: EnemyData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - TextData
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4534cc266bdbb624d8716591ca4ef2bf
+    m_Address: BuffDataBundle
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - TextData
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4d6d5fee74871974798069f01dbb8106
+    m_Address: HeroData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - TextData
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8461cd8562da2c54b9cfc7249cf49d24
+    m_Address: ATKData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - TextData
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 91a9fcdc405765a4bb20e363e688d328
+    m_Address: MergeData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - TextData
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 91ec005495e90aa4c8d3db23e58b58c7
+    m_Address: ProjectileData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - TextData
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f4c9d878f6e006849b8e9f7996d1814e
+    m_Address: StageData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - TextData
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: d617ab2fcc714644ba537f0019f7d517, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 6f40fa7c355af3b4c947562ac1ac1296, type: 2}
+    - {fileID: 11400000, guid: bc420cd9e888a9e41a5c3fb9e26773f7, type: 2}

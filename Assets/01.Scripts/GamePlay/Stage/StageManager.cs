@@ -46,7 +46,7 @@ namespace Stage
         public event Action<int, int> OnChangeAliveEnemy;
         public event Action OnExceedEnemyCount;
 
-        public List<WaveData> _activeWaves = new List<WaveData>();
+        private List<WaveData> _activeWaves = new List<WaveData>();
 
         private int _maxEnemyCount;
         private int _bossWave;

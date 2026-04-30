@@ -25,9 +25,8 @@ public enum EExcuteTriggerType
 }
 
 [System.Serializable]
-public class ActiveSkillData
+public class ActiveSkillData : Data
 {
-    public int UID;
     public string Name;
     public string Description;
     

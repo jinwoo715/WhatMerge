@@ -1,7 +1,6 @@
 [System.Serializable]
-public class ATKData
+public class ATKData : Data
 {
-    public int UID;
     public int BaseATK;
 
     public float GrowthRatio;

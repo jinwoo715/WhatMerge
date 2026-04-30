@@ -1,9 +1,8 @@
 namespace Enemies
 {
     [System.Serializable]
-    public class EnemyData
+    public class EnemyData : Data
     {
-        public int UID;
         public string Name;
         public string Description;
         public float HP;

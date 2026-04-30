@@ -11,6 +11,12 @@ using UnityEngine.U2D;
 
 namespace Heros
 {
+    public interface ITileHeroHandler
+    {
+        void OnPointDown(Tile tile);
+        void OnPointUp(Tile tile);
+    }
+
     public interface IHeroSummonService
     {
         int SpawnedCount { get; }
@@ -131,7 +137,7 @@ namespace Heros
         Merge
     }
 
-    public class HeroManager : MonoBehaviour, IHeroSummonService
+    public class HeroManager : MonoBehaviour, IHeroSummonService, ITileHeroHandler
     {
         private HeroDeck _heroDeck;
 
@@ -164,10 +170,8 @@ namespace Heros
 
                 return true;
             }
-
             return false;
         }
-
         public void SpawnHero(int uid, Tile tile)
         {
             Vector3 pos = _heroMapService.GetTileWorldPosition(tile);
@@ -180,7 +184,6 @@ namespace Heros
 
             _spawnRanHeroCount++;
         }
-
         public void ReturnHero(Hero hero)
         {
             IReadOnlyTile tile = hero.OccupiedTile;
@@ -188,8 +191,7 @@ namespace Heros
             _heroMapService.FreeHeroTile(tile);
             _heroSpawner.ReturnHero(hero);
         }
-
-        public void OnPointUpHero(Tile tile)
+        public void OnPointUp(Tile tile)
         {
             if (_clickedHero == null) return;
 
@@ -243,14 +245,13 @@ namespace Heros
                 SetHeroPosition(tile, _clickedHero);
             }
         }
-        public void OnPointDownHero(Tile tile)
+        public void OnPointDown(Tile tile)
         {
             if (_fieldHeros.TryGetValue(tile, out var hero))
             {
                 _clickedHero = hero;
             }
         }
-
         private void SetHeroPosition(IReadOnlyTile tile, Hero hero)
         {
             if (hero.OccupiedTile != null)

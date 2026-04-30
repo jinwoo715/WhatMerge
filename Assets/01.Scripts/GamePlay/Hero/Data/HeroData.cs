@@ -1,7 +1,6 @@
 [System.Serializable]
-public class HeroData
+public class HeroData : Data
 {
-    public int UID;
     public string Name;
     public string Description;
     
