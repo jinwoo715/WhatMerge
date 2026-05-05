@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class StageData
+public class StageData : Data
 {
-    public int StageUID;
     public string StageName;
     public string StageDescription;
     public List<WaveData> WaveDatas;

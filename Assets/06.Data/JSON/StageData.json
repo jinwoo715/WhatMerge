@@ -1,6 +1,6 @@
 [
   {
-    "StageUID": 1,
+    "UID": 1,
     "StageName": "StartLand",
     "StageDescription": "StartLand",
     "WaveDatas": null

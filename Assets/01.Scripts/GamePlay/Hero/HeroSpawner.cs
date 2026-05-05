@@ -21,18 +21,23 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
     private ObjectPool<Hero> _heroPool = new ObjectPool<Hero>();
 
     IHeroMapService _heroMapService;
-    IHeroInfoRepository _heroInfoRepository;
-    ISpriteAtlasRepository _spriteAtlasRepository;
+    IResourcesReader _spriteAtlasRepository;
     ISkillCreater _skillCreater;
+    IHeroInfoRepository _heroDataRepo;
 
-    public event Action<Hero> OnSpawndRanHero;
+    private HeroDeck _heroDeck;
 
-    public int SpawnedCount => throw new NotImplementedException();
+    public event Action<Tile, Hero> OnSpawndRanHero;
 
-    public void Init(ISkillCreater skillCreater, ISpriteAtlasRepository spriteAtlasRepository)
+    public int SpawnedCount => 0;
+
+    public void Init(IHeroMapService heroMapService, ISkillCreater skillCreater, IResourcesReader spriteAtlasRepository, IHeroInfoRepository heroDataRepo, HeroDeck deck)
     {
+        _heroMapService = heroMapService;
         _spriteAtlasRepository = spriteAtlasRepository;
         _skillCreater = skillCreater;
+        _heroDataRepo = heroDataRepo;
+        _heroDeck = deck;
 
         _heroPool.OnCreateEvent += SpawnInit;
         _heroPool.Init(this.transform, _heroPrefab, 10);
@@ -44,9 +49,9 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
 
         HeroSaveData saveData = GameManager.Data.GetSaveHeroData(heroUid);
 
-        HeroData data = GameManager.Data.GetHeroData(heroUid);
-        ATKData atkData = GameManager.Data.GetATKData(data.ATKUID);
-        SpriteAtlas heroAtlas = _spriteAtlasRepository.GetHeroSpriteAtlas(data.UID);
+        HeroData data = _heroDataRepo.GetHeroData(heroUid);
+        ATKData atkData = _heroDataRepo.GetATKData(data.ATKUID);
+        SpriteAtlas heroAtlas = _spriteAtlasRepository.GetAtlas(data.Name);
 
         hero.SetData(data, atkData, heroAtlas, saveData.Level);
         hero.SetEvolution(evolutionLevel);
@@ -68,8 +73,25 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
         _heroPool.ReturnItem(hero);
     }
 
+
     public bool TrySpawnRandomHero()
     {
-        throw new NotImplementedException();
+        if (_heroMapService.TryGetNextHeroTile(out Tile tile))
+        {
+            int heroUid = _heroDeck.RanHeroUID();
+
+            SpawnHero(heroUid, tile);
+
+            return true;
+        }
+        return false;
+    }
+    public void SpawnHero(int uid, Tile tile)
+    {
+        Vector3 pos = _heroMapService.GetTileWorldPosition(tile);
+        Hero hero = SpawnHero(uid, pos, 0);
+        hero.SetTile(tile, pos);
+
+        _heroMapService.OccupyHeroTile(tile);
     }
 }

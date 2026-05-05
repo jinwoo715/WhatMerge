@@ -59,7 +59,7 @@ public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepo
     private Dictionary<int, SpriteAtlas> _heroAtlasByUID = new Dictionary<int, SpriteAtlas>();
     private Dictionary<int, HeroData> _heroDatas = new Dictionary<int, HeroData>();
     private Dictionary<int, EnemyData> _enemyDatas = new Dictionary<int, EnemyData>();
-    private Dictionary<int, StageData> _stageDataByUID = new Dictionary<int, StageData>();
+    private Dictionary<int, StageData> _stageDatas = new Dictionary<int, StageData>();
     private Dictionary<int, ActiveSkillData> _activeSkillDatas = new Dictionary<int, ActiveSkillData>();
     private Dictionary<int, ATKData> _atkDatas = new Dictionary<int, ATKData>();
     private Dictionary<int, ProjectileData> _projectileDatas = new Dictionary<int, ProjectileData>();
@@ -98,7 +98,7 @@ public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepo
         {
             StageData data = stageDatas[i];
             data.WaveDatas = new List<WaveData>();
-            _stageDataByUID.Add(data.StageUID, data);
+            _stageDatas.Add(data.UID, data);
         }
 
         for (int i = 0; i < _heroSpriteAtlas.Count; i++)
@@ -106,14 +106,9 @@ public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepo
             _heroAtlasByUID.Add(_heroSpriteAtlas[i].HeroUid, _heroSpriteAtlas[i].SpriteAtlas);
         }
 
-        var waveDatas = JsonConvert.DeserializeObject<List<WaveData>>(_waveDataText.text);
-        for (int i = 0; i < waveDatas.Count; i++)
-        {
-            WaveData wd = waveDatas[i];
-            _stageDataByUID[wd.StageUID].WaveDatas.Add(wd);
-        }
+        
 
-        foreach (var stage in _stageDataByUID)
+        foreach (var stage in _stageDatas)
         {
             stage.Value.WaveDatas.Sort((a, b) => a.StartWave.CompareTo(b.StartWave));
         }
@@ -154,8 +149,22 @@ public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepo
         InitDictionary(_heroDatas, resourcesReader.GetTextAsset("HeroData"));
         InitDictionary(_atkDatas, resourcesReader.GetTextAsset("ATKData"));
         InitDictionary(_activeSkillDatas, resourcesReader.GetTextAsset("ActiveSkillData"));
-
+        InitDictionary(_stageDatas, resourcesReader.GetTextAsset("StageData"));
         InitDictionary(_enemyDatas, resourcesReader.GetTextAsset("EnemyData"));
+
+        var wave = resourcesReader.GetTextAsset("WaveData");
+        var waveDatas = JsonConvert.DeserializeObject<List<WaveData>>(wave.text);
+
+        Debug.Log($"{wave}, {waveDatas}");
+        for (int i = 0; i < waveDatas.Count; i++)
+        {
+            WaveData wd = waveDatas[i];
+
+            if (_stageDatas[wd.StageUID].WaveDatas == null)
+                _stageDatas[wd.StageUID].WaveDatas = new List<WaveData>();
+
+            _stageDatas[wd.StageUID].WaveDatas.Add(wd);
+        }
     }
 
     private void InitDictionary<T>(Dictionary<int, T> dic, TextAsset text) where T : Data
@@ -175,18 +184,7 @@ public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepo
     {
         return JsonConvert.DeserializeObject<List<T>>(text);
     }
-    public EnemyData GetEnemyData(int uid)
-    {
-        if(_enemyDatas.TryGetValue(uid, out EnemyData data))
-        {
-            return data;
-        }
-        else
-        {
-            Debug.LogError("Not Exist Enemy UID");
-            return default;
-        }
-    }
+ 
     public HeroData GetHeroData(int uid)
     {
         if (_heroDatas.TryGetValue(uid, out HeroData data))
@@ -201,7 +199,7 @@ public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepo
     }
     public StageData GetStageData(int uid)
     {
-        if (_stageDataByUID.TryGetValue(uid, out StageData data))
+        if (_stageDatas.TryGetValue(uid, out StageData data))
         {
             return data;
         }
@@ -211,18 +209,7 @@ public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepo
             return default;
         }
     }
-    public SpriteAtlas GetEnemyAtlas(int uid)
-    {
-        if (_EnemyAtlasByStageUID.TryGetValue(uid, out SpriteAtlas data))
-        {
-            return data;
-        }
-        else
-        {
-            Debug.LogError($"Not Exist Stage UID : {uid}");
-            return default;
-        }
-    }
+
     public ActiveSkillData GetActiveSkillData(int uid)
     {
         return _activeSkillDatas[uid];
@@ -275,10 +262,7 @@ public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepo
         Debug.LogError($"Not Exist Atlas By : {name}");
         return default;
     }
-    public SpriteAtlas GetProjectileAtlas()
-    {
-        return _projectileAtlas;
-    }
+
     public ProjectileData GetProjecTileData(int uid)
     {
         if (_projectileDatas.TryGetValue(uid, out ProjectileData data))

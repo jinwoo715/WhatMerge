@@ -188,5 +188,10 @@ namespace Entity
         {
             _heroCombat.Clear();
         }
+
+        public void Return()
+        {
+            OnReturn?.Invoke(this);
+        }
     }
 }

@@ -18,7 +18,7 @@ public interface IResourcesReader
     T GetObject<T>(string name) where T : MonoBehaviour;
 }
 
-public class ResourcesManager : MonoBehaviour, IResourcesLoader, IResourcesReader
+public class AddressableResourcesManager : MonoBehaviour, IResourcesLoader, IResourcesReader
 {
     [SerializeField] private List<Sprite> _spriteList;
     [SerializeField] private List<SpriteAtlas> _atlasList;
@@ -99,4 +99,5 @@ public class ResourcesManager : MonoBehaviour, IResourcesLoader, IResourcesReade
             return null;
         }
     }
+
 }

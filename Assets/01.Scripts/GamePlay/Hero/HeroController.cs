@@ -11,25 +11,20 @@ using UnityEngine.U2D;
 
 namespace Heros
 {
-    public interface ITileHeroHandler
-    {
-        void OnPointDown(Tile tile);
-        void OnPointUp(Tile tile);
-    }
-
     public interface IHeroSummonService
     {
         int SpawnedCount { get; }
         bool TrySpawnRandomHero();
-        event Action<Hero> OnSpawndRanHero;
+        event Action<Tile, Hero> OnSpawndRanHero;
     }
 
-    public interface IFieldHeroService
+    public interface IHeroTileService
     {
-        int GetActiveHeroCount { get; }
-        IReadOnlyList<Hero> GetAllFieldHero { get; }
-        void AddFieldEnemy(Hero enemy);
+        void PointDownTile(Tile tile);
+        void PointUpTile(Tile tile);
+        void DragTile(Tile tile);
     }
+
 
     public struct HeroSkillBundle
     {
@@ -53,7 +48,6 @@ namespace Heros
         public int Second;
         public int Result;
     }
-
     public class MergeRepository
     {
         Dictionary<(int, int), int> _mergeData = new Dictionary<(int, int), int>();
@@ -98,7 +92,13 @@ namespace Heros
         }
     }
 
-    public class HeroOverlapProcessor
+    public interface IHeroOverlapResult
+    {
+        public int GetMergeHeroUID(int first, int second);
+        public EHeroOverlapResult OverlapHero(IHeroInfoProvider first, IHeroInfoProvider second);
+    }
+
+    public class HeroOverlapProcessor : IHeroOverlapResult
     {
         private MergeRepository _mergeRepository;
 
@@ -111,7 +111,6 @@ namespace Heros
         {
             return _mergeRepository.GetMergeResult(first, second);
         }
-
         public EHeroOverlapResult OverlapHero(IHeroInfoProvider first, IHeroInfoProvider second)
         {
             if (first.EvolutionLevel != second.EvolutionLevel)
@@ -130,6 +129,8 @@ namespace Heros
         }
     }
 
+
+
     public enum EHeroOverlapResult
     {
         None,
@@ -137,61 +138,60 @@ namespace Heros
         Merge
     }
 
-    public class HeroManager : MonoBehaviour, IHeroSummonService, ITileHeroHandler
+    public class HeroController : IFieldHeroService, IHeroTileService
     {
-        private HeroDeck _heroDeck;
-
         private Dictionary<IReadOnlyTile, Hero> _fieldHeros = new Dictionary<IReadOnlyTile, Hero>();
         private Hero _clickedHero = null;
 
-        IHeroMapService _heroMapService;
+        public int GetActiveHeroCount => throw new NotImplementedException();
+        public IReadOnlyList<Hero> GetAllFieldHero => throw new NotImplementedException();
 
-        private HeroSpawner _heroSpawner;
+        private IHeroMapService _heroMapService;
 
-        public event Action<Hero> OnSpawndRanHero;
-
-        private int _spawnRanHeroCount;
-        public int SpawnedCount => _spawnRanHeroCount;
-        private HeroOverlapProcessor _overlapProcessor;
-        public void Init(HeroOverlapProcessor heroOverlapProcessor, IHeroMapService heroMapService, HeroDeck heroDeck, HeroSpawner heroSpawner)
+        private IHeroOverlapResult _overlapProcessor;
+        public void Init(IHeroOverlapResult heroOverlapProcessor, IHeroMapService heroMapService)
         {
             _heroMapService = heroMapService;
-            _heroDeck = heroDeck;
-            _heroSpawner = heroSpawner;
             _overlapProcessor = heroOverlapProcessor;
         }
-        public bool TrySpawnRandomHero()
-        {
-            if (_heroMapService.TryGetNextHeroTile(out Tile tile))
-            {
-                int heroUid = _heroDeck.RanHeroUID();
 
-                SpawnHero(heroUid, tile);
-
-                return true;
-            }
-            return false;
-        }
-        public void SpawnHero(int uid, Tile tile)
-        {
-            Vector3 pos = _heroMapService.GetTileWorldPosition(tile);
-            Hero hero = _heroSpawner.SpawnHero(uid, pos, 0);
-            hero.SetTile(tile, pos);
-
-            _heroMapService.OccupyHeroTile(tile);
-
-            _fieldHeros.Add(tile, hero);
-
-            _spawnRanHeroCount++;
-        }
         public void ReturnHero(Hero hero)
         {
             IReadOnlyTile tile = hero.OccupiedTile;
             _fieldHeros.Remove(tile);
             _heroMapService.FreeHeroTile(tile);
-            _heroSpawner.ReturnHero(hero);
+            hero.Return();
         }
-        public void OnPointUp(Tile tile)
+
+        private void SetHeroPosition(IReadOnlyTile tile, Hero hero)
+        {
+            if (hero.OccupiedTile != null)
+                _heroMapService.FreeHeroTile(hero.OccupiedTile);
+
+            if (_fieldHeros.ContainsKey(hero.OccupiedTile))
+                _fieldHeros.Remove(hero.OccupiedTile);
+
+            _heroMapService.OccupyHeroTile(tile);
+            _fieldHeros.Add(tile, hero);
+
+            hero.SetTile(tile, _heroMapService.GetTileWorldPosition(tile));
+        }
+        public void AddFieldHero(Tile tile, Hero hero)
+        {
+            
+        }
+        public void MoveHero(Tile destination, Hero hero)
+        {
+            throw new NotImplementedException();
+        }
+        public void PointDownTile(Tile tile)
+        {
+            if (_fieldHeros.TryGetValue(tile, out var hero))
+            {
+                _clickedHero = hero;
+            }
+        }
+        public void PointUpTile(Tile tile)
         {
             if (_clickedHero == null) return;
 
@@ -233,37 +233,21 @@ namespace Heros
                             ReturnHero(hero);
 
                             int uid = _overlapProcessor.GetMergeHeroUID(_clickedHero.UID, hero.UID);
-                            SpawnHero(uid, tile);
+                            //SpawnHero(uid, tile);
 
                             Debug.Log("«’√È!!");
                             break;
                     }
                 }
             }
-            else 
+            else
             {
                 SetHeroPosition(tile, _clickedHero);
             }
         }
-        public void OnPointDown(Tile tile)
+        public void DragTile(Tile tile)
         {
-            if (_fieldHeros.TryGetValue(tile, out var hero))
-            {
-                _clickedHero = hero;
-            }
-        }
-        private void SetHeroPosition(IReadOnlyTile tile, Hero hero)
-        {
-            if (hero.OccupiedTile != null)
-                _heroMapService.FreeHeroTile(hero.OccupiedTile);
-
-            if (_fieldHeros.ContainsKey(hero.OccupiedTile))
-                _fieldHeros.Remove(hero.OccupiedTile);
-
-            _heroMapService.OccupyHeroTile(tile);
-            _fieldHeros.Add(tile, hero);
-
-            hero.SetTile(tile, _heroMapService.GetTileWorldPosition(tile));
+            
         }
     }
 }

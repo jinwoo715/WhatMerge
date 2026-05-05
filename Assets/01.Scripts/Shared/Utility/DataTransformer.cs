@@ -24,8 +24,8 @@ public class DataTransformer : EditorWindow
     public static void ParseCSVDataToJson()
     {
         
-        //ParseExcelDataToListJsonData<WaveData>("WaveData");
-        //ParseExcelDataToListJsonData<StageData>("StageData");
+        ParseExcelDataToListJsonData<WaveData>("WaveData");
+        ParseExcelDataToListJsonData<StageData>("StageData");
         //ParseExcelDataToListJsonData<EnemyData>("EnemyData");
         //ParseExcelDataToListJsonData<ActiveSkillData>("ActiveSkillData");
         //ParseExcelDataToListJsonData<ATKData>("ATKData");
@@ -34,7 +34,7 @@ public class DataTransformer : EditorWindow
         //ParseExcelDataToListJsonData<SummonData>("SummonData");
         //ParseExcelDataToListJsonData<BuffData>("BuffData");
         //ParseExcelDataToListJsonData<BuffDataBundle>("BuffDataBundle");
-        ParseExcelDataToListJsonData<MergeData>("MergeData");
+        //ParseExcelDataToListJsonData<MergeData>("MergeData");
 
         Debug.Log("DataTransformer Completed");
     }

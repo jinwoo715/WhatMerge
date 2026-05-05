@@ -51,7 +51,15 @@ public class PlayerInfoConfig
 [System.Serializable]
 public class HeroDeck
 {
-    public int[] Heros;
+    public int[] Heros = new int[5];
+
+    public void Init(int[] ary)
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            Heros[i] = ary[i];
+        }
+    }
 
     public int RanHeroUID()
     {

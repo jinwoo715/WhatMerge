@@ -16,17 +16,15 @@ namespace Core.BootStrapper
     public class GameSceneBootStrapper : MonoBehaviour
     {
         [Header("Hero")]
-        [SerializeField] private HeroManager _heroManager;
-        [SerializeField] private HeroSpawner _heroSpawner;
-        private HeroSkillFactory _heroSkillFactory = new HeroSkillFactory();
-
-        [SerializeField] private HeroSelecter _heroSelecter;
-
-        [SerializeField] private HeroSummonViewer _heroSummonViewer;
-        private HeroSummmonPresenter _heroSummonPresenter = new HeroSummmonPresenter();
-
+        private HeroController _heroController = new HeroController();
         private MergeRepository _mergeRepository = new MergeRepository();
         private HeroOverlapProcessor _heroOverlapProcessor = new HeroOverlapProcessor();
+        private HeroSummmonPresenter _heroSummonPresenter = new HeroSummmonPresenter();
+        private HeroSkillFactory _heroSkillFactory = new HeroSkillFactory();
+        [SerializeField] private HeroSpawner _heroSpawner;
+        [SerializeField] private TileClicker _heroSelecter;
+        [SerializeField] private HeroSummonViewer _heroSummonViewer;
+
 
         [Header("Enemy")]
         [SerializeField] private EnemySpawner _enemySpawner;
@@ -74,37 +72,49 @@ namespace Core.BootStrapper
         {
             var PlayerConfig = GameManager.Data.PlayerConfig;
 
+            var economy = GameManager.Data.GameEconomy;
+
+            var data = GameManager.Data;
+
+            var resource = GameManager.Resource;
+
             var deck = PlayerConfig.HeroDecks[0];
+
+            var playerData = GameManager.NetworkData.GetPlayerData();
 
             _timePresenter.Init(_timeController, _timeViewer);
             _sceneManager.Init(_stage);
             _map.Init();
-            _heroManager.Init(_heroOverlapProcessor, _map, deck, _heroSpawner);
-            _heroSpawner.Init(_heroSkillFactory, GameManager.Data);
+
+            #region Hero Init
+
+            _heroController.Init(_heroOverlapProcessor, _map);
+            _heroSpawner.Init(_map, _heroSkillFactory, resource, data, playerData.GetSelectHeroDeck());
+            _mergeRepository.Init(GameManager.Data.MergeData);
+            _heroOverlapProcessor.Init(_mergeRepository);
+            _heroSummonPresenter.Init(_heroSpawner, _heroSummonViewer, _economy, economy);
+            _heroSkillFactory.Init(_skillContext, data);
+
+            #endregion
 
             _enemySpawner.Init(_map, _enemySpriteRepository, GameManager.Data);
 
-            var vfxAtlas = GameManager.Data.GetSpriteAtlas("HitEffect");
+            var vfxAtlas = GameManager.Resource.GetAtlas("HitEffect");
 
             _vfxRepository.Init(vfxAtlas);
-            _projectileRepository.Init(GameManager.Data.GetProjectileAtlas());
+            _projectileRepository.Init(GameManager.Resource.GetAtlas("Projectile"));
 
             int stageUID = GameManager.Payload.StageUID;
-            SpriteAtlas enemyAtlas = GameManager.Data.GetEnemyAtlas(stageUID);
+            SpriteAtlas enemyAtlas = GameManager.Resource.GetAtlas($"Stage{stageUID}");
             _enemySpriteRepository.Init(enemyAtlas);
 
             var stageConfig = GameManager.Data.StageConfig;
             var stage = GameManager.Data.GetStageData(stageUID);
             _stage.Init(_enemySpawner, _enemyTracker, stage, stageConfig);
 
-            var economy = GameManager.Data.GameEconomy;
             _economy.Init(economy.StartMoney);
 
-            _heroSummonPresenter.Init(_heroSpawner, _heroSummonViewer, _economy, economy);
-
             _stageInfoPresenter.Init(_stage, _stageInfoViewer);
-
-            _heroSkillFactory.Init(_skillContext, GameManager.Data);
 
             _damageViewer.Init();
 
@@ -114,13 +124,9 @@ namespace Core.BootStrapper
 
             _rewardSystem.Init(_economy);
 
-            var data = GameManager.Data;
-
             _projectileSpawner.Init(data, _projectileRepository);
             _summonSpawner.Init(_projectileRepository, data);
             _buff.Init(data);
-            _mergeRepository.Init(GameManager.Data.MergeData);
-            _heroOverlapProcessor.Init(_mergeRepository);
         }
         private void Bind()
         {
@@ -130,10 +136,12 @@ namespace Core.BootStrapper
             _skillContext.Register<ISummonProvider>(_summonSpawner);
             _skillContext.Register<IBuffRegister>(_buff);
 
+            _heroSpawner.OnSpawndRanHero += _heroController.AddFieldHero;
+
             _battleManager.OnApplyDamage += _damageViewer.ShowDamageText;
 
-            _heroSelecter.OnPointDownTile += _heroManager.OnPointDown;
-            _heroSelecter.OnPointUpTile += _heroManager.OnPointUp;
+            _heroSelecter.OnPointDownTile += _heroController.PointDownTile;
+            _heroSelecter.OnPointUpTile += _heroController.PointUpTile;
 
             _stage.OnChangeCurrentWave += _stageInfoPresenter.UpdateWave;
             _stage.OnChangeRemainTime += _stageInfoPresenter.UpdateWaveTime;
