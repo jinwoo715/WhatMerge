@@ -138,23 +138,38 @@ namespace Heros
         Merge
     }
 
-    public class HeroController : IFieldHeroService, IHeroTileService
+    public interface IHeroBagService
+    {
+        bool IsUsableBag { get; }
+        int TotalBagItem { get; }
+        int CurrentUsedBagItem { get; }
+    }
+
+    public class HeroController : IFieldHeroService, IHeroTileService, IHeroBagService
     {
         private Dictionary<IReadOnlyTile, Hero> _fieldHeros = new Dictionary<IReadOnlyTile, Hero>();
         private Hero _clickedHero = null;
 
-        public int GetActiveHeroCount => throw new NotImplementedException();
         public IReadOnlyList<Hero> GetAllFieldHero => throw new NotImplementedException();
 
-        private IHeroMapService _heroMapService;
+        public bool IsUsableBag => CurrentUsedBagItem < TotalBagItem;
 
+        public int TotalBagItem => 3;
+
+        public int CurrentUsedBagItem => 0;
+
+        private IHeroMapService _heroMapService;
         private IHeroOverlapResult _overlapProcessor;
-        public void Init(IHeroOverlapResult heroOverlapProcessor, IHeroMapService heroMapService)
+        private ITileMarkerPresenter _markerPresenter;
+
+        public event Action<Hero> OnSelectHero;
+
+        public void Init(IHeroOverlapResult heroOverlapProcessor, IHeroMapService heroMapService, ITileMarkerPresenter markerPresenter)
         {
             _heroMapService = heroMapService;
             _overlapProcessor = heroOverlapProcessor;
+            _markerPresenter = markerPresenter;
         }
-
         public void ReturnHero(Hero hero)
         {
             IReadOnlyTile tile = hero.OccupiedTile;
@@ -162,8 +177,7 @@ namespace Heros
             _heroMapService.FreeHeroTile(tile);
             hero.Return();
         }
-
-        private void SetHeroPosition(IReadOnlyTile tile, Hero hero)
+        public void SetHeroPosition(IReadOnlyTile tile, Hero hero)
         {
             if (hero.OccupiedTile != null)
                 _heroMapService.FreeHeroTile(hero.OccupiedTile);
@@ -178,17 +192,15 @@ namespace Heros
         }
         public void AddFieldHero(Tile tile, Hero hero)
         {
-            
+            _fieldHeros.Add(tile, hero);
         }
-        public void MoveHero(Tile destination, Hero hero)
-        {
-            throw new NotImplementedException();
-        }
+
         public void PointDownTile(Tile tile)
         {
             if (_fieldHeros.TryGetValue(tile, out var hero))
             {
                 _clickedHero = hero;
+                _markerPresenter.ShowTileMarker(tile);
             }
         }
         public void PointUpTile(Tile tile)
@@ -199,8 +211,8 @@ namespace Heros
             {
                 if (_clickedHero == hero)
                 {
-                    //Info 보여주기
                     Debug.Log("영웅 클릭!");
+                    OnSelectHero?.Invoke(_clickedHero);
                 }
                 else
                 {
@@ -244,10 +256,14 @@ namespace Heros
             {
                 SetHeroPosition(tile, _clickedHero);
             }
+
+            _markerPresenter.HideTileMarker();
         }
         public void DragTile(Tile tile)
         {
-            
+            if (_clickedHero == null) return;
+
+            _markerPresenter.UpdateTileMarker(tile);
         }
     }
 }

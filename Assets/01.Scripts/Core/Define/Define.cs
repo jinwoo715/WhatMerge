@@ -9,4 +9,6 @@ public static class Define
     public static string ATLAS_DATA = "AtlasData";
 
     public const float HIT_EFFECT_TIME = 0.2F;
+
+    public static string TileLayer = "Tile";
 }

@@ -22,9 +22,14 @@ namespace Core.BootStrapper
         private HeroSummmonPresenter _heroSummonPresenter = new HeroSummmonPresenter();
         private HeroSkillFactory _heroSkillFactory = new HeroSkillFactory();
         [SerializeField] private HeroSpawner _heroSpawner;
-        [SerializeField] private TileClicker _heroSelecter;
         [SerializeField] private HeroSummonViewer _heroSummonViewer;
+        [SerializeField] private HeroClickInteractViewer _heroClickInteractViewer;
 
+
+        [Header("Map")]
+        [SerializeField] private MapBoard _map;
+        [SerializeField] private TileClicker _heroClicker;
+        [SerializeField] private TileMarkerPresenter _tileMarkerPresenter;
 
         [Header("Enemy")]
         [SerializeField] private EnemySpawner _enemySpawner;
@@ -54,7 +59,7 @@ namespace Core.BootStrapper
         [Header("World")]
         [SerializeField] private GameSceneManager _sceneManager;
         private GameEconomySystem _economy = new GameEconomySystem();
-        [SerializeField] private MapBoard _map;
+       
 
         [Header("Time")]
         [SerializeField] private TimeViewer _timeViewer;
@@ -88,12 +93,14 @@ namespace Core.BootStrapper
 
             #region Hero Init
 
-            _heroController.Init(_heroOverlapProcessor, _map);
+            _heroController.Init(_heroOverlapProcessor, _map, _tileMarkerPresenter);
             _heroSpawner.Init(_map, _heroSkillFactory, resource, data, playerData.GetSelectHeroDeck());
             _mergeRepository.Init(GameManager.Data.MergeData);
             _heroOverlapProcessor.Init(_mergeRepository);
             _heroSummonPresenter.Init(_heroSpawner, _heroSummonViewer, _economy, economy);
             _heroSkillFactory.Init(_skillContext, data);
+
+            _heroClickInteractViewer.Init(_heroController);
 
             #endregion
 
@@ -140,8 +147,11 @@ namespace Core.BootStrapper
 
             _battleManager.OnApplyDamage += _damageViewer.ShowDamageText;
 
-            _heroSelecter.OnPointDownTile += _heroController.PointDownTile;
-            _heroSelecter.OnPointUpTile += _heroController.PointUpTile;
+            _heroClicker.OnPointDownTile += _heroController.PointDownTile;
+            _heroClicker.OnPointUpTile += _heroController.PointUpTile;
+            _heroClicker.OnDragTile += _heroController.DragTile;
+
+            _heroController.OnSelectHero += _heroClickInteractViewer.ShowInteractUI;
 
             _stage.OnChangeCurrentWave += _stageInfoPresenter.UpdateWave;
             _stage.OnChangeRemainTime += _stageInfoPresenter.UpdateWaveTime;

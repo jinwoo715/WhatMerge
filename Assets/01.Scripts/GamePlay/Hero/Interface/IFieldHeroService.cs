@@ -1,11 +1,13 @@
 using Entity;
 using Map;
+using System;
 using System.Collections.Generic;
 
 public interface IFieldHeroService
 {
-    int GetActiveHeroCount { get; }
+    event Action<Hero> OnSelectHero;
     IReadOnlyList<Hero> GetAllFieldHero { get; }
     void AddFieldHero(Tile tile, Hero hero);
-    void MoveHero(Tile destination, Hero hero);
+    void SetHeroPosition(IReadOnlyTile destination, Hero hero);
+
 }

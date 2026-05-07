@@ -42,6 +42,30 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
         _heroPool.OnCreateEvent += SpawnInit;
         _heroPool.Init(this.transform, _heroPrefab, 10);
     }
+    public bool TrySpawnRandomHero()
+    {
+        if (_heroMapService.TryGetNextHeroTile(out Tile tile))
+        {
+            int heroUid = _heroDeck.RanHeroUID();
+
+            Hero hero = SpawnHero(heroUid, tile);
+
+            OnSpawndRanHero?.Invoke(tile, hero);
+
+            return true;
+        }
+        return false;
+    }
+    public Hero SpawnHero(int uid, Tile tile)
+    {
+        Vector3 pos = _heroMapService.GetTileWorldPosition(tile);
+        Hero hero = SpawnHero(uid, pos, 0);
+        hero.SetTile(tile, pos);
+
+        _heroMapService.OccupyHeroTile(tile);
+
+        return hero;
+    }
 
     public Hero SpawnHero(int heroUid, Vector3 spawnPos, int evolutionLevel)
     {
@@ -74,24 +98,4 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
     }
 
 
-    public bool TrySpawnRandomHero()
-    {
-        if (_heroMapService.TryGetNextHeroTile(out Tile tile))
-        {
-            int heroUid = _heroDeck.RanHeroUID();
-
-            SpawnHero(heroUid, tile);
-
-            return true;
-        }
-        return false;
-    }
-    public void SpawnHero(int uid, Tile tile)
-    {
-        Vector3 pos = _heroMapService.GetTileWorldPosition(tile);
-        Hero hero = SpawnHero(uid, pos, 0);
-        hero.SetTile(tile, pos);
-
-        _heroMapService.OccupyHeroTile(tile);
-    }
 }
