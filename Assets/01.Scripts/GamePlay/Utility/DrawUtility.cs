@@ -13,8 +13,6 @@ public class DrawUtility : MonoBehaviour
     {
         _radius = radius;
         _angle = angle;
-
-        Debug.Log($"Radius : {_radius}, Angle : {_angle}");
     }
 
     public void UpdateDir(Vector3 dir)

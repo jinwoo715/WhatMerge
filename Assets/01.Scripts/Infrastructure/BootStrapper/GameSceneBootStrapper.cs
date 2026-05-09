@@ -16,14 +16,19 @@ namespace Core.BootStrapper
     public class GameSceneBootStrapper : MonoBehaviour
     {
         [Header("Hero")]
+        [SerializeField] private HeroRangeViewer _heroRangeViewer;
+        [SerializeField] private HeroBagViewer _bagViewer;
+        [SerializeField] private HeroSpawner _heroSpawner;
+        [SerializeField] private HeroSummonViewer _heroSummonViewer;
+        [SerializeField] private HeroClickInteractPresenter _heroClickInteractViewer;
+
         private HeroController _heroController = new HeroController();
         private MergeRepository _mergeRepository = new MergeRepository();
         private HeroOverlapProcessor _heroOverlapProcessor = new HeroOverlapProcessor();
         private HeroSummmonPresenter _heroSummonPresenter = new HeroSummmonPresenter();
         private HeroSkillFactory _heroSkillFactory = new HeroSkillFactory();
-        [SerializeField] private HeroSpawner _heroSpawner;
-        [SerializeField] private HeroSummonViewer _heroSummonViewer;
-        [SerializeField] private HeroClickInteractViewer _heroClickInteractViewer;
+        private HeroBag _heroBag = new HeroBag();
+        private HeroBagPresenter _bagPresenter = new HeroBagPresenter();
 
 
         [Header("Map")]
@@ -77,7 +82,7 @@ namespace Core.BootStrapper
         {
             var PlayerConfig = GameManager.Data.PlayerConfig;
 
-            var economy = GameManager.Data.GameEconomy;
+            var economyConfig = GameManager.Data.GameEconomy;
 
             var data = GameManager.Data;
 
@@ -93,14 +98,18 @@ namespace Core.BootStrapper
 
             #region Hero Init
 
-            _heroController.Init(_heroOverlapProcessor, _map, _tileMarkerPresenter);
+            _heroController.Init(_heroSpawner, _heroOverlapProcessor, _map, _tileMarkerPresenter, _economy);
             _heroSpawner.Init(_map, _heroSkillFactory, resource, data, playerData.GetSelectHeroDeck());
             _mergeRepository.Init(GameManager.Data.MergeData);
             _heroOverlapProcessor.Init(_mergeRepository);
-            _heroSummonPresenter.Init(_heroSpawner, _heroSummonViewer, _economy, economy);
+            _heroSummonPresenter.Init(_heroSpawner, _heroSummonViewer, _economy, economyConfig);
             _heroSkillFactory.Init(_skillContext, data);
 
-            _heroClickInteractViewer.Init(_heroController);
+            _heroClickInteractViewer.Init(_heroBag, _heroController);
+
+            _bagPresenter.Init(_heroBag, _bagViewer, resource);
+
+            _heroBag.Init(3, _heroSpawner);
 
             #endregion
 
@@ -119,7 +128,7 @@ namespace Core.BootStrapper
             var stage = GameManager.Data.GetStageData(stageUID);
             _stage.Init(_enemySpawner, _enemyTracker, stage, stageConfig);
 
-            _economy.Init(economy.StartMoney);
+            _economy.Init(economyConfig.StartMoney);
 
             _stageInfoPresenter.Init(_stage, _stageInfoViewer);
 
@@ -148,10 +157,14 @@ namespace Core.BootStrapper
             _battleManager.OnApplyDamage += _damageViewer.ShowDamageText;
 
             _heroClicker.OnPointDownTile += _heroController.PointDownTile;
+            _heroClicker.OnPointDownTile += (tile) => { _heroClickInteractViewer.HideInteractUI(); };
+
             _heroClicker.OnPointUpTile += _heroController.PointUpTile;
             _heroClicker.OnDragTile += _heroController.DragTile;
+            _heroClicker.OnPointDownTile += _=> _heroRangeViewer.HideHeroRange();
 
             _heroController.OnSelectHero += _heroClickInteractViewer.ShowInteractUI;
+            _heroController.OnSelectHero += _heroRangeViewer.ShowHeroRange;
 
             _stage.OnChangeCurrentWave += _stageInfoPresenter.UpdateWave;
             _stage.OnChangeRemainTime += _stageInfoPresenter.UpdateWaveTime;

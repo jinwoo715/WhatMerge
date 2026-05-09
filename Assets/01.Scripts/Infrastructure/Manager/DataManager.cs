@@ -152,6 +152,9 @@ public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepo
         InitDictionary(_stageDatas, resourcesReader.GetTextAsset("StageData"));
         InitDictionary(_enemyDatas, resourcesReader.GetTextAsset("EnemyData"));
 
+        var mergeData = resourcesReader.GetTextAsset("MergeData");
+        _mergeDatas = DeserializeTextData<MergeData>(mergeData);
+
         var wave = resourcesReader.GetTextAsset("WaveData");
         var waveDatas = JsonConvert.DeserializeObject<List<WaveData>>(wave.text);
 

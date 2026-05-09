@@ -40,7 +40,6 @@ public enum EAttackStatType
 public interface IHeros : ICreature, IStatModifier
 {
     IHeroInfoProvider Provider { get; }
-    IAttackStatProvider StatProvider { get; }
 }
 
 namespace Entity
@@ -77,7 +76,7 @@ namespace Entity
 
         public IHeroInfoProvider Provider => throw new NotImplementedException();
 
-        public IAttackStatProvider StatProvider => throw new NotImplementedException();
+        public IHeroStatReadOnly StatReadOnly => _stat;
 
         public int UID => _heroData.UID;
 

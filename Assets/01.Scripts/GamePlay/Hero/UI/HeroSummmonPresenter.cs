@@ -25,7 +25,6 @@ namespace Heros.UI
             _heroViewer = heroSummonViewer;
 
             _spawnCost = gameEconomy.StartSpawnCost;
-
             _increaseCost = gameEconomy.IncreaseSpawnCost;
 
             _heroViewer.OnSpawnRandomHero += SpawnRandomHero;

@@ -10,6 +10,6 @@ public class EconomyViewer : MonoBehaviour
 
     public void UpdateMoneyText(int money)
     {
-        _moneyText.text = $"Gold {money}";
+        _moneyText.text = money.ToString();
     }
 }

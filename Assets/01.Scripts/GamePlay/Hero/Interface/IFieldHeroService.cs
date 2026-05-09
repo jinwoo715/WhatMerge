@@ -9,5 +9,5 @@ public interface IFieldHeroService
     IReadOnlyList<Hero> GetAllFieldHero { get; }
     void AddFieldHero(Tile tile, Hero hero);
     void SetHeroPosition(IReadOnlyTile destination, Hero hero);
-
+    void SellHero(Hero hero);
 }

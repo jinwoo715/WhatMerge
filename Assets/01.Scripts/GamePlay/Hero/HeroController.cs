@@ -15,6 +15,9 @@ namespace Heros
     {
         int SpawnedCount { get; }
         bool TrySpawnRandomHero();
+        bool TrySpawnHero(int uid, int evolutionLevel);
+        void SpawnHeroAtTile(int uid, int evolutionLevel, Tile tile);
+
         event Action<Tile, Hero> OnSpawndRanHero;
     }
 
@@ -41,13 +44,15 @@ namespace Heros
             SpecialSkill = special;
         }
     }
-
     public class MergeData
     {
         public int First;
         public int Second;
         public int Result;
     }
+
+
+
     public class MergeRepository
     {
         Dictionary<(int, int), int> _mergeData = new Dictionary<(int, int), int>();
@@ -79,7 +84,6 @@ namespace Heros
         public bool IsCanMerge(int first, int second)
         {
             var key = SortUID(first, second);
-
             return _mergeData.ContainsKey(key);
         }
 
@@ -138,45 +142,45 @@ namespace Heros
         Merge
     }
 
-    public interface IHeroBagService
-    {
-        bool IsUsableBag { get; }
-        int TotalBagItem { get; }
-        int CurrentUsedBagItem { get; }
-    }
 
-    public class HeroController : IFieldHeroService, IHeroTileService, IHeroBagService
+
+    public class HeroController : IFieldHeroService, IHeroTileService
     {
         private Dictionary<IReadOnlyTile, Hero> _fieldHeros = new Dictionary<IReadOnlyTile, Hero>();
         private Hero _clickedHero = null;
 
         public IReadOnlyList<Hero> GetAllFieldHero => throw new NotImplementedException();
-
         public bool IsUsableBag => CurrentUsedBagItem < TotalBagItem;
-
         public int TotalBagItem => 3;
-
         public int CurrentUsedBagItem => 0;
 
         private IHeroMapService _heroMapService;
         private IHeroOverlapResult _overlapProcessor;
         private ITileMarkerPresenter _markerPresenter;
-
+        private IGameGoldService _gameGoldService;
+        private IHeroSummonService _heroSpawnService;
         public event Action<Hero> OnSelectHero;
-
-        public void Init(IHeroOverlapResult heroOverlapProcessor, IHeroMapService heroMapService, ITileMarkerPresenter markerPresenter)
+        public void Init(IHeroSummonService heroSpawnService, IHeroOverlapResult heroOverlapProcessor, IHeroMapService heroMapService, ITileMarkerPresenter markerPresenter, IGameGoldService gameGoldService)
         {
+            _heroSpawnService = heroSpawnService;
+            _gameGoldService = gameGoldService;
             _heroMapService = heroMapService;
             _overlapProcessor = heroOverlapProcessor;
             _markerPresenter = markerPresenter;
         }
         public void ReturnHero(Hero hero)
         {
+            hero.Return();
+            hero.OnReturn -= ClearHero;
+        }
+
+        public void ClearHero(Hero hero)
+        {
             IReadOnlyTile tile = hero.OccupiedTile;
             _fieldHeros.Remove(tile);
             _heroMapService.FreeHeroTile(tile);
-            hero.Return();
         }
+
         public void SetHeroPosition(IReadOnlyTile tile, Hero hero)
         {
             if (hero.OccupiedTile != null)
@@ -193,6 +197,8 @@ namespace Heros
         public void AddFieldHero(Tile tile, Hero hero)
         {
             _fieldHeros.Add(tile, hero);
+
+            hero.OnReturn += ClearHero;
         }
 
         public void PointDownTile(Tile tile)
@@ -211,12 +217,12 @@ namespace Heros
             {
                 if (_clickedHero == hero)
                 {
-                    Debug.Log("영웅 클릭!");
                     OnSelectHero?.Invoke(_clickedHero);
                 }
                 else
                 {
                     var result = _overlapProcessor.OverlapHero(_clickedHero, hero);
+                    Debug.Log(result);
 
                     switch (result)
                     {
@@ -245,7 +251,8 @@ namespace Heros
                             ReturnHero(hero);
 
                             int uid = _overlapProcessor.GetMergeHeroUID(_clickedHero.UID, hero.UID);
-                            //SpawnHero(uid, tile);
+                            int evolution = _clickedHero.EvolutionLevel;
+                            _heroSpawnService.SpawnHeroAtTile(uid, evolution, tile);
 
                             Debug.Log("합췌!!");
                             break;
@@ -258,12 +265,21 @@ namespace Heros
             }
 
             _markerPresenter.HideTileMarker();
+
+            _clickedHero = null;
         }
         public void DragTile(Tile tile)
         {
             if (_clickedHero == null) return;
 
             _markerPresenter.UpdateTileMarker(tile);
+        }
+
+        public void SellHero(Hero hero)
+        {
+            Debug.Log("팔았다!");
+            //TODO 판매 금액 산정 방법
+            _gameGoldService.GainMoney(10);
         }
     }
 }

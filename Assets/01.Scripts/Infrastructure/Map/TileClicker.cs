@@ -2,6 +2,7 @@ using Entity;
 using Map;
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class TileClicker : MonoBehaviour
 {
@@ -13,9 +14,11 @@ public class TileClicker : MonoBehaviour
 
     private void Update()
     {
+        if (EventSystem.current.IsPointerOverGameObject()) return;
+
         if (Input.GetMouseButtonDown(0))
         {
-            if(TryGetTile(out var tile))
+            if (TryGetTile(out var tile))
             {
                 _selectedTile = tile;
                 OnPointDownTile?.Invoke(tile);
