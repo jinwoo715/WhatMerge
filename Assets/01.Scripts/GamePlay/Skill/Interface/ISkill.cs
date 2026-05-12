@@ -1,8 +1,5 @@
 using Combat;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
 public struct SkillTriggerContext
 {
@@ -16,17 +13,14 @@ public struct SkillTriggerContext
     }
 }
 
-public enum ESkillSlot 
-{
-    Basic,
-    First,
-    Second,
-    Special
-}
-
 public interface ISkill
 {
     IEnumerator Excute();
     bool IsUseable(SkillTriggerContext context);
     void PayCost(ISkillResourceModifier skillResourceModifier);
+}
+
+public interface ISkillStatModifier
+{
+    void AddParam(int paramIndex, float value);
 }

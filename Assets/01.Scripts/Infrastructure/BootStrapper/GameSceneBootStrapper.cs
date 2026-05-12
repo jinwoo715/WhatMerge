@@ -46,7 +46,7 @@ namespace Core.BootStrapper
         [SerializeField] private ProjectileSpawner _projectileSpawner;
         [SerializeField] private SummonSpawner _summonSpawner;
         [SerializeField] private VFXSpawner _vfxSpawner;
-        private SkillContext _skillContext = new SkillContext();
+        private SkillServiceLocate _skillContext = new SkillServiceLocate();
         private VFXSpriteRepository _vfxRepository = new VFXSpriteRepository();
         private VFXSpriteRepository _projectileRepository = new VFXSpriteRepository();
 

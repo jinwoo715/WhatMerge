@@ -9,12 +9,14 @@ namespace Combat
         public int Damage;
         public int FlatPenetration;
         public float PercentPenetration;
+        public bool IsPiercing;
 
         public AttackPayload(int damage, int flatPenetration, float percentPenetration)
         {
             Damage = damage;
             FlatPenetration = flatPenetration;
             PercentPenetration = percentPenetration;
+            IsPiercing = false;
         }
     }
 

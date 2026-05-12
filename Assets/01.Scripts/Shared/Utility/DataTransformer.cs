@@ -24,12 +24,12 @@ public class DataTransformer : EditorWindow
     public static void ParseCSVDataToJson()
     {
         
-        ParseExcelDataToListJsonData<WaveData>("WaveData");
-        ParseExcelDataToListJsonData<StageData>("StageData");
+        //ParseExcelDataToListJsonData<WaveData>("WaveData");
+        //ParseExcelDataToListJsonData<StageData>("StageData");
         //ParseExcelDataToListJsonData<EnemyData>("EnemyData");
         //ParseExcelDataToListJsonData<ActiveSkillData>("ActiveSkillData");
         //ParseExcelDataToListJsonData<ATKData>("ATKData");
-        //ParseExcelDataToListJsonData<HeroData>("HeroData");
+        ParseExcelDataToListJsonData<HeroData>("HeroData");
         //ParseExcelDataToListJsonData<ProjectileData>("ProjectileData");
         //ParseExcelDataToListJsonData<SummonData>("SummonData");
         //ParseExcelDataToListJsonData<BuffData>("BuffData");

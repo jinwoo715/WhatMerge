@@ -35,6 +35,11 @@ public interface IDataProvider
     List<MergeData> MergeData {get;}
 }
 
+public interface ISkillDataReader
+{
+    Skills.ActiveSkillData GetActiveSkillData(int uid);
+}
+
 public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepository, IEnemyDataRepository, IDataProvider, IHeroInfoRepository
 {
     [Header("SpriteAtlas")]

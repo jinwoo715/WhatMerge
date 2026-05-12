@@ -1,6 +1,5 @@
 [
   {
-    "UID": 1,
     "Name": "Warrior",
     "Description": "Warrior",
     "ATKUID": 1,
@@ -9,10 +8,10 @@
     "BaseAttack": 1001,
     "FirstSkill": 1002,
     "SecondSkill": 1003,
-    "SpecialSkill": 0
+    "SpecialSkill": 0,
+    "UID": 1
   },
   {
-    "UID": 2,
     "Name": "ShieldSoldier",
     "Description": "ShieldSoldier",
     "ATKUID": 2,
@@ -21,10 +20,10 @@
     "BaseAttack": 0,
     "FirstSkill": 10,
     "SecondSkill": 6,
-    "SpecialSkill": 0
+    "SpecialSkill": 0,
+    "UID": 2
   },
   {
-    "UID": 3,
     "Name": "Spearman",
     "Description": "Spearman",
     "ATKUID": 3,
@@ -33,10 +32,10 @@
     "BaseAttack": 1011,
     "FirstSkill": 1012,
     "SecondSkill": 1013,
-    "SpecialSkill": 0
+    "SpecialSkill": 0,
+    "UID": 3
   },
   {
-    "UID": 4,
     "Name": "Thief",
     "Description": "Thief",
     "ATKUID": 4,
@@ -45,10 +44,10 @@
     "BaseAttack": 10,
     "FirstSkill": 11,
     "SecondSkill": 12,
-    "SpecialSkill": 0
+    "SpecialSkill": 0,
+    "UID": 4
   },
   {
-    "UID": 5,
     "Name": "Archer",
     "Description": "Archer",
     "ATKUID": 5,
@@ -57,10 +56,10 @@
     "BaseAttack": 13,
     "FirstSkill": 14,
     "SecondSkill": 15,
-    "SpecialSkill": 0
+    "SpecialSkill": 0,
+    "UID": 5
   },
   {
-    "UID": 6,
     "Name": "Crossbowman",
     "Description": "Crossbowman",
     "ATKUID": 6,
@@ -69,10 +68,10 @@
     "BaseAttack": 16,
     "FirstSkill": 17,
     "SecondSkill": 18,
-    "SpecialSkill": 0
+    "SpecialSkill": 0,
+    "UID": 6
   },
   {
-    "UID": 7,
     "Name": "Musketeer",
     "Description": "Musketeer",
     "ATKUID": 7,
@@ -81,10 +80,10 @@
     "BaseAttack": 19,
     "FirstSkill": 20,
     "SecondSkill": 21,
-    "SpecialSkill": 0
+    "SpecialSkill": 0,
+    "UID": 7
   },
   {
-    "UID": 8,
     "Name": "Bomber",
     "Description": "Bomber",
     "ATKUID": 8,
@@ -93,10 +92,10 @@
     "BaseAttack": 1041,
     "FirstSkill": 1042,
     "SecondSkill": 1043,
-    "SpecialSkill": 0
+    "SpecialSkill": 0,
+    "UID": 8
   },
   {
-    "UID": 9,
     "Name": "Wizard",
     "Description": "Wizard",
     "ATKUID": 9,
@@ -105,10 +104,10 @@
     "BaseAttack": 1021,
     "FirstSkill": 1022,
     "SecondSkill": 1023,
-    "SpecialSkill": 0
+    "SpecialSkill": 0,
+    "UID": 9
   },
   {
-    "UID": 10,
     "Name": "Priest",
     "Description": "Priest",
     "ATKUID": 10,
@@ -117,6 +116,151 @@
     "BaseAttack": 1031,
     "FirstSkill": 1032,
     "SecondSkill": 1033,
-    "SpecialSkill": 0
+    "SpecialSkill": 0,
+    "UID": 10
+  },
+  {
+    "Name": "MagicSwords",
+    "Description": "���˻�",
+    "ATKUID": 1,
+    "AS": 1.0,
+    "Radius": 2.0,
+    "BaseAttack": 1001,
+    "FirstSkill": 1002,
+    "SecondSkill": 1003,
+    "SpecialSkill": 0,
+    "UID": 101
+  },
+  {
+    "Name": "Alchemist",
+    "Description": "���ݼ���",
+    "ATKUID": 1,
+    "AS": 1.0,
+    "Radius": 2.0,
+    "BaseAttack": 1001,
+    "FirstSkill": 1002,
+    "SecondSkill": 1003,
+    "SpecialSkill": 0,
+    "UID": 102
+  },
+  {
+    "Name": "Onmyoji",
+    "Description": "�������",
+    "ATKUID": 1,
+    "AS": 1.0,
+    "Radius": 2.0,
+    "BaseAttack": 1001,
+    "FirstSkill": 1002,
+    "SecondSkill": 1003,
+    "SpecialSkill": 0,
+    "UID": 103
+  },
+  {
+    "Name": "Defender",
+    "Description": "�����",
+    "ATKUID": 1,
+    "AS": 1.0,
+    "Radius": 2.0,
+    "BaseAttack": 1001,
+    "FirstSkill": 1002,
+    "SecondSkill": 1003,
+    "SpecialSkill": 0,
+    "UID": 104
+  },
+  {
+    "Name": "Blaster",
+    "Description": "�������",
+    "ATKUID": 1,
+    "AS": 1.0,
+    "Radius": 2.0,
+    "BaseAttack": 1001,
+    "FirstSkill": 1002,
+    "SecondSkill": 1003,
+    "SpecialSkill": 0,
+    "UID": 105
+  },
+  {
+    "Name": "TaegeukMaster",
+    "Description": "�±ؼ���",
+    "ATKUID": 1,
+    "AS": 1.0,
+    "Radius": 2.0,
+    "BaseAttack": 1001,
+    "FirstSkill": 1002,
+    "SecondSkill": 1003,
+    "SpecialSkill": 0,
+    "UID": 106
+  },
+  {
+    "Name": "Paladin",
+    "Description": "�����",
+    "ATKUID": 1,
+    "AS": 1.0,
+    "Radius": 2.0,
+    "BaseAttack": 1001,
+    "FirstSkill": 1002,
+    "SecondSkill": 1003,
+    "SpecialSkill": 0,
+    "UID": 107
+  },
+  {
+    "Name": "Hunter",
+    "Description": "����",
+    "ATKUID": 1,
+    "AS": 1.0,
+    "Radius": 2.0,
+    "BaseAttack": 1001,
+    "FirstSkill": 1002,
+    "SecondSkill": 1003,
+    "SpecialSkill": 0,
+    "UID": 108
+  },
+  {
+    "Name": "Ranger",
+    "Description": "������",
+    "ATKUID": 1,
+    "AS": 1.0,
+    "Radius": 2.0,
+    "BaseAttack": 1001,
+    "FirstSkill": 1002,
+    "SecondSkill": 1003,
+    "SpecialSkill": 0,
+    "UID": 109
+  },
+  {
+    "Name": "RoyalGuard",
+    "Description": "�ο�����",
+    "ATKUID": 1,
+    "AS": 1.0,
+    "Radius": 2.0,
+    "BaseAttack": 1001,
+    "FirstSkill": 1002,
+    "SecondSkill": 1003,
+    "SpecialSkill": 0,
+    "UID": 110
+  },
+  {
+    "Name": "Assassin",
+    "Description": "��ؽ�",
+    "ATKUID": 1,
+    "AS": 1.0,
+    "Radius": 2.0,
+    "BaseAttack": 1001,
+    "FirstSkill": 1002,
+    "SecondSkill": 1003,
+    "SpecialSkill": 0,
+    "UID": 111
+  },
+  {
+    "Name": "Dragoon",
+    "Description": "�巡��",
+    "ATKUID": 1,
+    "AS": 1.0,
+    "Radius": 2.0,
+    "BaseAttack": 1001,
+    "FirstSkill": 1002,
+    "SecondSkill": 1003,
+    "SpecialSkill": 0,
+    "UID": 112
   }
 ]

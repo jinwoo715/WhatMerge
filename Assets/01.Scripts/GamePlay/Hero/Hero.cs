@@ -60,7 +60,7 @@ namespace Entity
         public event Action<IReadOnlyTile> OnFreeTile;
         public event Action<Hero> OnReturn;
 
-        public SkillContext Context { get; private set; }
+        public SkillServiceLocate Context { get; private set; }
 
         private int _heroLevel = 1;
         private int _evolutionLevel = 0;
@@ -85,7 +85,7 @@ namespace Entity
         public void SpawnInit()
         {
             _stat.OnStatChange += (type, value) => { if(type == EHeroStat.AttackSpeed) _heroCombat.SetAttackDelay(value); };
-            Context = new SkillContext();
+            Context = new SkillServiceLocate();
             Context.Register<ICreature>(this);
             Context.Register<IAttackable>(this);
             Context.Register<Transform>(this.transform);

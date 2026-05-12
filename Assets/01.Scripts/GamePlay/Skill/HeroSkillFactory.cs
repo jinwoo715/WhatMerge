@@ -32,11 +32,15 @@ public class HeroSkillFactory : ISkillCreater
         }
 
         ActiveSkillData data = _skillRepository.GetActiveSkillData(uid);
+
+        ITrigger trigger = GetTrigger(data.TriggerType);
+        trigger.Init(data.TriggerValue);
+
         Type type = Type.GetType(data.SkillType);
 
         if (type != null)
         {
-            object[] args = new object[] { data, _skillContext, ownerContext };
+            object[] args = new object[] { data, _skillContext, ownerContext, trigger };
 
             skill = (ISkill)Activator.CreateInstance(type, args);
             return true;
@@ -46,6 +50,23 @@ public class HeroSkillFactory : ISkillCreater
             skill = null;
             return false;
         }
+    }
+
+    public ITrigger GetTrigger(EExcuteTriggerType triggerType)
+    {
+        switch (triggerType)
+        {
+            case EExcuteTriggerType.None:
+                return new AlwaysTrigger();
+
+            case EExcuteTriggerType.HitCount:
+                return new HitCountTrigger();
+
+            case EExcuteTriggerType.Mana:
+                return new ManaTrigger();
+        }
+
+        return null;
     }
 
     public List<ISkill> CreateActiveSkill(HeroSkillBundle skillBundle, ISkillContext ownerContext)
@@ -69,52 +90,6 @@ public class HeroSkillFactory : ISkillCreater
 }
 
 //===========================================
-
-public class HeroSkillData
-{
-    public int HeroUID;
-    public int SlotIndex;
-    public string Name;
-    public string Description;
-    public string Motion;
-    public ESkillType SkillType;
-    public int SkillRefID;
-    public EExcuteTriggerType TriggerType;
-    public int TriggerValue;
-    public int DmgRate;
-}
-
-public enum ESkillType
-{
-    Melee,
-    Projectile,
-    Summon
-}
-
-public class SkillDataBase
-{
-    public int SkillUID;
-
-    public int P1;
-    public int P2;
-
-    public string VFX;
-    public List<int> EffectIds;
-}
-
-public class MeleeSkillData : SkillDataBase
-{
-    public EMeleeAttackType SkillType;
-}
-
-public enum EMeleeAttackType
-{
-    SingleAttack,
-    MultiAttack,
-    ConeAttack
-}
-
-
 
 public class ProjectileData
 {

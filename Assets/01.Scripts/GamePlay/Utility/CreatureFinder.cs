@@ -68,6 +68,14 @@ public static class CreatureFinder
         target = nearestTarget;
         return true;
     }
+
+    public static bool HasNearEnemy(Vector2 position, float radius)
+    {
+        int count = Physics2D.OverlapCircleNonAlloc(position, radius, _results, LayerMask.GetMask(_enemyLayer));
+
+        return count > 0;
+    }
+
     public static List<IHeros> TryFindNearHeors(Vector2 position, float radius)
     {
         int count = Physics2D.OverlapCircleNonAlloc(position, radius, _results, LayerMask.GetMask(_heroLayer));

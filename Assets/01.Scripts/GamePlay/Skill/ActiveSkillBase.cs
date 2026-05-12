@@ -46,8 +46,7 @@ public class ActiveSkillData : Data
 
     public string VFX;
 }
-
-public abstract class ActiveSkillBase : ISkill
+public abstract class ActiveSkillBase : ISkill, ISkillStatModifier
 {
     public ActiveSkillData _data { get; private set; }
     public ISkillContext _context { get; private set; }
@@ -60,11 +59,23 @@ public abstract class ActiveSkillBase : ISkill
     protected IAttackable _owner;
     private IAttackStatProvider _statProvider;
 
-    public ActiveSkillBase(ActiveSkillData data, ISkillContext context, ISkillContext owner)
+    private ITrigger _trigger;
+
+    private float _addP1;
+    private float _addP2;
+    private float _addP3;
+
+    protected float P1 => _data.P1 + _addP1;
+    protected float P2 => _data.P2 + _addP2;
+    protected float P3 => _data.P3 + _addP3;
+
+
+    public ActiveSkillBase(ActiveSkillData data, ISkillContext context, ISkillContext owner, ITrigger trigger)
     {
         _data = data;
         _context = context;
         _ownerContext = owner;
+        _trigger = trigger;
 
         owner.TryGet<IHeroInfoProvider>(out var hero);
         owner.TryGet<ISpriteChanger>(out _spriteChanger);
@@ -108,33 +119,13 @@ public abstract class ActiveSkillBase : ISkill
     public abstract IEnumerator Excute();
     public bool IsUseable(SkillTriggerContext context)
     {
-        if (!CheckTriggerCondition(context))
+        if(!_trigger.CanTrigger(context))
             return false;
 
         return HasValidTarget();
     }
-    private bool CheckTriggerCondition(SkillTriggerContext context)
-    {
-        switch (_data.TriggerType)
-        {
-            case EExcuteTriggerType.None:
-                return true;
-            case EExcuteTriggerType.HitCount:
-                return context.HitCount >= _data.TriggerValue;
-            case EExcuteTriggerType.Mana:
-                return context.Mana >= _data.TriggerValue;
 
-            case EExcuteTriggerType.Special:
-                return CheckSpecialTrigger();
-            default:
-                return false;
-        }
-    }
     public abstract bool HasValidTarget();
-    protected virtual bool CheckSpecialTrigger()
-    {
-        return false;
-    }
     public void PayCost(ISkillResourceModifier skillResourceModifier)
     {
         switch (_data.TriggerType)
@@ -148,4 +139,125 @@ public abstract class ActiveSkillBase : ISkill
                 break;
         }
     }
+
+    public void AddParam(int paramIndex, float value)
+    {
+        if (paramIndex == 1)
+            _addP1 += value;
+        else if (paramIndex == 2)
+            _addP2 += value;
+        else if (paramIndex == 3)
+            _addP3 += value;
+    }
 }
+
+#region Passive Skill
+public class PassiveData : Data
+{
+    public EPassiveType Type;
+    public int PassiveUID;
+}
+public enum EPassiveType
+{
+    Buff,
+    DeBuff,
+    AttackExtra,    //공격에 대한 추가 효과 부여
+    Skill           //스킬 파라미터 강화
+}
+public class BuffPassiveData : Data
+{
+    public EBuffTargetType TargetType;
+    public EHeroStatType StatType;
+    public int Value;
+}
+public enum EBuffTargetType
+{
+    Self,
+    NearHeros,
+    AllHeros
+}
+
+public class DeBuffPassiveData : Data
+{
+    public EEnemyStatType StatType;
+    public int Value;
+}
+public enum EEnemyStatType
+{
+    MoveSpeed,
+    Amour
+}
+
+public class AttackExtraData : Data
+{
+    public string ExtraName;
+    public float Param;
+}
+
+public class ChancePiercing : ISkillApplyModifier
+{
+    AttackExtraData _data;
+    public void OnBeforeApply(AttackPayload payload)
+    {
+        int random = UnityEngine.Random.Range(0, 101);
+
+        if (random < _data.Param)
+            payload.IsPiercing = true;
+    }
+    public void OnAfterApply(AttackPayload payload)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public interface ISkillApplyModifier
+{
+    void OnBeforeApply(AttackPayload payload);
+    void OnAfterApply(AttackPayload payload);
+}
+
+public class SkillModifyPassiveData : Data
+{
+    public int TargetSkillUID;
+    public int ParamIndex;
+    public float AddValue;
+}
+
+#endregion
+
+#region Trigger
+public interface ITrigger
+{
+    void Init(float cost);
+    bool CanTrigger(SkillTriggerContext context);
+}
+public class HitCountTrigger : ITrigger
+{
+    private int _require;
+    public void Init(float require)
+    {
+        _require = (int)require;
+    }
+    public bool CanTrigger(SkillTriggerContext context)
+    {
+        return _require <= context.HitCount;
+    }
+}
+public class ManaTrigger : ITrigger
+{
+    private float _cost;
+    public void Init(float cost)
+    {
+        _cost = cost;
+    }
+    public bool CanTrigger(SkillTriggerContext context)
+    {
+        return _cost <= context.Mana;
+    }
+}
+public class AlwaysTrigger : ITrigger
+{
+    public void Init(float cost) { }
+    public bool CanTrigger(SkillTriggerContext context) => true;
+}
+#endregion

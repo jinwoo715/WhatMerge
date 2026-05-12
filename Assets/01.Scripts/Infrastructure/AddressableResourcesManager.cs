@@ -99,5 +99,4 @@ public class AddressableResourcesManager : MonoBehaviour, IResourcesLoader, IRes
             return null;
         }
     }
-
 }

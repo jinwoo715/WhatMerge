@@ -16,7 +16,57 @@ MonoBehaviour:
   m_Data:
     m_SerializedData: []
   m_GUID: 4bd4473a069ff9d4497b2cc0e5924d3f
-  m_SerializeEntries: []
+  m_SerializeEntries:
+  - m_GUID: 1527e0ff93140694c9edfe35955424c3
+    m_Address: MagicSwords
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 20614ab51a80d1141ad976759eeee581
+    m_Address: Wizard
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 32d3c4c9ac2e2d4468870fa3c18de513
+    m_Address: Alchemist
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6da45d1a7f0cc5747a4683601bdae5fa
+    m_Address: Paladin
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7b3964a0604d7a64bb2f87093880edda
+    m_Address: Bomber
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8ccf073de3519384c9c983b4a073d1b7
+    m_Address: Warrior
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a775a325fd5a77e44bfd48cb42d42797
+    m_Address: Onmyoji
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c59c8abd8fd906e4496560ae986a7d4f
+    m_Address: ShieldSoldier
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f53072002c2d07a449b51533c36347d4
+    m_Address: Spearman
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f6359f1f578639a44a682b58edacf73e
+    m_Address: Priest
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: d617ab2fcc714644ba537f0019f7d517, type: 2}
   m_SchemaSet:

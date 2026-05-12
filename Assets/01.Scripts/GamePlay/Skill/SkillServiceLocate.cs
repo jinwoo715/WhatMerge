@@ -14,7 +14,7 @@ namespace Skill
         void GetObject();
     }
 
-    public class SkillContext : ISkillContext
+    public class SkillServiceLocate : ISkillContext
     {
         private Dictionary<Type, object> _services = new();
 
