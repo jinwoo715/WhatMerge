@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class StageData : Data
+public class StageData : BaseData
 {
     public string StageName;
     public string StageDescription;

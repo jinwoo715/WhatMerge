@@ -1,19 +1,12 @@
 using Entity;
 using Heros;
 using Map;
+using Skill;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.U2D;
-
-
-public interface IHeroInfoRepository
-{
-    HeroData GetHeroData(int uid);
-    ATKData GetATKData(int heroUid);
-    HeroSaveData GetHeroSaveData(int uid);
-}
 
 public class HeroSpawner : MonoBehaviour, IHeroSummonService
 {
@@ -22,8 +15,9 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
 
     IHeroMapService _heroMapService;
     IResourcesReader _spriteAtlasRepository;
-    ISkillCreater _skillCreater;
+    ISkillFactory _skillCreater;
     IHeroInfoRepository _heroDataRepo;
+    ISkillDataRepository _skillDataReader;
 
     private HeroDeck _heroDeck;
 
@@ -31,7 +25,7 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
 
     public int SpawnedCount => 0;
 
-    public void Init(IHeroMapService heroMapService, ISkillCreater skillCreater, IResourcesReader spriteAtlasRepository, IHeroInfoRepository heroDataRepo, HeroDeck deck)
+    public void Init(IHeroMapService heroMapService, ISkillFactory skillCreater, IResourcesReader spriteAtlasRepository, IHeroInfoRepository heroDataRepo, HeroDeck deck)
     {
         _heroMapService = heroMapService;
         _spriteAtlasRepository = spriteAtlasRepository;
@@ -94,8 +88,13 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
         hero.SetData(data, atkData, heroAtlas, saveData.Level);
         hero.SetEvolution(evolutionLevel);
 
+        HeroUpgradeSkillData skillNames = _skillDataReader.GetHeroUpgradeSkillData(data.UID);
+        var unlockList = skillNames.GetSkills(saveData.Level);
+
+
+
         HeroSkillBundle skillBundle = new HeroSkillBundle(data.BaseAttack, data.FirstSkill, data.SecondSkill, data.SpecialSkill);
-        List<ISkill> skills = _skillCreater.CreateActiveSkill(skillBundle, hero.Context);
+        List<IActiveSkill> skills = _skillCreater.CreateActiveSkill(skillBundle, hero.Context);
 
         hero.SetSkill(skills);
 

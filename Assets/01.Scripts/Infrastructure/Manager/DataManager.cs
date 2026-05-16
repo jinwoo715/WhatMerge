@@ -1,6 +1,7 @@
 using Enemies;
 using Heros;
 using Newtonsoft.Json;
+using Skill;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -31,13 +32,8 @@ public interface IDataProvider
 {
     ProjectileData GetProjecTileData(int uid);
     SummonData GetSummonData(int uid);
-    List<BuffData> GetBuffDatas(int uid);
+    List<BuffSkillData> GetBuffDatas(int uid);
     List<MergeData> MergeData {get;}
-}
-
-public interface ISkillDataReader
-{
-    Skills.ActiveSkillData GetActiveSkillData(int uid);
 }
 
 public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepository, IEnemyDataRepository, IDataProvider, IHeroInfoRepository
@@ -71,7 +67,7 @@ public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepo
     private Dictionary<int, SummonData> _summonDatas = new Dictionary<int, SummonData>();
 
     private Dictionary<int, BuffDataBundle> _buffDataBundle = new Dictionary<int, BuffDataBundle>();
-    private Dictionary<int, BuffData> _buffData = new Dictionary<int, BuffData>();
+    private Dictionary<int, BuffSkillData> _buffData = new Dictionary<int, BuffSkillData>();
 
     private Dictionary<string, SpriteAtlas> _spriteAtlas = new Dictionary<string, SpriteAtlas>();
 
@@ -175,7 +171,7 @@ public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepo
         }
     }
 
-    private void InitDictionary<T>(Dictionary<int, T> dic, TextAsset text) where T : Data
+    private void InitDictionary<T>(Dictionary<int, T> dic, TextAsset text) where T : BaseData
     {
         var datas = DeserializeTextData<T>(text);
         for (int i = 0; i < datas.Count; i++)
@@ -287,11 +283,11 @@ public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepo
         Debug.LogError($"Not Exist Data By : {uid}");
         return default;
     }
-    public List<BuffData> GetBuffDatas(int uid)
+    public List<BuffSkillData> GetBuffDatas(int uid)
     {
         var bundleData = _buffDataBundle[uid];
 
-        List<BuffData> datas = new List<BuffData>();
+        List<BuffSkillData> datas = new List<BuffSkillData>();
 
         if (bundleData.FirstBuff != 0)
             datas.Add(_buffData[bundleData.FirstBuff]);
@@ -306,6 +302,31 @@ public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepo
     }
 
     public HeroSaveData GetHeroSaveData(int uid)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public BuffData GetBuffData(int uid)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public DeBuffData GetDeBuffData(int uid)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public ExtraEffectData GetExtraEffectData(int uid)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public SkillStatModifyData GetSkillModifierData(int uid)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public HeroUpgradeSkillData GetHeroUpgradeSkillData(int uid)
     {
         throw new System.NotImplementedException();
     }

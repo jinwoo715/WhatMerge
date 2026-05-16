@@ -4,12 +4,14 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace Combat
 {
-    public struct AttackPayload
+    public class AttackPayload
     {
         public int Damage;
         public int FlatPenetration;
         public float PercentPenetration;
         public bool IsPiercing;
+
+        public HashSet<int> StatusEffectUID;
 
         public AttackPayload(int damage, int flatPenetration, float percentPenetration)
         {
@@ -17,6 +19,12 @@ namespace Combat
             FlatPenetration = flatPenetration;
             PercentPenetration = percentPenetration;
             IsPiercing = false;
+            StatusEffectUID = new HashSet<int>();
+        }
+
+        public void AddStatusEffect(int uid)
+        {
+            StatusEffectUID.Add(uid);
         }
     }
 

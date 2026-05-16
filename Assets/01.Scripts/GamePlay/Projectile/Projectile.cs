@@ -1,15 +1,7 @@
 using Combat;
+using Skill;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-
-
-// Projectile
-
-// 이동, 생명주기, Effect
-
-
 public class Projectile : MonoBehaviour, IPooledItem<Projectile>
 {
     [SerializeField] private SpriteRenderer _renderer;

@@ -1,3 +1,4 @@
+using Skill;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,9 +7,9 @@ using UnityEngine;
 public class BuffPayload
 {
     public IStatModifier StatModifier { get; private set; }
-    public BuffData BuffData { get; private set; }
+    public BuffSkillData BuffData { get; private set; }
 
-    public BuffPayload(IStatModifier statModifier, BuffData buffData)
+    public BuffPayload(IStatModifier statModifier, BuffSkillData buffData)
     {
         StatModifier = statModifier;
         BuffData = buffData;
@@ -21,7 +22,7 @@ public class BuffEquipment
 
     public IEnumerator CoApplyBuff(BuffPayload buffPayload)
     {
-        BuffData data = buffPayload.BuffData;
+        BuffSkillData data = buffPayload.BuffData;
 
         buffPayload.StatModifier.ModifyStat(data.StatType, data.BuffValue);
         yield return new WaitForSeconds(data.BuffTime);

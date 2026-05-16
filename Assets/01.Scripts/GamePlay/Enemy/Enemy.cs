@@ -7,9 +7,12 @@ using UnityEngine;
 
 namespace Enemies
 {
+    public interface IEnemyStatModifier
+    {
+        void ModifyStat(EEnemyStatType stat, float value);
+    }
 
-
-    public class Enemy : MonoBehaviour, IDamageable, IPooledItem<Enemy>, IRewardProvider
+    public class Enemy : MonoBehaviour, IDamageable, IPooledItem<Enemy>, IRewardProvider, IEnemyStatModifier
     {
         [SerializeField] private MoveController _move;
         [SerializeField] private EnemySpriteController _spriteController;
@@ -78,6 +81,11 @@ namespace Enemies
             reward.Value = _data.Coin;
 
             return reward;
+        }
+
+        public void ModifyStat(EEnemyStatType stat, float value)
+        {
+            Debug.Log($"{stat} : {value}");
         }
     }
 }

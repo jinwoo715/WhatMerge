@@ -9,12 +9,7 @@ using UnityEngine;
 
 namespace Skill 
 {
-    public interface IObjectGetter
-    {
-        void GetObject();
-    }
-
-    public class SkillServiceLocate : ISkillContext
+    public class SkillServiceLocate : IServiceLocator
     {
         private Dictionary<Type, object> _services = new();
 
@@ -38,7 +33,7 @@ namespace Skill
         }
     }
 
-    public interface ISkillContext
+    public interface IServiceLocator
     {
         void Register<T>(T service) where T : class;
         bool TryGet<T>(out T service) where T : class;

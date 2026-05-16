@@ -10,12 +10,14 @@ namespace Enemies
         bool IsAliveBoss { get; }
 
         event Action<Enemy> OnEnemyDeath;
+        event Action<Enemy> OnSpawnEnemy;
 
         event Action<int> OnChangedActiveEnemyCount;
 
         event Action OnDeathAllEnemy;
         event Action OnDeathBossEnemy;
-
         void AddFieldEnemy(Enemy enemy);
+
+        void AllEnemyStatModify(EEnemyStatType statType, float value);
     }
 }

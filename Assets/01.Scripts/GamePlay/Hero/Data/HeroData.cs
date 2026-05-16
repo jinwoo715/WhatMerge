@@ -1,5 +1,5 @@
 [System.Serializable]
-public class HeroData : Data
+public class HeroData : BaseData
 {
     public string Name;
     public string Description;

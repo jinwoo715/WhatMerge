@@ -160,6 +160,10 @@ namespace Heros
         private IGameGoldService _gameGoldService;
         private IHeroSummonService _heroSpawnService;
         public event Action<Hero> OnSelectHero;
+        public event Action OnChangedFieldHero;
+        public event Action<Hero> OnSpawnedHero;
+        public event Action<Hero> OnDestroyHero;
+
         public void Init(IHeroSummonService heroSpawnService, IHeroOverlapResult heroOverlapProcessor, IHeroMapService heroMapService, ITileMarkerPresenter markerPresenter, IGameGoldService gameGoldService)
         {
             _heroSpawnService = heroSpawnService;
@@ -280,6 +284,16 @@ namespace Heros
             Debug.Log("팔았다!");
             //TODO 판매 금액 산정 방법
             _gameGoldService.GainMoney(10);
+        }
+
+        public List<Hero> GetNearHeros(IReadOnlyTile pivot, int range)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetHeroBuff(EHeroStatType stat, float value)
+        {
+            throw new NotImplementedException();
         }
     }
 }

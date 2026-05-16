@@ -1,5 +1,5 @@
 [System.Serializable]
-public class ATKData : Data
+public class ATKData : BaseData
 {
     public int BaseATK;
 

@@ -1,3 +1,8 @@
-BuffUID,StatType,BuffValue,BuffTime
-1,AttackDamage,10,3
-2,AttackSpeed,10,3
+UID,TargetType,EHeroStatType,Value
+1,Self,AttackDamage,10
+2,Self,AttackSpeed,10
+3,Self,ManaChargeSpeed,10
+4,Self,ManaChargeSpeed,20
+5,NearHeros,ManaChargeSpeed,10
+6,AllHeros,AttackSpeed,5
+7,NearHeros,AttackDamage,8

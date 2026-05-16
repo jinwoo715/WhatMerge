@@ -1,7 +1,7 @@
 namespace Enemies
 {
     [System.Serializable]
-    public class EnemyData : Data
+    public class EnemyData : BaseData
     {
         public string Name;
         public string Description;

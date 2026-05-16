@@ -1,4 +1,5 @@
 using Combat;
+using Heros;
 using Heros.Stat;
 using Map;
 using Skill;
@@ -46,7 +47,7 @@ namespace Entity
 {
     public class Hero : MonoBehaviour, ITileObject, IHeroInfoProvider, IAttackStatProvider, IAttackable, IHeros, IPooledItem<Hero>
     {
-        [SerializeField] private HeroCombatController _heroCombat;
+        [SerializeField] private SkillController _heroCombat;
         [SerializeField] private HeroSpriteController _spriteController;
 
         private HeroData _heroData;
@@ -123,11 +124,20 @@ namespace Entity
             SetEvolution(_evolutionLevel);
         }
 
-        public void SetSkill(List<ISkill> skills)
+        public void SetSkill(List<IActiveSkill> skills)
         {
             _heroCombat.Clear();
             _heroCombat.InjectSkill(skills);
         }
+
+        public void SetPassive(List<ISkill> skills)
+        {
+            foreach (var skill in skills)
+            {
+                //StartCoroutine(skill.Execute());
+            }
+        }
+
         public void SetTile(IReadOnlyTile tile, Vector2 position)
         {
             //if (IsExistUnderTile())
