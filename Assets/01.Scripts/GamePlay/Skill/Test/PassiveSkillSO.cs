@@ -5,10 +5,9 @@ using UnityEngine;
 namespace Skill.Data
 {
     [CreateAssetMenu(fileName = "Passive Skill", menuName = "Skill/Passive", order = 0)]
-    public class PassiveSkillSO : ScriptableObject
+    public class PassiveSkillSO : SkillBase
     {
         [Header("Info")]
-        public int UID;
         public string Name;
         public string Description;
 

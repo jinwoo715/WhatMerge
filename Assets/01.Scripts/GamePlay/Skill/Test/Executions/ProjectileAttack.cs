@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Skill.Data
 {
-    [CreateAssetMenu(fileName = "ProjectileAttack", menuName = "Skill/Attack/ProjectileAttack", order = 0)]
+    [CreateAssetMenu(fileName = "ProjectileAttack", menuName = "Skill/Execution/ProjectileAttack", order = 0)]
     public class ProjectileAttack : ExecutionSystem
     {
         public int ProjectileUID;

@@ -5,12 +5,16 @@ using UnityEngine;
 
 namespace Skill
 {
-    public class SkillController : MonoBehaviour, ISkillResourceModifier
+    public interface IManaModifier
+    {
+        void ChangeManaChargeSpeed(float ratio);
+        void ImmediateManaCharge(float amount);
+    }
+
+    public class SkillController : MonoBehaviour, ISkillResourceModifier, IManaModifier
     {
         private int _currentHitCount;
         private float _currentMana;
-
-        private float MaxMana = 100;
 
         private float _manaChargeSpeed = 1;
         private float _attackDelay;
@@ -46,8 +50,6 @@ namespace Skill
         private void Update()
         {
             _currentMana += Time.deltaTime * 10 * _manaChargeSpeed;
-
-            _currentMana = Mathf.Min(_currentMana, MaxMana);
 
             if (_isUseingSkill) return;
 
@@ -94,14 +96,21 @@ namespace Skill
         }
         public void ConsumeHitCount(int count)
         {
-            _currentHitCount -= count;
-
-            _currentHitCount = Mathf.Max(_currentHitCount, 0);
+            _currentHitCount = 0;
         }
         public void ConsumeManaCount(float count)
         {
-            _currentMana -= count;
-            _currentMana = Mathf.Max(_currentMana, 0);
+            _currentMana = 0;
+        }
+
+        public void ChangeManaChargeSpeed(float ratio)
+        {
+            _manaChargeSpeed += ratio;
+        }
+
+        public void ImmediateManaCharge(float amount)
+        {
+            _currentMana += amount;
         }
     }
 }

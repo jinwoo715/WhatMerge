@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace Skill.Data
 {
-    public class SkillEnhancer : ScriptableObject
+    public class SkillEnhancer : SkillBase
     {
-        public int UID;
+        
     }
 
     //스킬에 추가 이펙트 넣기

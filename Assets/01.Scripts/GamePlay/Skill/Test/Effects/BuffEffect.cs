@@ -1,3 +1,4 @@
+using Heros;
 using UnityEngine;
 
 namespace Skill.Data
@@ -6,6 +7,7 @@ namespace Skill.Data
 
     public class BuffEffect : SkillEffect
     {
-
+        public EHeroStatType BuffType;
+        public int IncreaseRatio;
     }
 }

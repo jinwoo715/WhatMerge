@@ -1,0 +1,87 @@
+{
+    "NodePositions": [
+        {
+            "Key": "active",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -76.0,
+                "y": -22.0,
+                "width": 278.0,
+                "height": 356.0
+            }
+        },
+        {
+            "Key": "loose-9a31a19320b33fe49bfc02f2dcc92a13",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -737.0,
+                "y": -157.0,
+                "width": 423.0,
+                "height": 359.0
+            }
+        },
+        {
+            "Key": "execution",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -664.0,
+                "y": -95.0,
+                "width": 377.0,
+                "height": 287.0
+            }
+        },
+        {
+            "Key": "effect-0",
+            "Position": {
+                "serializedVersion": "2",
+                "x": 1110.0,
+                "y": 390.0,
+                "width": 260.0,
+                "height": 162.0
+            }
+        },
+        {
+            "Key": "effect-1",
+            "Position": {
+                "serializedVersion": "2",
+                "x": 1110.0,
+                "y": 680.0,
+                "width": 260.0,
+                "height": 162.0
+            }
+        }
+    ],
+    "AssetPositions": [
+        {
+            "Key": "asset-6f4505d7475184d46a2eb93ef1d6fb8a",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -76.0,
+                "y": -22.0,
+                "width": 278.0,
+                "height": 356.0
+            }
+        },
+        {
+            "Key": "asset-9a31a19320b33fe49bfc02f2dcc92a13",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -664.0,
+                "y": -95.0,
+                "width": 377.0,
+                "height": 287.0
+            }
+        }
+    ],
+    "LooseAssetGuids": [],
+    "ViewPosition": {
+        "x": 788.0,
+        "y": 244.0,
+        "z": 0.0
+    },
+    "ViewScale": {
+        "x": 0.8695651888847351,
+        "y": 0.8695651888847351,
+        "z": 1.0
+    }
+}

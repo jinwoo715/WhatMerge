@@ -45,7 +45,12 @@ public interface IHeros : ICreature, IStatModifier
 
 namespace Entity
 {
-    public class Hero : MonoBehaviour, ITileObject, IHeroInfoProvider, IAttackStatProvider, IAttackable, IHeros, IPooledItem<Hero>
+    public class Creature : MonoBehaviour
+    {
+        public bool IsActive { get; set; }
+    }
+
+    public class Hero : Creature, ITileObject, IHeroInfoProvider, IAttackStatProvider, IAttackable, IHeros, IPooledItem<Hero>
     {
         [SerializeField] private SkillController _heroCombat;
         [SerializeField] private HeroSpriteController _spriteController;

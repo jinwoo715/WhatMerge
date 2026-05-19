@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e081a4569ff6834785aa3208bde2218, type: 3}
+  m_Name: Warrior_Attack
+  m_EditorClassIdentifier: 
+  SkillType: 0
+  UID: 1
+  Name: "\uAE30\uBCF8 \uACF5\uACA9"
+  Description: "\uC804\uC0AC \uAE30\uBCF8 \uACF5\uACA9"
+  MotionName: MegaHit
+  ReadyMotionMotion: 0.2
+  ExecutionMotionTime: 0.2
+  ActiveAction: {fileID: 11400000, guid: 8208f864da30e104d9ec0b01088151c8, type: 2}
+  Target: {fileID: 11400000, guid: 391f511f57ae54048a3bd131383e2289, type: 2}
+  Trigger: {fileID: 11400000, guid: 57dbb908b6e9273498ed414a0bf9cc41, type: 2}

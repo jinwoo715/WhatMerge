@@ -24,7 +24,6 @@ public static class SearchUtility
         }
         return detectedEnemy;
     }
-
     public static List<Collider2D> ConeSearch(Vector3 pivotPoint, Vector3 toDir, float range, LayerMask layerMask, float detectionAngle)
     {
         Collider2D[] searchTotalEnemy = Physics2D.OverlapCircleAll(pivotPoint, range, layerMask);
@@ -44,7 +43,6 @@ public static class SearchUtility
         }
         return detectedEnemy;
     }
-
     public static T GetNearest2DTarget<T>(Vector3 position, float radius, LayerMask layer) where T : MonoBehaviour
     {
         Collider2D[] collider = Physics2D.OverlapCircleAll(position, radius, layer);
@@ -68,7 +66,6 @@ public static class SearchUtility
 
         return currentCollider.GetComponent<T>();
     }
-
     public static List<T> GetNearest2DTargets<T>(Vector3 position, float radius, LayerMask layer, int count) where T : MonoBehaviour
     {
         Collider2D[] collider = Physics2D.OverlapCircleAll(position, radius, layer);
@@ -101,7 +98,6 @@ public static class SearchUtility
 
         return targets;
     }
-
     public static List<T> GetNearAll2DTargets<T>(Vector3 position, float radius, LayerMask layer) where T : MonoBehaviour
     {
         Collider2D[] collider = Physics2D.OverlapCircleAll(position, radius, layer);
@@ -120,7 +116,6 @@ public static class SearchUtility
 
         return targets;
     }
-
     public static List<T> GetRandom2DTargets<T>(Vector3 position, float radius, LayerMask layer, int count) where T : MonoBehaviour
     {
         Collider2D[] collider = Physics2D.OverlapCircleAll(position, radius, layer);
@@ -139,5 +134,10 @@ public static class SearchUtility
         }
 
         return targets;
+    }
+    public static bool IsExistEnemyInRange(Vector3 position, float radius)
+    {
+        Collider2D[] collider = Physics2D.OverlapCircleAll(position, radius, LayerMask.GetMask("Enemy"));
+        return collider.Length != 0;
     }
 }

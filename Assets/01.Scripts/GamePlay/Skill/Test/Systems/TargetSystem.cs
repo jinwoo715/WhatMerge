@@ -8,7 +8,5 @@ namespace Skill.Data
     {
         public ESkillTargetType TargetType;
         public float Radius;
-        public float Angle;
-        public int TargetCount;
     }
 }

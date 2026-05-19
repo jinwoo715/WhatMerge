@@ -6,9 +6,10 @@ namespace Skill.Data
     public class SkillVisualSystem : ScriptableObject
     {
         public string VFXName;
+        public EVFXPositionType Position;
+        public EVFXMoveDirection MoveDirection;
         public float Speed;
         public float Duration;
-        public EVFXPositionType Position;
     }
 
     public enum EVFXPositionType
@@ -19,5 +20,13 @@ namespace Skill.Data
         ScreenCenter    //È­¸é Áß¾Ó
     }
 
-
+    public enum EVFXMoveDirection
+    {
+        None,
+        Up,
+        Right,
+        Down,
+        Left,
+        ToTarget
+    }
 }
