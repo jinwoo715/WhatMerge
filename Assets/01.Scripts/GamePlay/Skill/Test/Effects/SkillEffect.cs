@@ -7,6 +7,6 @@ namespace Skill.Data
         public int EffectUID;
 
         [Header("적용 효과 아이콘")]
-        public SkillVisualSystem VFX;
+        public VisualEffectData VFX;
     }
 }

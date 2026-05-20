@@ -5,12 +5,12 @@ using UnityEngine;
 using GamePlay;
 using UnityEngine.UI;
 
-public class HitEffectSprite : MonoBehaviour, IPooledItem<HitEffectSprite>
+public class VFXItem : MonoBehaviour, IPooledItem<VFXItem>
 {
     [SerializeField] private SpriteRenderer _render;
 
     public bool IsActive { get; private set; }
-    public event Action<HitEffectSprite> OnReturn;
+    public event Action<VFXItem> OnReturn;
 
     private float _timer = 0;
 

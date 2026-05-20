@@ -1,3 +1,4 @@
+using Entity;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -139,5 +140,34 @@ public static class SearchUtility
     {
         Collider2D[] collider = Physics2D.OverlapCircleAll(position, radius, LayerMask.GetMask("Enemy"));
         return collider.Length != 0;
+    }
+
+    public static T GetNearestTarget<T>(IReadOnlyList<Creature> list, Vector3 pivot) where T : class
+    {
+        float minSqrDistance = Mathf.Infinity;
+
+        T nearestTarget = null;
+
+        foreach (var item in list)
+        {
+            if (item is not T target)
+            {
+                Debug.Log("SADFASDF");
+                break;
+            }
+
+            if(item.IsActive)
+            {
+                float distance = Vector3.SqrMagnitude(item.transform.position - pivot);
+
+                if (distance < minSqrDistance)
+                {
+                    minSqrDistance = distance;
+                    nearestTarget = target;
+                }
+            }
+        }
+
+        return nearestTarget;
     }
 }

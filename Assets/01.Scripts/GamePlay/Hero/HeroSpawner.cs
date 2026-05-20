@@ -10,6 +10,10 @@ using UnityEngine.U2D;
 
 public class HeroSpawner : MonoBehaviour, IHeroSummonService
 {
+    [Header("Mock")]
+    public Skill.Data.HeroUpgradeSkillSet set;
+    public Skill.Data.SkillFactory factory;
+
     [SerializeField] private Hero _heroPrefab;
     private ObjectPool<Hero> _heroPool = new ObjectPool<Hero>();
 
@@ -42,12 +46,24 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
 
         return SpawnHero(heroUid, 0);
     }
+
+
+    public int uid;
+    public int evolution;
+    public int level;
+    [ContextMenu("Spawn")]
+    public void SpawnHeroTest()
+    {
+        SpawnHero(uid, evolution);
+    }
+
+
     public bool SpawnHero(int uid, int evolution)
     {
         if (_heroMapService.TryGetNextHeroTile(out Tile tile))
         {
             Vector3 pos = _heroMapService.GetTileWorldPosition(tile);
-            Hero hero = SpawnHero(uid, pos, evolution);
+            Hero hero = SpawnHero(uid, evolution, pos);
             hero.SetTile(tile, pos);
 
             _heroMapService.OccupyHeroTile(tile);
@@ -67,7 +83,7 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
     public void SpawnHeroAtTile(int uid, int evolutionLevel, Tile tile)
     {
         Vector3 pos = _heroMapService.GetTileWorldPosition(tile);
-        Hero hero = SpawnHero(uid, pos, evolutionLevel);
+        Hero hero = SpawnHero(uid, evolutionLevel, pos);
         hero.SetTile(tile, pos);
 
         _heroMapService.OccupyHeroTile(tile);
@@ -75,7 +91,7 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
         OnSpawndRanHero?.Invoke(tile, hero);
     }
 
-    public Hero SpawnHero(int heroUid, Vector3 spawnPos, int evolutionLevel)
+    public Hero SpawnHero(int heroUid, int evolutionLevel, Vector3 spawnPos)
     {
         Hero hero = _heroPool.GetItem(spawnPos);
 
@@ -88,16 +104,19 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
         hero.SetData(data, atkData, heroAtlas, saveData.Level);
         hero.SetEvolution(evolutionLevel);
 
-        HeroUpgradeSkillData skillNames = _skillDataReader.GetHeroUpgradeSkillData(data.UID);
-        var unlockList = skillNames.GetSkills(saveData.Level);
+        Debug.Log("Start");
 
+        var skillSet = factory.CreateSkill(hero, level, set);
 
+        Debug.Log(skillSet.ActiveSkills.Count);
+        Debug.Log(skillSet.PassiveSkills.Count);
 
-        HeroSkillBundle skillBundle = new HeroSkillBundle(data.BaseAttack, data.FirstSkill, data.SecondSkill, data.SpecialSkill);
-        List<IActiveSkill> skills = _skillCreater.CreateActiveSkill(skillBundle, hero.Context);
+        Skill.Data.SkillController controller = new Skill.Data.SkillController(skillSet.ActiveSkills, skillSet.PassiveSkills, hero, data.AS);
 
-        hero.SetSkill(skills);
-
+        //HeroSkillBundle skillBundle = new HeroSkillBundle(data.BaseAttack, data.FirstSkill, data.SecondSkill, data.SpecialSkill);
+        //List<IActiveSkill> skills = _skillCreater.CreateActiveSkill(skillBundle, hero.Context);
+        //hero.SetSkill(skills);
+        hero.skillController = controller;
         return hero;
     }
 

@@ -13,7 +13,7 @@ namespace Skill
         }
         public void PayCost(ISkillResourceModifier resourceModifier)
         {
-            resourceModifier.ConsumeManaCount(_cost);
+            resourceModifier.ConsumeMana(_cost);
         }
     }
 }

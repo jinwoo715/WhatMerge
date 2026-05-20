@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9d7858b2c150ac4599c4ae4e304bfef, type: 3}
   m_Name: DamageEffect
   m_EditorClassIdentifier: 
+  EffectUID: 0
   VFX: {fileID: 0}
-  DamageRatio: 0
+  DamageRatio: 30

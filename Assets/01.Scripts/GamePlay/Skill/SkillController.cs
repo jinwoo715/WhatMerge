@@ -98,7 +98,7 @@ namespace Skill
         {
             _currentHitCount = 0;
         }
-        public void ConsumeManaCount(float count)
+        public void ConsumeMana(float count)
         {
             _currentMana = 0;
         }
@@ -111,6 +111,21 @@ namespace Skill
         public void ImmediateManaCharge(float amount)
         {
             _currentMana += amount;
+        }
+
+        public void AddHitCount(int count)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AddMana(float amount)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void IncreaseManaAmoutRaio(float ratio)
+        {
+            throw new NotImplementedException();
         }
     }
 }

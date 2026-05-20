@@ -62,7 +62,7 @@ public class ConeMelee : AttackSkill
             for (int i = 0; i < enemies.Count; i++)
             {
                 AttackPayload ap = new AttackPayload(resultDamage, FlatPenetration, PercentPenetration);
-                DamageContext dc = new DamageContext(ap, enemies[i], string.Empty, _owner);
+                DamageContext dc = new DamageContext(ap, enemies[i], _owner);
                 _attackRegister.RegisterAttack(dc);
             }
         }
@@ -138,7 +138,7 @@ public class SingleMeleeAttack : AttackSkill
             int PercentPenetration = (int)_statProvider.GetStat(EAttackStatType.PercentPenetration);
 
             AttackPayload ap = new AttackPayload(damage, FlatPenetration, PercentPenetration);
-            DamageContext dc = new DamageContext(ap, _target, _data.VFX, _owner);
+            DamageContext dc = new DamageContext(ap, _target, _owner);
             _attackRegister.RegisterAttack(dc);
         }
 

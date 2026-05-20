@@ -1,4 +1,5 @@
 using Combat;
+using Entity;
 using Map;
 using System;
 using System.Collections;
@@ -12,7 +13,7 @@ namespace Enemies
         void ModifyStat(EEnemyStatType stat, float value);
     }
 
-    public class Enemy : MonoBehaviour, IDamageable, IPooledItem<Enemy>, IRewardProvider, IEnemyStatModifier
+    public class Enemy : Creature, IDamageable, IPooledItem<Enemy>, IRewardProvider, IEnemyStatModifier
     {
         [SerializeField] private MoveController _move;
         [SerializeField] private EnemySpriteController _spriteController;
@@ -33,14 +34,13 @@ namespace Enemies
 
         public EAttribute Attribute => EAttribute.None;
 
-        public bool IsActive => true;
-
         private int _currentHP;
 
         public void Initialize(IPathProvider pathProvider)
         {
             _move.OnDirectionChanged += FlipEnemy;
             _move.Initialize(transform, pathProvider);
+            IsActive = true;
         }
 
         public void Init(EnemyData data, List<Sprite> sprites)

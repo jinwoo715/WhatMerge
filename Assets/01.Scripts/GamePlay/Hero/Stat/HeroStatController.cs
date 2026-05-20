@@ -12,6 +12,8 @@ namespace Stat
         AttackSpeed,
         EnguageSpeed,
         AttackRange,
+        FixPenetration,
+        RatioPenetration,
     }
 
     public class HeroStatController : IHeroStatModifier, IHeroStatReadOnly

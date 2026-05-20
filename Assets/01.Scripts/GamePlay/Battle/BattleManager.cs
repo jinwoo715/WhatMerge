@@ -19,7 +19,7 @@ namespace Combat
 
         public void RegisterAttack(DamageContext damageContext)
         {
-            _vfx.ShowEffect(damageContext.VFX, damageContext.VFXPosition, damageContext.Attacker.Position);
+            //_vfx.ShowEffect(damageContext.VFX, damageContext.VFXPosition, damageContext.Attacker.Position);
 
             if (damageContext.Target == null) return;
 

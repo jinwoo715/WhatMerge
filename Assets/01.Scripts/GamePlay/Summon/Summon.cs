@@ -190,7 +190,7 @@ public class MultiAttackEffect : IHitEffect
         for (int i = 0; i < enemies.Count; i++)
         {
             AttackPayload ap = new AttackPayload(resultDamage, FlatPenetration, PercentPenetration);
-            DamageContext dc = new DamageContext(ap, enemies[i], string.Empty, data.Attacker);
+            DamageContext dc = new DamageContext(ap, enemies[i], data.Attacker);
             data.attackRegister.RegisterAttack(dc);
         }
     }
@@ -208,7 +208,7 @@ public class SingleAttackEffect : IHitEffect
         int PercentPenetration = (int)data.attackStatProvider.GetStat(EAttackStatType.PercentPenetration);
 
         AttackPayload ap = new AttackPayload(resultDamage, FlatPenetration, PercentPenetration);
-        DamageContext dc = new DamageContext(ap, data.Target, string.Empty, data.Attacker);
+        DamageContext dc = new DamageContext(ap, data.Target, data.Attacker);
         data.attackRegister.RegisterAttack(dc);
     }
 }

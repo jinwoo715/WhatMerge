@@ -22,7 +22,6 @@ public class HeroSpriteController : MonoBehaviour, ISpriteChanger
 
     public void Init(SpriteAtlas spriteAtlas, string heroName, int level)
     {
-        Debug.Log(spriteAtlas);
         _spriteAtlas = spriteAtlas;
         _heroName = heroName;
     }

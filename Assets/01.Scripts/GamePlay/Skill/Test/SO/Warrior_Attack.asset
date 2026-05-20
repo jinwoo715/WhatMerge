@@ -16,9 +16,10 @@ MonoBehaviour:
   UID: 1
   Name: "\uAE30\uBCF8 \uACF5\uACA9"
   Description: "\uC804\uC0AC \uAE30\uBCF8 \uACF5\uACA9"
-  MotionName: MegaHit
-  ReadyMotionMotion: 0.2
-  ExecutionMotionTime: 0.2
-  ActiveAction: {fileID: 11400000, guid: 8208f864da30e104d9ec0b01088151c8, type: 2}
+  AnimationData:
+    MotionName: Attack
+    ReadyMotionTime: 0.2
+    ExecutionMotionTime: 0.2
+  Execution: {fileID: 11400000, guid: 8208f864da30e104d9ec0b01088151c8, type: 2}
   Target: {fileID: 11400000, guid: 391f511f57ae54048a3bd131383e2289, type: 2}
   Trigger: {fileID: 11400000, guid: 57dbb908b6e9273498ed414a0bf9cc41, type: 2}

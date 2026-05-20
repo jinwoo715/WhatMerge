@@ -7,7 +7,7 @@ using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
-using SkillVfxSystem = Skill.Data.SkillVisualSystem;
+using SkillVfxSystem = Skill.Data.VisualEffectData;
 
 public sealed class SkillGraphView : GraphView
 {

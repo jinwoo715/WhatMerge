@@ -1,4 +1,5 @@
 using Enemies;
+using Skill.Data;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,7 +12,6 @@ namespace Combat
         public float PercentPenetration;
         public bool IsPiercing;
 
-        public HashSet<int> StatusEffectUID;
 
         public AttackPayload(int damage, int flatPenetration, float percentPenetration)
         {
@@ -19,12 +19,10 @@ namespace Combat
             FlatPenetration = flatPenetration;
             PercentPenetration = percentPenetration;
             IsPiercing = false;
-            StatusEffectUID = new HashSet<int>();
         }
 
         public void AddStatusEffect(int uid)
         {
-            StatusEffectUID.Add(uid);
         }
     }
 
@@ -38,30 +36,33 @@ namespace Combat
         }
     }
 
-    public struct DamageContext
+    public class DamageContext
     {
         public IAttackable Attacker;
         public IDamageable Target;
         public AttackPayload AttackPayload;
-        public string VFX;
         public Vector3 VFXPosition;
 
+        public DamageContext() { }
         public DamageContext(string vfx, Vector3 vfxPosition, IAttackable attacker)
         {
             AttackPayload = new AttackPayload(0,0,0);
             Target = null;
-            VFX = vfx;
             Attacker = attacker;
             VFXPosition = vfxPosition;
         }
-
-        public DamageContext(AttackPayload attackPayload, IDamageable target, string vfx, IAttackable attacker)
+        public DamageContext(AttackPayload attackPayload, IDamageable target, IAttackable attacker)
         {
             AttackPayload = attackPayload;
             Target = target;
-            VFX = vfx;
             Attacker = attacker;
             VFXPosition = target.Position;
+        }
+
+        public List<SkillEffect> skillEffects = new List<SkillEffect>();
+        public void RegisterEffect(SkillEffect effect)
+        {
+            skillEffects.Add(effect);
         }
     }
 }

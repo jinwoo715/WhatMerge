@@ -10,6 +10,7 @@ using Combat;
 using UnityEngine.UI;
 using System;
 using UnityEngine.U2D;
+using Skill.Data;
 
 namespace Core.BootStrapper
 {
@@ -29,7 +30,6 @@ namespace Core.BootStrapper
         private HeroSkillFactory _heroSkillFactory = new HeroSkillFactory();
         private HeroBag _heroBag = new HeroBag();
         private HeroBagPresenter _bagPresenter = new HeroBagPresenter();
-
 
         [Header("Map")]
         [SerializeField] private MapBoard _map;
@@ -71,6 +71,8 @@ namespace Core.BootStrapper
         private TimeController _timeController = new TimeController();
         private TimePresenter _timePresenter = new TimePresenter();
 
+        [Header("Mock")]
+        private SkillFactory _skillFactory = new SkillFactory();
 
         private void Start()
         {
@@ -95,6 +97,13 @@ namespace Core.BootStrapper
             _timePresenter.Init(_timeController, _timeViewer);
             _sceneManager.Init(_stage);
             _map.Init();
+
+            //TODO
+            #region Test
+            _skillFactory.Init(_vfxSpawner, _battleManager, _heroController, _enemyTracker);
+            _heroSpawner.factory = _skillFactory;
+            #endregion
+
 
             #region Hero Init
 

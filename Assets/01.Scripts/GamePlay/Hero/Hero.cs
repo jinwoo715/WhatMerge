@@ -55,6 +55,9 @@ namespace Entity
         [SerializeField] private SkillController _heroCombat;
         [SerializeField] private HeroSpriteController _spriteController;
 
+        //TODO
+        public Skill.Data.SkillController skillController;
+
         private HeroData _heroData;
         private ATKData _atkData;
 
@@ -127,6 +130,11 @@ namespace Entity
         {
             _evolutionLevel++;
             SetEvolution(_evolutionLevel);
+        }
+
+        private void Update()
+        {
+            skillController.Tick(Time.deltaTime);
         }
 
         public void SetSkill(List<IActiveSkill> skills)

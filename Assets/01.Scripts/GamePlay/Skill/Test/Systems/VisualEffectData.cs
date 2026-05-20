@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Skill.Data
 {
     [CreateAssetMenu(fileName = "VFX", menuName = "Skill/VFX", order = 0)]
-    public class SkillVisualSystem : ScriptableObject
+    public class VisualEffectData : ScriptableObject
     {
         public string VFXName;
         public EVFXPositionType Position;

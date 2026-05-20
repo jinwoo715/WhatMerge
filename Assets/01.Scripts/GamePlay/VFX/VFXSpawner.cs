@@ -1,4 +1,5 @@
 using Enemies;
+using Skill.Data;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,14 +7,15 @@ using UnityEngine;
 public interface IVFXService
 {
     public void ShowEffect(string name, Vector3 target, Vector3 attacker);
+    public void ShowVFX(VisualEffectData vfxData);
 }
 
 public class VFXSpawner : MonoBehaviour, IVFXService
 {
-    [SerializeField] private HitEffectSprite _hitEffect;
+    [SerializeField] private VFXItem _hitEffect;
 
     private ISpriteRepository _spriteRepository;
-    private ObjectPool<HitEffectSprite> _effectPool = new();
+    private ObjectPool<VFXItem> _effectPool = new();
 
     public void Init(ISpriteRepository spriteRepository) 
     {
@@ -30,5 +32,10 @@ public class VFXSpawner : MonoBehaviour, IVFXService
 
         Vector3 dir = (target - attacker).normalized;
         effect.Init(sp, dir);
+    }
+
+    public void ShowVFX(VisualEffectData vfxData)
+    {
+        throw new System.NotImplementedException();
     }
 }

@@ -26,8 +26,9 @@ namespace Skill.Data
     [System.Serializable]
     public class SkillAnimationData
     {
-         public string MotionName;
-        public float ReadyMotionMotion = 0.2f;
+        public string MotionName;
+        public string MotionReadyName => MotionName + "_Ready";
+        public float ReadyMotionTime = 0.2f;
         public float ExecutionMotionTime = 0.2f;
     }
 
@@ -37,7 +38,7 @@ namespace Skill.Data
         public List<EffectEntry> Effects;
 
         [Header("공격시 효과")]
-        public SkillVisualSystem VFX;
+        public VisualEffectData VFX;
     }
 
     [System.Serializable]
