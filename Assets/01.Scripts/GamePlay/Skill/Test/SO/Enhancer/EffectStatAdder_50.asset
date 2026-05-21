@@ -14,5 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SkillType: 2
   UID: 0
-  TargetSkill: {fileID: 11400000, guid: b4c72a48c50b30a4fa19b5f68301944a, type: 2}
+  Name: 
+  Description: 
+  TargetSkill: {fileID: 0}
+  TargetEffectIndex: 0
   AddValue: 150

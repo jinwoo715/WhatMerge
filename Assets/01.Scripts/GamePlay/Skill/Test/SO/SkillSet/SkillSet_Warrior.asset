@@ -21,13 +21,13 @@ MonoBehaviour:
   - Level: 10
     Skill: {fileID: 11400000, guid: b434e00f589259749bec77f301b76ca6, type: 2}
   - Level: 20
-    Skill: {fileID: 11400000, guid: b434e00f589259749bec77f301b76ca6, type: 2}
+    Skill: {fileID: 11400000, guid: 914c5bf7b8b12fb47aaa1ce4ec20ad78, type: 2}
   - Level: 30
     Skill: {fileID: 11400000, guid: 83d7b59e637461c4893e17cac21d54ca, type: 2}
   - Level: 40
     Skill: {fileID: 11400000, guid: 59dfc6b4e2fc890478d9f5a2b36de0bd, type: 2}
   - Level: 50
-    Skill: {fileID: 0}
+    Skill: {fileID: 11400000, guid: 3701a3b2b9d97d0459c3fdfd2a7fa42d, type: 2}
   - Level: 60
     Skill: {fileID: 0}
   - Level: 70

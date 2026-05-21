@@ -241,7 +241,7 @@ public sealed class SkillGraphView : GraphView
         evt.menu.AppendAction("Create Node/Effect/Damage", _ => CreateAndAssignNode<DamageEffect>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendAction("Create Node/Effect/Buff", _ => CreateAndAssignNode<BuffEffect>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendAction("Create Node/Effect/Debuff", _ => CreateAndAssignNode<DebuffEffect>(graphPosition), DropdownMenuAction.AlwaysEnabled);
-        evt.menu.AppendAction("Create Node/Effect/Status", _ => CreateAndAssignNode<StatusEffect>(graphPosition), DropdownMenuAction.AlwaysEnabled);
+        evt.menu.AppendAction("Create Node/Effect/Status", _ => CreateAndAssignNode<AttributeEffect>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendSeparator("Create Node/");
         evt.menu.AppendAction("Create Node/VFX/Skill Visual", _ => CreateAndAssignNode<SkillVfxSystem>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendSeparator();
@@ -702,7 +702,7 @@ public sealed class SkillGraphView : GraphView
             return true;
         }
 
-        if (asset is SkillEffect)
+        if (asset is EffectBase)
         {
             kind = SkillNodeKind.Effect;
             title = "Effect";
@@ -829,7 +829,7 @@ public sealed class SkillGraphView : GraphView
             Undo.RecordObject(execution, "Assign Execution Slot");
             if (TryGetEffectSlotIndex(slotName, out int effectIndex))
             {
-                if (newAsset is SkillEffect indexedEffect)
+                if (newAsset is EffectBase indexedEffect)
                 {
                     EnsureEffectEntry(execution, effectIndex).Effect = indexedEffect;
                 }
@@ -849,7 +849,7 @@ public sealed class SkillGraphView : GraphView
             return;
         }
 
-        if (nodeView.Kind == SkillNodeKind.Effect && nodeView.Asset is SkillEffect effectAsset)
+        if (nodeView.Kind == SkillNodeKind.Effect && nodeView.Asset is EffectBase effectAsset)
         {
             Undo.RecordObject(effectAsset, "Assign Effect Slot");
             switch (slotName)
@@ -930,7 +930,7 @@ public sealed class SkillGraphView : GraphView
             return;
         }
 
-        if (nodeView.Kind == SkillNodeKind.Effect && nodeView.Asset is SkillEffect effectAsset)
+        if (nodeView.Kind == SkillNodeKind.Effect && nodeView.Asset is EffectBase effectAsset)
         {
             Undo.RecordObject(effectAsset, "Clear Effect Slot");
             switch (slotName)
@@ -1059,7 +1059,7 @@ public sealed class SkillGraphView : GraphView
             }
         }
 
-        if (nodeView.Kind == SkillNodeKind.Effect && nodeView.Asset is SkillEffect effectAsset)
+        if (nodeView.Kind == SkillNodeKind.Effect && nodeView.Asset is EffectBase effectAsset)
         {
             switch (slotName)
             {
@@ -1227,7 +1227,7 @@ public sealed class SkillGraphView : GraphView
             case SkillNodeKind.ExecutionVfx:
                 if (nodeView.EffectIndex >= 0 && _skill.Execution?.Effects != null && nodeView.EffectIndex < _skill.Execution.Effects.Count)
                 {
-                    SkillEffect effect = _skill.Execution.Effects[nodeView.EffectIndex]?.Effect;
+                    EffectBase effect = _skill.Execution.Effects[nodeView.EffectIndex]?.Effect;
                     if (effect != null)
                     {
                         Undo.RecordObject(effect, "Remove Effect VFX");

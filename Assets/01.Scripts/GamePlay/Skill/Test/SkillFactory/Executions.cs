@@ -11,6 +11,7 @@ namespace Skill.Data
     public interface IExecute
     {
         IEnumerator Execute(IReadOnlyList<Creature> targets);
+        void AddEffect(EffectEntry effectEntry);
     }
     public abstract class ExecutionBase : IExecute
     {
@@ -19,11 +20,12 @@ namespace Skill.Data
         private SkillAnimationData _animaData;
         private ISpriteChanger _spriteChanger;
         protected readonly IVFXService _vfxService;
-        protected readonly IAttackRegister _attackRegister;
+        protected readonly ICombatService _attackRegister;
+        protected readonly List<EffectEntry> ExtraEffects = new List<EffectEntry>();
 
         public ExecutionBase(
             ExecutionSystem exectionSystem, SkillAnimationData animationData, ISpriteChanger spriteChanger, 
-            IVFXService VFXService, IAttackRegister attackRegister, Hero owner)
+            IVFXService VFXService, ICombatService attackRegister, Hero owner)
         {
             _animaData = animationData;
             _spriteChanger = spriteChanger;
@@ -52,12 +54,17 @@ namespace Skill.Data
         {
             _spriteChanger.SetIdle();
         }
+
+        public void AddEffect(EffectEntry effectEntry)
+        {
+            ExtraEffects.Add(effectEntry);
+        }
     }
 
     public class TargetMeleeExecution : ExecutionBase
     {
         public TargetMeleeExecution(ExecutionSystem exectionSystem, SkillAnimationData animationData, 
-            ISpriteChanger spriteChanger, IVFXService VFXService, IAttackRegister attackRegister, Hero owner) : 
+            ISpriteChanger spriteChanger, IVFXService VFXService, ICombatService attackRegister, Hero owner) : 
             base(exectionSystem, animationData, spriteChanger, VFXService, attackRegister, owner) { }
         public override IEnumerator Execute(IReadOnlyList<Creature> targets)
         {
@@ -78,6 +85,11 @@ namespace Skill.Data
             AttackPayload attackPayload = new AttackPayload(damage, fixPenetration, ratioPenetration);
             DamageContext dc = new DamageContext(attackPayload, target, _owner);
 
+            for (int i = 0; i < _executionSystem.Effects.Count; i++)
+            {
+
+            }
+
             foreach (var effect in _executionSystem.Effects)
             {
                 int chance = Random.Range(0, 100);
@@ -97,17 +109,16 @@ namespace Skill.Data
     {
         private float _angle;
         public ConeMeleeExecution(ExecutionSystem exectionSystem, SkillAnimationData animationData,
-            ISpriteChanger spriteChanger, IVFXService VFXService, IAttackRegister attackRegister, Hero owner) :
+            ISpriteChanger spriteChanger, IVFXService VFXService, ICombatService attackRegister, Hero owner) :
             base(exectionSystem, animationData, spriteChanger, VFXService, attackRegister, owner)
         {
             if (exectionSystem is ConeMeleeAttack cone)
             {
                 _angle = cone.Angle;
-                Debug.Log(_angle);
             }
             else
             {
-                Debug.Log("¾ø¾î!");
+                Debug.LogError($"Not Match Type {exectionSystem}");
             }
         }
 
@@ -116,6 +127,10 @@ namespace Skill.Data
             yield return SetReadyMotion();
 
             IDamageable target = SearchUtility.GetNearestTarget<IDamageable>(targets, _owner.Position);
+
+            Vector3 dir = (target.Position - _owner.Position).normalized;
+
+            List<IDamageable> resultTargets = SearchUtility.GetConeTargets<IDamageable>(targets, _owner.Position, dir, _angle);
 
             yield return SetExecutionMotion();
 
@@ -127,20 +142,23 @@ namespace Skill.Data
             int fixPenetration = (int)stat.GetStat(EHeroStat.FixPenetration);
             int ratioPenetration = (int)stat.GetStat(EHeroStat.RatioPenetration);
 
-            AttackPayload attackPayload = new AttackPayload(damage, fixPenetration, ratioPenetration);
-            DamageContext dc = new DamageContext(attackPayload, target, _owner);
-
-            foreach (var effect in _executionSystem.Effects)
+            foreach (var enemy in resultTargets)
             {
-                int chance = Random.Range(0, 100);
+                AttackPayload attackPayload = new AttackPayload(damage, fixPenetration, ratioPenetration);
+                DamageContext dc = new DamageContext(attackPayload, enemy, _owner);
 
-                if (effect.Chance >= chance)
+                foreach (var effect in _executionSystem.Effects)
                 {
-                    dc.RegisterEffect(effect.Effect);
-                }
-            }
+                    int chance = Random.Range(0, 100);
 
-            _attackRegister.RegisterAttack(dc);
+                    if (effect.Chance >= chance)
+                    {
+                        dc.RegisterEffect(effect.Effect);
+                    }
+                }
+
+                _attackRegister.RegisterAttack(dc);
+            }
 
             SetIdleMotion();
         }

@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Combat
 {
-    public class BattleManager : IAttackRegister
+    public class BattleManager : ICombatService
     {
         private IVFXService _vfx;
         public event Action<Vector3, int> OnApplyDamage;

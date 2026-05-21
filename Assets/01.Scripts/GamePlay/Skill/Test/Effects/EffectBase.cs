@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Skill.Data
 {
-    public class SkillEffect : ScriptableObject
+    public class EffectBase : ScriptableObject
     {
         public int EffectUID;
 

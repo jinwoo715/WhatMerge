@@ -59,8 +59,8 @@ namespace Combat
             VFXPosition = target.Position;
         }
 
-        public List<SkillEffect> skillEffects = new List<SkillEffect>();
-        public void RegisterEffect(SkillEffect effect)
+        public List<EffectBase> skillEffects = new List<EffectBase>();
+        public void RegisterEffect(EffectBase effect)
         {
             skillEffects.Add(effect);
         }

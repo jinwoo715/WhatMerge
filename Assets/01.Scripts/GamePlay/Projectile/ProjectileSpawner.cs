@@ -20,7 +20,7 @@ public class ProjectilePayload
 {
     public IAttackable Attacker;
     public IDamageable Target;
-    public IAttackRegister attackRegister;
+    public ICombatService attackRegister;
     public IAttackStatProvider attackStatProvider;
     public Vector3 SpawnPos;
     public int UID;

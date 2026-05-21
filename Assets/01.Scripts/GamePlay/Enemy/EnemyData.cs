@@ -8,7 +8,7 @@ namespace Enemies
         public float HP;
         public float Amour;
         public float MoveSpeed;
-        public EAttribute Attribute;
+        public EAttributeType Attribute;
         public int Coin;
         public int SkillUID;
         public bool IsBoss;

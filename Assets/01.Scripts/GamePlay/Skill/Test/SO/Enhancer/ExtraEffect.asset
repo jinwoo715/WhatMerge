@@ -9,13 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3bbbc977ec3b61a49a28512b75474d3f, type: 3}
-  m_Name: EffectStatAdder_150
+  m_Script: {fileID: 11500000, guid: 3a780f0439648b04194cbd815fc1b73d, type: 3}
+  m_Name: ExtraEffect
   m_EditorClassIdentifier: 
-  SkillType: 2
+  SkillType: 0
   UID: 0
-  Name: 
-  Description: 
-  TargetSkill: {fileID: 11400000, guid: 956b45d2ad2b55444b5bbce42abdbbbe, type: 2}
-  TargetEffect: {fileID: 0}
-  AddValue: 50
+  Effect:
+    Effect: {fileID: 0}
+    Chance: 1

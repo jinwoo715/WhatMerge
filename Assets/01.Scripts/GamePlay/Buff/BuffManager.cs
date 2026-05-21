@@ -7,6 +7,7 @@ public interface IBuffRegister
     void RegisterBuff(int uid, IStatModifier statModifier);
 }
 
+//TODO
 public class BuffManager : MonoBehaviour, IBuffRegister
 {
     private Stack<BuffEquipment> _buffPool = new Stack<BuffEquipment>();

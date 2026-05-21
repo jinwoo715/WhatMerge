@@ -52,7 +52,6 @@ namespace Entity
 
     public class Hero : Creature, ITileObject, IHeroInfoProvider, IAttackStatProvider, IAttackable, IHeros, IPooledItem<Hero>
     {
-        [SerializeField] private SkillController _heroCombat;
         [SerializeField] private HeroSpriteController _spriteController;
 
         //TODO
@@ -79,8 +78,6 @@ namespace Entity
 
         public ISpriteChanger SpriteChanger => _spriteController;
 
-        public bool IsActive => true;
-
         public Vector3 Position => this.transform.position;
 
         public IHeroInfoProvider Provider => throw new NotImplementedException();
@@ -93,7 +90,6 @@ namespace Entity
 
         public void SpawnInit()
         {
-            _stat.OnStatChange += (type, value) => { if(type == EHeroStat.AttackSpeed) _heroCombat.SetAttackDelay(value); };
             Context = new SkillServiceLocate();
             Context.Register<ICreature>(this);
             Context.Register<IAttackable>(this);
@@ -111,8 +107,6 @@ namespace Entity
             _stat.SetBaseValue(EHeroStat.AttackSpeed, data.AS);
 
             _spriteController.Init(spriteAtlas, _heroData.Name, _evolutionLevel);
-
-            _heroCombat.OnExcutedSkill += _spriteController.SetIdle;
         }
 
         public void SetEvolution(int evolutionLevel)
@@ -135,12 +129,6 @@ namespace Entity
         private void Update()
         {
             skillController.Tick(Time.deltaTime);
-        }
-
-        public void SetSkill(List<IActiveSkill> skills)
-        {
-            _heroCombat.Clear();
-            _heroCombat.InjectSkill(skills);
         }
 
         public void SetPassive(List<ISkill> skills)
@@ -208,7 +196,7 @@ namespace Entity
 
         public void OnDespawn()
         {
-            _heroCombat.Clear();
+           
         }
 
         public void Return()

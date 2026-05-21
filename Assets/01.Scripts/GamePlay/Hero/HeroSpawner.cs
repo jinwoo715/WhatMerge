@@ -19,7 +19,6 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
 
     IHeroMapService _heroMapService;
     IResourcesReader _spriteAtlasRepository;
-    ISkillFactory _skillCreater;
     IHeroInfoRepository _heroDataRepo;
     ISkillDataRepository _skillDataReader;
 
@@ -29,11 +28,10 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
 
     public int SpawnedCount => 0;
 
-    public void Init(IHeroMapService heroMapService, ISkillFactory skillCreater, IResourcesReader spriteAtlasRepository, IHeroInfoRepository heroDataRepo, HeroDeck deck)
+    public void Init(IHeroMapService heroMapService, IResourcesReader spriteAtlasRepository, IHeroInfoRepository heroDataRepo, HeroDeck deck)
     {
         _heroMapService = heroMapService;
         _spriteAtlasRepository = spriteAtlasRepository;
-        _skillCreater = skillCreater;
         _heroDataRepo = heroDataRepo;
         _heroDeck = deck;
 
@@ -113,9 +111,6 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
 
         Skill.Data.SkillController controller = new Skill.Data.SkillController(skillSet.ActiveSkills, skillSet.PassiveSkills, hero, data.AS);
 
-        //HeroSkillBundle skillBundle = new HeroSkillBundle(data.BaseAttack, data.FirstSkill, data.SecondSkill, data.SpecialSkill);
-        //List<IActiveSkill> skills = _skillCreater.CreateActiveSkill(skillBundle, hero.Context);
-        //hero.SetSkill(skills);
         hero.skillController = controller;
         return hero;
     }

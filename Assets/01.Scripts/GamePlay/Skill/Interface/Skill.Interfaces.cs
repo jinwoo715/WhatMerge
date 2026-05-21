@@ -1,4 +1,5 @@
 using Combat;
+using Skill.Data;
 using System.Collections;
 
 namespace Skill
@@ -6,31 +7,15 @@ namespace Skill
     public interface ISkill
     {
         int UID { get; }
-        public void ModifyParam(int paramIndex, float value);
+        public void ModifyParam(int effectIndex, float value);
+        public void ModifyChance(int effectIndex, float value);
+        public void AddEffect(EffectEntry effect);
     }
-    public interface IActiveSkill : ISkill
-    {
-        IEnumerator Execute();
-        void RegisterExtraEffect(ISkillExtraEffecter extraEffecter);
-        bool IsUseable(SkillTriggerContext context);
-        void PayCost(ISkillResourceModifier skillResourceModifier);
-    }
+
     public interface IPassiveSkill : ISkill
     {
         void Apply();
         void Remove();
-    }
-
-    public interface ISkillExtraEffecter
-    {
-        public int TargetSkillUID { get; }
-        void OnBeforeApply(AttackPayload payload);
-    }
-    public interface ISkillTriggerStrategy
-    {
-        void Init(float cost);
-        bool CanTrigger(SkillTriggerContext context);
-        void PayCost(ISkillResourceModifier resourceModifier);
     }
     public interface ISkillResourceModifier
     {
@@ -40,6 +25,11 @@ namespace Skill
         void AddMana(float amount);
         void IncreaseManaAmoutRaio(float ratio);
     }
-    
-
+    public interface ISkillDataRepository
+    {
+        ActiveSkillData GetActiveSkillData(int uid);
+        BuffData GetBuffData(int uid);
+        DeBuffData GetDeBuffData(int uid);
+        ExtraEffectData GetExtraEffectData(int uid);
+    }
 }

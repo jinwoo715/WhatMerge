@@ -11,9 +11,6 @@ namespace Skill
         protected Hero _owner;
         protected BuffData _data;
         protected IFieldHeroService _fieldHeroService;
-        private float _addValue;
-
-        public float Value => _data.Value + _addValue;
         public int UID => _data.UID;
 
         public virtual void Init(IFieldHeroService fieldHeroService, Hero owner, BuffData data)
@@ -24,20 +21,25 @@ namespace Skill
         }
         public void ModifyParam(int paramIndex, float value)
         {
-            _addValue += value;
         }
-
         public void ApplyBuff(Hero target)
         {
-            target.ModifyStat(_data.StatType, Value);
+            //target.ModifyStat(_data.StatType, Value);
         }
         public void RevertBuff(Hero target)
         {
-            target.ModifyStat(_data.StatType, -Value);
+            //target.ModifyStat(_data.StatType, -Value);
         }
-
         public abstract void Apply();
         public abstract void Remove();
+        public void ModifyChance(int effectIndex, float value)
+        {
+            throw new System.NotImplementedException();
+        }
+        public void AddEffect(Data.EffectEntry effect)
+        {
+            throw new System.NotImplementedException();
+        }
     }
     public class SelfBuff : BuffBase
     {
@@ -92,7 +94,6 @@ namespace Skill
             _appliedHeros.Clear();
         }
     }
-
     public class AllBuff : BuffBase
     {
         public override void Init(IFieldHeroService fieldHeroService, Hero owner, BuffData data)

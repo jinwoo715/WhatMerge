@@ -32,7 +32,7 @@ namespace Enemies
 
         public bool IsBoss => _data.IsBoss;
 
-        public EAttribute Attribute => EAttribute.None;
+        public EAttributeType Attribute => EAttributeType.None;
 
         private int _currentHP;
 

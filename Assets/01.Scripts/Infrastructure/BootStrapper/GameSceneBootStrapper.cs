@@ -27,7 +27,6 @@ namespace Core.BootStrapper
         private MergeRepository _mergeRepository = new MergeRepository();
         private HeroOverlapProcessor _heroOverlapProcessor = new HeroOverlapProcessor();
         private HeroSummmonPresenter _heroSummonPresenter = new HeroSummmonPresenter();
-        private HeroSkillFactory _heroSkillFactory = new HeroSkillFactory();
         private HeroBag _heroBag = new HeroBag();
         private HeroBagPresenter _bagPresenter = new HeroBagPresenter();
 
@@ -108,11 +107,10 @@ namespace Core.BootStrapper
             #region Hero Init
 
             _heroController.Init(_heroSpawner, _heroOverlapProcessor, _map, _tileMarkerPresenter, _economy);
-            _heroSpawner.Init(_map, _heroSkillFactory, resource, data, playerData.GetSelectHeroDeck());
+            _heroSpawner.Init(_map, resource, data, playerData.GetSelectHeroDeck());
             _mergeRepository.Init(GameManager.Data.MergeData);
             _heroOverlapProcessor.Init(_mergeRepository);
             _heroSummonPresenter.Init(_heroSpawner, _heroSummonViewer, _economy, economyConfig);
-            _heroSkillFactory.Init(_skillContext, data);
 
             _heroClickInteractViewer.Init(_heroBag, _heroController);
 
@@ -156,7 +154,7 @@ namespace Core.BootStrapper
         private void Bind()
         {
             _skillContext.Register<IFieldEnemyService>(_enemyTracker);
-            _skillContext.Register<IAttackRegister>(_battleManager);
+            _skillContext.Register<ICombatService>(_battleManager);
             _skillContext.Register<IProjectileProvider>(_projectileSpawner);
             _skillContext.Register<ISummonProvider>(_summonSpawner);
             _skillContext.Register<IBuffRegister>(_buff);

@@ -321,13 +321,5 @@ public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepo
         throw new System.NotImplementedException();
     }
 
-    public SkillStatModifyData GetSkillModifierData(int uid)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public HeroUpgradeSkillData GetHeroUpgradeSkillData(int uid)
-    {
-        throw new System.NotImplementedException();
-    }
+    
 }

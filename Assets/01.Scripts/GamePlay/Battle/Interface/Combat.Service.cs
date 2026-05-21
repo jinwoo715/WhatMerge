@@ -15,7 +15,7 @@ namespace Combat
     {
         int CurrentHP { get; }
         int Amour { get; }
-        EAttribute Attribute { get; }
+        EAttributeType Attribute { get; }
         void TakeDamage(AttackResultPayload resultPayload);
     }
 
@@ -24,7 +24,7 @@ namespace Combat
         void RequestDamage(DamageContext dc);
         DamageContext CreateDamageContext();
     }
-    public interface IAttackRegister
+    public interface ICombatService
     {
         event Action<Vector3, int> OnApplyDamage;
         void RegisterAttack(DamageContext damageContext);

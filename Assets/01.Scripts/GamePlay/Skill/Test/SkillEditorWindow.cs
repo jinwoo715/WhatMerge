@@ -177,7 +177,7 @@ public class SkillEditorWindow : EditorWindow
         AddPaletteButton<DamageEffect>(palette, "Damage Effect");
         AddPaletteButton<BuffEffect>(palette, "Buff Effect");
         AddPaletteButton<DebuffEffect>(palette, "Debuff Effect");
-        AddPaletteButton<StatusEffect>(palette, "Status Effect");
+        AddPaletteButton<AttributeEffect>(palette, "Status Effect");
 
         AddPaletteHeader(palette, "VFX");
         AddPaletteButton<SkillVfxSystem>(palette, "Skill Visual");

@@ -43,6 +43,8 @@ namespace Skill.Data
     {
         Active,
         Passive,
-        Enhancer
+        SkillStatEnhancer,
+        SkillChanceEnhancer,
+        ExtraEffect
     }
 }

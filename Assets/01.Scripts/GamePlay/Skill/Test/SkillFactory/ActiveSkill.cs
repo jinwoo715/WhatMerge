@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Skill.Data
 {
-    public interface IActiveSkill
+    public interface IActiveSkill : ISkill
     {
         public ITrigger Trigger { get; }
         public IFinder Search { get; }
@@ -22,8 +22,11 @@ namespace Skill.Data
         public IFinder Search { get; private set; }
         public IExecute Execution { get; private set; }
 
-        public ActiveSkill(Hero owner, ITrigger trigger, IFinder search, IExecute excution)
+        public int UID { get; }
+
+        public ActiveSkill(int uid, Hero owner, ITrigger trigger, IFinder search, IExecute excution)
         {
+            UID = uid;
             _owner = owner;
             Trigger = trigger;
             Search = search;
@@ -40,6 +43,21 @@ namespace Skill.Data
         {
             IReadOnlyList<Creature> Targets = Search.GetTargets(_owner.Position);
             yield return Execution.Execute(Targets);
+        }
+
+        public void ModifyParam(int effectIndex, float value)
+        {
+            
+        }
+
+        public void ModifyChance(int effectIndex, float value)
+        {
+            
+        }
+
+        public void AddEffect(EffectEntry effect)
+        {
+            Execution.AddEffect(effect);
         }
     }
 }

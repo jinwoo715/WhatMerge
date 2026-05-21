@@ -27,6 +27,19 @@ namespace Skill
         IgnoreAmour,
         StatusEffect,
     }
+    public enum EProjectileAttackType
+    {
+        Single,
+        Multiple,
+        Summon
+    }
+
+    public enum EProjectileMoveType
+    {
+        Line,
+        Homing,
+        Parabola
+    }
     public struct SkillTriggerContext
     {
         public int HitCount;

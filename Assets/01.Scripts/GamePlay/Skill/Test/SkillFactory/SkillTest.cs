@@ -8,26 +8,6 @@ using UnityEngine;
 
 namespace Skill.Data 
 {
-    public class PassiveSkill : IPassiveSkill
-    {
-        public int UID => throw new System.NotImplementedException();
-
-        public void Apply()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void ModifyParam(int paramIndex, float value)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void Remove()
-        {
-            throw new System.NotImplementedException();
-        }
-    }
-
     public class SkillController : ISkillResourceModifier
     {
         private List<IActiveSkill> _activeSkills;
@@ -49,6 +29,16 @@ namespace Skill.Data
             _passiveSkills = passiveSkills;
             _coroutineRunner = coroutineRunner;
             _executionTime = delay;
+
+            ApplyPassive();
+        }
+
+        public void ApplyPassive()
+        {
+            foreach (var passive in _passiveSkills)
+            {
+                passive.Apply();
+            }
         }
 
         public void UpdateDelayTime(float delay)
@@ -141,7 +131,6 @@ namespace Skill.Data
             _manaChargeMultiple += ratio;
         }
     }
-
     public struct SkillTriggerContext
     {
         public int HitCount;
@@ -153,28 +142,43 @@ namespace Skill.Data
             Mana = mana;
         }
     }
-
     public class SkillSet
     {
         public List<IActiveSkill> ActiveSkills = new List<IActiveSkill>();
         public List<IPassiveSkill> PassiveSkills = new List<IPassiveSkill>();
     }
 
+    public class SkillExecutionService
+    {
+        public IProjectileProvider Projectile { get; }
+        public ISummonProvider Summon { get; }
+        public IVFXService VfxService { get; }
+        public ICombatService CombatService { get; }
+        public IFieldHeroService FieldHeroService { get; }
+        public IFieldEnemyService FieldEnemyService { get; }
+        public IBuffRegister BuffRegister { get; }
+    }
+
     public class SkillFactory
     {
         private IVFXService _vfxService;
-        private IAttackRegister _combatService;
+        private ICombatService _combatService;
         private IFieldHeroService _fieldHeroService;
         private IFieldEnemyService _fieldEnemyService;
 
-        public void Init(IVFXService vfxService, IAttackRegister attackRegister, IFieldHeroService fieldHeroService, IFieldEnemyService fieldEnemyService)
+        private SkillExecutionService _skillExecutionService;
+        public void Init(SkillExecutionService skillExecutionService)
+        {
+            _skillExecutionService = skillExecutionService;
+        }
+
+        public void Init(IVFXService vfxService, ICombatService attackRegister, IFieldHeroService fieldHeroService, IFieldEnemyService fieldEnemyService)
         {
             _vfxService = vfxService;
             _combatService = attackRegister;
             _fieldHeroService = fieldHeroService;
             _fieldEnemyService = fieldEnemyService;
         }
-
         public SkillSet CreateSkill(Hero owner, int level, HeroUpgradeSkillSet set)
         {
             var sets = set.GetSets(level);
@@ -183,10 +187,12 @@ namespace Skill.Data
 
             SkillSet skillSet = new SkillSet();
 
-            List<PassiveSkill> passiveSkills = new List<PassiveSkill>();
-
-            Dictionary<int, SkillBase> gets = new Dictionary<int, SkillBase>();
-            Queue<SkillEnhancer> enhancers = new Queue<SkillEnhancer>();
+            Dictionary<int, ISkill> gets = new Dictionary<int, ISkill>();
+            
+            Queue<EffectStatEnhancer> statEnhancers = new Queue<EffectStatEnhancer>();
+            Queue<EffectChanceEnhancer> chanceEnhancers = new Queue<EffectChanceEnhancer>();
+            Queue<ExtraEffect> effects = new Queue<ExtraEffect>();
+            
 
             foreach (var data in sets)
             {
@@ -197,36 +203,88 @@ namespace Skill.Data
                 switch (Skill.SkillType)
                 {
                     case ESkillType.Active:
-                        gets.Add(Skill.UID, Skill);
-
                         ActiveSkillSO so = Skill as ActiveSkillSO;
-
-                        Debug.Log(Skill);
-                        Debug.Log(so);
-
                         ActiveSkill skill = CreateActvieSkill(so, owner);
 
                         skillSet.ActiveSkills.Add(skill);
 
+                        gets.Add(so.UID, skill);
+
                         break;
                     case ESkillType.Passive:
-                        gets.Add(Skill.UID, Skill);
+                        
+                        PassiveSkillSO passiveSO = Skill as PassiveSkillSO;
+                        PassiveSkill passive = CreatePassiveSkill(passiveSO, owner);
+                        passive.SetUID(passiveSO.UID);
+
+                        skillSet.PassiveSkills.Add(passive);
+
+                        gets.Add(passiveSO.UID, passive);
+
                         break;
-                    case ESkillType.Enhancer:
-                        enhancers.Enqueue(Skill as SkillEnhancer);
+
+                    case ESkillType.SkillStatEnhancer:
+
+                        EffectStatAdderData skillEnhancerData = Skill as EffectStatAdderData;
+                        EffectStatEnhancer statEnhancer = new EffectStatEnhancer(skillEnhancerData);
+                        statEnhancers.Enqueue(statEnhancer);
+
                         break;
+
+                    case ESkillType.SkillChanceEnhancer:
+
+                        EffectChanceAdderData skillChanceData = Skill as EffectChanceAdderData;
+                        EffectChanceEnhancer statChanceEnhancer = new EffectChanceEnhancer(skillChanceData);
+                        chanceEnhancers.Enqueue(statChanceEnhancer);
+
+                        break;
+
+                    case ESkillType.ExtraEffect:
+
+                        ExtraEffectData entry = (Skill as ExtraEffectData);
+                        ExtraEffect extraEffect = new ExtraEffect(entry);
+
+                        effects.Enqueue(extraEffect);
+
+                        break;
+                }
+            }
+
+            foreach (var statAdder in statEnhancers)
+            {
+                if(gets.TryGetValue(statAdder.Data.UID, out ISkill skill))
+                {
+                    statAdder.ApplySkill(skill);
+                    Debug.Log("Stat Add");
+                }
+            }
+            foreach (var chacneAdder in chanceEnhancers)
+            {
+                if (gets.TryGetValue(chacneAdder.Data.UID, out ISkill skill))
+                {
+                    chacneAdder.ApplySkill(skill);
+                    Debug.Log("Chance Add");
+                }
+            }
+            foreach (var extra in effects)
+            {
+                if (gets.TryGetValue(extra.EffectEntry.TargetSkill.UID, out ISkill skill))
+                {
+                    extra.ApplySkill(skill);
+                    Debug.Log("Extra");
                 }
             }
 
             return skillSet;
         }
+
         private ActiveSkill CreateActvieSkill(ActiveSkillSO skillSO, Hero owner)
         {
             ITrigger trigger = GetTrigger(skillSO.Trigger);
             IFinder target = GetTarget(skillSO.Target, owner);
             IExecute execution = GetExecution(skillSO.Execution, skillSO.AnimationData, owner.SpriteChanger, owner);
             
-            ActiveSkill activeSkill = new ActiveSkill(owner, trigger, target, execution);
+            ActiveSkill activeSkill = new ActiveSkill(skillSO.UID, owner, trigger, target, execution);
 
             return activeSkill;
         }
@@ -293,6 +351,33 @@ namespace Skill.Data
             {
                 return null;
             }
+        }
+        private PassiveSkill CreatePassiveSkill(PassiveSkillSO passiveSkillSO, Hero owner)
+        {
+            switch (passiveSkillSO.Target.TargetType)
+            {
+                case ESkillTargetType.Self:
+                    return new SelfPassive(owner, passiveSkillSO.Effects);
+                case ESkillTargetType.NearHeros:
+                    break;
+                case ESkillTargetType.AllHeros:
+                    break;
+                case ESkillTargetType.NearEnemies:
+                    break;
+                case ESkillTargetType.AllEnemies:
+                    break;
+                default:
+                    break;
+            }
+            return null;
+        }
+        public interface ISkillStatEnhancer
+        {
+
+        }
+        public interface ISkillExtraEffectInjecter
+        {
+
         }
     }
 }

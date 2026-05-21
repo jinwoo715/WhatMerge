@@ -12,8 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ced14729ef29754e9382c87a3dee71d, type: 3}
   m_Name: Passive_AttackSpeed_10%
   m_EditorClassIdentifier: 
-  UID: 0
+  SkillType: 1
+  UID: 1002
   Name: 
   Description: 
-  Target: {fileID: 0}
-  Effects: []
+  Target: {fileID: 11400000, guid: 0443fafadf80ba14486ff91e0827e33c, type: 2}
+  Effects:
+  - {fileID: 11400000, guid: 95ab4b7569595ff4eb7145f5c4d7e820, type: 2}

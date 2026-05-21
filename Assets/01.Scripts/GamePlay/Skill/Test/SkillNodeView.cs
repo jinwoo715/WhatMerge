@@ -252,7 +252,7 @@ public sealed class SkillNodeView : Node
                 AddOutputPort("VFX", typeof(SkillVfxSystem));
                 break;
             case SkillNodeKind.Effect:
-                AddOutputPort("Effect", typeof(SkillEffect));
+                AddOutputPort("Effect", typeof(EffectBase));
                 break;
         }
     }
@@ -360,7 +360,7 @@ public sealed class SkillNodeView : Node
 
     private void CreateEffectBodyFields()
     {
-        AddBodyFieldSlot("VFX", "VFX", typeof(SkillVfxSystem), Asset is SkillEffect effect ? effect.VFX : null);
+        AddBodyFieldSlot("VFX", "VFX", typeof(SkillVfxSystem), Asset is EffectBase effect ? effect.VFX : null);
     }
 
     private void AddBodyFieldSlot(string label, string slotName, Type objectType, UnityEngine.Object value)
@@ -466,7 +466,7 @@ public sealed class SkillNodeView : Node
             }
         };
 
-        effectRow.Add(CreateBodyInputPort(GetEffectSlotName(index), typeof(SkillEffect), Port.Capacity.Single, "Effect " + (index + 1)));
+        effectRow.Add(CreateBodyInputPort(GetEffectSlotName(index), typeof(EffectBase), Port.Capacity.Single, "Effect " + (index + 1)));
 
         var effectField = new IMGUIContainer(() => DrawExecutionEffectProperty(index, "Effect", true))
         {
@@ -586,7 +586,7 @@ public sealed class SkillNodeView : Node
             return;
         }
 
-        SkillEffect effect = _skill.Execution.Effects[EffectIndex].Effect;
+        EffectBase effect = _skill.Execution.Effects[EffectIndex].Effect;
         if (effect != null)
         {
             DrawSerializedObject(effect, "VFX");

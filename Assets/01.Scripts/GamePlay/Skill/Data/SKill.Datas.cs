@@ -28,14 +28,6 @@ namespace Skill
     }
 
     [System.Serializable]
-    public class SkillStatModifyData : BaseData
-    {
-        public int TargetSkillUID;
-        public int ParamIndex;
-        public int Value;
-    }
-
-    [System.Serializable]
     public class ProjectileData
     {
         public int ProjectileUID;

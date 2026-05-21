@@ -28,22 +28,6 @@ namespace Heros
         void DragTile(Tile tile);
     }
 
-
-    public struct HeroSkillBundle
-    {
-        public int BaseSkill;
-        public int FirstSkill;
-        public int SecondSkill;
-        public int SpecialSkill;
-
-        public HeroSkillBundle(int baseSkill, int first, int second, int special)
-        {
-            BaseSkill = baseSkill;
-            FirstSkill = first;
-            SecondSkill = second;
-            SpecialSkill = special;
-        }
-    }
     public class MergeData
     {
         public int First;

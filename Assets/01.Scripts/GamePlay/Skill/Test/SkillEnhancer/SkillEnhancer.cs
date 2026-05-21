@@ -6,7 +6,8 @@ namespace Skill.Data
 {
     public class SkillEnhancer : SkillBase
     {
-        
+        [Header("강화될 스킬")]
+        public SkillBase TargetSkill;
     }
 
     //스킬에 추가 이펙트 넣기
