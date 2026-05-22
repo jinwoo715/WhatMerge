@@ -151,7 +151,6 @@ public static class SearchUtility
         {
             if (item is not T target)
             {
-                Debug.Log("SADFASDF");
                 break;
             }
 

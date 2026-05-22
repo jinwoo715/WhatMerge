@@ -38,7 +38,7 @@ namespace Core.BootStrapper
         [Header("Enemy")]
         [SerializeField] private EnemySpawner _enemySpawner;
         private EnemySpriteRepository _enemySpriteRepository = new EnemySpriteRepository();
-        private EnemyTracker _enemyTracker = new EnemyTracker();
+        private FieldEnemyService _fieldEnemyService = new FieldEnemyService();
 
         [Header("Skill")]
         [SerializeField] private BuffManager _buff;
@@ -73,6 +73,9 @@ namespace Core.BootStrapper
         [Header("Mock")]
         private SkillFactory _skillFactory = new SkillFactory();
 
+        [Header("Facade")]
+        private SkillCommonContext skillExecutionService;
+
         private void Start()
         {
             Init();
@@ -99,8 +102,10 @@ namespace Core.BootStrapper
 
             //TODO
             #region Test
-            _skillFactory.Init(_vfxSpawner, _battleManager, _heroController, _enemyTracker);
+            _skillFactory.Init(skillExecutionService);
             _heroSpawner.factory = _skillFactory;
+            skillExecutionService = new SkillCommonContext(_projectileSpawner, _summonSpawner, _vfxSpawner, _battleManager, _buff, _heroController, _fieldEnemyService);
+
             #endregion
 
 
@@ -133,7 +138,7 @@ namespace Core.BootStrapper
 
             var stageConfig = GameManager.Data.StageConfig;
             var stage = GameManager.Data.GetStageData(stageUID);
-            _stage.Init(_enemySpawner, _enemyTracker, stage, stageConfig);
+            _stage.Init(_enemySpawner, _fieldEnemyService, stage, stageConfig);
 
             _economy.Init(economyConfig.StartMoney);
 
@@ -153,7 +158,7 @@ namespace Core.BootStrapper
         }
         private void Bind()
         {
-            _skillContext.Register<IFieldEnemyService>(_enemyTracker);
+            _skillContext.Register<IFieldEnemyService>(_fieldEnemyService);
             _skillContext.Register<ICombatService>(_battleManager);
             _skillContext.Register<IProjectileProvider>(_projectileSpawner);
             _skillContext.Register<ISummonProvider>(_summonSpawner);
@@ -176,11 +181,11 @@ namespace Core.BootStrapper
             _stage.OnChangeCurrentWave += _stageInfoPresenter.UpdateWave;
             _stage.OnChangeRemainTime += _stageInfoPresenter.UpdateWaveTime;
 
-            _enemySpawner.OnSpawnEnemy += _enemyTracker.AddFieldEnemy;
+            _enemySpawner.OnSpawnEnemy += _fieldEnemyService.AddFieldEnemy;
 
             _economy.OnChangeMoney += _economyViewer.UpdateMoneyText;
 
-            _enemyTracker.OnEnemyDeath += _rewardSystem.OccurRewards;
+            _fieldEnemyService.OnEnemyDeath += _rewardSystem.OccurRewards;
         }
     }
 }

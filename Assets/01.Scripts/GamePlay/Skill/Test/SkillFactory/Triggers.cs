@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Skill.Data
+namespace Skill
 {
     public interface ITrigger
     {

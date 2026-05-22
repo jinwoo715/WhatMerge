@@ -10,5 +10,11 @@ namespace Skill.Data
 
         [Range(0, 1)]
         public float Chance = 1f;
+
+        public bool IsUseable()
+        {
+            float ranNum = Random.Range(0, 1);
+            return Chance >= ranNum;
+        }
     }
 }

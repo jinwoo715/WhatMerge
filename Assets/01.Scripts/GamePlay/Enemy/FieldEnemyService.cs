@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Enemies
 {
-    public class EnemyTracker : IFieldEnemyService
+    public class FieldEnemyService : IFieldEnemyService
     {
         private List<Enemy> _activeEnemies = new List<Enemy>();
         private Enemy _activeBoss = null;

@@ -1,12 +1,13 @@
 using Combat;
 using Enemies;
 using Entity;
+using Skill.Data;
 using Stat;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Skill.Data
+namespace Skill
 {
     public interface IExecute
     {
@@ -15,7 +16,7 @@ namespace Skill.Data
     }
     public abstract class ExecutionBase : IExecute
     {
-        protected readonly ExecutionSystem _executionSystem;
+        protected readonly ExecutionSystemData _executionSystem;
         protected readonly Hero _owner;
         private SkillAnimationData _animaData;
         private ISpriteChanger _spriteChanger;
@@ -23,16 +24,15 @@ namespace Skill.Data
         protected readonly ICombatService _attackRegister;
         protected readonly List<EffectEntry> ExtraEffects = new List<EffectEntry>();
 
-        public ExecutionBase(
-            ExecutionSystem exectionSystem, SkillAnimationData animationData, ISpriteChanger spriteChanger, 
-            IVFXService VFXService, ICombatService attackRegister, Hero owner)
+        public ExecutionBase(ActiveSkillContext activeContext, SkillCommonContext commonContext)
         {
-            _animaData = animationData;
-            _spriteChanger = spriteChanger;
-            _executionSystem = exectionSystem;
-            _vfxService = VFXService;
-            _attackRegister = attackRegister;
-            _owner = owner;
+            _executionSystem = activeContext.System;
+            _animaData = activeContext.AnimationData;
+            _owner = activeContext.Hero;
+            _spriteChanger = _owner.SpriteChanger;
+
+            _vfxService = commonContext.VfxService;
+            _attackRegister = commonContext.CombatService;
         }
 
         public abstract IEnumerator Execute(IReadOnlyList<Creature> targets);
@@ -60,12 +60,9 @@ namespace Skill.Data
             ExtraEffects.Add(effectEntry);
         }
     }
-
     public class TargetMeleeExecution : ExecutionBase
     {
-        public TargetMeleeExecution(ExecutionSystem exectionSystem, SkillAnimationData animationData, 
-            ISpriteChanger spriteChanger, IVFXService VFXService, ICombatService attackRegister, Hero owner) : 
-            base(exectionSystem, animationData, spriteChanger, VFXService, attackRegister, owner) { }
+        public TargetMeleeExecution(ActiveSkillContext activeContext, SkillCommonContext commonContext) : base(activeContext, commonContext) { }
         public override IEnumerator Execute(IReadOnlyList<Creature> targets)
         {
             yield return SetReadyMotion();
@@ -94,7 +91,7 @@ namespace Skill.Data
             {
                 int chance = Random.Range(0, 100);
 
-                if(effect.Chance >= chance)
+                if (effect.Chance >= chance)
                 {
                     dc.RegisterEffect(effect.Effect);
                 }
@@ -108,17 +105,15 @@ namespace Skill.Data
     public class ConeMeleeExecution : ExecutionBase
     {
         private float _angle;
-        public ConeMeleeExecution(ExecutionSystem exectionSystem, SkillAnimationData animationData,
-            ISpriteChanger spriteChanger, IVFXService VFXService, ICombatService attackRegister, Hero owner) :
-            base(exectionSystem, animationData, spriteChanger, VFXService, attackRegister, owner)
+        public ConeMeleeExecution(ActiveSkillContext activeContext, SkillCommonContext commonContext) : base(activeContext, commonContext)
         {
-            if (exectionSystem is ConeMeleeAttack cone)
+            if (_executionSystem is ConeMeleeAttack cone)
             {
                 _angle = cone.Angle;
             }
             else
             {
-                Debug.LogError($"Not Match Type {exectionSystem}");
+                Debug.LogError($"Not Match Type {_executionSystem}");
             }
         }
 
@@ -163,12 +158,30 @@ namespace Skill.Data
             SetIdleMotion();
         }
     }
-    //public class TargetProjectile : IExecution
-    //{
-    //    public void Execution()
-    //    {
-    //        throw new NotImplementedException();
-    //    }
-    //}
+    public class TargetProjectile : ExecutionBase
+    {
+        private IProjectileProvider _projectile;
+        public TargetProjectile(ActiveSkillContext activeContext, SkillCommonContext commonContext) : base(activeContext, commonContext)
+        {
+            _projectile = commonContext.Projectile;
+        }
 
+        public override IEnumerator Execute(IReadOnlyList<Creature> targets)
+        {
+            yield return SetReadyMotion();
+
+            IDamageable target = SearchUtility.GetNearestTarget<IDamageable>(targets, _owner.Position);
+
+            Vector3 dir = (target.Position - _owner.Position).normalized;
+
+            yield return SetExecutionMotion();
+
+            var projectile = (_executionSystem as ProjectileSkill).ProjectileData;
+
+            //TODO
+            _projectile.SpawnProjectile();
+
+            SetIdleMotion();
+        }
+    }
 }

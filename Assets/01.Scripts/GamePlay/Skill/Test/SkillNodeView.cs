@@ -235,7 +235,7 @@ public sealed class SkillNodeView : Node
         {
             case SkillNodeKind.ActiveSkill:
                 AddActiveSkillPropertyFields();
-                AddFieldSlot("ActiveAction", "ActiveAction", typeof(ExecutionSystem), _skill != null ? _skill.Execution : null);
+                AddFieldSlot("ActiveAction", "ActiveAction", typeof(ExecutionSystemData), _skill != null ? _skill.Execution : null);
                 AddFieldSlot("Target", "Target", typeof(Skill.Data.TargetSystem), _skill != null ? _skill.Target : null);
                 AddFieldSlot("Trigger", "Trigger", typeof(TriggerSystem), _skill != null ? _skill.Trigger : null);
                 break;
@@ -243,7 +243,7 @@ public sealed class SkillNodeView : Node
                 AddOutputPort("Trigger", typeof(TriggerSystem));
                 break;
             case SkillNodeKind.Execution:
-                AddOutputPort("Execution", typeof(ExecutionSystem));
+                AddOutputPort("Execution", typeof(ExecutionSystemData));
                 break;
             case SkillNodeKind.Target:
                 AddOutputPort("Target", typeof(Skill.Data.TargetSystem));
@@ -355,7 +355,7 @@ public sealed class SkillNodeView : Node
     private void CreateExecutionBodyFields()
     {
         CreateEffectsFoldout();
-        AddBodyFieldSlot("VFX", "VFX", typeof(SkillVfxSystem), Asset is ExecutionSystem execution ? execution.VFX : null);
+        AddBodyFieldSlot("VFX", "VFX", typeof(SkillVfxSystem), Asset is ExecutionSystemData execution ? execution.VFX : null);
     }
 
     private void CreateEffectBodyFields()
@@ -416,7 +416,7 @@ public sealed class SkillNodeView : Node
         foldout.style.marginRight = 4f;
         foldout.style.marginBottom = 4f;
 
-        ExecutionSystem execution = Asset as ExecutionSystem;
+        ExecutionSystemData execution = Asset as ExecutionSystemData;
         int count = execution?.Effects != null ? execution.Effects.Count : 0;
         for (int i = 0; i < count; i++)
         {
@@ -599,7 +599,7 @@ public sealed class SkillNodeView : Node
 
     private void DrawExecutionEffectProperty(int index, string relativePropertyName, bool structureChanged)
     {
-        if (!(Asset is ExecutionSystem execution) || execution.Effects == null || index < 0 || index >= execution.Effects.Count)
+        if (!(Asset is ExecutionSystemData execution) || execution.Effects == null || index < 0 || index >= execution.Effects.Count)
         {
             EditorGUILayout.HelpBox("Effect entry is missing.", MessageType.Warning);
             return;
@@ -636,7 +636,7 @@ public sealed class SkillNodeView : Node
 
     private void AddEmptyEffectEntry()
     {
-        if (!(Asset is ExecutionSystem execution))
+        if (!(Asset is ExecutionSystemData execution))
         {
             return;
         }
@@ -654,7 +654,7 @@ public sealed class SkillNodeView : Node
 
     private void RemoveEffectEntry(int index)
     {
-        if (!(Asset is ExecutionSystem execution) || execution.Effects == null || index < 0 || index >= execution.Effects.Count)
+        if (!(Asset is ExecutionSystemData execution) || execution.Effects == null || index < 0 || index >= execution.Effects.Count)
         {
             return;
         }

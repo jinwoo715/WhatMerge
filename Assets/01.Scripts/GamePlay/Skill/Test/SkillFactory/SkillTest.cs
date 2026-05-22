@@ -1,154 +1,21 @@
 using Combat;
 using Enemies;
 using Entity;
+using Skill.Data;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Skill.Data 
+namespace Skill
 {
-    public class SkillController : ISkillResourceModifier
-    {
-        private List<IActiveSkill> _activeSkills;
-        private List<IPassiveSkill> _passiveSkills;
-        private MonoBehaviour _coroutineRunner;
-
-        private float _executionTime;
-        private float _time;
-        private float _mana;
-        private int _hitCount;
-
-        private bool _isUsingSkill = false;
-
-        private float _manaChargeMultiple = 1;
-
-        public SkillController(List<IActiveSkill> activeSkills, List<IPassiveSkill> passiveSkills, MonoBehaviour coroutineRunner, float delay)
-        {
-            _activeSkills = activeSkills;
-            _passiveSkills = passiveSkills;
-            _coroutineRunner = coroutineRunner;
-            _executionTime = delay;
-
-            ApplyPassive();
-        }
-
-        public void ApplyPassive()
-        {
-            foreach (var passive in _passiveSkills)
-            {
-                passive.Apply();
-            }
-        }
-
-        public void UpdateDelayTime(float delay)
-        {
-            _executionTime = delay;
-        }
-
-        public void Tick(float tickValue)
-        {
-            if (_isUsingSkill == true) return;
-
-            _time += tickValue;
-            ChargeMana(tickValue);
-
-            if(_time >= _executionTime)
-            {
-                IActiveSkill executeSkill = GetUsableSkill();
-
-                if (executeSkill != null)
-                {
-                    _coroutineRunner.StartCoroutine(CoExecuteSkill(executeSkill));
-                }
-
-                _time = 0;
-            }
-        }
-        private IActiveSkill GetUsableSkill()
-        {
-            IActiveSkill usableSkill = null;
-
-            SkillTriggerContext context = new SkillTriggerContext(_hitCount, _mana);
-
-            int skillCount = _activeSkills.Count;
-            for (int i = skillCount-1; i >= 0; i--)
-            {
-                IActiveSkill skill = _activeSkills[i];
-
-                if (skill.IsUsable(context))
-                {
-                    usableSkill = skill;
-                    break;
-                }
-            }
-
-            return usableSkill;
-        }
-
-        private IEnumerator CoExecuteSkill(IActiveSkill skill)
-        {
-            _isUsingSkill = true;
-
-            Debug.Log("Execute Skill");
-            skill.Trigger.UseTriggerResource(this);
-            yield return _coroutineRunner.StartCoroutine(skill.Execute());
-
-            _isUsingSkill = false;
-        }
-
-        private void ChargeMana(float manaAmount)
-        {
-            _mana += manaAmount * 10 * _manaChargeMultiple;
-        }
-
-        public void ConsumeHitCount(int count)
-        {
-            Debug.Log("Concume HitCount");
-            _hitCount = 0;
-            //_hitCount -= count;
-        }
-
-        public void ConsumeMana(float amount)
-        {
-            Debug.Log("Concume Mana");
-            _mana = 0;
-            //_mana -= amount;
-        }
-
-        public void AddHitCount(int count)
-        {
-            _hitCount += count;
-        }
-
-        public void AddMana(float amount)
-        {
-            _mana += amount;
-        }
-
-        public void IncreaseManaAmoutRaio(float ratio)
-        {
-            _manaChargeMultiple += ratio;
-        }
-    }
-    public struct SkillTriggerContext
-    {
-        public int HitCount;
-        public float Mana;
-
-        public SkillTriggerContext(int hitCount, float mana)
-        {
-            HitCount = hitCount;
-            Mana = mana;
-        }
-    }
     public class SkillSet
     {
         public List<IActiveSkill> ActiveSkills = new List<IActiveSkill>();
         public List<IPassiveSkill> PassiveSkills = new List<IPassiveSkill>();
     }
 
-    public class SkillExecutionService
+    public class SkillCommonContext
     {
         public IProjectileProvider Projectile { get; }
         public ISummonProvider Summon { get; }
@@ -157,28 +24,41 @@ namespace Skill.Data
         public IFieldHeroService FieldHeroService { get; }
         public IFieldEnemyService FieldEnemyService { get; }
         public IBuffRegister BuffRegister { get; }
-    }
 
+        public SkillCommonContext(IProjectileProvider projectile, ISummonProvider summon,
+            IVFXService vfxService, ICombatService combatService, IBuffRegister buffRegister,
+            IFieldHeroService fieldHeroService, IFieldEnemyService fieldEnemyService)
+        {
+            Projectile = projectile;
+            Summon = summon;
+            VfxService = vfxService;
+            CombatService = combatService;
+            BuffRegister = buffRegister;
+            FieldEnemyService = fieldEnemyService;
+            FieldHeroService = fieldHeroService;
+        }
+    }
+    public class ActiveSkillContext
+    {
+        public Hero Hero { get; }
+        public SkillAnimationData AnimationData { get; }
+        public ExecutionSystemData System { get; }
+
+        public ActiveSkillContext(Hero hero, SkillAnimationData animationData, ExecutionSystemData system)
+        {
+            Hero = hero;
+            AnimationData = animationData;
+            System = system;
+        }
+    }
     public class SkillFactory
     {
-        private IVFXService _vfxService;
-        private ICombatService _combatService;
-        private IFieldHeroService _fieldHeroService;
-        private IFieldEnemyService _fieldEnemyService;
-
-        private SkillExecutionService _skillExecutionService;
-        public void Init(SkillExecutionService skillExecutionService)
+        private SkillCommonContext _skillExecutionService;
+        public void Init(SkillCommonContext skillExecutionService)
         {
             _skillExecutionService = skillExecutionService;
         }
 
-        public void Init(IVFXService vfxService, ICombatService attackRegister, IFieldHeroService fieldHeroService, IFieldEnemyService fieldEnemyService)
-        {
-            _vfxService = vfxService;
-            _combatService = attackRegister;
-            _fieldHeroService = fieldHeroService;
-            _fieldEnemyService = fieldEnemyService;
-        }
         public SkillSet CreateSkill(Hero owner, int level, HeroUpgradeSkillSet set)
         {
             var sets = set.GetSets(level);
@@ -187,12 +67,11 @@ namespace Skill.Data
 
             SkillSet skillSet = new SkillSet();
 
-            Dictionary<int, ISkill> gets = new Dictionary<int, ISkill>();
+            Dictionary<int, ISkillModifier> gets = new Dictionary<int, ISkillModifier>();
             
             Queue<EffectStatEnhancer> statEnhancers = new Queue<EffectStatEnhancer>();
             Queue<EffectChanceEnhancer> chanceEnhancers = new Queue<EffectChanceEnhancer>();
             Queue<ExtraEffect> effects = new Queue<ExtraEffect>();
-            
 
             foreach (var data in sets)
             {
@@ -218,8 +97,6 @@ namespace Skill.Data
                         passive.SetUID(passiveSO.UID);
 
                         skillSet.PassiveSkills.Add(passive);
-
-                        gets.Add(passiveSO.UID, passive);
 
                         break;
 
@@ -252,7 +129,7 @@ namespace Skill.Data
 
             foreach (var statAdder in statEnhancers)
             {
-                if(gets.TryGetValue(statAdder.Data.UID, out ISkill skill))
+                if(gets.TryGetValue(statAdder.Data.UID, out ISkillModifier skill))
                 {
                     statAdder.ApplySkill(skill);
                     Debug.Log("Stat Add");
@@ -260,7 +137,7 @@ namespace Skill.Data
             }
             foreach (var chacneAdder in chanceEnhancers)
             {
-                if (gets.TryGetValue(chacneAdder.Data.UID, out ISkill skill))
+                if (gets.TryGetValue(chacneAdder.Data.UID, out ISkillModifier skill))
                 {
                     chacneAdder.ApplySkill(skill);
                     Debug.Log("Chance Add");
@@ -268,7 +145,7 @@ namespace Skill.Data
             }
             foreach (var extra in effects)
             {
-                if (gets.TryGetValue(extra.EffectEntry.TargetSkill.UID, out ISkill skill))
+                if (gets.TryGetValue(extra.EffectEntry.TargetSkill.UID, out ISkillModifier skill))
                 {
                     extra.ApplySkill(skill);
                     Debug.Log("Extra");
@@ -277,12 +154,13 @@ namespace Skill.Data
 
             return skillSet;
         }
-
         private ActiveSkill CreateActvieSkill(ActiveSkillSO skillSO, Hero owner)
         {
             ITrigger trigger = GetTrigger(skillSO.Trigger);
             IFinder target = GetTarget(skillSO.Target, owner);
-            IExecute execution = GetExecution(skillSO.Execution, skillSO.AnimationData, owner.SpriteChanger, owner);
+
+            ActiveSkillContext executionService = new ActiveSkillContext(owner, skillSO.AnimationData, skillSO.Execution);
+            IExecute execution = GetExecution(executionService);
             
             ActiveSkill activeSkill = new ActiveSkill(skillSO.UID, owner, trigger, target, execution);
 
@@ -309,29 +187,29 @@ namespace Skill.Data
                 case ESkillTargetType.Self:
                     return new SelfTargetFinder(owner);
                 case ESkillTargetType.NearHeros:
-                    return new NearHeroFinder(_fieldHeroService, owner, system.Radius);
+                    return new NearHeroFinder(_skillExecutionService.FieldHeroService, owner, system.Radius);
                 case ESkillTargetType.AllHeros:
-                    return new AllHeroFinder(_fieldHeroService);
+                    return new AllHeroFinder(_skillExecutionService.FieldHeroService);
                 case ESkillTargetType.NearEnemies:
                     return new NearEnemyFinder(owner, system.Radius);
                 case ESkillTargetType.AllEnemies:
-                    return new AllEnemyFinder(_fieldEnemyService);
+                    return new AllEnemyFinder(_skillExecutionService.FieldEnemyService);
             }
 
             return null;
         }
-        private IExecute GetExecution(ExecutionSystem executionSystem, SkillAnimationData skillAnimationData, ISpriteChanger spriteChanger, Hero owner)
+        private IExecute GetExecution(ActiveSkillContext executionService)
         {
             string name = string.Empty;
 
-            string skillName = executionSystem.name;
+            string skillName = executionService.System.name;
             if (skillName.Contains("TargetMelee"))
             {
-                name = "Skill.Data.TargetMeleeExecution";
+                name = "Skill.TargetMeleeExecution";
             }
             else if (skillName.Contains("ConeMelee"))
             {
-                name = "Skill.Data.ConeMeleeExecution";
+                name = "Skill.ConeMeleeExecution";
             }
 
             Debug.Log(name);
@@ -342,7 +220,7 @@ namespace Skill.Data
 
             if (type != null)
             {
-                object[] args = new object[] { executionSystem, skillAnimationData, spriteChanger,  _vfxService, _combatService, owner };
+                object[] args = new object[] { executionService, _skillExecutionService };
 
                return (IExecute)Activator.CreateInstance(type, args);
                 
@@ -354,14 +232,15 @@ namespace Skill.Data
         }
         private PassiveSkill CreatePassiveSkill(PassiveSkillSO passiveSkillSO, Hero owner)
         {
+            var effects = passiveSkillSO.Effects;
             switch (passiveSkillSO.Target.TargetType)
             {
                 case ESkillTargetType.Self:
-                    return new SelfPassive(owner, passiveSkillSO.Effects);
+                    return new SelfBuffPassive(owner, effects);
                 case ESkillTargetType.NearHeros:
-                    break;
+                    return new NearHeroBuffPassive(_skillExecutionService.FieldHeroService, owner, effects);
                 case ESkillTargetType.AllHeros:
-                    break;
+                    return new AllHeroBuffPassive(_skillExecutionService.FieldHeroService, owner, effects);
                 case ESkillTargetType.NearEnemies:
                     break;
                 case ESkillTargetType.AllEnemies:
@@ -370,14 +249,6 @@ namespace Skill.Data
                     break;
             }
             return null;
-        }
-        public interface ISkillStatEnhancer
-        {
-
-        }
-        public interface ISkillExtraEffectInjecter
-        {
-
         }
     }
 }

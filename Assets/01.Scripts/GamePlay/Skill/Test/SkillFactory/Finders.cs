@@ -3,7 +3,7 @@ using Entity;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Skill.Data
+namespace Skill
 {
     public interface IFinder
     {

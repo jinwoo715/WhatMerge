@@ -19,15 +19,6 @@ namespace Skill
     }
 
     [System.Serializable]
-    public class ExtraEffectData : BaseData
-    {
-        public int AttachedActiveSkillUID;
-        public EExtraAttackEffectType EffectType;
-        public int Chance;
-        public int StatusEffectUID;
-    }
-
-    [System.Serializable]
     public class ProjectileData
     {
         public int ProjectileUID;
@@ -35,7 +26,6 @@ namespace Skill
         public EProjectileMoveType MoveType;
         public float Speed;
         public float LifeTime;
-        public bool LevelSwap;
         public EProjectileAttackType TargetType;
         public EProjectileTrigger DestoryType;
     }

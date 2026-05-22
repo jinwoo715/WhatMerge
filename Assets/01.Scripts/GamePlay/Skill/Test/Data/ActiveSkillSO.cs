@@ -10,7 +10,7 @@ namespace Skill.Data
         public SkillAnimationData AnimationData;
 
         [Header("¹æ½Ä")]
-        public ExecutionSystem Execution;
+        public ExecutionSystemData Execution;
 
         [Header("Å½»ö")]
         public TargetSystem Target;
@@ -28,7 +28,7 @@ namespace Skill.Data
         public float ExecutionMotionTime = 0.2f;
     }
 
-    public class ExecutionSystem : ScriptableObject
+    public class ExecutionSystemData : ScriptableObject
     {
         [Header("ÀÌÆåÆ®")]
         public List<EffectEntry> Effects;

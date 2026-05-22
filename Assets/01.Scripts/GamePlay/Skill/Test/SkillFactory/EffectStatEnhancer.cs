@@ -13,7 +13,7 @@ namespace Skill.Data
             Data = data;
         }
 
-        public void ApplySkill(ISkill skill)
+        public void ApplySkill(ISkillModifier skill)
         {
             skill.ModifyParam(Data.TargetEffect.EffectUID, Data.AddValue);
         }
@@ -28,7 +28,7 @@ namespace Skill.Data
             Data = data;
         }
 
-        public void ApplySkill(ISkill skill)
+        public void ApplySkill(ISkillModifier skill)
         {
             skill.ModifyChance(Data.TargetEffect.EffectUID, Data.AddChance);
         }
@@ -36,6 +36,6 @@ namespace Skill.Data
 
     public interface ISkillEnhancer
     {
-        void ApplySkill(ISkill skill);
+        void ApplySkill(ISkillModifier skill);
     }
 }

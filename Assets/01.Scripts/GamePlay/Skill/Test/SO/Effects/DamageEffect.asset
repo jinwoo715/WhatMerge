@@ -9,10 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e82f94e5e5b478746947d05108ba6f07, type: 3}
-  m_Name: ConeMelee_30
+  m_Script: {fileID: 11500000, guid: d9d7858b2c150ac4599c4ae4e304bfef, type: 3}
+  m_Name: DamageEffect
   m_EditorClassIdentifier: 
-  Effects:
-  - {fileID: 11400000, guid: a983a85fe2db97d4f87b52fba2ad4e0a, type: 2}
+  EffectUID: 0
   VFX: {fileID: 0}
-  Angle: 30
+  DamageRatio: 0

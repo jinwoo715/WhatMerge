@@ -165,7 +165,7 @@ public class SkillEditorWindow : EditorWindow
         AddPaletteHeader(palette, "Execution");
         AddPaletteButton<TargetMeleeAttack>(palette, "Single Target Melee");
         AddPaletteButton<ConeMeleeAttack>(palette, "Cone Melee");
-        AddPaletteButton<ProjectileAttack>(palette, "Projectile Attack");
+        AddPaletteButton<ProjectileSkill>(palette, "Projectile Attack");
 
         AddPaletteHeader(palette, "Target");
         AddPaletteButton<Skill.Data.TargetSystem>(palette, "Target System");

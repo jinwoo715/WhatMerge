@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Skill.Data
 {
-    [CreateAssetMenu(fileName = "ExtraEffect", menuName = "Skill/SkillEnhancer/ExtraEffect", order = 0)]
+    [CreateAssetMenu(fileName = "ExtraEffectData", menuName = "Skill/SkillEnhancer/ExtraEffectData", order = 0)]
     public class ExtraEffectData : SkillBase
     {
         public SkillBase TargetSkill;
@@ -19,7 +19,7 @@ namespace Skill.Data
             EffectEntry = effectEntry;
         }
 
-        public void ApplySkill(ISkill skill)
+        public void ApplySkill(ISkillModifier skill)
         {
             skill.AddEffect(EffectEntry.Effect);
         }

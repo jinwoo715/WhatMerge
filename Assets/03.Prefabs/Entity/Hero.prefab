@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 2861474305382012847}
   - component: {fileID: 5889065611879671908}
   - component: {fileID: -6488794261883521172}
-  - component: {fileID: 7522754301845835375}
   - component: {fileID: -4438053389829800951}
   m_Layer: 7
   m_Name: Hero
@@ -100,7 +99,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 468571585c3b3d74b9543d4d87f74707, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _heroCombat: {fileID: 7522754301845835375}
   _spriteController: {fileID: -6488794261883521172}
 --- !u!114 &-6488794261883521172
 MonoBehaviour:
@@ -115,18 +113,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _spriteRenderer: {fileID: 2861474305382012847}
---- !u!114 &7522754301845835375
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5021097965440872254}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5a6b0580071824445809c3dd8bc31c37, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!61 &-4438053389829800951
 BoxCollider2D:
   m_ObjectHideFlags: 0

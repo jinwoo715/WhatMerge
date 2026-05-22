@@ -9,10 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e82f94e5e5b478746947d05108ba6f07, type: 3}
-  m_Name: ConeMelee_30
+  m_Script: {fileID: 11500000, guid: c1e3638a6c8bf3b4b8ac01cb39037ab6, type: 3}
+  m_Name: ProjectileAttack
   m_EditorClassIdentifier: 
-  Effects:
-  - {fileID: 11400000, guid: a983a85fe2db97d4f87b52fba2ad4e0a, type: 2}
+  Effects: []
   VFX: {fileID: 0}
-  Angle: 30
+  ProjectileData: {fileID: 11400000, guid: d9a3a7b6e4a2ef542bfc0433933fb5c0, type: 2}

@@ -316,10 +316,5 @@ public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepo
         throw new System.NotImplementedException();
     }
 
-    public ExtraEffectData GetExtraEffectData(int uid)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    
+ 
 }

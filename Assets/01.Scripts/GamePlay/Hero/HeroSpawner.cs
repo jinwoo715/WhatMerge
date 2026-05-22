@@ -12,7 +12,7 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
 {
     [Header("Mock")]
     public Skill.Data.HeroUpgradeSkillSet set;
-    public Skill.Data.SkillFactory factory;
+    public SkillFactory factory;
 
     [SerializeField] private Hero _heroPrefab;
     private ObjectPool<Hero> _heroPool = new ObjectPool<Hero>();
@@ -109,7 +109,7 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
         Debug.Log(skillSet.ActiveSkills.Count);
         Debug.Log(skillSet.PassiveSkills.Count);
 
-        Skill.Data.SkillController controller = new Skill.Data.SkillController(skillSet.ActiveSkills, skillSet.PassiveSkills, hero, data.AS);
+        SkillController controller = new SkillController(skillSet.ActiveSkills, skillSet.PassiveSkills, hero, data.AS);
 
         hero.skillController = controller;
         return hero;

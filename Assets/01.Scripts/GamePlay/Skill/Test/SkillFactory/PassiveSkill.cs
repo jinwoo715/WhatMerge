@@ -2,60 +2,148 @@ using Entity;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Skill.Data
 {
-    public interface IPassiveSkill : ISkill
-    {
-        void Apply();
-    }
-
     //TODO 패시브 스킬
-    public abstract class PassiveSkill : IPassiveSkill, IDisposable
+    public abstract class PassiveSkill : IPassiveSkill
     {
         public int UID { get; private set; }
-        public abstract void Apply();
-        public abstract void ModifyParam(int paramIndex, float value);
-        public abstract void Dispose();
         public void SetUID(int uid) { UID = uid; }
-        public void ModifyChance(int effectIndex, float value)
+        public abstract void Apply();
+        public abstract void Release();
+    }
+
+    public abstract class BuffPassiveSkill : PassiveSkill
+    {
+        public void ApplyBuff(IStatModifier statModifier, List<EffectBase> effects)
         {
-            throw new NotImplementedException();
+            foreach (var effect in effects)
+            {
+                if (effect is BuffEffect buff)
+                {
+                    statModifier.ModifyStat(buff.BuffType, buff.IncreaseRatio);
+                }
+            }
         }
-        public void AddEffect(EffectEntry effect)
+        public void RevertBuff(IStatModifier statModifier, List<EffectBase> effects)
         {
-            throw new NotImplementedException();
+            foreach (var effect in effects)
+            {
+                if (effect is BuffEffect buff)
+                {
+                    statModifier.ModifyStat(buff.BuffType, -buff.IncreaseRatio);
+                }
+            }
         }
     }
-    public class SelfPassive : PassiveSkill
+
+    public class SelfBuffPassive : BuffPassiveSkill
     {
         public IStatModifier _statModifier;
         public List<EffectBase> _effects;
-        public SelfPassive(IStatModifier statModifier, List<EffectBase> effects)
+        public SelfBuffPassive(IStatModifier statModifier, List<EffectBase> effects)
         {
             _statModifier = statModifier;
             _effects = effects;
         }
+        public override void Apply()
+        {
+            ApplyBuff(_statModifier, _effects);
+        }
+        public override void Release() 
+        {
+            RevertBuff(_statModifier, _effects);
+        }
+    }
+    public class NearHeroBuffPassive : BuffPassiveSkill
+    {
+        private IFieldHeroService _fieldHeroService;
+        private Hero _owner;
+        private List<EffectBase> _effects;
+        HashSet<Hero> _appliedHeros = new HashSet<Hero>();
+
+        public NearHeroBuffPassive(IFieldHeroService fieldHeroService, Hero owner, List<EffectBase> effects)
+        {
+            _fieldHeroService = fieldHeroService;
+            _owner = owner;
+            _effects = effects;
+
+            _fieldHeroService.OnChangedFieldHero += Apply;
+        }
 
         public override void Apply()
         {
-            foreach (var effect in _effects)
+            HashSet<Hero> nearHeros = _fieldHeroService.GetNearHeros(_owner.OccupiedTile, 1).ToHashSet();
+
+            var entered = nearHeros.Except(_appliedHeros);
+            var exited = _appliedHeros.Except(nearHeros);
+
+            foreach (var enter in entered)
             {
-                if(effect is BuffEffect buff)
-                {
-                    _statModifier.ModifyStat(buff.BuffType, buff.IncreaseRatio);
-                }
+                ApplyBuff(enter, _effects);
+            }
+            foreach (var exit in exited)
+            {
+                RevertBuff(exit, _effects);
+            }
+
+            _appliedHeros = nearHeros;
+        }
+
+        public override void Release()
+        {
+            foreach (var hero in _appliedHeros)
+            {
+                RevertBuff(hero, _effects);
+            }
+        }
+    }
+    public class AllHeroBuffPassive : BuffPassiveSkill
+    {
+        private IFieldHeroService _fieldHeroService;
+        private Hero _owner;
+        private List<EffectBase> _effects;
+
+        private Action<Hero> OnSpawnHeroBuffApply;
+        private Action<Hero> OnDespawnHeroBuffRelease;
+
+        public AllHeroBuffPassive(IFieldHeroService fieldHeroService, Hero owner, List<EffectBase> effects)
+        {
+            _fieldHeroService = fieldHeroService;
+            _owner = owner;
+            _effects = effects;
+
+            OnSpawnHeroBuffApply += (hero) => ApplyBuff(hero, _effects);
+            OnDespawnHeroBuffRelease += (hero) => RevertBuff(hero, _effects);
+
+            _fieldHeroService.OnSpawnedHero += OnSpawnHeroBuffApply;
+            _fieldHeroService.OnDestroyHero += OnDespawnHeroBuffRelease;
+        }
+
+        public override void Apply()
+        {
+            var allHeros = _fieldHeroService.GetAllFieldHero;
+
+            foreach (var hero in allHeros)
+            {
+                ApplyBuff(hero, _effects);
             }
         }
 
-        public override void Dispose()
+        public override void Release()
         {
-        }
+            _fieldHeroService.OnSpawnedHero -= OnSpawnHeroBuffApply;
+            _fieldHeroService.OnDestroyHero -= OnDespawnHeroBuffRelease;
 
-        public override void ModifyParam(int paramIndex, float value)
-        {
+            var allHeros = _fieldHeroService.GetAllFieldHero;
 
+            foreach (var hero in allHeros)
+            {
+                RevertBuff(hero, _effects);
+            }
         }
     }
 }

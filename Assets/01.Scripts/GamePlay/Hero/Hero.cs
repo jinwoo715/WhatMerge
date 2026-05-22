@@ -55,7 +55,7 @@ namespace Entity
         [SerializeField] private HeroSpriteController _spriteController;
 
         //TODO
-        public Skill.Data.SkillController skillController;
+        public SkillController skillController;
 
         private HeroData _heroData;
         private ATKData _atkData;

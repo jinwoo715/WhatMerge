@@ -40,6 +40,14 @@ namespace Skill
         Homing,
         Parabola
     }
+    
+    public enum EProjectileEffectTrigger
+    {
+        None,
+        OnHit,
+        OnArrive,
+    }
+
     public struct SkillTriggerContext
     {
         public int HitCount;

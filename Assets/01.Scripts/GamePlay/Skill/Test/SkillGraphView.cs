@@ -233,7 +233,7 @@ public sealed class SkillGraphView : GraphView
         evt.menu.AppendSeparator();
         evt.menu.AppendAction("Create Node/Execution/Single Target Melee", _ => CreateAndAssignNode<TargetMeleeAttack>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendAction("Create Node/Execution/Cone Melee", _ => CreateAndAssignNode<ConeMeleeAttack>(graphPosition), DropdownMenuAction.AlwaysEnabled);
-        evt.menu.AppendAction("Create Node/Execution/Projectile Attack", _ => CreateAndAssignNode<ProjectileAttack>(graphPosition), DropdownMenuAction.AlwaysEnabled);
+        evt.menu.AppendAction("Create Node/Execution/Projectile Attack", _ => CreateAndAssignNode<ProjectileSkill>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendSeparator("Create Node/");
         evt.menu.AppendAction("Create Node/Target/Target System", _ => CreateAndAssignNode<Skill.Data.TargetSystem>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendAction("Create Node/Trigger/Trigger System", _ => CreateAndAssignNode<TriggerSystem>(graphPosition), DropdownMenuAction.AlwaysEnabled);
@@ -670,7 +670,7 @@ public sealed class SkillGraphView : GraphView
 
     private static bool TryGetNodeInfo(ScriptableObject asset, out SkillNodeKind kind, out string title, out Color color)
     {
-        if (asset is ExecutionSystem)
+        if (asset is ExecutionSystemData)
         {
             kind = SkillNodeKind.Execution;
             title = "Execution";
@@ -805,7 +805,7 @@ public sealed class SkillGraphView : GraphView
             switch (slotName)
             {
                 case "ActiveAction":
-                    _skill.Execution = newAsset as ExecutionSystem;
+                    _skill.Execution = newAsset as ExecutionSystemData;
                     if (_skill.Execution != null && _skill.Execution.Effects == null)
                     {
                         _skill.Execution.Effects = new List<EffectEntry>();
@@ -824,7 +824,7 @@ public sealed class SkillGraphView : GraphView
             return;
         }
 
-        if (nodeView.Kind == SkillNodeKind.Execution && nodeView.Asset is ExecutionSystem execution)
+        if (nodeView.Kind == SkillNodeKind.Execution && nodeView.Asset is ExecutionSystemData execution)
         {
             Undo.RecordObject(execution, "Assign Execution Slot");
             if (TryGetEffectSlotIndex(slotName, out int effectIndex))
@@ -899,7 +899,7 @@ public sealed class SkillGraphView : GraphView
             return;
         }
 
-        if (nodeView.Kind == SkillNodeKind.Execution && nodeView.Asset is ExecutionSystem execution)
+        if (nodeView.Kind == SkillNodeKind.Execution && nodeView.Asset is ExecutionSystemData execution)
         {
             Undo.RecordObject(execution, "Clear Execution Slot");
             if (TryGetEffectSlotIndex(slotName, out int effectIndex))
@@ -947,7 +947,7 @@ public sealed class SkillGraphView : GraphView
         }
     }
 
-    private static EffectEntry EnsureEffectEntry(ExecutionSystem execution, int index)
+    private static EffectEntry EnsureEffectEntry(ExecutionSystemData execution, int index)
     {
         if (execution.Effects == null)
         {
@@ -1039,7 +1039,7 @@ public sealed class SkillGraphView : GraphView
             }
         }
 
-        if (nodeView.Kind == SkillNodeKind.Execution && nodeView.Asset is ExecutionSystem execution)
+        if (nodeView.Kind == SkillNodeKind.Execution && nodeView.Asset is ExecutionSystemData execution)
         {
             if (TryGetEffectSlotIndex(slotName, out int effectIndex))
             {
