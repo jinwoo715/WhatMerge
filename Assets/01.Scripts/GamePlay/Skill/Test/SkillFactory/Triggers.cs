@@ -16,7 +16,6 @@ namespace Skill
 
         public void UseTriggerResource(ISkillResourceModifier resourceModifier)
         {
-            Debug.Log("None Consume");
             resourceModifier.AddHitCount(1);
         }
     }

@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d9d7858b2c150ac4599c4ae4e304bfef, type: 3}
-  m_Name: DamageEffect
+  m_Name: Boomber_Attack_DamageEffect
   m_EditorClassIdentifier: 
   EffectUID: 0
-  VFX: {fileID: 11400000, guid: e46532b12891b444b9755f68e7e780df, type: 2}
-  DamageRatio: 150
+  VFX: {fileID: 0}
+  DamageRatio: 0

@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e82f94e5e5b478746947d05108ba6f07, type: 3}
   m_Name: ConeMelee_30
   m_EditorClassIdentifier: 
-  Effects:
-  - {fileID: 11400000, guid: a983a85fe2db97d4f87b52fba2ad4e0a, type: 2}
+  Effects: []
   VFX: {fileID: 0}
   Angle: 30

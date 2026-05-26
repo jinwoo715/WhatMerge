@@ -99,13 +99,23 @@ public sealed class SkillGraphView : GraphView
                 AddNode(SkillNodeKind.ExecutionVfx, "execution-vfx", "VFX", _skill.Execution.VFX, -1, new Rect(1110f, 80f, 250f, 260f), new Color(0.66f, 0.38f, 0.92f));
             }
 
+            if (_skill.Execution is ProjectileSkill projectileSkill && projectileSkill.ProjectileData != null)
+            {
+                AddNode(SkillNodeKind.ProjectileData, "execution-projectile", "Projectile", projectileSkill.ProjectileData, -1, new Rect(1430f, 80f, 270f, 260f), new Color(0.95f, 0.82f, 0.18f));
+            }
+
             if (_skill.Execution.Effects != null)
             {
                 for (int i = 0; i < _skill.Execution.Effects.Count; i++)
                 {
                     EffectEntry entry = _skill.Execution.Effects[i];
-                    AddNode(SkillNodeKind.Effect, "effect-" + i, "Effect (" + (i + 1) + ")", entry?.Effect, i, new Rect(1110f, 390f + i * 290f, 270f, 270f), new Color(0.92f, 0.28f, 0.14f));
-                    if (entry?.Effect?.VFX != null)
+                    if (entry?.Effect == null)
+                    {
+                        continue;
+                    }
+
+                    AddNode(SkillNodeKind.Effect, "effect-" + i, "Effect (" + (i + 1) + ")", entry.Effect, i, new Rect(1110f, 390f + i * 290f, 270f, 270f), new Color(0.92f, 0.28f, 0.14f));
+                    if (entry.Effect.VFX != null)
                     {
                         AddNode(SkillNodeKind.ExecutionVfx, "effect-vfx-" + i, "Effect VFX (" + (i + 1) + ")", entry.Effect.VFX, i, new Rect(1430f, 390f + i * 290f, 250f, 260f), new Color(0.66f, 0.38f, 0.92f));
                     }
@@ -132,6 +142,11 @@ public sealed class SkillGraphView : GraphView
         if (_skill.Execution != null)
         {
             AddCachedReferenceEdge("execution-vfx", "VFX", "execution", "VFX");
+            if (_skill.Execution is ProjectileSkill projectileSkill && projectileSkill.ProjectileData != null)
+            {
+                AddCachedReferenceEdge("execution-projectile", "Projectile", "execution", "ProjectileData");
+            }
+
             if (_skill.Execution.Effects != null)
             {
                 for (int i = 0; i < _skill.Execution.Effects.Count; i++)
@@ -242,6 +257,8 @@ public sealed class SkillGraphView : GraphView
         evt.menu.AppendAction("Create Node/Effect/Buff", _ => CreateAndAssignNode<BuffEffect>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendAction("Create Node/Effect/Debuff", _ => CreateAndAssignNode<DebuffEffect>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendAction("Create Node/Effect/Status", _ => CreateAndAssignNode<AttributeEffect>(graphPosition), DropdownMenuAction.AlwaysEnabled);
+        evt.menu.AppendSeparator("Create Node/");
+        evt.menu.AppendAction("Create Node/Item/Projectile", _ => CreateAndAssignNode<ProjectileDataSO>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendSeparator("Create Node/");
         evt.menu.AppendAction("Create Node/VFX/Skill Visual", _ => CreateAndAssignNode<SkillVfxSystem>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendSeparator();
@@ -617,6 +634,11 @@ public sealed class SkillGraphView : GraphView
                 return "execution-vfx";
             }
 
+            if (_skill.Execution is ProjectileSkill projectileSkill && projectileSkill.ProjectileData == asset)
+            {
+                return "execution-projectile";
+            }
+
             if (_skill.Execution.Effects != null)
             {
                 for (int i = 0; i < _skill.Execution.Effects.Count; i++)
@@ -707,6 +729,14 @@ public sealed class SkillGraphView : GraphView
             kind = SkillNodeKind.Effect;
             title = "Effect";
             color = new Color(0.92f, 0.28f, 0.14f);
+            return true;
+        }
+
+        if (asset is ProjectileDataSO)
+        {
+            kind = SkillNodeKind.ProjectileData;
+            title = "Projectile";
+            color = new Color(0.95f, 0.82f, 0.18f);
             return true;
         }
 
@@ -843,6 +873,12 @@ public sealed class SkillGraphView : GraphView
                 case "VFX":
                     execution.VFX = newAsset as SkillVfxSystem;
                     break;
+                case "ProjectileData":
+                    if (execution is ProjectileSkill projectileSkill)
+                    {
+                        projectileSkill.ProjectileData = newAsset as ProjectileDataSO;
+                    }
+                    break;
             }
 
             SkillGraphAssetUtility.MarkDirty(execution);
@@ -922,6 +958,12 @@ public sealed class SkillGraphView : GraphView
                     if (execution.VFX == oldAsset)
                     {
                         execution.VFX = null;
+                    }
+                    break;
+                case "ProjectileData":
+                    if (execution is ProjectileSkill projectileSkill && projectileSkill.ProjectileData == oldAsset)
+                    {
+                        projectileSkill.ProjectileData = null;
                     }
                     break;
             }
@@ -1006,6 +1048,8 @@ public sealed class SkillGraphView : GraphView
                 return "trigger";
             case "VFX":
                 return "execution-vfx";
+            case "ProjectileData":
+                return "execution-projectile";
             default:
                 return string.Empty;
         }
@@ -1054,6 +1098,8 @@ public sealed class SkillGraphView : GraphView
             {
                 case "VFX":
                     return execution.VFX == asset;
+                case "ProjectileData":
+                    return execution is ProjectileSkill projectileSkill && projectileSkill.ProjectileData == asset;
                 default:
                     return false;
             }
@@ -1104,6 +1150,11 @@ public sealed class SkillGraphView : GraphView
         }
 
         if (_skill.Execution.VFX == asset)
+        {
+            return true;
+        }
+
+        if (_skill.Execution is ProjectileSkill projectileSkill && projectileSkill.ProjectileData == asset)
         {
             return true;
         }
@@ -1248,6 +1299,14 @@ public sealed class SkillGraphView : GraphView
                     Undo.RecordObject(_skill.Execution, "Remove Effect");
                     _skill.Execution.Effects.RemoveAt(nodeView.EffectIndex);
                     SkillGraphAssetUtility.MarkDirty(_skill.Execution);
+                }
+                break;
+            case SkillNodeKind.ProjectileData:
+                if (_skill.Execution is ProjectileSkill projectileSkill && projectileSkill.ProjectileData == nodeView.Asset)
+                {
+                    Undo.RecordObject(projectileSkill, "Remove Projectile Data");
+                    projectileSkill.ProjectileData = null;
+                    SkillGraphAssetUtility.MarkDirty(projectileSkill);
                 }
                 break;
         }

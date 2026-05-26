@@ -74,7 +74,7 @@ namespace Core.BootStrapper
         private SkillFactory _skillFactory = new SkillFactory();
 
         [Header("Facade")]
-        private SkillCommonContext skillExecutionService;
+        private SkillCommonContext _skillExecutionService;
 
         private void Start()
         {
@@ -102,9 +102,9 @@ namespace Core.BootStrapper
 
             //TODO
             #region Test
-            _skillFactory.Init(skillExecutionService);
+            _skillExecutionService = new SkillCommonContext(_projectileSpawner, _summonSpawner, _vfxSpawner, _battleManager, _buff, _heroController, _fieldEnemyService);
+            _skillFactory.Init(_skillExecutionService);
             _heroSpawner.factory = _skillFactory;
-            skillExecutionService = new SkillCommonContext(_projectileSpawner, _summonSpawner, _vfxSpawner, _battleManager, _buff, _heroController, _fieldEnemyService);
 
             #endregion
 

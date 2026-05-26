@@ -11,12 +11,12 @@ namespace Skill
     {
         private Hero _owner;
         public ITrigger Trigger { get; private set; }
-        public IFinder Search { get; private set; }
+        public ITarget Search { get; private set; }
         public IExecute Execution { get; private set; }
 
         public int UID { get; }
 
-        public ActiveSkill(int uid, Hero owner, ITrigger trigger, IFinder search, IExecute excution)
+        public ActiveSkill(int uid, Hero owner, ITrigger trigger, ITarget search, IExecute excution)
         {
             UID = uid;
             _owner = owner;

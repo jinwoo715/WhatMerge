@@ -86,7 +86,6 @@ namespace Skill
         {
             _isUsingSkill = true;
 
-            Debug.Log("Execute Skill");
             skill.Trigger.UseTriggerResource(this);
             yield return _coroutineRunner.StartCoroutine(skill.Execute());
 

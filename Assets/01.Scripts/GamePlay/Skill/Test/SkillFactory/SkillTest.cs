@@ -83,7 +83,7 @@ namespace Skill
                 {
                     case ESkillType.Active:
                         ActiveSkillSO so = Skill as ActiveSkillSO;
-                        ActiveSkill skill = CreateActvieSkill(so, owner);
+                        ActiveSkill skill = CreateActiveSkill(so, owner);
 
                         skillSet.ActiveSkills.Add(skill);
 
@@ -154,10 +154,10 @@ namespace Skill
 
             return skillSet;
         }
-        private ActiveSkill CreateActvieSkill(ActiveSkillSO skillSO, Hero owner)
+        private ActiveSkill CreateActiveSkill(ActiveSkillSO skillSO, Hero owner)
         {
             ITrigger trigger = GetTrigger(skillSO.Trigger);
-            IFinder target = GetTarget(skillSO.Target, owner);
+            ITarget target = GetTarget(skillSO.Target, owner);
 
             ActiveSkillContext executionService = new ActiveSkillContext(owner, skillSO.AnimationData, skillSO.Execution);
             IExecute execution = GetExecution(executionService);
@@ -180,7 +180,7 @@ namespace Skill
             }
             return default;
         }
-        private IFinder GetTarget(TargetSystem system, Hero owner)
+        private ITarget GetTarget(TargetSystem system, Hero owner)
         {
             switch (system.TargetType)
             {
@@ -210,6 +210,10 @@ namespace Skill
             else if (skillName.Contains("ConeMelee"))
             {
                 name = "Skill.ConeMeleeExecution";
+            }
+            else if (skillName.Contains("ProjectileSkill"))
+            {
+                name = "Skill.TargetProjectile";
             }
 
             Debug.Log(name);

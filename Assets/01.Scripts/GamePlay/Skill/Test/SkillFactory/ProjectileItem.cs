@@ -13,6 +13,7 @@ namespace Skill
         public Hero Attacker;
         public IDamageable Target;
         public List<EffectEntry> effects;
+        public Action<IDamageable> OnExecuteEffect;
     }
     public interface IProjectileEventReceiver
     {
@@ -50,26 +51,51 @@ namespace Skill
         }
     }
 
+    public static class EffectRoller
+    {
+        public static List<EffectBase> GetConfirmEffects(List<EffectEntry> effects)
+        {
+            List<EffectBase> confirmedEffects = new List<EffectBase>();
+
+            foreach (var effect in effects)
+            {
+                int chance = UnityEngine.Random.Range(0, 100);
+
+                if (effect.Chance >= chance)
+                {
+                    confirmedEffects.Add(effect.Effect);
+                }
+            }
+
+            return confirmedEffects;
+        }
+    }
+
     public class ProjectileEffectExecuter
     {
-        private List<EffectBase> _effects = new List<EffectBase>();
-        public void Init(EProjectileEffectTrigger trigger, List<EffectBase> effects)
+        private ICombatService _combatService;
+        private ISummonProvider _summonProvider;
+
+        private List<EffectEntry> _effects = new List<EffectEntry>();
+
+        public ProjectileEffectExecuter(ICombatService combatService, ISummonProvider summonProvider, List<EffectEntry> effects)
         {
+            _combatService = combatService;
+            _summonProvider = summonProvider;
             _effects = effects;
-            
         }
         public void Execute(IDamageable target)
         {
+            var effects = EffectRoller.GetConfirmEffects(_effects);
 
+            foreach (var effect in effects)
+            {
+                
+            }
         }
     }
 
-    public interface IProjectileMove
-    {
-        event Action OnArrived;
-        void Init(ICreature destination, Transform owner);
-        void Tick();
-    }
+
 
     public class ProjectileItem : MonoBehaviour, IPooledItem<ProjectileItem>
     {
@@ -78,18 +104,21 @@ namespace Skill
         private float _currentTime;
 
         private EProjectileEffectTrigger _trigger;
-        private IProjectileMove _moveStretagy;
+        private EProjectileEffectTrigger _destroyTrigger;
+        private IMoveStretagy _moveStretagy;
+        
         private ProjectileEventContext _data;
         private ProjectileEffectExecuter _effectExecuter;
         public bool IsActive { get; private set; }
         public event Action<ProjectileItem> OnReturn;
 
-        public void Init(ProjectileEventContext data, ProjectileEffectExecuter effectExecuter, IProjectileMove moveStretagy, EProjectileEffectTrigger trigger, Sprite sprite)
+        public void Init(ProjectileEventContext data, ProjectileEffectExecuter effectExecuter, IMoveStretagy moveStretagy, ProjectileDataSO soData, Sprite sprite)
         {
             _data = data;
             _moveStretagy = moveStretagy;
             _renderer.sprite = sprite;
-            _trigger = trigger;
+            _trigger = soData.EffectTrigger;
+            _destroyTrigger = soData.DestroyTrigger;
             _effectExecuter = effectExecuter;
         }
 
@@ -112,10 +141,8 @@ namespace Skill
         {
             if (trigger == _trigger)
                 _effectExecuter.Execute(damageable);
-        }
-        private void CheckDestroy(EProjectileEffectTrigger trigger, IDamageable damageable)
-        {
-            if (trigger == _trigger)
+
+            if(trigger == _destroyTrigger)
                 OnReturn?.Invoke(this);
         }
 
@@ -132,6 +159,7 @@ namespace Skill
         {
             if (collision.CompareTag("Enemy"))
             {
+                Debug.Log(collision.name);
                 if(collision.TryGetComponent<IDamageable>(out IDamageable target))
                 {
                     CheckTrigger(EProjectileEffectTrigger.OnHit, target);

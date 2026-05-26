@@ -66,16 +66,16 @@ public class Projectile : MonoBehaviour, IPooledItem<Projectile>
         _destroyer.SetTrigget(EProjectileTrigger.Continue);
         _effectResolver.SetTrigget(EProjectileTrigger.Continue);
 
-        _moveStretagy.OnMove();
+        _moveStretagy.Tick();
 
         if (_isArrived) return;
 
-        if (_moveStretagy.IsArrived(this.transform, _target))
-        {
-            _effectResolver.SetTrigget(EProjectileTrigger.Arrived);
-            _destroyer.SetTrigget(EProjectileTrigger.Arrived);
-            _isArrived = true;
-        }
+        //if (_moveStretagy.IsArrived(this.transform, _target))
+        //{
+        //    _effectResolver.SetTrigget(EProjectileTrigger.Arrived);
+        //    _destroyer.SetTrigget(EProjectileTrigger.Arrived);
+        //    _isArrived = true;
+        //}
     }
 
     public void Return()
@@ -104,27 +104,21 @@ public class LinearMove : IMoveStretagy
     private Transform _owner;
     private Vector3 _dir;
     private float _speed;
-    private float _lifeTime;
+
+    public bool IsArrived { get; set; }
+
+    public event Action OnArrived;
 
     public void Init(Transform owner, ICreature target, float speed)
     {
-        _lifeTime = 3.0f;
-
         _dir = (target.Position - owner.position).normalized;
         _speed = speed;
         _owner = owner;
     }
 
-    public void OnMove()
+    public void Tick()
     {
-        _lifeTime -= Time.deltaTime;
-
         _owner.position += _dir * Time.deltaTime * _speed;
-    }
-
-    public bool IsArrived(Transform t, ICreature target)
-    {
-        return _lifeTime < 0;
     }
 }
 public class HomingMove : IMoveStretagy
@@ -133,28 +127,32 @@ public class HomingMove : IMoveStretagy
     ICreature _target;
     private float _speed;
 
-    private bool _isArrived;
+    public bool IsArrived { get; private set; }
+
+    public event Action OnArrived;
 
     public void Init(Transform owner, ICreature target, float speed)
     {
         _owner = owner;
         _target = target;
         _speed = speed;
-        _isArrived = false;
+        IsArrived = false;
     }
-    public void OnMove()
+    public void Tick()
     {
-        if (_isArrived)
-        {
-            _owner.position = _target.Position;
-            return;
-        }
-        else
-        {
-            Vector3 dir = (_target.Position - _owner.position).normalized;
-            _owner.position += dir * Time.deltaTime * _speed;
+        if (IsArrived) return;
 
-            RotationToTarget(dir);
+        Vector3 dir = (_target.Position - _owner.position).normalized;
+        _owner.position += dir * Time.deltaTime * _speed;
+
+        RotationToTarget(dir);
+
+        float distance = Vector3.SqrMagnitude(_owner.position - _target.Position);
+        if(distance <= 0.001f)
+        {
+            _owner.transform.position = _target.Position;
+            OnArrived?.Invoke();
+            IsArrived = true;
         }
     }
 
@@ -167,16 +165,6 @@ public class HomingMove : IMoveStretagy
 
         _owner.rotation = targetRotation;
     }
-
-    public bool IsArrived(Transform t, ICreature target)
-    {
-        float distance = Vector3.SqrMagnitude(_owner.position - target.Position);
-
-        _isArrived = distance <= 0.001f;
-
-        return _isArrived;
-    }
-
 }
 public class Parabola : IMoveStretagy
 {
@@ -185,6 +173,11 @@ public class Parabola : IMoveStretagy
     private Vector3 _destination;
     private float _progress;
     private float _speed;
+
+    public bool IsArrived { get; private set; }
+
+    public event Action OnArrived;
+
     public void Init(Transform owner, ICreature target, float speed)
     {
         _owner = owner;
@@ -192,16 +185,13 @@ public class Parabola : IMoveStretagy
         _destination = target.Position;
         _speed = speed;
         _progress = 0;
+        IsArrived = false;
     }
 
-    public bool IsArrived(Transform t, ICreature target)
+    public void Tick()
     {
-        float distance = Vector3.SqrMagnitude(_owner.position - _destination);
-        return distance <= 0.001f;
-    }
+        if (IsArrived) return;
 
-    public void OnMove()
-    {
         _progress += Time.deltaTime * _speed;
         float t = Mathf.Clamp01(_progress);
 
@@ -213,6 +203,13 @@ public class Parabola : IMoveStretagy
         pos.y += height;
 
         _owner.position = pos;
+
+        float distance = Vector3.SqrMagnitude(_owner.position - _destination);
+        if(distance <= 0.001f)
+        {
+            OnArrived?.Invoke();
+            IsArrived = true;
+        }
     }
 }
 #endregion
@@ -252,11 +249,19 @@ public class ProjectileDestoryer : IProjectileDestroyer
     }
 }
 
+public interface IProjectileMove
+{
+    event Action OnArrived;
+    void Init(ICreature destination, Transform owner);
+    void Tick();
+}
+
 public interface IMoveStretagy
 {
+    event Action OnArrived;
+    bool IsArrived { get; }
     void Init(Transform owner, ICreature target, float speed);
-    void OnMove();
-    bool IsArrived(Transform t, ICreature target);
+    void Tick();
 }
 public interface IProjectileDestroyer
 {

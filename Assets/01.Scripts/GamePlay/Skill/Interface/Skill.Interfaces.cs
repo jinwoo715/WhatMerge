@@ -19,7 +19,7 @@ namespace Skill
     public interface IActiveSkill : ISkill, ISkillModifier
     {
         public ITrigger Trigger { get; }
-        public IFinder Search { get; }
+        public ITarget Search { get; }
         public IExecute Execution { get; }
         bool IsUsable(SkillTriggerContext context);
         IEnumerator Execute();

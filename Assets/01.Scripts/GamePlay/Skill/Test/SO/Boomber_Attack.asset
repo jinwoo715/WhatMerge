@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e081a4569ff6834785aa3208bde2218, type: 3}
+  m_Name: Boomber_Attack
+  m_EditorClassIdentifier: 
+  SkillType: 0
+  UID: 0
+  Name: New Active Skill
+  Description: 
+  AnimationData:
+    MotionName: Attack
+    ReadyMotionTime: 0.2
+    ExecutionMotionTime: 0.2
+  Execution: {fileID: 11400000, guid: 2561734d5ce8824499f2e809e10071b8, type: 2}
+  Target: {fileID: 11400000, guid: 630e608d0634be54791b2affc8d303df, type: 2}
+  Trigger: {fileID: 11400000, guid: 75338c79cba859943886425f005b21d6, type: 2}

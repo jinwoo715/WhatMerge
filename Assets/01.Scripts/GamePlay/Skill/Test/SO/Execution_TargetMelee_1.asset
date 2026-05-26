@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Execution_TargetMelee_1
   m_EditorClassIdentifier: 
   Effects:
-  - {fileID: 11400000, guid: a983a85fe2db97d4f87b52fba2ad4e0a, type: 2}
-  VFX: {fileID: 0}
+  - Effect: {fileID: 11400000, guid: b4c72a48c50b30a4fa19b5f68301944a, type: 2}
+    Chance: 1
+  VFX: {fileID: 11400000, guid: 3b76e89d4e24a454187e8a2c9fe63f21, type: 2}
   HitCount: 1

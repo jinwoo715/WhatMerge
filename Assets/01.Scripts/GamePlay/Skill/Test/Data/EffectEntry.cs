@@ -1,10 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+
 namespace Skill.Data
 {
-    [CreateAssetMenu(fileName = "SkillEntry", menuName = "Skill/SkillEntry", order =0)]
-    public class EffectEntry : ScriptableObject
+    [System.Serializable]
+    public class EffectEntry
     {
         public EffectBase Effect;
 
@@ -13,7 +12,7 @@ namespace Skill.Data
 
         public bool IsUseable()
         {
-            float ranNum = Random.Range(0, 1);
+            float ranNum = Random.value;
             return Chance >= ranNum;
         }
     }

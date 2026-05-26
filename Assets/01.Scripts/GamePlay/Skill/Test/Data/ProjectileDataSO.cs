@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Skill
+namespace Skill.Data
 {
     [CreateAssetMenu(fileName = "Projectile", menuName = "Skill/Item/Projectile", order = 0)]
     public class ProjectileDataSO : ScriptableObject

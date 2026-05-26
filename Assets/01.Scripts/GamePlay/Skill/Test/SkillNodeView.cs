@@ -15,7 +15,8 @@ public enum SkillNodeKind
     Execution,
     Target,
     ExecutionVfx,
-    Effect
+    Effect,
+    ProjectileData
 }
 
 public sealed class SkillNodeView : Node
@@ -254,6 +255,9 @@ public sealed class SkillNodeView : Node
             case SkillNodeKind.Effect:
                 AddOutputPort("Effect", typeof(EffectBase));
                 break;
+            case SkillNodeKind.ProjectileData:
+                AddOutputPort("Projectile", typeof(ProjectileDataSO));
+                break;
         }
     }
 
@@ -356,6 +360,10 @@ public sealed class SkillNodeView : Node
     {
         CreateEffectsFoldout();
         AddBodyFieldSlot("VFX", "VFX", typeof(SkillVfxSystem), Asset is ExecutionSystemData execution ? execution.VFX : null);
+        if (Asset is ProjectileSkill projectileSkill)
+        {
+            AddBodyFieldSlot("ProjectileData", "ProjectileData", typeof(ProjectileDataSO), projectileSkill.ProjectileData);
+        }
     }
 
     private void CreateEffectBodyFields()
@@ -453,7 +461,8 @@ public sealed class SkillNodeView : Node
             style =
             {
                 marginTop = 2f,
-                marginBottom = 4f
+                marginBottom = 4f,
+                minHeight = 46f
             }
         };
 
@@ -487,17 +496,39 @@ public sealed class SkillNodeView : Node
         removeButton.style.marginLeft = 4f;
         effectRow.Add(removeButton);
 
-        var chanceField = new IMGUIContainer(() => DrawExecutionEffectProperty(index, "Chance", false))
+        var chanceRow = new VisualElement
         {
             style =
             {
-                marginLeft = 86f,
+                flexDirection = FlexDirection.Row,
+                alignItems = Align.Center,
                 marginTop = 2f
             }
         };
 
+        var chanceSpacer = new VisualElement
+        {
+            style =
+            {
+                width = 76f,
+                flexShrink = 0f
+            }
+        };
+        chanceRow.Add(chanceSpacer);
+
+        var chanceField = new IMGUIContainer(() => DrawExecutionEffectProperty(index, "Chance", false))
+        {
+            style =
+            {
+                flexGrow = 1f,
+                minHeight = 20f,
+                marginLeft = 4f
+            }
+        };
+        chanceRow.Add(chanceField);
+
         container.Add(effectRow);
-        container.Add(chanceField);
+        container.Add(chanceRow);
         return container;
     }
 
@@ -552,10 +583,11 @@ public sealed class SkillNodeView : Node
             case SkillNodeKind.Trigger:
             case SkillNodeKind.Target:
             case SkillNodeKind.ExecutionVfx:
+            case SkillNodeKind.ProjectileData:
                 DrawSerializedObject(Asset);
                 break;
             case SkillNodeKind.Execution:
-                DrawSerializedObject(Asset, "Effects", "VFX");
+                DrawSerializedObject(Asset, "Effects", "VFX", "ProjectileData");
                 break;
             case SkillNodeKind.Effect:
                 if (EffectIndex >= 0)
@@ -769,6 +801,7 @@ public sealed class SkillNodeView : Node
             || propertyPath == "Target"
             || propertyPath == "Trigger"
             || propertyPath == "VFX"
+            || propertyPath == "ProjectileData"
             || propertyPath == "Effect"
             || propertyPath.StartsWith("Effects");
     }

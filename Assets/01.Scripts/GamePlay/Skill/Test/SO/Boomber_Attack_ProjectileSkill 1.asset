@@ -9,9 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f29c5c6146866ad4fafdd6e21176db76, type: 3}
-  m_Name: SingleTargetMeleeAttack
+  m_Script: {fileID: 11500000, guid: c1e3638a6c8bf3b4b8ac01cb39037ab6, type: 3}
+  m_Name: Boomber_Attack_ProjectileSkill 1
   m_EditorClassIdentifier: 
-  Effects: []
+  Effects:
+  - Effect: {fileID: 11400000, guid: c3e36bf47070a404b8ce65573409f48f, type: 2}
+    Chance: 1
   VFX: {fileID: 0}
-  HitCount: 0
+  ProjectileData: {fileID: 11400000, guid: e99c703e178d9ef4baa005c4db6aada4, type: 2}

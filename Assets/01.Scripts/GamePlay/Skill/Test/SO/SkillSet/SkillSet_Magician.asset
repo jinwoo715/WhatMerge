@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0573a7a9871ae0349851f0e4b44c1858, type: 3}
-  m_Name: SkillSet_Warrior
+  m_Name: SkillSet_Magician
   m_EditorClassIdentifier: 
-  UID: 1
+  UID: 9
   Sets:
   - Level: 0
-    Skill: {fileID: 11400000, guid: ad85775d1c09b764b90c03a0b9093ced, type: 2}
+    Skill: {fileID: 11400000, guid: 956b45d2ad2b55444b5bbce42abdbbbe, type: 2}
   - Level: 1
     Skill: {fileID: 11400000, guid: ed3345d52cde5834abc62132180ba132, type: 2}
   - Level: 10

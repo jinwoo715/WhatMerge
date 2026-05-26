@@ -31,8 +31,12 @@ namespace Skill
             _owner = activeContext.Hero;
             _spriteChanger = _owner.SpriteChanger;
 
-            _vfxService = commonContext.VfxService;
-            _attackRegister = commonContext.CombatService;
+  
+
+            //if (commonContext.VfxService != null)
+            //    _vfxService = commonContext.VfxService;
+
+            //_attackRegister = commonContext.CombatService;
         }
 
         public abstract IEnumerator Execute(IReadOnlyList<Creature> targets);
@@ -97,6 +101,7 @@ namespace Skill
                 }
             }
 
+            Debug.Log(_attackRegister);
             _attackRegister.RegisterAttack(dc);
 
             SetIdleMotion();
@@ -152,6 +157,7 @@ namespace Skill
                     }
                 }
 
+                Debug.Log(_attackRegister);
                 _attackRegister.RegisterAttack(dc);
             }
 
@@ -163,6 +169,8 @@ namespace Skill
         private IProjectileProvider _projectile;
         public TargetProjectile(ActiveSkillContext activeContext, SkillCommonContext commonContext) : base(activeContext, commonContext)
         {
+            Debug.Log(commonContext);
+            Debug.Log(commonContext.Projectile);
             _projectile = commonContext.Projectile;
         }
 
@@ -172,14 +180,17 @@ namespace Skill
 
             IDamageable target = SearchUtility.GetNearestTarget<IDamageable>(targets, _owner.Position);
 
-            Vector3 dir = (target.Position - _owner.Position).normalized;
-
             yield return SetExecutionMotion();
 
             var projectile = (_executionSystem as ProjectileSkill).ProjectileData;
 
-            //TODO
-            _projectile.SpawnProjectile();
+            //TODO Projectile
+            ProjectileEventContext context = new ProjectileEventContext();
+            context.Attacker = _owner;
+            context.Target = target;
+            context.effects = _executionSystem.Effects;
+
+            _projectile.SpawnProjectile(projectile, context);
 
             SetIdleMotion();
         }

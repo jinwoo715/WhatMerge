@@ -5,12 +5,12 @@ using UnityEngine;
 
 namespace Skill
 {
-    public interface IFinder
+    public interface ITarget
     {
         bool HasTargetInRange(Vector3 pivot);
         IReadOnlyList<Creature> GetTargets(Vector3 pivot);
     }
-    public class SelfTargetFinder : IFinder
+    public class SelfTargetFinder : ITarget
     {
         private Creature _owner;
 
@@ -32,7 +32,7 @@ namespace Skill
             return false;
         }
     }
-    public class NearHeroFinder : IFinder
+    public class NearHeroFinder : ITarget
     {
         private int _range;
         private Hero _owner;
@@ -62,7 +62,7 @@ namespace Skill
             return _fieldHero.GetNearHeros(_owner.OccupiedTile, _range).Count > 0;
         }
     }
-    public class AllHeroFinder : IFinder
+    public class AllHeroFinder : ITarget
     {
         private IFieldHeroService _fieldHeroService;
         public AllHeroFinder(IFieldHeroService fieldHeroService)
@@ -79,7 +79,7 @@ namespace Skill
             return true;
         }
     }
-    public class NearEnemyFinder : IFinder
+    public class NearEnemyFinder : ITarget
     {
         private Hero _owner;
         private int _range;
@@ -108,7 +108,7 @@ namespace Skill
             return SearchUtility.IsExistEnemyInRange(_owner.Position, _range);
         }
     }
-    public class AllEnemyFinder : IFinder
+    public class AllEnemyFinder : ITarget
     {
         private IFieldEnemyService _fieldEnemyService;
 

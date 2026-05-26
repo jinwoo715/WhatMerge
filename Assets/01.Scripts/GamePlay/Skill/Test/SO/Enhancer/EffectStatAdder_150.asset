@@ -17,5 +17,5 @@ MonoBehaviour:
   Name: 
   Description: 
   TargetSkill: {fileID: 11400000, guid: 956b45d2ad2b55444b5bbce42abdbbbe, type: 2}
-  TargetEffect: {fileID: 0}
+  TargetEffect: {fileID: 11400000, guid: e9d09c02194c4c949ba08572cd25086a, type: 2}
   AddValue: 50

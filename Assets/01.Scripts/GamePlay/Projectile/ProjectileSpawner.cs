@@ -45,6 +45,9 @@ namespace Skill
 
         private Dictionary<EProjectileMoveType, Stack<IMoveStretagy>> _moveStretagy = new Dictionary<EProjectileMoveType, Stack<IMoveStretagy>>();
 
+        private ICombatService _combatService;
+        private ISummonProvider _summonProvider;
+
         private void Start()
         {
             _projectilePool.Init(this.transform, _prefab, 10);
@@ -125,10 +128,13 @@ namespace Skill
             ProjectileItem obj = _projectileItemPool.GetItem(context.Attacker.Position);
 
             var move = GetMoveStretagy(data.MoveType);
+            move.Init(obj.transform, context.Target, data.Speed);
 
-            var sp = GetProjectileSprite(data.SpriteName, context.Attacker.EvolutionLevel);
+            var projectileSprite = GetProjectileSprite(data.SpriteName, context.Attacker.EvolutionLevel);
 
-            //obj.Init(data, move, sp, data);
+            ProjectileEffectExecuter effectExecuter = new ProjectileEffectExecuter(_combatService, _summonProvider, context.effects);
+
+            obj.Init(context, effectExecuter, move, data, projectileSprite);
         }
     }
 }

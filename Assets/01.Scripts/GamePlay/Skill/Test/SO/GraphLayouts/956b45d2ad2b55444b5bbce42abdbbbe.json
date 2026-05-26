@@ -7,7 +7,7 @@
                 "x": 40.0,
                 "y": 160.0,
                 "width": 278.0,
-                "height": 376.0
+                "height": 443.0
             }
         },
         {
@@ -46,8 +46,8 @@
                 "serializedVersion": "2",
                 "x": -410.0,
                 "y": 3.0,
-                "width": 276.0,
-                "height": 287.0
+                "width": 279.0,
+                "height": 289.0
             }
         },
         {
@@ -66,8 +66,8 @@
                 "serializedVersion": "2",
                 "x": -833.0,
                 "y": -71.0,
-                "width": 283.0,
-                "height": 184.0
+                "width": 260.0,
+                "height": 204.0
             }
         },
         {
@@ -89,7 +89,7 @@
                 "x": 40.0,
                 "y": 160.0,
                 "width": 278.0,
-                "height": 376.0
+                "height": 443.0
             }
         },
         {
@@ -118,8 +118,8 @@
                 "serializedVersion": "2",
                 "x": -410.0,
                 "y": 3.0,
-                "width": 276.0,
-                "height": 287.0
+                "width": 279.0,
+                "height": 289.0
             }
         },
         {
@@ -141,12 +141,32 @@
                 "width": 283.0,
                 "height": 184.0
             }
+        },
+        {
+            "Key": "asset-99ee72e7dff1b6647b27a266187186fa",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -833.0,
+                "y": -71.0,
+                "width": 260.0,
+                "height": 204.0
+            }
+        },
+        {
+            "Key": "asset-b4c72a48c50b30a4fa19b5f68301944a",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -833.0,
+                "y": -71.0,
+                "width": 260.0,
+                "height": 204.0
+            }
         }
     ],
     "LooseAssetGuids": [],
     "ViewPosition": {
-        "x": 550.0,
-        "y": 79.0,
+        "x": 722.0,
+        "y": 199.0,
         "z": 0.0
     },
     "ViewScale": {

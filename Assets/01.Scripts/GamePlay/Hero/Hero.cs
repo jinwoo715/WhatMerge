@@ -128,6 +128,8 @@ namespace Entity
 
         private void Update()
         {
+            if (skillController == null) return;
+
             skillController.Tick(Time.deltaTime);
         }
 
