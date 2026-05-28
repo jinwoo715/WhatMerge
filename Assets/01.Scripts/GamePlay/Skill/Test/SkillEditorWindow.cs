@@ -181,6 +181,7 @@ public class SkillEditorWindow : EditorWindow
 
         AddPaletteHeader(palette, "Item");
         AddPaletteButton<ProjectileDataSO>(palette, "Projectile");
+        AddPaletteButton<SummonDataSO>(palette, "Summon");
 
         AddPaletteHeader(palette, "VFX");
         AddPaletteButton<SkillVfxSystem>(palette, "Skill Visual");

@@ -7,7 +7,7 @@ namespace Skill.Data
     [CreateAssetMenu(fileName = "SummonEffect", menuName = "Skill/Effect/SummonEffect", order = 0)]
     public class SummonEffect : EffectBase
     {
-        
+        public SummonDataSO Summon;
     }
 }
 

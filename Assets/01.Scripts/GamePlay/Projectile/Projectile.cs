@@ -107,7 +107,7 @@ public class LinearMove : IMoveStretagy
 
     public bool IsArrived { get; set; }
 
-    public event Action OnArrived;
+    public event Action<ProjectileImpactContext> OnArrived;
 
     public void Init(Transform owner, ICreature target, float speed)
     {
@@ -129,7 +129,7 @@ public class HomingMove : IMoveStretagy
 
     public bool IsArrived { get; private set; }
 
-    public event Action OnArrived;
+    public event Action<ProjectileImpactContext> OnArrived;
 
     public void Init(Transform owner, ICreature target, float speed)
     {
@@ -151,7 +151,7 @@ public class HomingMove : IMoveStretagy
         if(distance <= 0.001f)
         {
             _owner.transform.position = _target.Position;
-            OnArrived?.Invoke();
+            OnArrived?.Invoke(new ProjectileImpactContext(_target as IDamageable, _owner.position));
             IsArrived = true;
         }
     }
@@ -176,7 +176,7 @@ public class Parabola : IMoveStretagy
 
     public bool IsArrived { get; private set; }
 
-    public event Action OnArrived;
+    public event Action<ProjectileImpactContext> OnArrived;
 
     public void Init(Transform owner, ICreature target, float speed)
     {
@@ -207,7 +207,7 @@ public class Parabola : IMoveStretagy
         float distance = Vector3.SqrMagnitude(_owner.position - _destination);
         if(distance <= 0.001f)
         {
-            OnArrived?.Invoke();
+            OnArrived?.Invoke(new ProjectileImpactContext(null, pos));
             IsArrived = true;
         }
     }
@@ -258,7 +258,7 @@ public interface IProjectileMove
 
 public interface IMoveStretagy
 {
-    event Action OnArrived;
+    event Action<ProjectileImpactContext> OnArrived;
     bool IsArrived { get; }
     void Init(Transform owner, ICreature target, float speed);
     void Tick();

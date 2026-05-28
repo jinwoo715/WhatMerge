@@ -53,230 +53,64 @@ public interface ISummonMove
     void Init(ICreature target, Transform owner);
     void Move(ICreature target, Transform owner);
 }
-public class FixSummon : ISummonMove
+public class NoneMoveStretagy : ISummonMoveStrategy
 {
-    public void Init(ICreature target, Transform owner)
+    public void Init(Transform owner, ICreature target, float speed) { }
+    public void Tick() { }
+}
+public class AttachMoveStretagy : ISummonMoveStrategy
+{
+    private ICreature _target;
+    private Transform _owner;
+    public void Init(Transform owner, ICreature target, float speed)
     {
-        
+        _target = target;
+        _owner = owner;
     }
 
-    public void Move(ICreature target, Transform owner)
+    public void Tick()
     {
-        
+        _owner.transform.position = _target.Position;
     }
 }
-public class FollowSummon : ISummonMove
+public class ToTargetMoveStretagy : ISummonMoveStrategy
 {
-    Vector3 _deltaPosition;
-    Vector3 _approchDir;
-    public void Init(ICreature target, Transform owner)
+    private ICreature _target;
+    private Transform _owner;
+
+    private float _speed;
+
+    private Vector3 _dir;
+    private Vector3 _enemyDeltaPosition;
+
+    private bool isArrived = false;
+
+    public void Init(Transform owner, ICreature target, float speed)
     {
-        _deltaPosition = target.Position;
-        _approchDir = (target.Position - owner.position).normalized;
+        _target = target;
+        _owner = owner;
+        _speed = speed;
+        _enemyDeltaPosition = _target.Position;
+        _dir = (_target.Position - _owner.position).normalized;
+        isArrived = false;
     }
 
-    public void Move(ICreature target, Transform owner)
+    public void Tick()
     {
-        Vector3 move = target.Position - _deltaPosition;
-        _deltaPosition = target.Position;
-        owner.position += move;
-    }
-}
-public class ApprochSummon : ISummonMove
-{
-    Vector3 _deltaPosition;
-    Vector3 _approchDir;
-    float _lerp = 1;
-    public void Init(ICreature target, Transform owner)
-    {
-        _approchDir = (owner.position - target.Position).normalized;
-        _lerp = 1;
-    }
+        if (isArrived)
+        {
+            _owner.position = _target.Position;
+        }
+        else
+        {
+            Vector3 moveAmount = _target.Position - _enemyDeltaPosition;
 
-    public void Move(ICreature target, Transform owner)
-    {
-        Vector3 mov = (_approchDir * _lerp);
+            _owner.position += moveAmount;
+            _owner.position += _dir * Time.deltaTime * _speed;
 
-        owner.position = target.Position + mov;
-
-        _lerp -= Time.deltaTime*2;
+            if (Vector3.SqrMagnitude(_owner.position - _target.Position) < 0.001f)
+                isArrived = true;
+        }
     }
 }
 #endregion
-
-public interface ISummonEffect
-{
-    event Action OnEffect;
-    void Init(float interval, float delay, ESummonExcuteType excuteType);
-    void Tick();
-    void ExcuteTrigger(ESummonExcuteType type);
-}
-public class SummonOnceEffect : ISummonEffect
-{
-    private float _delay;
-    private float _currentTime;
-    ESummonExcuteType _excuteType;
-    public event Action OnEffect;
-    public void Init(float interval, float delay, ESummonExcuteType excuteType)
-    {
-        _delay = delay;
-        _currentTime = 0;
-
-    }
-    public void Tick()
-    {
-        if (_currentTime >= _delay)
-            return;
-
-        _currentTime += Time.deltaTime;
-
-        if (_currentTime >= _delay)
-            OnEffect?.Invoke();
-    }
-    public void ExcuteTrigger(ESummonExcuteType type)
-    {
-        if (_excuteType == type)
-            OnEffect?.Invoke();
-    }
-}
-public class SummonIntervalEffect : ISummonEffect
-{
-    private float _interval;
-    private float _currentTime;
-
-    public event Action OnEffect;
-
-    ESummonExcuteType _excuteType;
-    public void Init(float interval, float delay, ESummonExcuteType excuteType)
-    {
-        _interval = interval;
-        _excuteType = excuteType;
-        _excuteType = excuteType;
-    }
-    public void Tick()
-    {
-        _currentTime += Time.deltaTime;
-
-        if (_currentTime >= _interval)
-        {
-            _currentTime = 0;
-            OnEffect?.Invoke();
-        }
-    }
-    public void ExcuteTrigger(ESummonExcuteType type)
-    {
-        if (_excuteType == type)
-            OnEffect?.Invoke();
-    }
-}
-
-public interface IHitEffect
-{
-    public void ExcuteEffect(ProjectilePayload data, Transform _owner, float radius);
-}
-public class MultiAttackEffect : IHitEffect
-{
-    public void ExcuteEffect(ProjectilePayload data, Transform _owner, float radius)
-    {
-        var enemies = CreatureFinder.TryFindNearEnemies(_owner.position, radius);
-
-        float dmgMultiple = data.DMGValue * 0.01f;
-        float damage = data.attackStatProvider.GetStat(EAttackStatType.Damage) * dmgMultiple;
-
-        int resultDamage = Mathf.RoundToInt(damage);
-
-        int FlatPenetration = (int)data.attackStatProvider.GetStat(EAttackStatType.FlatPentration);
-        int PercentPenetration = (int)data.attackStatProvider.GetStat(EAttackStatType.PercentPenetration);
-
-        for (int i = 0; i < enemies.Count; i++)
-        {
-            AttackPayload ap = new AttackPayload(resultDamage, FlatPenetration, PercentPenetration);
-            DamageContext dc = new DamageContext(ap, enemies[i], data.Attacker);
-            data.attackRegister.RegisterAttack(dc);
-        }
-    }
-}
-public class SingleAttackEffect : IHitEffect
-{
-    public void ExcuteEffect(ProjectilePayload data, Transform _owner, float radius)
-    {
-        float dmgMultiple = data.DMGValue * 0.01f;
-        float damage = data.attackStatProvider.GetStat(EAttackStatType.Damage) * dmgMultiple;
-
-        int resultDamage = Mathf.RoundToInt(damage);
-
-        int FlatPenetration = (int)data.attackStatProvider.GetStat(EAttackStatType.FlatPentration);
-        int PercentPenetration = (int)data.attackStatProvider.GetStat(EAttackStatType.PercentPenetration);
-
-        AttackPayload ap = new AttackPayload(resultDamage, FlatPenetration, PercentPenetration);
-        DamageContext dc = new DamageContext(ap, data.Target, data.Attacker);
-        data.attackRegister.RegisterAttack(dc);
-    }
-}
-
-public class Summon : MonoBehaviour, IPooledItem<Summon>
-{
-    [SerializeField] private SpriteRenderer _renderer;
-
-    private SummonData _summonData;
-    private ProjectilePayload _data;
-    public bool IsActive { get; private set; } = true;
-
-    public event Action<Summon> OnReturn;
-
-    private float _lifeTime = 0;
-    private float _intervalTime = 0;
-    private float _timer;
-
-    private ISummonMove _summonMove;
-    private ISummonEffect _summonEffect;
-    private IHitEffect _effectResolver;
-
-    public void Init(ProjectilePayload data, SummonData summonData, Sprite sprite, ISummonMove summonMove, ISummonEffect summonEffect, IHitEffect hitEffect)
-    {
-        _data = data;
-        _summonData = summonData;
-        _renderer.sprite = sprite;
-        _lifeTime = summonData.LifeTime;
-        _intervalTime = summonData.Interval;
-        _summonMove = summonMove;
-        _summonEffect = summonEffect;
-
-        summonEffect.Init(summonData.Interval, summonData.Delay, summonData.HitType);
-
-        _effectResolver = hitEffect;
-        _summonEffect.OnEffect += OnExcuteEffect;
-
-        _summonMove.Init(data.Target, transform);
-    }
-
-    private void OnExcuteEffect()
-    {
-        _effectResolver.ExcuteEffect(_data, this.transform, _summonData.Radius);
-    }
-
-    private void Update()
-    {
-        if (!IsActive) return;
-
-        _lifeTime -= Time.deltaTime;
-
-        if (_lifeTime < 0)
-            OnReturn?.Invoke(this);
-
-        _timer += Time.deltaTime;
-
-        _summonMove.Move(_data.Target, this.transform);
-        _summonEffect.Tick();
-    }
-
-    public void OnDespawn()
-    {
-        IsActive = false;
-    }
-
-    public void OnSpawn()
-    {
-        IsActive = true;
-    }
-}

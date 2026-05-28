@@ -11,6 +11,7 @@ using SkillVfxSystem = Skill.Data.VisualEffectData;
 
 public sealed class SkillGraphView : GraphView
 {
+    private const string SummonDataEffectKeyMarker = "::summon-effect::";
     private readonly SkillEditorWindow _window;
     private readonly Dictionary<string, Rect> _nodePositions = new Dictionary<string, Rect>();
     private readonly Dictionary<string, Rect> _assetPositions = new Dictionary<string, Rect>();
@@ -119,6 +120,11 @@ public sealed class SkillGraphView : GraphView
                     {
                         AddNode(SkillNodeKind.ExecutionVfx, "effect-vfx-" + i, "Effect VFX (" + (i + 1) + ")", entry.Effect.VFX, i, new Rect(1430f, 390f + i * 290f, 250f, 260f), new Color(0.66f, 0.38f, 0.92f));
                     }
+
+                    if (entry.Effect is SummonEffect summonEffect && summonEffect.Summon != null)
+                    {
+                        AddNode(SkillNodeKind.SummonData, "effect-summon-" + i, "Summon (" + (i + 1) + ")", summonEffect.Summon, i, new Rect(1750f, 390f + i * 290f, 270f, 260f), new Color(0.34f, 0.76f, 0.92f));
+                    }
                 }
             }
         }
@@ -134,6 +140,8 @@ public sealed class SkillGraphView : GraphView
 
             AddLooseNode(looseAsset, i);
         }
+
+        AddSummonDataEffectNodes();
 
         AddCachedReferenceEdge("execution", "Execution", "active", "ActiveAction");
         AddCachedReferenceEdge("target", "Target", "active", "Target");
@@ -158,10 +166,17 @@ public sealed class SkillGraphView : GraphView
                         {
                             AddCachedReferenceEdge("effect-vfx-" + i, "VFX", "effect-" + i, "VFX");
                         }
+
+                        if (_skill.Execution.Effects[i].Effect is SummonEffect summonEffect && summonEffect.Summon != null)
+                        {
+                            AddCachedReferenceEdge("effect-summon-" + i, "Summon", "effect-" + i, "Summon");
+                        }
                     }
                 }
             }
         }
+
+        AddSummonDataEffectEdges();
 
         _isBuilding = false;
     }
@@ -256,9 +271,11 @@ public sealed class SkillGraphView : GraphView
         evt.menu.AppendAction("Create Node/Effect/Damage", _ => CreateAndAssignNode<DamageEffect>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendAction("Create Node/Effect/Buff", _ => CreateAndAssignNode<BuffEffect>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendAction("Create Node/Effect/Debuff", _ => CreateAndAssignNode<DebuffEffect>(graphPosition), DropdownMenuAction.AlwaysEnabled);
+        evt.menu.AppendAction("Create Node/Effect/Summon", _ => CreateAndAssignNode<SummonEffect>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendAction("Create Node/Effect/Status", _ => CreateAndAssignNode<AttributeEffect>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendSeparator("Create Node/");
         evt.menu.AppendAction("Create Node/Item/Projectile", _ => CreateAndAssignNode<ProjectileDataSO>(graphPosition), DropdownMenuAction.AlwaysEnabled);
+        evt.menu.AppendAction("Create Node/Item/Summon", _ => CreateAndAssignNode<SummonDataSO>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendSeparator("Create Node/");
         evt.menu.AppendAction("Create Node/VFX/Skill Visual", _ => CreateAndAssignNode<SkillVfxSystem>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendSeparator();
@@ -649,6 +666,11 @@ public sealed class SkillGraphView : GraphView
                         return "effect-vfx-" + i;
                     }
 
+                    if (entry?.Effect is SummonEffect summonEffect && summonEffect.Summon == asset)
+                    {
+                        return "effect-summon-" + i;
+                    }
+
                     if (entry != null && entry.Effect == asset)
                     {
                         return "effect-" + i;
@@ -657,7 +679,62 @@ public sealed class SkillGraphView : GraphView
             }
         }
 
+        string summonEffectKey = GetSummonDataEffectNodeKeyForAsset(asset);
+        if (!string.IsNullOrEmpty(summonEffectKey))
+        {
+            return summonEffectKey;
+        }
+
         return GetLooseKey(asset);
+    }
+
+    private string GetSummonDataEffectNodeKeyForAsset(UnityEngine.Object asset)
+    {
+        if (asset == null)
+        {
+            return string.Empty;
+        }
+
+        foreach (SkillNodeView node in _nodes.Values)
+        {
+            if (node.Kind == SkillNodeKind.SummonData
+                && node.Asset is SummonDataSO summonData
+                && TryGetSummonDataEffectIndex(summonData, asset, out int effectIndex))
+            {
+                return GetSummonDataEffectNodeKey(node.Key, effectIndex);
+            }
+        }
+
+        for (int i = 0; i < _looseAssets.Count; i++)
+        {
+            if (_looseAssets[i] is SummonDataSO summonData
+                && TryGetSummonDataEffectIndex(summonData, asset, out int effectIndex))
+            {
+                return GetSummonDataEffectNodeKey(GetLooseKey(summonData), effectIndex);
+            }
+        }
+
+        return string.Empty;
+    }
+
+    private static bool TryGetSummonDataEffectIndex(SummonDataSO summonData, UnityEngine.Object asset, out int effectIndex)
+    {
+        effectIndex = -1;
+        if (summonData?.Effects == null || asset == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < summonData.Effects.Count; i++)
+        {
+            if (summonData.Effects[i]?.Effect == asset)
+            {
+                effectIndex = i;
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void AddCachedReferenceEdge(string sourceNodeKey, string sourcePortName, string targetNodeKey, string targetPortName)
@@ -676,6 +753,64 @@ public sealed class SkillGraphView : GraphView
 
         var edge = outputPort.ConnectTo(inputPort);
         AddElement(edge);
+    }
+
+    private void AddSummonDataEffectNodes()
+    {
+        List<SkillNodeView> summonNodes = _nodes.Values
+            .Where(node => node.Kind == SkillNodeKind.SummonData && node.Asset is SummonDataSO)
+            .ToList();
+
+        for (int nodeIndex = 0; nodeIndex < summonNodes.Count; nodeIndex++)
+        {
+            SkillNodeView summonNode = summonNodes[nodeIndex];
+            var summonData = summonNode.Asset as SummonDataSO;
+            if (summonData?.Effects == null)
+            {
+                continue;
+            }
+
+            Rect summonPosition = summonNode.GetPosition();
+            for (int i = 0; i < summonData.Effects.Count; i++)
+            {
+                EffectEntry entry = summonData.Effects[i];
+                if (entry?.Effect == null)
+                {
+                    continue;
+                }
+
+                string key = GetSummonDataEffectNodeKey(summonNode.Key, i);
+                Rect defaultPosition = new Rect(summonPosition.x + 330f, summonPosition.y + 90f + i * 290f, 270f, 270f);
+                AddNode(SkillNodeKind.Effect, key, "Summon Effect (" + (i + 1) + ")", entry.Effect, i, defaultPosition, new Color(0.92f, 0.28f, 0.14f));
+            }
+        }
+    }
+
+    private void AddSummonDataEffectEdges()
+    {
+        List<SkillNodeView> summonNodes = _nodes.Values
+            .Where(node => node.Kind == SkillNodeKind.SummonData && node.Asset is SummonDataSO)
+            .ToList();
+
+        for (int nodeIndex = 0; nodeIndex < summonNodes.Count; nodeIndex++)
+        {
+            SkillNodeView summonNode = summonNodes[nodeIndex];
+            var summonData = summonNode.Asset as SummonDataSO;
+            if (summonData?.Effects == null)
+            {
+                continue;
+            }
+
+            for (int i = 0; i < summonData.Effects.Count; i++)
+            {
+                if (summonData.Effects[i]?.Effect == null)
+                {
+                    continue;
+                }
+
+                AddCachedReferenceEdge(GetSummonDataEffectNodeKey(summonNode.Key, i), "Effect", summonNode.Key, SkillNodeView.GetEffectSlotName(i));
+            }
+        }
     }
 
     private void AddLooseNode(ScriptableObject asset, int index)
@@ -737,6 +872,14 @@ public sealed class SkillGraphView : GraphView
             kind = SkillNodeKind.ProjectileData;
             title = "Projectile";
             color = new Color(0.95f, 0.82f, 0.18f);
+            return true;
+        }
+
+        if (asset is SummonDataSO)
+        {
+            kind = SkillNodeKind.SummonData;
+            title = "Summon";
+            color = new Color(0.34f, 0.76f, 0.92f);
             return true;
         }
 
@@ -885,6 +1028,21 @@ public sealed class SkillGraphView : GraphView
             return;
         }
 
+        if (nodeView.Kind == SkillNodeKind.SummonData && nodeView.Asset is SummonDataSO summonData)
+        {
+            Undo.RecordObject(summonData, "Assign Summon Effect Slot");
+            if (TryGetEffectSlotIndex(slotName, out int effectIndex))
+            {
+                if (newAsset is EffectBase indexedEffect)
+                {
+                    EnsureEffectEntry(summonData, effectIndex).Effect = indexedEffect;
+                }
+
+                SkillGraphAssetUtility.MarkDirty(summonData);
+                return;
+            }
+        }
+
         if (nodeView.Kind == SkillNodeKind.Effect && nodeView.Asset is EffectBase effectAsset)
         {
             Undo.RecordObject(effectAsset, "Assign Effect Slot");
@@ -892,6 +1050,12 @@ public sealed class SkillGraphView : GraphView
             {
                 case "VFX":
                     effectAsset.VFX = newAsset as SkillVfxSystem;
+                    break;
+                case "Summon":
+                    if (effectAsset is SummonEffect summonEffect)
+                    {
+                        summonEffect.Summon = newAsset as SummonDataSO;
+                    }
                     break;
             }
 
@@ -972,6 +1136,24 @@ public sealed class SkillGraphView : GraphView
             return;
         }
 
+        if (nodeView.Kind == SkillNodeKind.SummonData && nodeView.Asset is SummonDataSO summonData)
+        {
+            Undo.RecordObject(summonData, "Clear Summon Effect Slot");
+            if (TryGetEffectSlotIndex(slotName, out int effectIndex))
+            {
+                if (summonData.Effects != null
+                    && effectIndex >= 0
+                    && effectIndex < summonData.Effects.Count
+                    && summonData.Effects[effectIndex]?.Effect == oldAsset)
+                {
+                    summonData.Effects[effectIndex].Effect = null;
+                }
+
+                SkillGraphAssetUtility.MarkDirty(summonData);
+                return;
+            }
+        }
+
         if (nodeView.Kind == SkillNodeKind.Effect && nodeView.Asset is EffectBase effectAsset)
         {
             Undo.RecordObject(effectAsset, "Clear Effect Slot");
@@ -983,10 +1165,18 @@ public sealed class SkillGraphView : GraphView
                         effectAsset.VFX = null;
                     }
                     break;
+                case "Summon":
+                    if (effectAsset is SummonEffect summonEffect && summonEffect.Summon == oldAsset)
+                    {
+                        summonEffect.Summon = null;
+                    }
+                    break;
             }
 
             SkillGraphAssetUtility.MarkDirty(effectAsset);
         }
+
+
     }
 
     private static EffectEntry EnsureEffectEntry(ExecutionSystemData execution, int index)
@@ -1007,6 +1197,26 @@ public sealed class SkillGraphView : GraphView
         }
 
         return execution.Effects[index];
+    }
+
+    private static EffectEntry EnsureEffectEntry(SummonDataSO summonData, int index)
+    {
+        if (summonData.Effects == null)
+        {
+            summonData.Effects = new List<EffectEntry>();
+        }
+
+        while (summonData.Effects.Count <= index)
+        {
+            summonData.Effects.Add(new EffectEntry());
+        }
+
+        if (summonData.Effects[index] == null)
+        {
+            summonData.Effects[index] = new EffectEntry();
+        }
+
+        return summonData.Effects[index];
     }
 
     private void CacheAssignedNodePosition(SkillNodeView inputNode, string slotName, SkillNodeView outputNode)
@@ -1033,6 +1243,16 @@ public sealed class SkillGraphView : GraphView
             return "effect-vfx-" + inputNode.EffectIndex;
         }
 
+        if (inputNode != null && inputNode.Kind == SkillNodeKind.Effect && slotName == "Summon" && inputNode.EffectIndex >= 0)
+        {
+            return "effect-summon-" + inputNode.EffectIndex;
+        }
+
+        if (inputNode != null && inputNode.Kind == SkillNodeKind.SummonData && TryGetEffectSlotIndex(slotName, out int summonEffectIndex))
+        {
+            return GetSummonDataEffectNodeKey(inputNode.Key, summonEffectIndex);
+        }
+
         if (inputNode != null && inputNode.Kind == SkillNodeKind.Execution && TryGetEffectSlotIndex(slotName, out int effectIndex))
         {
             return "effect-" + effectIndex;
@@ -1053,6 +1273,37 @@ public sealed class SkillGraphView : GraphView
             default:
                 return string.Empty;
         }
+    }
+
+    private static string GetSummonDataEffectNodeKey(string summonNodeKey, int effectIndex)
+    {
+        return summonNodeKey + SummonDataEffectKeyMarker + effectIndex;
+    }
+
+    private static bool TryGetSummonDataEffectNodeInfo(SkillNodeView nodeView, out string summonNodeKey, out int effectIndex)
+    {
+        summonNodeKey = string.Empty;
+        effectIndex = -1;
+        if (nodeView == null || string.IsNullOrEmpty(nodeView.Key))
+        {
+            return false;
+        }
+
+        int markerIndex = nodeView.Key.LastIndexOf(SummonDataEffectKeyMarker, StringComparison.Ordinal);
+        if (markerIndex < 0)
+        {
+            return false;
+        }
+
+        string indexText = nodeView.Key.Substring(markerIndex + SummonDataEffectKeyMarker.Length);
+        if (!int.TryParse(indexText, out effectIndex) || effectIndex < 0)
+        {
+            effectIndex = -1;
+            return false;
+        }
+
+        summonNodeKey = nodeView.Key.Substring(0, markerIndex);
+        return !string.IsNullOrEmpty(summonNodeKey);
     }
 
     private void AssignFieldSlotAssetAndRefresh(SkillNodeView nodeView, string slotName, UnityEngine.Object newAsset)
@@ -1105,12 +1356,28 @@ public sealed class SkillGraphView : GraphView
             }
         }
 
+        if (nodeView.Kind == SkillNodeKind.SummonData && nodeView.Asset is SummonDataSO summonData)
+        {
+            if (TryGetEffectSlotIndex(slotName, out int effectIndex))
+            {
+                return summonData.Effects != null
+                    && effectIndex >= 0
+                    && effectIndex < summonData.Effects.Count
+                    && summonData.Effects[effectIndex] != null
+                    && summonData.Effects[effectIndex].Effect == asset;
+            }
+
+            return false;
+        }
+
         if (nodeView.Kind == SkillNodeKind.Effect && nodeView.Asset is EffectBase effectAsset)
         {
             switch (slotName)
             {
                 case "VFX":
                     return effectAsset.VFX == asset;
+                case "Summon":
+                    return effectAsset is SummonEffect summonEffect && summonEffect.Summon == asset;
                 default:
                     return false;
             }
@@ -1144,6 +1411,11 @@ public sealed class SkillGraphView : GraphView
             return true;
         }
 
+        if (IsReferencedBySummonDataEffects(asset))
+        {
+            return true;
+        }
+
         if (_skill.Execution == null)
         {
             return false;
@@ -1173,6 +1445,68 @@ public sealed class SkillGraphView : GraphView
             }
 
             if (entry?.Effect?.VFX == asset)
+            {
+                return true;
+            }
+
+            if (entry?.Effect is SummonEffect summonEffect && summonEffect.Summon == asset)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private bool IsReferencedBySummonDataEffects(UnityEngine.Object asset)
+    {
+        if (asset == null)
+        {
+            return false;
+        }
+
+        var visited = new HashSet<SummonDataSO>();
+        foreach (SkillNodeView node in _nodes.Values)
+        {
+            if (node.Asset is SummonDataSO summonData && IsReferencedBySummonDataEffects(summonData, asset, visited))
+            {
+                return true;
+            }
+        }
+
+        for (int i = 0; i < _looseAssets.Count; i++)
+        {
+            if (_looseAssets[i] is SummonDataSO summonData && IsReferencedBySummonDataEffects(summonData, asset, visited))
+            {
+                return true;
+            }
+        }
+
+        if (_skill?.Execution?.Effects != null)
+        {
+            for (int i = 0; i < _skill.Execution.Effects.Count; i++)
+            {
+                if (_skill.Execution.Effects[i]?.Effect is SummonEffect summonEffect
+                    && IsReferencedBySummonDataEffects(summonEffect.Summon, asset, visited))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsReferencedBySummonDataEffects(SummonDataSO summonData, UnityEngine.Object asset, HashSet<SummonDataSO> visited)
+    {
+        if (summonData == null || !visited.Add(summonData) || summonData.Effects == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < summonData.Effects.Count; i++)
+        {
+            if (summonData.Effects[i]?.Effect == asset)
             {
                 return true;
             }
@@ -1294,11 +1628,25 @@ public sealed class SkillGraphView : GraphView
                 }
                 break;
             case SkillNodeKind.Effect:
-                if (_skill.Execution?.Effects != null && nodeView.EffectIndex >= 0 && nodeView.EffectIndex < _skill.Execution.Effects.Count)
+                if (nodeView.Key == "effect-" + nodeView.EffectIndex
+                    && _skill.Execution?.Effects != null
+                    && nodeView.EffectIndex >= 0
+                    && nodeView.EffectIndex < _skill.Execution.Effects.Count)
                 {
                     Undo.RecordObject(_skill.Execution, "Remove Effect");
                     _skill.Execution.Effects.RemoveAt(nodeView.EffectIndex);
                     SkillGraphAssetUtility.MarkDirty(_skill.Execution);
+                }
+                else if (TryGetSummonDataEffectNodeInfo(nodeView, out string summonNodeKey, out int summonEffectIndex)
+                    && _nodes.TryGetValue(summonNodeKey, out SkillNodeView summonNode)
+                    && summonNode.Asset is SummonDataSO summonData
+                    && summonData.Effects != null
+                    && summonEffectIndex >= 0
+                    && summonEffectIndex < summonData.Effects.Count)
+                {
+                    Undo.RecordObject(summonData, "Remove Summon Effect");
+                    summonData.Effects.RemoveAt(summonEffectIndex);
+                    SkillGraphAssetUtility.MarkDirty(summonData);
                 }
                 break;
             case SkillNodeKind.ProjectileData:
@@ -1307,6 +1655,18 @@ public sealed class SkillGraphView : GraphView
                     Undo.RecordObject(projectileSkill, "Remove Projectile Data");
                     projectileSkill.ProjectileData = null;
                     SkillGraphAssetUtility.MarkDirty(projectileSkill);
+                }
+                break;
+            case SkillNodeKind.SummonData:
+                if (_skill.Execution?.Effects != null && nodeView.EffectIndex >= 0 && nodeView.EffectIndex < _skill.Execution.Effects.Count)
+                {
+                    EffectBase effect = _skill.Execution.Effects[nodeView.EffectIndex]?.Effect;
+                    if (effect is SummonEffect summonEffect && summonEffect.Summon == nodeView.Asset)
+                    {
+                        Undo.RecordObject(summonEffect, "Remove Summon Data");
+                        summonEffect.Summon = null;
+                        SkillGraphAssetUtility.MarkDirty(summonEffect);
+                    }
                 }
                 break;
         }

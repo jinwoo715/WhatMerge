@@ -9,15 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a1a5adc2e6894774fbc51358a4b04994, type: 3}
-  m_Name: Boomber_Attack_ProjectileDataSO
+  m_Script: {fileID: 11500000, guid: 50342190f778f91429a75910407fa6e3, type: 3}
+  m_Name: Boomber_Attack_SummonDataSO
   m_EditorClassIdentifier: 
-  SpriteName: Bomb
-  MoveType: 1
-  Speed: 5
-  LifeTime: 3
-  EffectTrigger: 2
-  DestroyTrigger: 2
-  ResolveData:
-    Type: 0
-    Radius: 1

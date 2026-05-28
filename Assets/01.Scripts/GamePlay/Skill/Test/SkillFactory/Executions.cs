@@ -30,8 +30,8 @@ namespace Skill
             _animaData = activeContext.AnimationData;
             _owner = activeContext.Hero;
             _spriteChanger = _owner.SpriteChanger;
+            _attackRegister = commonContext.CombatService;
 
-  
 
             //if (commonContext.VfxService != null)
             //    _vfxService = commonContext.VfxService;
@@ -188,7 +188,14 @@ namespace Skill
             ProjectileEventContext context = new ProjectileEventContext();
             context.Attacker = _owner;
             context.Target = target;
-            context.effects = _executionSystem.Effects;
+
+            Debug.Log($"@@@@@@@@@@@@@@@@@@@@ {_executionSystem.Effects.Count}");
+
+            context.effects = EffectRoller.GetConfirmEffects(_executionSystem.Effects);
+            Debug.Log($"????????????????????????? {context.effects.Count}");
+
+            int damage = Mathf.RoundToInt(_owner.GetStat(EAttackStatType.Damage));
+            context.payLoad = new AttackPayload(damage, 0, 0);
 
             _projectile.SpawnProjectile(projectile, context);
 

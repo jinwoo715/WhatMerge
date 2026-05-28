@@ -148,12 +148,12 @@ namespace Core.BootStrapper
 
             _vfxSpawner.Init(_vfxRepository);
 
-            _battleManager.Init(_vfxSpawner);
+            _battleManager.Init(_vfxSpawner, _summonSpawner);
 
             _rewardSystem.Init(_economy);
 
-            _projectileSpawner.Init(data, _projectileRepository);
-            _summonSpawner.Init(_projectileRepository, data);
+            _projectileSpawner.Init(_projectileRepository, _battleManager);
+            _summonSpawner.Init(_projectileRepository, _battleManager);
             _buff.Init(data);
         }
         private void Bind()

@@ -11,13 +11,12 @@ namespace Skill
 {
     public interface IProjectileProvider
     {
-        public void SpawnProjectile(ProjectilePayload data);
         public void SpawnProjectile(ProjectileDataSO data, ProjectileEventContext context);
     }
 
     public interface ISummonProvider
     {
-        public void SpawnProjectile(ProjectilePayload data);
+        public void SpawnSummon(SummonDataSO dataSO, ProjectileEventContext context);
     }
 
     public class ProjectilePayload
@@ -35,47 +34,24 @@ namespace Skill
 
     public class ProjectileSpawner : MonoBehaviour, IProjectileProvider
     {
-        [SerializeField] private Projectile _prefab;
         [SerializeField] private ProjectileItem _itemPrefab;
 
-        private IDataProvider _dataProvider;
         private ISpriteRepository _spriteRepository;
-        private ObjectPool<Projectile> _projectilePool = new ObjectPool<Projectile>();
         private ObjectPool<ProjectileItem> _projectileItemPool = new ObjectPool<ProjectileItem>();
 
         private Dictionary<EProjectileMoveType, Stack<IMoveStretagy>> _moveStretagy = new Dictionary<EProjectileMoveType, Stack<IMoveStretagy>>();
 
         private ICombatService _combatService;
-        private ISummonProvider _summonProvider;
 
         private void Start()
         {
-            _projectilePool.Init(this.transform, _prefab, 10);
             _projectileItemPool.Init(this.transform, _itemPrefab, 10);
         }
 
-        public void Init(IDataProvider dataProvider, ISpriteRepository spriteRepository)
+        public void Init(ISpriteRepository spriteRepository, ICombatService combatService)
         {
-            _dataProvider = dataProvider;
             _spriteRepository = spriteRepository;
-        }
-
-        public void SpawnProjectile(ProjectilePayload data)
-        {
-            Projectile obj = _projectilePool.GetItem(data.SpawnPos);
-            ProjectileData projectileData = _dataProvider.GetProjecTileData(data.UID);
-
-            var move = GetMoveStretagy(projectileData.MoveType);
-
-            var sp = GetProjectileSprite(projectileData.SpriteName, data.HeroLevel);
-
-            var destroyer = new ProjectileDestoryer();
-            destroyer.Init(projectileData.DestoryType, 0);
-
-            var resolver = GetProjectileEffectResolver(projectileData.TargetType);
-            resolver.Init(projectileData.DestoryType);
-
-            obj.Init(data, move, destroyer, resolver, projectileData, sp, data.Target);
+            _combatService = combatService;
         }
 
         public Sprite GetProjectileSprite(string projectileData, int level)
@@ -84,6 +60,7 @@ namespace Skill
             var sp = _spriteRepository.GetSprite(str);
             return sp;
         }
+
         public IMoveStretagy GetMoveStretagy(EProjectileMoveType type)
         {
             if (_moveStretagy.TryGetValue(type, out var value))
@@ -109,30 +86,20 @@ namespace Skill
 
             return moveStretagy;
         }
-        public IProjectileEffectResolver GetProjectileEffectResolver(EProjectileAttackType type)
-        {
-            switch (type)
-            {
-                case EProjectileAttackType.Single:
-                    return new SingleDamageResolver();
-                case EProjectileAttackType.Multiple:
-                    return new AreaDamageResolver();
-                default:
-                    return default;
-            }
-        }
 
         //TODO
         public void SpawnProjectile(ProjectileDataSO data, ProjectileEventContext context)
         {
             ProjectileItem obj = _projectileItemPool.GetItem(context.Attacker.Position);
 
+            Debug.Log($"Spawner {context.effects.Count}");
+
             var move = GetMoveStretagy(data.MoveType);
             move.Init(obj.transform, context.Target, data.Speed);
 
             var projectileSprite = GetProjectileSprite(data.SpriteName, context.Attacker.EvolutionLevel);
 
-            ProjectileEffectExecuter effectExecuter = new ProjectileEffectExecuter(_combatService, _summonProvider, context.effects);
+            ProjectileEffectExecuter effectExecuter = new ProjectileEffectExecuter(_combatService, data.ResolveData, context);
 
             obj.Init(context, effectExecuter, move, data, projectileSprite);
         }

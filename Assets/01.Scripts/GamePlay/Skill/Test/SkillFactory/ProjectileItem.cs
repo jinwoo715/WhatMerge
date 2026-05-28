@@ -1,4 +1,5 @@
 using Combat;
+using Enemies;
 using Entity;
 using Skill.Data;
 using Stat;
@@ -12,85 +13,51 @@ namespace Skill
     {
         public Hero Attacker;
         public IDamageable Target;
-        public List<EffectEntry> effects;
-        public Action<IDamageable> OnExecuteEffect;
+        public List<EffectBase> effects;
+        public AttackPayload payLoad;
     }
-    public interface IProjectileEventReceiver
-    {
-        void OnProjectileEvent(ProjectileEventContext context);
-    }
-    public class ProjectileEffectResolver : IProjectileEventReceiver
-    {
-        private readonly ICombatService _combatService;
-        private readonly ISummonProvider _summonProvider;
 
-        public void OnProjectileEvent(ProjectileEventContext context)
+    public class ProjectileImpactContext
+    {
+        public IDamageable HitTarget;
+        public Vector3 Position;
+        public ProjectileImpactContext(IDamageable target, Vector3 position)
         {
-            var stat = context.Attacker.StatReadOnly;
-            int damage = (int)stat.GetStat(EHeroStat.Damage);
-            int fixPenetration = (int)stat.GetStat(EHeroStat.FixPenetration);
-            int ratioPenetration = (int)stat.GetStat(EHeroStat.RatioPenetration);
-
-            AttackPayload attackPayload = new AttackPayload(damage, fixPenetration, ratioPenetration);
-            DamageContext dc = new DamageContext(attackPayload, context.Target, context.Attacker);
-
-            foreach (var effect in context.effects)
-            {
-                if (effect.IsUseable())
-                {
-                    if(effect.Effect is SummonEffect)
-                    {
-                        Debug.Log("º“»Ø!");
-                    }
-                    else
-                    {
-                        _combatService.RegisterAttack(dc);
-                    }
-                }
-            }
-        }
-    }
-
-    public static class EffectRoller
-    {
-        public static List<EffectBase> GetConfirmEffects(List<EffectEntry> effects)
-        {
-            List<EffectBase> confirmedEffects = new List<EffectBase>();
-
-            foreach (var effect in effects)
-            {
-                int chance = UnityEngine.Random.Range(0, 100);
-
-                if (effect.Chance >= chance)
-                {
-                    confirmedEffects.Add(effect.Effect);
-                }
-            }
-
-            return confirmedEffects;
+            HitTarget = target;
+            Position = position;
         }
     }
 
     public class ProjectileEffectExecuter
     {
         private ICombatService _combatService;
-        private ISummonProvider _summonProvider;
+        private ProjectileEventContext _context;
+        private TargetResolveData _targetResolveType;
 
-        private List<EffectEntry> _effects = new List<EffectEntry>();
-
-        public ProjectileEffectExecuter(ICombatService combatService, ISummonProvider summonProvider, List<EffectEntry> effects)
+        public ProjectileEffectExecuter(ICombatService combatService, TargetResolveData targetResolveType, ProjectileEventContext context)
         {
             _combatService = combatService;
-            _summonProvider = summonProvider;
-            _effects = effects;
+            _targetResolveType = targetResolveType;
+            _context = context;
         }
-        public void Execute(IDamageable target)
+        public void Execute(ProjectileImpactContext impactContext)
         {
-            var effects = EffectRoller.GetConfirmEffects(_effects);
-
-            foreach (var effect in effects)
+            if(_targetResolveType.Type == ETargetResolveType.Single)
             {
-                
+                DamageContext context = new DamageContext(_context.payLoad, impactContext.HitTarget, _context.Attacker);
+                context.skillEffects = _context.effects;
+                _combatService.RegisterAttack(context);
+            }
+            else if(_targetResolveType.Type == ETargetResolveType.Area)
+            {
+                var enemies = SearchUtility.GetNearAll2DTargets<Enemy>(impactContext.Position, _targetResolveType.Radius, LayerMask.GetMask("Enemy"));
+
+                foreach (var enemy in enemies)
+                {
+                    DamageContext context = new DamageContext(_context.payLoad, enemy, _context.Attacker);
+                    context.skillEffects = _context.effects;
+                    _combatService.RegisterAttack(context);
+                }
             }
         }
     }
@@ -109,8 +76,13 @@ namespace Skill
         
         private ProjectileEventContext _data;
         private ProjectileEffectExecuter _effectExecuter;
+
+        private ProjectileDataSO _soData;
+
         public bool IsActive { get; private set; }
         public event Action<ProjectileItem> OnReturn;
+
+        private Action<ProjectileImpactContext> OnCheckTrigger;
 
         public void Init(ProjectileEventContext data, ProjectileEffectExecuter effectExecuter, IMoveStretagy moveStretagy, ProjectileDataSO soData, Sprite sprite)
         {
@@ -120,6 +92,11 @@ namespace Skill
             _trigger = soData.EffectTrigger;
             _destroyTrigger = soData.DestroyTrigger;
             _effectExecuter = effectExecuter;
+            _soData = soData;
+
+            OnCheckTrigger = (context) => CheckTrigger(EProjectileEffectTrigger.OnArrive, context);
+
+            _moveStretagy.OnArrived += OnCheckTrigger;
         }
 
         private void Update()
@@ -137,18 +114,19 @@ namespace Skill
             _moveStretagy.Tick();
         }
 
-        private void CheckTrigger(EProjectileEffectTrigger trigger, IDamageable damageable)
+        private void CheckTrigger(EProjectileEffectTrigger trigger, ProjectileImpactContext context)
         {
             if (trigger == _trigger)
-                _effectExecuter.Execute(damageable);
-
-            if(trigger == _destroyTrigger)
+            {
+                _effectExecuter.Execute(context);
                 OnReturn?.Invoke(this);
+            }
         }
 
         public void OnDespawn()
         {
             IsActive = false;
+            _moveStretagy.OnArrived -= OnCheckTrigger;
         }
         public void OnSpawn()
         {
@@ -159,10 +137,11 @@ namespace Skill
         {
             if (collision.CompareTag("Enemy"))
             {
-                Debug.Log(collision.name);
                 if(collision.TryGetComponent<IDamageable>(out IDamageable target))
                 {
-                    CheckTrigger(EProjectileEffectTrigger.OnHit, target);
+                    if (!IsActive) return;
+
+                    CheckTrigger(EProjectileEffectTrigger.OnHit, new ProjectileImpactContext(target, target.Position));
                 }
             }
         }

@@ -16,7 +16,8 @@ public enum SkillNodeKind
     Target,
     ExecutionVfx,
     Effect,
-    ProjectileData
+    ProjectileData,
+    SummonData
 }
 
 public sealed class SkillNodeView : Node
@@ -258,6 +259,9 @@ public sealed class SkillNodeView : Node
             case SkillNodeKind.ProjectileData:
                 AddOutputPort("Projectile", typeof(ProjectileDataSO));
                 break;
+            case SkillNodeKind.SummonData:
+                AddOutputPort("Summon", typeof(SummonDataSO));
+                break;
         }
     }
 
@@ -343,6 +347,11 @@ public sealed class SkillNodeView : Node
         {
             CreateEffectBodyFields();
         }
+        else if (Kind == SkillNodeKind.SummonData)
+        {
+            CreateSummonDataBodyFields();
+        }
+
 
         var inspector = new IMGUIContainer(DrawInspector)
         {
@@ -369,6 +378,15 @@ public sealed class SkillNodeView : Node
     private void CreateEffectBodyFields()
     {
         AddBodyFieldSlot("VFX", "VFX", typeof(SkillVfxSystem), Asset is EffectBase effect ? effect.VFX : null);
+        if (Asset is SummonEffect summonEffect)
+        {
+            AddBodyFieldSlot("Summon", "Summon", typeof(SummonDataSO), summonEffect.Summon);
+        }
+    }
+
+    private void CreateSummonDataBodyFields()
+    {
+        CreateEffectsFoldout();
     }
 
     private void AddBodyFieldSlot(string label, string slotName, Type objectType, UnityEngine.Object value)
@@ -424,8 +442,8 @@ public sealed class SkillNodeView : Node
         foldout.style.marginRight = 4f;
         foldout.style.marginBottom = 4f;
 
-        ExecutionSystemData execution = Asset as ExecutionSystemData;
-        int count = execution?.Effects != null ? execution.Effects.Count : 0;
+        List<EffectEntry> effects = GetEffectEntries();
+        int count = effects != null ? effects.Count : 0;
         for (int i = 0; i < count; i++)
         {
             foldout.Add(CreateEffectEntryRow(i));
@@ -477,7 +495,7 @@ public sealed class SkillNodeView : Node
 
         effectRow.Add(CreateBodyInputPort(GetEffectSlotName(index), typeof(EffectBase), Port.Capacity.Single, "Effect " + (index + 1)));
 
-        var effectField = new IMGUIContainer(() => DrawExecutionEffectProperty(index, "Effect", true))
+        var effectField = new IMGUIContainer(() => DrawEffectEntryProperty(index, "Effect", true))
         {
             style =
             {
@@ -516,7 +534,7 @@ public sealed class SkillNodeView : Node
         };
         chanceRow.Add(chanceSpacer);
 
-        var chanceField = new IMGUIContainer(() => DrawExecutionEffectProperty(index, "Chance", false))
+        var chanceField = new IMGUIContainer(() => DrawEffectEntryProperty(index, "Chance", false))
         {
             style =
             {
@@ -586,17 +604,20 @@ public sealed class SkillNodeView : Node
             case SkillNodeKind.ProjectileData:
                 DrawSerializedObject(Asset);
                 break;
+            case SkillNodeKind.SummonData:
+                DrawSerializedObject(Asset, "Effects");
+                break;
             case SkillNodeKind.Execution:
                 DrawSerializedObject(Asset, "Effects", "VFX", "ProjectileData");
                 break;
             case SkillNodeKind.Effect:
-                if (EffectIndex >= 0)
+                if (IsExecutionEffectEntryNode())
                 {
                     DrawEffectEntry();
                 }
                 else
                 {
-                    DrawSerializedObject(Asset, "VFX");
+                    DrawSerializedObject(Asset, "VFX", "Summon");
                 }
                 break;
         }
@@ -621,7 +642,7 @@ public sealed class SkillNodeView : Node
         EffectBase effect = _skill.Execution.Effects[EffectIndex].Effect;
         if (effect != null)
         {
-            DrawSerializedObject(effect, "VFX");
+            DrawSerializedObject(effect, "VFX", "Summon");
         }
         else
         {
@@ -629,15 +650,17 @@ public sealed class SkillNodeView : Node
         }
     }
 
-    private void DrawExecutionEffectProperty(int index, string relativePropertyName, bool structureChanged)
+    private void DrawEffectEntryProperty(int index, string relativePropertyName, bool structureChanged)
     {
-        if (!(Asset is ExecutionSystemData execution) || execution.Effects == null || index < 0 || index >= execution.Effects.Count)
+        UnityEngine.Object owner = GetEffectEntryOwner();
+        List<EffectEntry> effects = GetEffectEntries();
+        if (owner == null || effects == null || index < 0 || index >= effects.Count)
         {
             EditorGUILayout.HelpBox("Effect entry is missing.", MessageType.Warning);
             return;
         }
 
-        var serializedObject = new SerializedObject(execution);
+        var serializedObject = new SerializedObject(owner);
         serializedObject.Update();
 
         SerializedProperty effectsProperty = serializedObject.FindProperty("Effects");
@@ -656,10 +679,10 @@ public sealed class SkillNodeView : Node
         EditorGUIUtility.labelWidth = previousLabelWidth;
         if (EditorGUI.EndChangeCheck())
         {
-            Undo.RecordObject(execution, "Edit Effect Entry");
+            Undo.RecordObject(owner, "Edit Effect Entry");
             serializedObject.ApplyModifiedProperties();
-            SkillGraphAssetUtility.MarkDirty(execution);
-            OnAssetChanged?.Invoke(execution, structureChanged);
+            SkillGraphAssetUtility.MarkDirty(owner);
+            OnAssetChanged?.Invoke(owner, structureChanged);
             return;
         }
 
@@ -668,33 +691,92 @@ public sealed class SkillNodeView : Node
 
     private void AddEmptyEffectEntry()
     {
-        if (!(Asset is ExecutionSystemData execution))
+        UnityEngine.Object owner = GetEffectEntryOwner();
+        if (owner == null)
         {
             return;
         }
 
-        Undo.RecordObject(execution, "Add Effect Entry");
-        if (execution.Effects == null)
+        Undo.RecordObject(owner, "Add Effect Entry");
+        List<EffectEntry> effects = EnsureEffectEntries();
+        if (effects == null)
         {
-            execution.Effects = new List<EffectEntry>();
+            return;
         }
 
-        execution.Effects.Add(new EffectEntry());
-        SkillGraphAssetUtility.MarkDirty(execution);
+        effects.Add(new EffectEntry());
+        SkillGraphAssetUtility.MarkDirty(owner);
         OnRefreshRequested?.Invoke();
     }
 
     private void RemoveEffectEntry(int index)
     {
-        if (!(Asset is ExecutionSystemData execution) || execution.Effects == null || index < 0 || index >= execution.Effects.Count)
+        UnityEngine.Object owner = GetEffectEntryOwner();
+        List<EffectEntry> effects = GetEffectEntries();
+        if (owner == null || effects == null || index < 0 || index >= effects.Count)
         {
             return;
         }
 
-        Undo.RecordObject(execution, "Remove Effect Entry");
-        execution.Effects.RemoveAt(index);
-        SkillGraphAssetUtility.MarkDirty(execution);
+        Undo.RecordObject(owner, "Remove Effect Entry");
+        effects.RemoveAt(index);
+        SkillGraphAssetUtility.MarkDirty(owner);
         OnRefreshRequested?.Invoke();
+    }
+
+    private UnityEngine.Object GetEffectEntryOwner()
+    {
+        if (Asset is ExecutionSystemData || Asset is SummonDataSO)
+        {
+            return Asset;
+        }
+
+        return null;
+    }
+
+    private List<EffectEntry> GetEffectEntries()
+    {
+        if (Asset is ExecutionSystemData execution)
+        {
+            return execution.Effects;
+        }
+
+        if (Asset is SummonDataSO summonData)
+        {
+            return summonData.Effects;
+        }
+
+        return null;
+    }
+
+    private List<EffectEntry> EnsureEffectEntries()
+    {
+        if (Asset is ExecutionSystemData execution)
+        {
+            if (execution.Effects == null)
+            {
+                execution.Effects = new List<EffectEntry>();
+            }
+
+            return execution.Effects;
+        }
+
+        if (Asset is SummonDataSO summonData)
+        {
+            if (summonData.Effects == null)
+            {
+                summonData.Effects = new List<EffectEntry>();
+            }
+
+            return summonData.Effects;
+        }
+
+        return null;
+    }
+
+    private bool IsExecutionEffectEntryNode()
+    {
+        return Kind == SkillNodeKind.Effect && EffectIndex >= 0 && Key == "effect-" + EffectIndex;
     }
 
     private void DrawSerializedObject(UnityEngine.Object target, params string[] skippedPropertyPaths)
@@ -802,6 +884,7 @@ public sealed class SkillNodeView : Node
             || propertyPath == "Trigger"
             || propertyPath == "VFX"
             || propertyPath == "ProjectileData"
+            || propertyPath == "Summon"
             || propertyPath == "Effect"
             || propertyPath.StartsWith("Effects");
     }

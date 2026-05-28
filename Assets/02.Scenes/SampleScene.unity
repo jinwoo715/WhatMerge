@@ -576,6 +576,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _origin: {fileID: 5787500451363865881, guid: 30d800667ee1928489991de95bb999aa, type: 3}
+  _item: {fileID: -2288180319444551723, guid: 1ba44bb5967329b42893c7dde2571111, type: 3}
 --- !u!1 &196248238
 GameObject:
   m_ObjectHideFlags: 0
