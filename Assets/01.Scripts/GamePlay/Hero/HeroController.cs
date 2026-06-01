@@ -126,11 +126,16 @@ namespace Heros
         Merge
     }
 
+    public class FieldHeroManager
+    {
 
+    }
 
     public class HeroController : IFieldHeroService, IHeroTileService
     {
         private Dictionary<IReadOnlyTile, Hero> _fieldHeros = new Dictionary<IReadOnlyTile, Hero>();
+        private Dictionary<(int x,int y), Hero> _fieldHero = new Dictionary<(int, int), Hero>();
+
         private Hero _clickedHero = null;
 
         public IReadOnlyList<Hero> GetAllFieldHero => throw new NotImplementedException();
@@ -166,6 +171,7 @@ namespace Heros
         {
             IReadOnlyTile tile = hero.OccupiedTile;
             _fieldHeros.Remove(tile);
+            _fieldHero.Remove((tile.X, tile.Y));
             _heroMapService.FreeHeroTile(tile);
         }
 
@@ -175,16 +181,21 @@ namespace Heros
                 _heroMapService.FreeHeroTile(hero.OccupiedTile);
 
             if (_fieldHeros.ContainsKey(hero.OccupiedTile))
+            {
                 _fieldHeros.Remove(hero.OccupiedTile);
+                _fieldHero.Remove((tile.X, tile.Y));
+            }
 
             _heroMapService.OccupyHeroTile(tile);
             _fieldHeros.Add(tile, hero);
+            _fieldHero.Add((tile.X, tile.Y), hero);
 
             hero.SetTile(tile, _heroMapService.GetTileWorldPosition(tile));
         }
         public void AddFieldHero(Tile tile, Hero hero)
         {
             _fieldHeros.Add(tile, hero);
+            _fieldHero.Add((tile.X, tile.Y), hero);
 
             hero.OnReturn += ClearHero;
         }
@@ -221,8 +232,14 @@ namespace Heros
                             _fieldHeros.Remove(startTile);
                             _fieldHeros.Remove(endTile);
 
+                            _fieldHero.Remove((endTile.X, endTile.Y));
+                            _fieldHero.Remove((startTile.X, startTile.Y));
+
                             _fieldHeros.Add(endTile, _clickedHero);
                             _fieldHeros.Add(startTile, hero);
+
+                            _fieldHero.Add((endTile.X, endTile.Y), _clickedHero);
+                            _fieldHero.Add((startTile.X, startTile.Y), hero);
 
                             _clickedHero.SetTile(endTile, _heroMapService.GetTileWorldPosition(endTile));
                             hero.SetTile(startTile, _heroMapService.GetTileWorldPosition(startTile));
@@ -272,7 +289,46 @@ namespace Heros
 
         public List<Hero> GetNearHeros(IReadOnlyTile pivot, int range)
         {
-            throw new NotImplementedException();
+            List<Hero> heros = new List<Hero>();
+
+            if (_fieldHeros.TryGetValue(pivot, out Hero pivotHero))
+            {
+                heros.Add(pivotHero);
+            }
+
+            if (range >= 1)
+            {
+                int[,] dir = new int[4, 2] { { -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 } };
+
+                for (int i = 0; i < dir.GetLength(0); i++)
+                {
+                    int dx = pivot.X + dir[i, 0];
+                    int dy = pivot.X + dir[i, 1];
+
+                    if(_fieldHero.TryGetValue((dx,dy), out Hero hero))
+                    {
+                        heros.Add(hero);
+                    }
+                }
+            }
+
+            if(range >= 2)
+            {
+                int[,] dir = new int[4, 2] { { -1, -1 }, { -1, 1 }, { 1, 1 }, { 1, -1 } };
+
+                for (int i = 0; i < dir.GetLength(0); i++)
+                {
+                    int dx = pivot.X + dir[i, 0];
+                    int dy = pivot.X + dir[i, 1];
+
+                    if (_fieldHero.TryGetValue((dx, dy), out Hero hero))
+                    {
+                        heros.Add(hero);
+                    }
+                }
+            }
+
+            return heros;
         }
 
         public void SetHeroBuff(EHeroStatType stat, float value)

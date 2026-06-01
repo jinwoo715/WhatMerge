@@ -189,6 +189,7 @@ namespace Entity
         public void ModifyStat(EHeroStatType stat, float value)
         {
             Debug.Log($"Apply Stat : {stat}, {value}");
+            _stat.AddMultiplyValue(EHeroStat.Damage, value);
         }
 
         public void OnSpawn()

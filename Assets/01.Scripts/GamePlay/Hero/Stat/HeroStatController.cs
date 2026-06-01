@@ -27,6 +27,14 @@ namespace Stat
 
         public event Action<EHeroStat, float> OnStatChange;
 
+        public HeroStatController()
+        {
+            _stats.Add(EHeroStat.Damage, _damage);
+            _stats.Add(EHeroStat.AttackSpeed, _attackSpeed);
+            _stats.Add(EHeroStat.AttackRange, _attackRange);
+        }
+
+
         public void SetBaseValue(EHeroStat stat, float value)
         {
             switch (stat)
@@ -45,7 +53,6 @@ namespace Stat
 
             OnStatChange?.Invoke(stat, GetStat(stat));
         }
-
         public float GetStat(EHeroStat stat)
         {
             switch (stat)
@@ -66,11 +73,13 @@ namespace Stat
 
         public void AddFixedStatValue(EHeroStat stat, float value)
         {
+            _stats[stat].AddFixedValue(value);
             OnStatChange?.Invoke(stat, GetStat(stat));
         }
 
         public void AddMultiplyValue(EHeroStat stat, float value)
         {
+            _stats[stat].AddMultiplier(value);
             OnStatChange?.Invoke(stat, GetStat(stat));
         }
     }

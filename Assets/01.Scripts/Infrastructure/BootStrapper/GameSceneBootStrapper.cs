@@ -11,6 +11,8 @@ using UnityEngine.UI;
 using System;
 using UnityEngine.U2D;
 using Skill.Data;
+using Skill.Summon;
+using Skill.Projectile;
 
 namespace Core.BootStrapper
 {
@@ -148,7 +150,7 @@ namespace Core.BootStrapper
 
             _vfxSpawner.Init(_vfxRepository);
 
-            _battleManager.Init(_vfxSpawner, _summonSpawner);
+            _battleManager.Init(_vfxSpawner, _summonSpawner, _buff);
 
             _rewardSystem.Init(_economy);
 

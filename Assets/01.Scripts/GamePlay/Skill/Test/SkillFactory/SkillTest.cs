@@ -2,6 +2,8 @@ using Combat;
 using Enemies;
 using Entity;
 using Skill.Data;
+using Skill.Projectile;
+using Skill.Summon;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -211,12 +213,12 @@ namespace Skill
             {
                 name = "Skill.ConeMeleeExecution";
             }
-            else if (skillName.Contains("ProjectileSkill"))
+            else if (skillName.Contains("Projectile"))
             {
                 name = "Skill.TargetProjectile";
             }
 
-            Debug.Log(name);
+            Debug.Log($"{skillName} / {name}");
 
             Type type = Type.GetType(name);
 

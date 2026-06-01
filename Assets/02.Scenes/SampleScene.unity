@@ -575,7 +575,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d5615df8818d894b97792612e54055f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _origin: {fileID: 5787500451363865881, guid: 30d800667ee1928489991de95bb999aa, type: 3}
   _item: {fileID: -2288180319444551723, guid: 1ba44bb5967329b42893c7dde2571111, type: 3}
 --- !u!1 &196248238
 GameObject:
@@ -2092,11 +2091,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e31bf471a5125c44bd6ecaba038bdef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  set: {fileID: 11400000, guid: 4d08052c9b45722438df0f7ed4beb387, type: 2}
+  set: {fileID: 11400000, guid: 340b7ef194e7c164dbfe96fc55cb8707, type: 2}
   _heroPrefab: {fileID: 5889065611879671908, guid: 37dc9494e2d06714398d7013306a74c0, type: 3}
-  uid: 1
+  uid: 10
   evolution: 0
-  level: 52
+  level: 11
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
@@ -4674,7 +4673,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f35f5dd4186f39f4ab9abcee68114d56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _prefab: {fileID: 8895749785945548426, guid: c96138af97be4584688a60e8f378be9c, type: 3}
   _itemPrefab: {fileID: 8634036683021481481, guid: 6b2f4b2648a930d47859d5871b72d75b, type: 3}
 --- !u!1 &1322215839
 GameObject:

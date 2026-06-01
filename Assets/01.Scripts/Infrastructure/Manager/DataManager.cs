@@ -2,6 +2,7 @@ using Enemies;
 using Heros;
 using Newtonsoft.Json;
 using Skill;
+using Skill.Projectile;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -31,7 +32,6 @@ public interface ISpriteAtlasRepository
 public interface IDataProvider
 {
     ProjectileData GetProjecTileData(int uid);
-    SummonData GetSummonData(int uid);
     List<BuffSkillData> GetBuffDatas(int uid);
     List<MergeData> MergeData {get;}
 }
@@ -64,7 +64,6 @@ public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepo
     private Dictionary<int, ActiveSkillData> _activeSkillDatas = new Dictionary<int, ActiveSkillData>();
     private Dictionary<int, ATKData> _atkDatas = new Dictionary<int, ATKData>();
     private Dictionary<int, ProjectileData> _projectileDatas = new Dictionary<int, ProjectileData>();
-    private Dictionary<int, SummonData> _summonDatas = new Dictionary<int, SummonData>();
 
     private Dictionary<int, BuffDataBundle> _buffDataBundle = new Dictionary<int, BuffDataBundle>();
     private Dictionary<int, BuffSkillData> _buffData = new Dictionary<int, BuffSkillData>();
@@ -119,13 +118,6 @@ public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepo
         {
             ProjectileData data = projectileDatas[i];
             _projectileDatas.Add(data.ProjectileUID, data);
-        }
-
-        var summonDatas = DeserializeTextData<SummonData>(_summonDataText);
-        for (int i = 0; i < summonDatas.Count; i++)
-        {
-            SummonData data = summonDatas[i];
-            _summonDatas.Add(data.UID, data);
         }
 
         InitDictionary(_buffDataBundle, _buffDataBundleText);
@@ -270,14 +262,6 @@ public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepo
     public ProjectileData GetProjecTileData(int uid)
     {
         if (_projectileDatas.TryGetValue(uid, out ProjectileData data))
-            return data;
-
-        Debug.LogError($"Not Exist Data By : {uid}");
-        return default;
-    }
-    public SummonData GetSummonData(int uid)
-    {
-        if (_summonDatas.TryGetValue(uid, out SummonData data))
             return data;
 
         Debug.LogError($"Not Exist Data By : {uid}");

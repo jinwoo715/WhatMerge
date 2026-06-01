@@ -6,6 +6,6 @@ namespace Skill.Data
 
     public class DamageEffect : EffectBase
     {
-        public int DamageRatio;
+        public float DamageRatio;
     }
 }

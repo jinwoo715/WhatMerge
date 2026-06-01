@@ -6,8 +6,8 @@
                 "serializedVersion": "2",
                 "x": 900.0,
                 "y": -351.0,
-                "width": 278.0,
-                "height": 443.0
+                "width": 266.0,
+                "height": 396.0
             }
         },
         {
@@ -24,8 +24,8 @@
             "Key": "execution",
             "Position": {
                 "serializedVersion": "2",
-                "x": 485.0,
-                "y": -543.0,
+                "x": 213.0,
+                "y": -418.0,
                 "width": 260.0,
                 "height": 235.0
             }
@@ -78,8 +78,8 @@
                 "serializedVersion": "2",
                 "x": 900.0,
                 "y": -351.0,
-                "width": 278.0,
-                "height": 443.0
+                "width": 266.0,
+                "height": 396.0
             }
         },
         {
@@ -96,8 +96,8 @@
             "Key": "asset-46d4167bd20117348ac6c53f495ad107",
             "Position": {
                 "serializedVersion": "2",
-                "x": 485.0,
-                "y": -543.0,
+                "x": 213.0,
+                "y": -418.0,
                 "width": 260.0,
                 "height": 235.0
             }
@@ -135,8 +135,8 @@
     ],
     "LooseAssetGuids": [],
     "ViewPosition": {
-        "x": -55.0,
-        "y": 685.0,
+        "x": -1.0,
+        "y": 616.0,
         "z": 0.0
     },
     "ViewScale": {

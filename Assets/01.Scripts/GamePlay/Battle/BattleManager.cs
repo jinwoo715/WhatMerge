@@ -2,6 +2,7 @@ using Enemies;
 using Entity;
 using Skill;
 using Skill.Data;
+using Skill.Summon;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,57 +12,88 @@ namespace Combat
 {
     public class BattleManager : ICombatService
     {
+        private IBuffRegister _buffRegister;
         private ISummonProvider _summonProvider;
         private IVFXService _vfx;
         public event Action<Vector3, int> OnApplyDamage;
 
-        public void Init(IVFXService vfx, ISummonProvider summonProvider)
+        public void Init(IVFXService vfx, ISummonProvider summonProvider, IBuffRegister buffRegister)
         {
             _vfx = vfx;
             _summonProvider = summonProvider;
+            _buffRegister = buffRegister;
         }
 
         public void RegisterAttack(DamageContext damageContext)
         {
-            //_vfx.ShowEffect(damageContext.VFX, damageContext.VFXPosition, damageContext.Attacker.Position);
-            //Debug.Log(damageContext.AttackPayload.Damage);
-
-            //if (damageContext.Target == null) return;
-
-            //int appliedDamage = CalculateFinalDamage(damageContext.Target, damageContext.AttackPayload);
-
-            //if(appliedDamage == 0) return;
-            //damageContext.Target.TakeDamage(new AttackResultPayload(appliedDamage));
-            //OnApplyDamage?.Invoke(damageContext.Target.Position, appliedDamage);
-
-            Debug.Log($"들어왔다! {damageContext.skillEffects.Count}");
             ProcessEffects(damageContext.skillEffects, damageContext);
         }
 
-        private int CalculateFinalDamage(IDamageable target, AttackPayload payload)
+        private void ProcessEffects(List<EffectBase> effects, DamageContext damageContext)
+        {
+            foreach (var effect in effects)
+            {
+                if (effect is SummonEffect summon)
+                {
+                    ProcessSummonEffect(summon, damageContext);
+                }
+                else if (effect is DamageEffect damage)
+                {
+                    ProcessDamageEffect(damageContext, damage);
+                }
+                else if(effect is TimeBuffEffect buff)
+                {
+                    Debug.Log(damageContext.Target);
+                    ProcessBuffEffect(damageContext.Target, buff);
+                }
+            }
+        }
+
+        private void ProcessSummonEffect(SummonEffect summonEffect, DamageContext damageContext)
+        {
+            SkillPayload context = new SkillPayload();
+            context.Target = damageContext.Target;
+            context.Attacker = damageContext.Attacker as Hero;
+            context.payLoad = damageContext.AttackPayload;
+            context.effects = EffectRoller.GetConfirmEffects(summonEffect.Summon.Effects);
+            _summonProvider.SpawnSummon(summonEffect.Summon, context);
+        }
+        private void ProcessDamageEffect(DamageContext damageContext, DamageEffect effect)
+        {
+            //_vfx.ShowEffect(damageContext.VFX, damageContext.VFXPosition, damageContext.Attacker.Position);
+            //Debug.Log(damageContext.AttackPayload.Damage);
+
+            if (damageContext.Target == null) return;
+
+            IDamageable damageable = damageContext.Target as IDamageable;
+
+            int appliedDamage = CalculateFinalDamage(damageable, damageContext.AttackPayload, effect.DamageRatio);
+
+            if(appliedDamage == 0) return;
+
+            damageable.TakeDamage(new AttackResultPayload(appliedDamage));
+            OnApplyDamage?.Invoke(damageContext.Target.Position, appliedDamage);
+        }
+        private int CalculateFinalDamage(IDamageable target, AttackPayload payload, float multipleValue)
         {
             int amour = target.Amour;
 
             float reduceRatio = 1 - StatCalculator.GetDamageReductionRate(amour, payload.PercentPenetration, payload.FlatPenetration);
 
-            return StatCalculator.RoundInt(payload.Damage * reduceRatio);
+            return StatCalculator.RoundInt(payload.AttackDamage * multipleValue * reduceRatio);
         }
 
-        private void ProcessEffects(List<EffectBase> effects, DamageContext damageContext)
+        private void ProcessBuffEffect(ICreature target, TimeBuffEffect buff)
         {
-            Debug.Log($"여기도! {effects.Count}");
-            foreach (var effect in effects)
+            Debug.Log($"적용 : {target}");
+
+            if (target is IStatModifier modifier)
             {
-                if (effect is SummonEffect summon)
-                {
-                    Debug.Log("소환!!!!!");
-                    ProjectileEventContext context = new ProjectileEventContext();
-                    context.Target = damageContext.Target;
-                    context.Attacker = damageContext.Attacker as Hero;
-                    context.effects = effects;
-                    context.payLoad = damageContext.AttackPayload;
-                    _summonProvider.SpawnSummon(summon.Summon, context);
-                }
+                _buffRegister.RegisterBuff(buff, modifier);
+            }
+            else
+            {
+                Debug.Log($"아님 : {target}");
             }
         }
     }

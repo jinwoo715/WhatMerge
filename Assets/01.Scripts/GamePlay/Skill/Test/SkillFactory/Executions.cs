@@ -2,6 +2,7 @@ using Combat;
 using Enemies;
 using Entity;
 using Skill.Data;
+using Skill.Projectile;
 using Stat;
 using System.Collections;
 using System.Collections.Generic;
@@ -32,13 +33,11 @@ namespace Skill
             _spriteChanger = _owner.SpriteChanger;
             _attackRegister = commonContext.CombatService;
 
-
             //if (commonContext.VfxService != null)
             //    _vfxService = commonContext.VfxService;
 
             //_attackRegister = commonContext.CombatService;
         }
-
         public abstract IEnumerator Execute(IReadOnlyList<Creature> targets);
         public IEnumerator SetReadyMotion()
         {
@@ -58,11 +57,11 @@ namespace Skill
         {
             _spriteChanger.SetIdle();
         }
-
         public void AddEffect(EffectEntry effectEntry)
         {
             ExtraEffects.Add(effectEntry);
         }
+        
     }
     public class TargetMeleeExecution : ExecutionBase
     {
@@ -71,7 +70,7 @@ namespace Skill
         {
             yield return SetReadyMotion();
 
-            IDamageable target = SearchUtility.GetNearestTarget<IDamageable>(targets, _owner.Position);
+            ICreature target = targets[0] as ICreature;
 
             yield return SetExecutionMotion();
 
@@ -86,22 +85,8 @@ namespace Skill
             AttackPayload attackPayload = new AttackPayload(damage, fixPenetration, ratioPenetration);
             DamageContext dc = new DamageContext(attackPayload, target, _owner);
 
-            for (int i = 0; i < _executionSystem.Effects.Count; i++)
-            {
+            dc.skillEffects = EffectRoller.GetConfirmEffects(_executionSystem.Effects);
 
-            }
-
-            foreach (var effect in _executionSystem.Effects)
-            {
-                int chance = Random.Range(0, 100);
-
-                if (effect.Chance >= chance)
-                {
-                    dc.RegisterEffect(effect.Effect);
-                }
-            }
-
-            Debug.Log(_attackRegister);
             _attackRegister.RegisterAttack(dc);
 
             SetIdleMotion();
@@ -142,6 +127,8 @@ namespace Skill
             int fixPenetration = (int)stat.GetStat(EHeroStat.FixPenetration);
             int ratioPenetration = (int)stat.GetStat(EHeroStat.RatioPenetration);
 
+            Debug.Log(_executionSystem.Effects.Count);
+
             foreach (var enemy in resultTargets)
             {
                 AttackPayload attackPayload = new AttackPayload(damage, fixPenetration, ratioPenetration);
@@ -149,7 +136,7 @@ namespace Skill
 
                 foreach (var effect in _executionSystem.Effects)
                 {
-                    int chance = Random.Range(0, 100);
+                    int chance = Random.Range(0, 1);
 
                     if (effect.Chance >= chance)
                     {
@@ -157,7 +144,6 @@ namespace Skill
                     }
                 }
 
-                Debug.Log(_attackRegister);
                 _attackRegister.RegisterAttack(dc);
             }
 
@@ -185,19 +171,44 @@ namespace Skill
             var projectile = (_executionSystem as ProjectileSkill).ProjectileData;
 
             //TODO Projectile
-            ProjectileEventContext context = new ProjectileEventContext();
+            SkillPayload context = new SkillPayload();
             context.Attacker = _owner;
             context.Target = target;
-
-            Debug.Log($"@@@@@@@@@@@@@@@@@@@@ {_executionSystem.Effects.Count}");
-
             context.effects = EffectRoller.GetConfirmEffects(_executionSystem.Effects);
-            Debug.Log($"????????????????????????? {context.effects.Count}");
 
             int damage = Mathf.RoundToInt(_owner.GetStat(EAttackStatType.Damage));
             context.payLoad = new AttackPayload(damage, 0, 0);
 
             _projectile.SpawnProjectile(projectile, context);
+
+            SetIdleMotion();
+        }
+    }
+    public class SummonExecution : ExecutionBase
+    {
+        public SummonExecution(ActiveSkillContext activeContext, SkillCommonContext commonContext) : base(activeContext, commonContext) { }
+        public override IEnumerator Execute(IReadOnlyList<Creature> targets)
+        {
+            yield return SetReadyMotion();
+
+            IDamageable target = SearchUtility.GetNearestTarget<IDamageable>(targets, _owner.Position);
+
+            yield return SetExecutionMotion();
+
+            if (_executionSystem.VFX)
+                _vfxService.ShowVFX(_executionSystem.VFX);
+
+            var stat = _owner.StatReadOnly;
+            int damage = (int)stat.GetStat(EHeroStat.Damage);
+            int fixPenetration = (int)stat.GetStat(EHeroStat.FixPenetration);
+            int ratioPenetration = (int)stat.GetStat(EHeroStat.RatioPenetration);
+
+            AttackPayload attackPayload = new AttackPayload(damage, fixPenetration, ratioPenetration);
+            DamageContext dc = new DamageContext(attackPayload, target, _owner);
+
+            dc.skillEffects = EffectRoller.GetConfirmEffects(_executionSystem.Effects);
+
+            _attackRegister.RegisterAttack(dc);
 
             SetIdleMotion();
         }

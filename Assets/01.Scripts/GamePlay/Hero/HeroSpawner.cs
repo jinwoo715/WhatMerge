@@ -3,7 +3,7 @@ using Heros;
 using Map;
 using Skill;
 using System;
-using System.Collections;
+using System.Collections; 
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.U2D;
@@ -20,7 +20,6 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
     IHeroMapService _heroMapService;
     IResourcesReader _spriteAtlasRepository;
     IHeroInfoRepository _heroDataRepo;
-    ISkillDataRepository _skillDataReader;
 
     private HeroDeck _heroDeck;
 
@@ -54,8 +53,6 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
     {
         SpawnHero(uid, evolution);
     }
-
-
     public bool SpawnHero(int uid, int evolution)
     {
         if (_heroMapService.TryGetNextHeroTile(out Tile tile))

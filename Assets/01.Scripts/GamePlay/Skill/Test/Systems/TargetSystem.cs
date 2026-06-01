@@ -7,6 +7,6 @@ namespace Skill.Data
     public class TargetSystem : ScriptableObject
     {
         public ESkillTargetType TargetType;
-        public int Radius;
+        public float Radius;
     }
 }

@@ -1,10 +1,11 @@
+using Skill.Data;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public interface IBuffRegister
 {
-    void RegisterBuff(int uid, IStatModifier statModifier);
+    void RegisterBuff(TimeBuffEffect timeBuffEffect, IStatModifier statModifier);
 }
 
 //TODO
@@ -17,17 +18,17 @@ public class BuffManager : MonoBehaviour, IBuffRegister
     { 
         _dataProvider = dataProvider;
     }
-    public void RegisterBuff(int uid, IStatModifier statModifier)
-    {
-        var buffDatas = _dataProvider.GetBuffDatas(uid);
+    //public void RegisterBuff(int uid, IStatModifier statModifier)
+    //{
+    //    var buffDatas = _dataProvider.GetBuffDatas(uid);
 
-        foreach (var item in buffDatas)
-        {
-            BuffEquipment buff = GetBuff();
-            BuffPayload buffPayload = new BuffPayload(statModifier, item);
-            StartCoroutine(buff.CoApplyBuff(buffPayload));
-        }
-    }
+    //    foreach (var item in buffDatas)
+    //    {
+    //        BuffEquipment buff = GetBuff();
+    //        BuffPayload buffPayload = new BuffPayload(statModifier, item);
+    //        StartCoroutine(buff.CoApplyBuff(buffPayload));
+    //    }
+    //}
     private BuffEquipment GetBuff()
     {
         if (_buffPool.Count > 0)
@@ -44,5 +45,12 @@ public class BuffManager : MonoBehaviour, IBuffRegister
     private void ReturnBuff(BuffEquipment buff)
     {
         _buffPool.Push(buff);
+    }
+
+    public void RegisterBuff(TimeBuffEffect timeBuffEffect, IStatModifier statModifier)
+    {
+        BuffEquipment buff = GetBuff();
+        BuffPayload buffPayload = new BuffPayload(statModifier, timeBuffEffect);
+        StartCoroutine(buff.CoApplyBuff(buffPayload));
     }
 }

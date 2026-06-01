@@ -7,15 +7,14 @@ namespace Combat
 {
     public class AttackPayload
     {
-        public int Damage;
+        public int AttackDamage;
         public int FlatPenetration;
         public float PercentPenetration;
         public bool IsPiercing;
 
-
         public AttackPayload(int damage, int flatPenetration, float percentPenetration)
         {
-            Damage = damage;
+            AttackDamage = damage;
             FlatPenetration = flatPenetration;
             PercentPenetration = percentPenetration;
             IsPiercing = false;
@@ -39,7 +38,7 @@ namespace Combat
     public class DamageContext
     {
         public IAttackable Attacker;
-        public IDamageable Target;
+        public ICreature Target;
         public AttackPayload AttackPayload;
         public Vector3 VFXPosition;
 
@@ -51,12 +50,12 @@ namespace Combat
             Attacker = attacker;
             VFXPosition = vfxPosition;
         }
-        public DamageContext(AttackPayload attackPayload, IDamageable target, IAttackable attacker)
+        public DamageContext(AttackPayload attackPayload, ICreature target, IAttackable attacker)
         {
             AttackPayload = attackPayload;
             Target = target;
             Attacker = attacker;
-            VFXPosition = target.Position;
+            //VFXPosition = target.Position;
         }
 
         public List<EffectBase> skillEffects = new List<EffectBase>();

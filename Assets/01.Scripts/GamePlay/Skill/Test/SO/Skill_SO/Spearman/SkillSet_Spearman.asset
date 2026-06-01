@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0573a7a9871ae0349851f0e4b44c1858, type: 3}
+  m_Name: SkillSet_Spearman
+  m_EditorClassIdentifier: 
+  UID: 4
+  Sets:
+  - Level: 0
+    Skill: {fileID: 11400000, guid: de6452a51ca66914dbf6ff5b695310fa, type: 2}
+  - Level: 1
+    Skill: {fileID: 11400000, guid: 055bcacc8ea24694a86c45b32459a972, type: 2}
+  - Level: 10
+    Skill: {fileID: 11400000, guid: 7d9801ccd2356ab418fe4f312a585e58, type: 2}
+  - Level: 20
+    Skill: {fileID: 0}
+  - Level: 30
+    Skill: {fileID: 0}
+  - Level: 40
+    Skill: {fileID: 0}
+  - Level: 50
+    Skill: {fileID: 0}
+  - Level: 60
+    Skill: {fileID: 0}
+  - Level: 70
+    Skill: {fileID: 0}
+  - Level: 80
+    Skill: {fileID: 0}
+  - Level: 90
+    Skill: {fileID: 0}
+  - Level: 100
+    Skill: {fileID: 0}
+  - Level: 110
+    Skill: {fileID: 0}
+  - Level: 120
+    Skill: {fileID: 0}
+  - Level: 130
+    Skill: {fileID: 0}
+  - Level: 140
+    Skill: {fileID: 0}
+  - Level: 150
+    Skill: {fileID: 0}

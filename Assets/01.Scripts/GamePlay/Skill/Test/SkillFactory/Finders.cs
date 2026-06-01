@@ -34,10 +34,10 @@ namespace Skill
     }
     public class NearHeroFinder : ITarget
     {
-        private int _range;
+        private float _range;
         private Hero _owner;
         private IFieldHeroService _fieldHero;
-        public NearHeroFinder(IFieldHeroService fieldHero, Hero owner, int range)
+        public NearHeroFinder(IFieldHeroService fieldHero, Hero owner, float range)
         {
             _fieldHero = fieldHero;
             _owner = owner;
@@ -45,7 +45,7 @@ namespace Skill
         }
         public IReadOnlyList<Creature> GetTargets(Vector3 pivot)
         {
-            var heros = _fieldHero.GetNearHeros(_owner.OccupiedTile, _range);
+            var heros = _fieldHero.GetNearHeros(_owner.OccupiedTile, (int)_range);
 
             List<Creature> results = new List<Creature>();
 
@@ -59,7 +59,7 @@ namespace Skill
 
         public bool HasTargetInRange(Vector3 pivot)
         {
-            return _fieldHero.GetNearHeros(_owner.OccupiedTile, _range).Count > 0;
+            return _fieldHero.GetNearHeros(_owner.OccupiedTile, (int)_range).Count > 0;
         }
     }
     public class AllHeroFinder : ITarget
@@ -82,8 +82,8 @@ namespace Skill
     public class NearEnemyFinder : ITarget
     {
         private Hero _owner;
-        private int _range;
-        public NearEnemyFinder(Hero owner, int range)
+        private float _range;
+        public NearEnemyFinder(Hero owner, float range)
         {
             _owner = owner;
             _range = range;

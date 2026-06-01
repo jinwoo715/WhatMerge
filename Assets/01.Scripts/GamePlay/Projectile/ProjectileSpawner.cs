@@ -7,29 +7,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Skill
+namespace Skill.Projectile
 {
     public interface IProjectileProvider
     {
-        public void SpawnProjectile(ProjectileDataSO data, ProjectileEventContext context);
-    }
-
-    public interface ISummonProvider
-    {
-        public void SpawnSummon(SummonDataSO dataSO, ProjectileEventContext context);
-    }
-
-    public class ProjectilePayload
-    {
-        public IAttackable Attacker;
-        public IDamageable Target;
-        public ICombatService attackRegister;
-        public IAttackStatProvider attackStatProvider;
-        public Vector3 SpawnPos;
-        public int UID;
-        public int HeroLevel;
-        public int DMGValue;
-        public string VFX;
+        public void SpawnProjectile(ProjectileDataSO data, SkillPayload context);
     }
 
     public class ProjectileSpawner : MonoBehaviour, IProjectileProvider
@@ -39,19 +21,23 @@ namespace Skill
         private ISpriteRepository _spriteRepository;
         private ObjectPool<ProjectileItem> _projectileItemPool = new ObjectPool<ProjectileItem>();
 
-        private Dictionary<EProjectileMoveType, Stack<IMoveStretagy>> _moveStretagy = new Dictionary<EProjectileMoveType, Stack<IMoveStretagy>>();
+        private Dictionary<EProjectileMoveType, Stack<IProjectileMoveStrategy>> _moveStretagy = new Dictionary<EProjectileMoveType, Stack<IProjectileMoveStrategy>>();
 
         private ICombatService _combatService;
-
-        private void Start()
-        {
-            _projectileItemPool.Init(this.transform, _itemPrefab, 10);
-        }
 
         public void Init(ISpriteRepository spriteRepository, ICombatService combatService)
         {
             _spriteRepository = spriteRepository;
             _combatService = combatService;
+
+            _projectileItemPool.OnCreateEvent += CreateProjectile;
+            _projectileItemPool.Init(this.transform, _itemPrefab, 10);
+        }
+
+        private void CreateProjectile(ProjectileItem item)
+        {
+            SkillExecuter skillExecuter = new SkillExecuter(_combatService);
+            item.Initialize(skillExecuter);
         }
 
         public Sprite GetProjectileSprite(string projectileData, int level)
@@ -61,7 +47,7 @@ namespace Skill
             return sp;
         }
 
-        public IMoveStretagy GetMoveStretagy(EProjectileMoveType type)
+        public IProjectileMoveStrategy GetMoveStretagy(EProjectileMoveType type)
         {
             if (_moveStretagy.TryGetValue(type, out var value))
             {
@@ -69,7 +55,7 @@ namespace Skill
                     return value.Pop();
             }
 
-            IMoveStretagy moveStretagy = default;
+            IProjectileMoveStrategy moveStretagy = default;
 
             switch (type)
             {
@@ -88,7 +74,7 @@ namespace Skill
         }
 
         //TODO
-        public void SpawnProjectile(ProjectileDataSO data, ProjectileEventContext context)
+        public void SpawnProjectile(ProjectileDataSO data, SkillPayload context)
         {
             ProjectileItem obj = _projectileItemPool.GetItem(context.Attacker.Position);
 
@@ -99,9 +85,7 @@ namespace Skill
 
             var projectileSprite = GetProjectileSprite(data.SpriteName, context.Attacker.EvolutionLevel);
 
-            ProjectileEffectExecuter effectExecuter = new ProjectileEffectExecuter(_combatService, data.ResolveData, context);
-
-            obj.Init(context, effectExecuter, move, data, projectileSprite);
+            obj.Init(context, move, data, projectileSprite);
         }
     }
 }
