@@ -4,17 +4,17 @@ using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using SkillVfxSystem = Skill.Data.VisualEffectData;
+using SkillVfxSystem = Skill.Data.VFXData;
 
 public class SkillEditorWindow : EditorWindow
 {
     private ObjectField _skillField;
     private TextField _newSkillNameField;
     private SkillGraphView _graphView;
-    private ActiveSkillSO _skill;
+    private ActiveSkillData _skill;
     private string _newSkillName = "New Active Skill";
 
-    public ActiveSkillSO Skill => _skill;
+    public ActiveSkillData Skill => _skill;
     public string NewSkillName => _newSkillName;
 
     [MenuItem("Tools/Skill Graph Editor")]
@@ -26,7 +26,7 @@ public class SkillEditorWindow : EditorWindow
 
     private void OnEnable()
     {
-        if (Selection.activeObject is ActiveSkillSO activeSkill)
+        if (Selection.activeObject is ActiveSkillData activeSkill)
         {
             _skill = activeSkill;
         }
@@ -43,7 +43,7 @@ public class SkillEditorWindow : EditorWindow
 
     private void OnSelectionChange()
     {
-        if (Selection.activeObject is ActiveSkillSO activeSkill)
+        if (Selection.activeObject is ActiveSkillData activeSkill)
         {
             SetSkill(activeSkill);
         }
@@ -96,7 +96,7 @@ public class SkillEditorWindow : EditorWindow
         return _skill != null;
     }
 
-    public void SetSkill(ActiveSkillSO skill)
+    public void SetSkill(ActiveSkillData skill)
     {
         if (_skill == skill)
         {
@@ -128,12 +128,12 @@ public class SkillEditorWindow : EditorWindow
 
         _skillField = new ObjectField
         {
-            objectType = typeof(ActiveSkillSO),
+            objectType = typeof(ActiveSkillData),
             allowSceneObjects = false,
             value = _skill
         };
         _skillField.style.width = 240f;
-        _skillField.RegisterValueChangedCallback(evt => SetSkill(evt.newValue as ActiveSkillSO));
+        _skillField.RegisterValueChangedCallback(evt => SetSkill(evt.newValue as ActiveSkillData));
         toolbar.Add(_skillField);
 
         toolbar.Add(new ToolbarSpacer { flex = true });
@@ -168,10 +168,10 @@ public class SkillEditorWindow : EditorWindow
         AddPaletteButton<ProjectileSkill>(palette, "Projectile Attack");
 
         AddPaletteHeader(palette, "Target");
-        AddPaletteButton<Skill.Data.TargetSystem>(palette, "Target System");
+        AddPaletteButton<Skill.Data.TargetData>(palette, "Target System");
 
         AddPaletteHeader(palette, "Trigger");
-        AddPaletteButton<TriggerSystem>(palette, "Trigger System");
+        AddPaletteButton<TriggerData>(palette, "Trigger System");
 
         AddPaletteHeader(palette, "Effect");
         AddPaletteButton<DamageEffect>(palette, "Damage Effect");
@@ -180,8 +180,8 @@ public class SkillEditorWindow : EditorWindow
         AddPaletteButton<AttributeEffect>(palette, "Status Effect");
 
         AddPaletteHeader(palette, "Item");
-        AddPaletteButton<ProjectileDataSO>(palette, "Projectile");
-        AddPaletteButton<SummonDataSO>(palette, "Summon");
+        AddPaletteButton<ProjectileData>(palette, "Projectile");
+        AddPaletteButton<SummonData>(palette, "Summon");
 
         AddPaletteHeader(palette, "VFX");
         AddPaletteButton<SkillVfxSystem>(palette, "Skill Visual");
@@ -244,7 +244,7 @@ public class SkillEditorWindow : EditorWindow
 
     private void CreateActiveSkill()
     {
-        ActiveSkillSO activeSkill = SkillGraphAssetUtility.CreateActiveSkill(_newSkillName);
+        ActiveSkillData activeSkill = SkillGraphAssetUtility.CreateActiveSkill(_newSkillName);
         activeSkill.Name = _newSkillName;
         SkillGraphAssetUtility.MarkDirty(activeSkill);
         AssetDatabase.SaveAssets();
@@ -272,7 +272,7 @@ public class SkillEditorWindow : EditorWindow
             return;
         }
 
-        ActiveSkillSO copy = SkillGraphAssetUtility.SaveSkillAs(_skill);
+        ActiveSkillData copy = SkillGraphAssetUtility.SaveSkillAs(_skill);
         if (copy != null)
         {
             Selection.activeObject = copy;

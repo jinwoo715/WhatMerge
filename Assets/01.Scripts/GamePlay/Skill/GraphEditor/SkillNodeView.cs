@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
-using SkillVfxSystem = Skill.Data.VisualEffectData;
+using SkillVfxSystem = Skill.Data.VFXData;
 
 public enum SkillNodeKind
 {
@@ -22,7 +22,7 @@ public enum SkillNodeKind
 
 public sealed class SkillNodeView : Node
 {
-    private readonly ActiveSkillSO _skill;
+    private readonly ActiveSkillData _skill;
     private readonly Color _accent;
     private readonly string _baseTitle;
     private readonly Dictionary<string, Port> _inputPorts = new Dictionary<string, Port>();
@@ -72,7 +72,7 @@ public sealed class SkillNodeView : Node
     }
 
     public SkillNodeView(
-        ActiveSkillSO skill,
+        ActiveSkillData skill,
         SkillNodeKind kind,
         string key,
         string titleText,
@@ -238,17 +238,17 @@ public sealed class SkillNodeView : Node
             case SkillNodeKind.ActiveSkill:
                 AddActiveSkillPropertyFields();
                 AddFieldSlot("Execution", "Execution", typeof(ExecutionSystemData), _skill != null ? _skill.Execution : null);
-                AddFieldSlot("Target", "Target", typeof(Skill.Data.TargetSystem), _skill != null ? _skill.Target : null);
-                AddFieldSlot("Trigger", "Trigger", typeof(TriggerSystem), _skill != null ? _skill.Trigger : null);
+                AddFieldSlot("Target", "Target", typeof(Skill.Data.TargetData), _skill != null ? _skill.Target : null);
+                AddFieldSlot("Trigger", "Trigger", typeof(TriggerData), _skill != null ? _skill.Trigger : null);
                 break;
             case SkillNodeKind.Trigger:
-                AddOutputPort("Trigger", typeof(TriggerSystem));
+                AddOutputPort("Trigger", typeof(TriggerData));
                 break;
             case SkillNodeKind.Execution:
                 AddOutputPort("Execution", typeof(ExecutionSystemData));
                 break;
             case SkillNodeKind.Target:
-                AddOutputPort("Target", typeof(Skill.Data.TargetSystem));
+                AddOutputPort("Target", typeof(Skill.Data.TargetData));
                 break;
             case SkillNodeKind.ExecutionVfx:
                 AddOutputPort("VFX", typeof(SkillVfxSystem));
@@ -257,10 +257,10 @@ public sealed class SkillNodeView : Node
                 AddOutputPort("Effect", typeof(EffectBase));
                 break;
             case SkillNodeKind.ProjectileData:
-                AddOutputPort("Projectile", typeof(ProjectileDataSO));
+                AddOutputPort("Projectile", typeof(ProjectileData));
                 break;
             case SkillNodeKind.SummonData:
-                AddOutputPort("Summon", typeof(SummonDataSO));
+                AddOutputPort("Summon", typeof(SummonData));
                 break;
         }
     }
@@ -371,7 +371,7 @@ public sealed class SkillNodeView : Node
         AddBodyFieldSlot("VFX", "VFX", typeof(SkillVfxSystem), Asset is ExecutionSystemData execution ? execution.VFX : null);
         if (Asset is ProjectileSkill projectileSkill)
         {
-            AddBodyFieldSlot("ProjectileData", "ProjectileData", typeof(ProjectileDataSO), projectileSkill.ProjectileData);
+            AddBodyFieldSlot("ProjectileData", "ProjectileData", typeof(ProjectileData), projectileSkill.ProjectileData);
         }
     }
 
@@ -380,7 +380,7 @@ public sealed class SkillNodeView : Node
         AddBodyFieldSlot("VFX", "VFX", typeof(SkillVfxSystem), Asset is EffectBase effect ? effect.VFX : null);
         if (Asset is SummonEffect summonEffect)
         {
-            AddBodyFieldSlot("Summon", "Summon", typeof(SummonDataSO), summonEffect.Summon);
+            AddBodyFieldSlot("Summon", "Summon", typeof(SummonData), summonEffect.Summon);
         }
     }
 
@@ -726,7 +726,7 @@ public sealed class SkillNodeView : Node
 
     private UnityEngine.Object GetEffectEntryOwner()
     {
-        if (Asset is ExecutionSystemData || Asset is SummonDataSO)
+        if (Asset is ExecutionSystemData || Asset is SummonData)
         {
             return Asset;
         }
@@ -741,7 +741,7 @@ public sealed class SkillNodeView : Node
             return execution.Effects;
         }
 
-        if (Asset is SummonDataSO summonData)
+        if (Asset is SummonData summonData)
         {
             return summonData.Effects;
         }
@@ -761,7 +761,7 @@ public sealed class SkillNodeView : Node
             return execution.Effects;
         }
 
-        if (Asset is SummonDataSO summonData)
+        if (Asset is SummonData summonData)
         {
             if (summonData.Effects == null)
             {

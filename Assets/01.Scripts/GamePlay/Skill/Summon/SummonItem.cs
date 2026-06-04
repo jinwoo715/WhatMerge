@@ -15,7 +15,7 @@ namespace Skill.Summon
         private SummonExecuteTimer _timer;
         private SkillExecuter _executer;
 
-        private SummonDataSO _summonData;
+        private SummonData _summonData;
         private ISummonMoveStrategy _move;
         private SkillPayload _payload;
 
@@ -40,7 +40,7 @@ namespace Skill.Summon
             Debug.Log("TimeOut");
         }
 
-        internal void Init(SkillPayload payload, ISummonMoveStrategy move, SummonDataSO summonData, Sprite sprite)
+        internal void Init(SkillPayload payload, ISummonMoveStrategy move, SummonData summonData, Sprite sprite)
         {
             _move = move;
             _summonData = summonData;

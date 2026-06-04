@@ -87,5 +87,10 @@ namespace Enemies
         {
             Debug.Log($"{stat} : {value}");
         }
+
+        public void SetAttribute(EAttributeType attributeType, float duration)
+        {
+            Debug.Log($"{attributeType} : {duration}");
+        }
     }
 }

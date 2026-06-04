@@ -41,7 +41,7 @@ namespace Combat
                 {
                     ProcessDamageEffect(damageContext, damage);
                 }
-                else if(effect is TimeBuffEffect buff)
+                else if(effect is BuffEffect buff)
                 {
                     Debug.Log(damageContext.Target);
                     ProcessBuffEffect(damageContext.Target, buff);
@@ -83,7 +83,7 @@ namespace Combat
             return StatCalculator.RoundInt(payload.AttackDamage * multipleValue * reduceRatio);
         }
 
-        private void ProcessBuffEffect(ICreature target, TimeBuffEffect buff)
+        private void ProcessBuffEffect(ICreature target, BuffEffect buff)
         {
             Debug.Log($"Àû¿ë : {target}");
 

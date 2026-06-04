@@ -8,14 +8,12 @@ namespace Skill
     {
         int UID { get; }
     }
-
     public interface ISkillModifier
     {
         public void ModifyParam(int effectIndex, float value);
         public void ModifyChance(int effectIndex, float value);
         public void AddEffect(EffectEntry effect);
     }
-
     public interface IActiveSkill : ISkill, ISkillModifier
     {
         public ITrigger Trigger { get; }
@@ -28,7 +26,6 @@ namespace Skill
     {
         void Apply();
     }
-
     public interface ISkillResourceModifier
     {
         void ConsumeHitCount(int count);
@@ -37,10 +34,9 @@ namespace Skill
         void AddMana(float amount);
         void IncreaseManaAmoutRaio(float ratio);
     }
-    public interface ISkillDataRepository
+    public interface ITrigger
     {
-        ActiveSkillData GetActiveSkillData(int uid);
-        BuffData GetBuffData(int uid);
-        DeBuffData GetDeBuffData(int uid);
+        bool IsMeetTrigger(SkillTriggerContext context);
+        void UseTriggerResource(ISkillResourceModifier resourceModifier);
     }
 }

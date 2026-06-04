@@ -8,9 +8,9 @@ using UnityEngine;
 public class BuffPayload
 {
     public IStatModifier StatModifier { get; private set; }
-    public TimeBuffEffect BuffData { get; private set; }
+    public BuffEffect BuffData { get; private set; }
 
-    public BuffPayload(IStatModifier statModifier, TimeBuffEffect buffData)
+    public BuffPayload(IStatModifier statModifier, BuffEffect buffData)
     {
         StatModifier = statModifier;
         BuffData = buffData;
@@ -23,15 +23,13 @@ public class BuffEquipment
 
     public IEnumerator CoApplyBuff(BuffPayload buffPayload)
     {
-        var data = buffPayload.BuffData;
+        var buff = buffPayload.BuffData.BuffData;
+        var duration = buffPayload.BuffData.Duration;
 
-        Debug.Log(buffPayload);
-        Debug.Log(buffPayload.StatModifier);
-        Debug.Log(buffPayload.BuffData);
-        buffPayload.StatModifier.ModifyStat(data.BuffType, data.IncreaseRatio);
-        yield return new WaitForSeconds(data.Time);
+        buffPayload.StatModifier.ModifyStat(buff.BuffType, buff.IncreaseRatio);
+        yield return new WaitForSeconds(duration);
 
-        buffPayload.StatModifier.ModifyStat(data.BuffType, -data.IncreaseRatio);
+        buffPayload.StatModifier.ModifyStat(buff.BuffType, -buff.IncreaseRatio);
         OnEndBuff?.Invoke(this);
     }
 

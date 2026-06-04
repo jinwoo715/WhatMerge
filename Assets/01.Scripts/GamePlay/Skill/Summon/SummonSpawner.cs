@@ -82,7 +82,7 @@ namespace Skill.Summon
             moveStrategy.Init(owner, target, move.Speed);
             return moveStrategy;
         }
-        public void SpawnSummon(SummonDataSO dataSO, SkillPayload skillPayload)
+        public void SpawnSummon(SummonData dataSO, SkillPayload skillPayload)
         {
             Vector3 spawnPosition = GetSpawnPosition(skillPayload.Target.Position, dataSO.SpawnPosition);
             var summonObj = _summonItemPool.GetItem(spawnPosition);

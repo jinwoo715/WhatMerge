@@ -22,19 +22,19 @@ namespace Skill.Projectile
         private SkillPayload _data;
         private SkillExecuter _effectExecuter;
 
-        private ProjectileDataSO _soData;
+        private Data.ProjectileData _soData;
 
         public bool IsActive { get; private set; }
         public event Action<ProjectileItem> OnReturn;
 
-        private Action<SkillImpactContext> OnCheckTrigger;
+        private Action<SkillImpactContext> OnArriveTrigger;
 
         public void Initialize(SkillExecuter effectExecuter)
         {
             _effectExecuter = effectExecuter;
         }
 
-        public void Init(SkillPayload data, IProjectileMoveStrategy moveStretagy, ProjectileDataSO soData, Sprite sprite)
+        public void Init(SkillPayload data, IProjectileMoveStrategy moveStretagy, Data.ProjectileData soData, Sprite sprite)
         {
             _data = data;
             _moveStretagy = moveStretagy;
@@ -42,9 +42,9 @@ namespace Skill.Projectile
             _trigger = soData.EffectTrigger;
             _destroyTrigger = soData.DestroyTrigger;
             _soData = soData;
-            OnCheckTrigger = (context) => CheckTrigger(EProjectileEffectTrigger.OnArrive, context);
+            OnArriveTrigger = (context) => CheckTrigger(EProjectileEffectTrigger.OnArrive, context);
 
-            _moveStretagy.OnArrived += OnCheckTrigger;
+            _moveStretagy.OnArrived += OnArriveTrigger;
 
             _effectExecuter.SetData(soData.ResolveData, data);
         }
@@ -76,7 +76,7 @@ namespace Skill.Projectile
         public void OnDespawn()
         {
             IsActive = false;
-            _moveStretagy.OnArrived -= OnCheckTrigger;
+            _moveStretagy.OnArrived -= OnArriveTrigger;
         }
         public void OnSpawn()
         {

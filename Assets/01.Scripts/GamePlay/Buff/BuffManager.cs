@@ -5,7 +5,7 @@ using UnityEngine;
 
 public interface IBuffRegister
 {
-    void RegisterBuff(TimeBuffEffect timeBuffEffect, IStatModifier statModifier);
+    void RegisterBuff(BuffEffect timedBuffEffect, IStatModifier statModifier);
 }
 
 //TODO
@@ -47,10 +47,10 @@ public class BuffManager : MonoBehaviour, IBuffRegister
         _buffPool.Push(buff);
     }
 
-    public void RegisterBuff(TimeBuffEffect timeBuffEffect, IStatModifier statModifier)
+    public void RegisterBuff(BuffEffect timedBuffEffect, IStatModifier statModifier)
     {
         BuffEquipment buff = GetBuff();
-        BuffPayload buffPayload = new BuffPayload(statModifier, timeBuffEffect);
+        BuffPayload buffPayload = new BuffPayload(statModifier, timedBuffEffect);
         StartCoroutine(buff.CoApplyBuff(buffPayload));
     }
 }

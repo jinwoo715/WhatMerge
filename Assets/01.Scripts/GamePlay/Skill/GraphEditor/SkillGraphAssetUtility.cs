@@ -8,9 +8,9 @@ using UnityEngine;
 public static class SkillGraphAssetUtility
 {
     public const string DefaultAssetFolder = "Assets/01.Scripts/GamePlay/Skill/Test/SO";
-    public const string LayoutFolder = DefaultAssetFolder + "/GraphLayouts";
+    public const string LayoutFolder = "Assets/01.Scripts/GamePlay/Skill/GraphLayouts";
 
-    public static ActiveSkillSO CreateActiveSkill(string skillName)
+    public static ActiveSkillData CreateActiveSkill(string skillName)
     {
         string assetName = SanitizeFileName(skillName);
         if (string.IsNullOrEmpty(assetName))
@@ -18,10 +18,10 @@ public static class SkillGraphAssetUtility
             assetName = "NewActiveSkill";
         }
 
-        return CreateAsset<ActiveSkillSO>(DefaultAssetFolder + "/" + assetName + ".asset");
+        return CreateAsset<ActiveSkillData>(DefaultAssetFolder + "/" + assetName + ".asset");
     }
 
-    public static T CreateAssetForSkill<T>(ActiveSkillSO skill, string fallbackName) where T : ScriptableObject
+    public static T CreateAssetForSkill<T>(ActiveSkillData skill, string fallbackName) where T : ScriptableObject
     {
         string prefix = skill != null ? SanitizeFileName(skill.name) : SanitizeFileName(fallbackName);
         if (string.IsNullOrEmpty(prefix))
@@ -34,7 +34,7 @@ public static class SkillGraphAssetUtility
         return CreateAsset<T>(folderPath + "/" + prefix + "_" + suffix + ".asset");
     }
 
-    private static string GetSkillAssetFolder(ActiveSkillSO skill)
+    private static string GetSkillAssetFolder(ActiveSkillData skill)
     {
         if (skill != null)
         {
@@ -62,7 +62,7 @@ public static class SkillGraphAssetUtility
         return asset;
     }
 
-    public static void SaveGraph(ActiveSkillSO skill)
+    public static void SaveGraph(ActiveSkillData skill)
     {
         foreach (Object referencedObject in GetReferencedObjects(skill))
         {
@@ -73,7 +73,7 @@ public static class SkillGraphAssetUtility
         AssetDatabase.Refresh();
     }
 
-    public static SkillGraphLayoutData LoadGraphLayout(ActiveSkillSO skill)
+    public static SkillGraphLayoutData LoadGraphLayout(ActiveSkillData skill)
     {
         string assetPath = GetGraphLayoutPath(skill);
         if (string.IsNullOrEmpty(assetPath))
@@ -96,7 +96,7 @@ public static class SkillGraphAssetUtility
         return JsonUtility.FromJson<SkillGraphLayoutData>(json);
     }
 
-    public static void SaveGraphLayout(ActiveSkillSO skill, SkillGraphLayoutData layout)
+    public static void SaveGraphLayout(ActiveSkillData skill, SkillGraphLayoutData layout)
     {
         string assetPath = GetGraphLayoutPath(skill);
         if (string.IsNullOrEmpty(assetPath) || layout == null)
@@ -117,7 +117,7 @@ public static class SkillGraphAssetUtility
         return string.IsNullOrEmpty(path) ? string.Empty : AssetDatabase.AssetPathToGUID(path);
     }
 
-    private static string GetGraphLayoutPath(ActiveSkillSO skill)
+    private static string GetGraphLayoutPath(ActiveSkillData skill)
     {
         string guid = GetAssetGuid(skill);
         if (string.IsNullOrEmpty(guid))
@@ -128,7 +128,7 @@ public static class SkillGraphAssetUtility
         return LayoutFolder + "/" + guid + ".json";
     }
 
-    public static ActiveSkillSO SaveSkillAs(ActiveSkillSO skill)
+    public static ActiveSkillData SaveSkillAs(ActiveSkillData skill)
     {
         string path = EditorUtility.SaveFilePanelInProject("Save Active Skill As", skill.name + "_Copy", "asset", "Choose save location.", DefaultAssetFolder);
         if (string.IsNullOrEmpty(path))
@@ -136,7 +136,7 @@ public static class SkillGraphAssetUtility
             return null;
         }
 
-        ActiveSkillSO copy = ScriptableObject.CreateInstance<ActiveSkillSO>();
+        ActiveSkillData copy = ScriptableObject.CreateInstance<ActiveSkillData>();
         EditorUtility.CopySerialized(skill, copy);
         AssetDatabase.CreateAsset(copy, path);
         AssetDatabase.SaveAssets();
@@ -144,7 +144,7 @@ public static class SkillGraphAssetUtility
         return copy;
     }
 
-    public static bool ClearGraph(ActiveSkillSO skill)
+    public static bool ClearGraph(ActiveSkillData skill)
     {
         bool clear = EditorUtility.DisplayDialog("Clear Skill Graph", "Remove all node references from this ActiveSkillSO?", "Clear", "Cancel");
         if (!clear)
@@ -160,7 +160,7 @@ public static class SkillGraphAssetUtility
         return true;
     }
 
-    public static IEnumerable<Object> GetReferencedObjects(ActiveSkillSO skill)
+    public static IEnumerable<Object> GetReferencedObjects(ActiveSkillData skill)
     {
         if (skill == null)
         {

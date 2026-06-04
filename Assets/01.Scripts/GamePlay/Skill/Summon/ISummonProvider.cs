@@ -4,6 +4,6 @@ namespace Skill.Summon
 {
     public interface ISummonProvider
     {
-        void SpawnSummon(SummonDataSO dataSO, SkillPayload skillPayload);
+        void SpawnSummon(SummonData dataSO, SkillPayload skillPayload);
     }
 }

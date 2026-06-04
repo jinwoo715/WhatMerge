@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1a5adc2e6894774fbc51358a4b04994, type: 3}
+  m_Name: Bomber_FlameBullet_ProjectileDataSO
+  m_EditorClassIdentifier: 
+  SpriteName: FlameBomb
+  MoveType: 2
+  Speed: 3
+  LifeTime: 3
+  EffectTrigger: 2
+  DestroyTrigger: 2
+  ResolveData:
+    Type: 1
+    Radius: 0.5

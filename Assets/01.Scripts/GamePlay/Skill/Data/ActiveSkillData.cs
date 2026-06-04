@@ -1,29 +1,30 @@
-namespace Skill
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace Skill.Data
 {
-    [System.Serializable]
-    public class ActiveSkillData : BaseData
+    [CreateAssetMenu(fileName = "Active Skill", menuName = "Skill/ActiveSkill", order = 0)]
+    public class ActiveSkillData : SkillBaseData
     {
-        public string Name;
-        public string Description;
+        [Header("모션")]
+        public SkillAnimationData AnimationData;
 
-        public string SkillType;
+        [Header("방식")]
+        public ExecutionSystemData Execution;
 
-        public ESkillTriggerType TriggerType;
-        public float TriggerValue;
+        [Header("탐색")]
+        public TargetData Target;
 
-        public ESkillTargetType TargetType;
+        [Header("트리거")]
+        public TriggerData Trigger;
+    }
 
-        public float MotionDelay;
-        public float ResetDelay;
-
-        public int ValueRate;
-
-        public float Range;
-
-        public float P1;
-        public float P2;
-        public float P3;
-
-        public string VFX;
+    [System.Serializable]
+    public class SkillAnimationData
+    {
+        public string MotionName;
+        public string MotionReadyName => MotionName + "_Ready";
+        public float ReadyMotionTime = 0.2f;
+        public float ExecutionMotionTime = 0.2f;
     }
 }

@@ -11,7 +11,7 @@ using UnityEngine.U2D;
 public class HeroSpawner : MonoBehaviour, IHeroSummonService
 {
     [Header("Mock")]
-    public Skill.Data.HeroUpgradeSkillSet set;
+    public Skill.Data.SkillSetContainer set;
     public SkillFactory factory;
 
     [SerializeField] private Hero _heroPrefab;
@@ -43,7 +43,6 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
 
         return SpawnHero(heroUid, 0);
     }
-
 
     public int uid;
     public int evolution;
@@ -99,12 +98,7 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
         hero.SetData(data, atkData, heroAtlas, saveData.Level);
         hero.SetEvolution(evolutionLevel);
 
-        Debug.Log("Start");
-
         var skillSet = factory.CreateSkill(hero, level, set);
-
-        Debug.Log(skillSet.ActiveSkills.Count);
-        Debug.Log(skillSet.PassiveSkills.Count);
 
         SkillController controller = new SkillController(skillSet.ActiveSkills, skillSet.PassiveSkills, hero, data.AS);
 
@@ -120,6 +114,4 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
     {
         _heroPool.ReturnItem(hero);
     }
-
-
 }

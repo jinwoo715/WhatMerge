@@ -7,7 +7,7 @@ using UnityEngine;
 public interface IVFXService
 {
     public void ShowEffect(string name, Vector3 target, Vector3 attacker);
-    public void ShowVFX(VisualEffectData vfxData);
+    public void ShowVFX(VFXData vfxData);
 }
 
 public class VFXSpawner : MonoBehaviour, IVFXService
@@ -34,7 +34,7 @@ public class VFXSpawner : MonoBehaviour, IVFXService
         effect.Init(sp, dir);
     }
 
-    public void ShowVFX(VisualEffectData vfxData)
+    public void ShowVFX(VFXData vfxData)
     {
         throw new System.NotImplementedException();
     }

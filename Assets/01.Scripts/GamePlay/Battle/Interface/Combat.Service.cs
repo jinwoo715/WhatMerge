@@ -16,6 +16,7 @@ namespace Combat
         int CurrentHP { get; }
         int Amour { get; }
         EAttributeType Attribute { get; }
+        void SetAttribute(EAttributeType attributeType, float duration);
         void TakeDamage(AttackResultPayload resultPayload);
     }
 

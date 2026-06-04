@@ -11,7 +11,7 @@ namespace Skill.Projectile
 {
     public interface IProjectileProvider
     {
-        public void SpawnProjectile(ProjectileDataSO data, SkillPayload context);
+        public void SpawnProjectile(Data.ProjectileData data, SkillPayload context);
     }
 
     public class ProjectileSpawner : MonoBehaviour, IProjectileProvider
@@ -74,11 +74,9 @@ namespace Skill.Projectile
         }
 
         //TODO
-        public void SpawnProjectile(ProjectileDataSO data, SkillPayload context)
+        public void SpawnProjectile(Data.ProjectileData data, SkillPayload context)
         {
             ProjectileItem obj = _projectileItemPool.GetItem(context.Attacker.Position);
-
-            Debug.Log($"Spawner {context.effects.Count}");
 
             var move = GetMoveStretagy(data.MoveType);
             move.Init(obj.transform, context.Target, data.Speed);

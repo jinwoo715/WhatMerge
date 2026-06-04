@@ -32,11 +32,11 @@ public interface ISpriteAtlasRepository
 public interface IDataProvider
 {
     ProjectileData GetProjecTileData(int uid);
-    List<BuffSkillData> GetBuffDatas(int uid);
+    
     List<MergeData> MergeData {get;}
 }
 
-public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepository, IEnemyDataRepository, IDataProvider, IHeroInfoRepository
+public class DataManager : MonoBehaviour, ISpriteAtlasRepository, IEnemyDataRepository, IDataProvider, IHeroInfoRepository
 {
     [Header("SpriteAtlas")]
     public List<HeroSpriteSpriteBundle> _heroSpriteAtlas;
@@ -61,12 +61,8 @@ public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepo
     private Dictionary<int, HeroData> _heroDatas = new Dictionary<int, HeroData>();
     private Dictionary<int, EnemyData> _enemyDatas = new Dictionary<int, EnemyData>();
     private Dictionary<int, StageData> _stageDatas = new Dictionary<int, StageData>();
-    private Dictionary<int, ActiveSkillData> _activeSkillDatas = new Dictionary<int, ActiveSkillData>();
     private Dictionary<int, ATKData> _atkDatas = new Dictionary<int, ATKData>();
     private Dictionary<int, ProjectileData> _projectileDatas = new Dictionary<int, ProjectileData>();
-
-    private Dictionary<int, BuffDataBundle> _buffDataBundle = new Dictionary<int, BuffDataBundle>();
-    private Dictionary<int, BuffSkillData> _buffData = new Dictionary<int, BuffSkillData>();
 
     private Dictionary<string, SpriteAtlas> _spriteAtlas = new Dictionary<string, SpriteAtlas>();
 
@@ -120,9 +116,6 @@ public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepo
             _projectileDatas.Add(data.ProjectileUID, data);
         }
 
-        InitDictionary(_buffDataBundle, _buffDataBundleText);
-        InitDictionary(_buffData, _buffDataText);
-
         _mergeDatas = DeserializeTextData<MergeData>(_mergeDataText);
 
         for (int i = 0; i < _stageEnemySpriteBundles.Count; i++)
@@ -141,7 +134,6 @@ public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepo
     {
         InitDictionary(_heroDatas, resourcesReader.GetTextAsset("HeroData"));
         InitDictionary(_atkDatas, resourcesReader.GetTextAsset("ATKData"));
-        InitDictionary(_activeSkillDatas, resourcesReader.GetTextAsset("ActiveSkillData"));
         InitDictionary(_stageDatas, resourcesReader.GetTextAsset("StageData"));
         InitDictionary(_enemyDatas, resourcesReader.GetTextAsset("EnemyData"));
 
@@ -206,10 +198,6 @@ public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepo
         }
     }
 
-    public ActiveSkillData GetActiveSkillData(int uid)
-    {
-        return _activeSkillDatas[uid];
-    }
     public ATKData GetATKData(int uid)
     {
         return _atkDatas[uid];
@@ -267,38 +255,9 @@ public class DataManager : MonoBehaviour, ISkillDataRepository, ISpriteAtlasRepo
         Debug.LogError($"Not Exist Data By : {uid}");
         return default;
     }
-    public List<BuffSkillData> GetBuffDatas(int uid)
-    {
-        var bundleData = _buffDataBundle[uid];
-
-        List<BuffSkillData> datas = new List<BuffSkillData>();
-
-        if (bundleData.FirstBuff != 0)
-            datas.Add(_buffData[bundleData.FirstBuff]);
-
-        if (bundleData.SecondBuff != 0)
-            datas.Add(_buffData[bundleData.SecondBuff]);
-
-        if (bundleData.ThirdBuff != 0)
-            datas.Add(_buffData[bundleData.ThirdBuff]);
-
-        return datas;
-    }
 
     public HeroSaveData GetHeroSaveData(int uid)
     {
         throw new System.NotImplementedException();
     }
-
-    public BuffData GetBuffData(int uid)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public DeBuffData GetDeBuffData(int uid)
-    {
-        throw new System.NotImplementedException();
-    }
-
- 
 }
