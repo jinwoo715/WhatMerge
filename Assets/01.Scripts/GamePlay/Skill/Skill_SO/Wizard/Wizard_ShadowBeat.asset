@@ -21,5 +21,5 @@ MonoBehaviour:
     ReadyMotionTime: 0.2
     ExecutionMotionTime: 0.2
   Execution: {fileID: 11400000, guid: 07c39aa1148439f4bbe32f3c3908c6dd, type: 2}
-  Target: {fileID: 11400000, guid: 8f9cad6af10d5094981ed3e039458646, type: 2}
-  Trigger: {fileID: 11400000, guid: 23f4b690b7baeb54786a8d1b14ae3890, type: 2}
+  Target: {fileID: 11400000, guid: 5117feab2a452ad4cb1193e387394e34, type: 2}
+  Trigger: {fileID: 11400000, guid: 9ddf77d28c0b740408b26c2027c41ff8, type: 2}

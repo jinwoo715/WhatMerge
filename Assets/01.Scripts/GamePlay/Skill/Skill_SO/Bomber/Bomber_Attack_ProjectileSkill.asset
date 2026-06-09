@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Bomber_Attack_ProjectileSkill
   m_EditorClassIdentifier: 
   Effects:
-  - Effect: {fileID: 11400000, guid: 27ac3f33763feaa45a13dfc2fec86529, type: 2}
-    Chance: 1
+  - {fileID: 11400000, guid: 27ac3f33763feaa45a13dfc2fec86529, type: 2}
   VFX: {fileID: 0}
-  ProjectileData: {fileID: 11400000, guid: 13a6f8e79c5011d47844a7b4cdc3b26e, type: 2}
+  ProjectileData: {fileID: 11400000, guid: accc5853c6681fc4199d13af8ff215ad, type: 2}

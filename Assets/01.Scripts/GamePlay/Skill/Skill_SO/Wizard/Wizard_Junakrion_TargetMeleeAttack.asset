@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Wizard_Junakrion_TargetMeleeAttack
   m_EditorClassIdentifier: 
   Effects:
-  - Effect: {fileID: 11400000, guid: 09de4aedd01b1004c85141af5bd0d733, type: 2}
-    Chance: 1
+  - {fileID: 11400000, guid: 09de4aedd01b1004c85141af5bd0d733, type: 2}
   VFX: {fileID: 0}
   HitCount: 0

@@ -12,7 +12,6 @@ public interface IResourcesLoader
 }
 public interface IResourcesReader
 {
-    Sprite GetSprite(string name);
     SpriteAtlas GetAtlas(string name);
     TextAsset GetTextAsset(string name);
     T GetObject<T>(string name) where T : MonoBehaviour;
@@ -20,22 +19,16 @@ public interface IResourcesReader
 
 public class AddressableResourcesManager : MonoBehaviour, IResourcesLoader, IResourcesReader
 {
-    [SerializeField] private List<Sprite> _spriteList;
     [SerializeField] private List<SpriteAtlas> _atlasList;
     [SerializeField] private List<TextAsset> _textAssetList;
     [SerializeField] private List<GameObject> _objList;
 
-    private Dictionary<string, Sprite> _sprites = new Dictionary<string, Sprite>();
     private Dictionary<string, SpriteAtlas> _atlas = new Dictionary<string, SpriteAtlas>();
     private Dictionary<string, TextAsset> _texts = new Dictionary<string, TextAsset>();
     private Dictionary<string, GameObject> _objects = new Dictionary<string, GameObject>();
 
     public void LoadResources()
     {
-        foreach (var sprite in _spriteList)
-        {
-            _sprites.Add(sprite.name, sprite);
-        }
         foreach (var atals in _atlasList)
         {
             _atlas.Add(atals.name, atals);
@@ -62,18 +55,7 @@ public class AddressableResourcesManager : MonoBehaviour, IResourcesLoader, IRes
             return null;
         }
     }
-    public Sprite GetSprite(string name)
-    {
-        if (_sprites.TryGetValue(name, out Sprite sprite))
-        {
-            return sprite;
-        }
-        else
-        {
-            Debug.LogError($"Not Exist Sprite : {name}");
-            return null;
-        }
-    }
+
     public TextAsset GetTextAsset(string name)
     {
         if (_texts.TryGetValue(name, out TextAsset text))

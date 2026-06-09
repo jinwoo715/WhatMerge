@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: Bomber_Attack_DamageEffect
   m_EditorClassIdentifier: 
   EffectUID: 0
+  Chance: 1
   VFX: {fileID: 0}
   DamageRatio: 1

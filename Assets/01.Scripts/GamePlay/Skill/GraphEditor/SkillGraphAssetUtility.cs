@@ -198,17 +198,17 @@ public static class SkillGraphAssetUtility
 
         for (int i = 0; i < skill.Execution.Effects.Count; i++)
         {
-            EffectEntry entry = skill.Execution.Effects[i];
-            if (entry == null || entry.Effect == null)
+            EffectBase entry = skill.Execution.Effects[i];
+            if (entry == null)
             {
                 continue;
             }
 
-            yield return entry.Effect;
+            yield return entry;
 
-            if (entry.Effect.VFX != null)
+            if (entry.VFX != null)
             {
-                yield return entry.Effect.VFX;
+                yield return entry.VFX;
             }
         }
     }

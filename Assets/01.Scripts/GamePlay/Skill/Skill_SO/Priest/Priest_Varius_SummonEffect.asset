@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 925f7569eafe7b843a61c2f587db9dcd, type: 3}
   m_Name: Priest_Varius_SummonEffect
   m_EditorClassIdentifier: 
-  EffectUID: 0
+  Chance: 1
   VFX: {fileID: 0}
-  Summon: {fileID: 11400000, guid: 4b837bffc1d662e4591cb862ab610fce, type: 2}
+  Summon: {fileID: 11400000, guid: c4bb0298f9d90064ca9b2e7efdfcc298, type: 2}

@@ -5,23 +5,23 @@ namespace Skill.Data
     [CreateAssetMenu(fileName = "ExtraEffectData", menuName = "Skill/SkillEnhancer/ExtraEffectData", order = 0)]
     public class ExtraEffectData : SkillBaseData
     {
-        public SkillBaseData TargetSkill;
+        public ActiveSkillData TargetSkill;
 
         [Header("추가 효과")]
-        public EffectEntry Effect;
+        public EffectBase Effect;
     }
 
     public class ExtraEffect : ISkillEnhancer
     {
-        public ExtraEffectData EffectEntry { get; }
+        public ExtraEffectData Data { get; }
         public ExtraEffect(ExtraEffectData effectEntry)
         {
-            EffectEntry = effectEntry;
+            Data = effectEntry;
         }
 
         public void ApplySkill(ISkillModifier skill)
         {
-            skill.AddEffect(EffectEntry.Effect);
+            skill.AddEffect(Data.Effect);
         }
     }
 }

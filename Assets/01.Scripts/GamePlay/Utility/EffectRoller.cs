@@ -6,18 +6,20 @@ namespace Skill
 {
     public static class EffectRoller
     {
-        public static List<EffectBase> GetConfirmEffects(List<EffectEntry> effects)
+        public static List<EffectBase> GetConfirmEffects(List<EffectBase> effects)
         {
             List<EffectBase> confirmedEffects = new List<EffectBase>();
 
+            if (effects == null)
+                return confirmedEffects;
+
             foreach (var effect in effects)
             {
-                float chance = UnityEngine.Random.Range(0f, 1);
+                if (effect == null)
+                    continue;
 
-                if (effect.Chance >= chance)
-                {
-                    confirmedEffects.Add(effect.Effect);
-                }
+                if (effect.Chance >= Random.Range(0f, 1f))
+                    confirmedEffects.Add(effect);
             }
 
             return confirmedEffects;

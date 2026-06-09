@@ -9,10 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cd6fc63ba7a07b343a2e02053f7aaa43, type: 3}
+  m_Script: {fileID: 11500000, guid: 425c724732fbbc047a351ab4485ac414, type: 3}
   m_Name: Priest_Blessing_BuffEffect
   m_EditorClassIdentifier: 
-  EffectUID: 0
+  Chance: 1
   VFX: {fileID: 0}
-  BuffType: 0
-  IncreaseRatio: 0.1
+  BuffData:
+    BuffType: 0
+    IncreaseRatio: 1
+  Duration: 3

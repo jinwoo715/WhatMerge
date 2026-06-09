@@ -20,6 +20,6 @@ MonoBehaviour:
     MotionName: MegaHit
     ReadyMotionTime: 0.2
     ExecutionMotionTime: 0.2
-  Execution: {fileID: 11400000, guid: 8208f864da30e104d9ec0b01088151c8, type: 2}
-  Target: {fileID: 11400000, guid: 391f511f57ae54048a3bd131383e2289, type: 2}
-  Trigger: {fileID: 11400000, guid: 470753594a3f1d3478cdd3ba4acb56f6, type: 2}
+  Execution: {fileID: 11400000, guid: b0908271f198d5d4d93336ca75c8e33f, type: 2}
+  Target: {fileID: 11400000, guid: 77020fc8edbad814882f9e2e4e1b1b3b, type: 2}
+  Trigger: {fileID: 11400000, guid: d7ef278cee1b16846be2072b6d9ff19d, type: 2}

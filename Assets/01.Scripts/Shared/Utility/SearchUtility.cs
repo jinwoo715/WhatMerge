@@ -1,3 +1,4 @@
+using Enemies;
 using Entity;
 using System;
 using System.Collections;
@@ -44,6 +45,34 @@ public static class SearchUtility
         }
         return detectedEnemy;
     }
+    public static List<Enemy> GetConeEnemies(Vector3 pivotPoint, Vector3 toDir, float range,float detectionAngle)
+    {
+        Collider2D[] searchTotalEnemy = Physics2D.OverlapCircleAll(pivotPoint, range, LayerMask.GetMask("Enemy"));
+        List<Enemy> detectedEnemy = new List<Enemy>();
+
+        float angle = detectionAngle * 0.5f;
+
+        foreach (var enemy in searchTotalEnemy)
+        {
+            Vector3 directionToEnemy = (enemy.transform.position - pivotPoint).normalized;
+
+            float dotProduct = Vector3.Dot(toDir, directionToEnemy);
+            float angleToEnemy = Mathf.Acos(dotProduct) * Mathf.Rad2Deg;
+
+            if (angleToEnemy < angle)
+            {
+                Debug.Log($"Detect Enemy : {enemy.name}");
+                detectedEnemy.Add(enemy.GetComponent<Enemy>());
+            }
+        }
+        return detectedEnemy;
+    }
+
+    public static Enemy GetNearestEnemy(Vector3 position, float radius)
+    {
+        return GetNearest2DTarget<Enemy>(position, radius, LayerMask.GetMask("Enemy"));
+    }
+
     public static T GetNearest2DTarget<T>(Vector3 position, float radius, LayerMask layer) where T : MonoBehaviour
     {
         Collider2D[] collider = Physics2D.OverlapCircleAll(position, radius, layer);
@@ -168,7 +197,6 @@ public static class SearchUtility
 
         return nearestTarget;
     }
-
     public static List<T> GetConeTargets<T>(IReadOnlyList<Creature> list, Vector3 pivot, Vector3 dir, float angle) where T : class
     {
         List<T> results = new List<T>();

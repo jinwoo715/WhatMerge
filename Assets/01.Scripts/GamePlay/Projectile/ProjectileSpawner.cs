@@ -76,6 +76,7 @@ namespace Skill.Projectile
         //TODO
         public void SpawnProjectile(Data.ProjectileData data, SkillPayload context)
         {
+            Debug.Log("Spawn");
             ProjectileItem obj = _projectileItemPool.GetItem(context.Attacker.Position);
 
             var move = GetMoveStretagy(data.MoveType);

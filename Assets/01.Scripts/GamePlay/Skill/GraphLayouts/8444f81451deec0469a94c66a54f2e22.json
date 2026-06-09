@@ -7,7 +7,7 @@
                 "x": 40.0,
                 "y": 160.0,
                 "width": 266.0,
-                "height": 336.0
+                "height": 396.0
             }
         },
         {
@@ -44,30 +44,30 @@
             "Key": "execution",
             "Position": {
                 "serializedVersion": "2",
-                "x": -605.0,
-                "y": 94.0,
-                "width": 372.0,
-                "height": 297.0
+                "x": -484.0,
+                "y": 96.0,
+                "width": 432.0,
+                "height": 275.0
             }
         },
         {
             "Key": "target",
             "Position": {
                 "serializedVersion": "2",
-                "x": -465.0,
-                "y": 413.0,
-                "width": 326.0,
-                "height": 176.0
+                "x": -484.0,
+                "y": 400.0,
+                "width": 378.0,
+                "height": 156.0
             }
         },
         {
             "Key": "trigger",
             "Position": {
                 "serializedVersion": "2",
-                "x": -465.0,
-                "y": 589.0,
-                "width": 329.0,
-                "height": 176.0
+                "x": -484.0,
+                "y": 587.0,
+                "width": 343.0,
+                "height": 156.0
             }
         },
         {
@@ -94,9 +94,9 @@
             "Key": "execution-projectile",
             "Position": {
                 "serializedVersion": "2",
-                "x": -1071.0,
-                "y": 284.0,
-                "width": 341.0,
+                "x": -973.0,
+                "y": 303.0,
+                "width": 326.0,
                 "height": 316.0
             }
         },
@@ -124,9 +124,9 @@
             "Key": "effect-0",
             "Position": {
                 "serializedVersion": "2",
-                "x": -1141.0,
-                "y": 37.0,
-                "width": 342.0,
+                "x": -973.0,
+                "y": 41.0,
+                "width": 400.0,
                 "height": 212.0
             }
         },
@@ -134,10 +134,10 @@
             "Key": "effect-summon-0",
             "Position": {
                 "serializedVersion": "2",
-                "x": -1536.0,
-                "y": 125.0,
-                "width": 338.0,
-                "height": 481.0
+                "x": -1383.0,
+                "y": 63.0,
+                "width": 323.0,
+                "height": 459.0
             }
         },
         {
@@ -154,9 +154,69 @@
             "Key": "effect-summon-0::summon-effect::0",
             "Position": {
                 "serializedVersion": "2",
-                "x": -1928.0,
-                "y": 125.0,
-                "width": 360.0,
+                "x": -1817.0,
+                "y": 63.0,
+                "width": 369.0,
+                "height": 204.0
+            }
+        },
+        {
+            "Key": "loose-62fcfba188a1eb046a75ad88fe7f4876",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -484.0,
+                "y": 556.0,
+                "width": 343.0,
+                "height": 156.0
+            }
+        },
+        {
+            "Key": "loose-be5bf3b154e483949a332289958e979e",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -484.0,
+                "y": 380.0,
+                "width": 378.0,
+                "height": 156.0
+            }
+        },
+        {
+            "Key": "loose-6311ae22ce65782468eca6f6026f945a",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -935.0,
+                "y": 295.0,
+                "width": 326.0,
+                "height": 316.0
+            }
+        },
+        {
+            "Key": "loose-520073cf880455f48abd8a58f98d39f8",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -1473.0,
+                "y": -176.0,
+                "width": 338.0,
+                "height": 174.0
+            }
+        },
+        {
+            "Key": "loose-9cbe0d4cd27708e4db66ef2d7d707239",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -1386.0,
+                "y": 129.0,
+                "width": 323.0,
+                "height": 427.0
+            }
+        },
+        {
+            "Key": "loose-c0b2b38f2a39b7443bd18ab2364cc53f",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -1817.0,
+                "y": 63.0,
+                "width": 335.0,
                 "height": 204.0
             }
         }
@@ -169,17 +229,17 @@
                 "x": 40.0,
                 "y": 160.0,
                 "width": 266.0,
-                "height": 336.0
+                "height": 396.0
             }
         },
         {
             "Key": "asset-9e683b3440591484bb6b47fc223e2329",
             "Position": {
                 "serializedVersion": "2",
-                "x": -605.0,
-                "y": 94.0,
-                "width": 372.0,
-                "height": 297.0
+                "x": -484.0,
+                "y": 96.0,
+                "width": 432.0,
+                "height": 275.0
             }
         },
         {
@@ -199,7 +259,7 @@
                 "x": -465.0,
                 "y": 589.0,
                 "width": 329.0,
-                "height": 176.0
+                "height": 136.0
             }
         },
         {
@@ -226,9 +286,9 @@
             "Key": "asset-3998820c6c3cafd4baf2696be9bd43e7",
             "Position": {
                 "serializedVersion": "2",
-                "x": -1141.0,
-                "y": 37.0,
-                "width": 342.0,
+                "x": -973.0,
+                "y": 41.0,
+                "width": 400.0,
                 "height": 212.0
             }
         },
@@ -251,17 +311,77 @@
                 "width": 360.0,
                 "height": 204.0
             }
+        },
+        {
+            "Key": "asset-62fcfba188a1eb046a75ad88fe7f4876",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -484.0,
+                "y": 587.0,
+                "width": 343.0,
+                "height": 156.0
+            }
+        },
+        {
+            "Key": "asset-be5bf3b154e483949a332289958e979e",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -484.0,
+                "y": 400.0,
+                "width": 378.0,
+                "height": 156.0
+            }
+        },
+        {
+            "Key": "asset-6311ae22ce65782468eca6f6026f945a",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -973.0,
+                "y": 303.0,
+                "width": 326.0,
+                "height": 316.0
+            }
+        },
+        {
+            "Key": "asset-520073cf880455f48abd8a58f98d39f8",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -1473.0,
+                "y": -176.0,
+                "width": 338.0,
+                "height": 212.0
+            }
+        },
+        {
+            "Key": "asset-9cbe0d4cd27708e4db66ef2d7d707239",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -1383.0,
+                "y": 63.0,
+                "width": 323.0,
+                "height": 459.0
+            }
+        },
+        {
+            "Key": "asset-c0b2b38f2a39b7443bd18ab2364cc53f",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -1817.0,
+                "y": 63.0,
+                "width": 369.0,
+                "height": 204.0
+            }
         }
     ],
     "LooseAssetGuids": [],
     "ViewPosition": {
-        "x": 836.0,
-        "y": 158.0,
+        "x": 1101.0,
+        "y": 165.0,
         "z": 0.0
     },
     "ViewScale": {
-        "x": 0.49717673659324648,
-        "y": 0.49717673659324648,
+        "x": 0.5717532634735107,
+        "y": 0.5717532634735107,
         "z": 1.0
     }
 }

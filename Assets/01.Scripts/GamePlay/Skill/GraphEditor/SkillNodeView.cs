@@ -442,11 +442,11 @@ public sealed class SkillNodeView : Node
         foldout.style.marginRight = 4f;
         foldout.style.marginBottom = 4f;
 
-        List<EffectEntry> effects = GetEffectEntries();
+        List<EffectBase> effects = GetEffectEntries();
         int count = effects != null ? effects.Count : 0;
         for (int i = 0; i < count; i++)
         {
-            foldout.Add(CreateEffectEntryRow(i));
+            foldout.Add(CreateEffectSlotRow(i));
         }
 
         var appendRow = new VisualElement
@@ -460,7 +460,7 @@ public sealed class SkillNodeView : Node
             }
         };
 
-        var addButton = new Button(AddEmptyEffectEntry)
+        var addButton = new Button(AddEmptyEffectSlot)
         {
             text = "Add Effect"
         };
@@ -472,7 +472,7 @@ public sealed class SkillNodeView : Node
         extensionContainer.Add(foldout);
     }
 
-    private VisualElement CreateEffectEntryRow(int index)
+    private VisualElement CreateEffectSlotRow(int index)
     {
         var container = new VisualElement
         {
@@ -480,7 +480,7 @@ public sealed class SkillNodeView : Node
             {
                 marginTop = 2f,
                 marginBottom = 4f,
-                minHeight = 46f
+                minHeight = 24f
             }
         };
 
@@ -495,7 +495,7 @@ public sealed class SkillNodeView : Node
 
         effectRow.Add(CreateBodyInputPort(GetEffectSlotName(index), typeof(EffectBase), Port.Capacity.Single, "Effect " + (index + 1)));
 
-        var effectField = new IMGUIContainer(() => DrawEffectEntryProperty(index, "Effect", true))
+        var effectField = new IMGUIContainer(() => DrawEffectSlotProperty(index, true))
         {
             style =
             {
@@ -505,7 +505,7 @@ public sealed class SkillNodeView : Node
         };
         effectRow.Add(effectField);
 
-        var removeButton = new Button(() => RemoveEffectEntry(index))
+        var removeButton = new Button(() => RemoveEffectSlot(index))
         {
             text = "-"
         };
@@ -514,39 +514,7 @@ public sealed class SkillNodeView : Node
         removeButton.style.marginLeft = 4f;
         effectRow.Add(removeButton);
 
-        var chanceRow = new VisualElement
-        {
-            style =
-            {
-                flexDirection = FlexDirection.Row,
-                alignItems = Align.Center,
-                marginTop = 2f
-            }
-        };
-
-        var chanceSpacer = new VisualElement
-        {
-            style =
-            {
-                width = 76f,
-                flexShrink = 0f
-            }
-        };
-        chanceRow.Add(chanceSpacer);
-
-        var chanceField = new IMGUIContainer(() => DrawEffectEntryProperty(index, "Chance", false))
-        {
-            style =
-            {
-                flexGrow = 1f,
-                minHeight = 20f,
-                marginLeft = 4f
-            }
-        };
-        chanceRow.Add(chanceField);
-
         container.Add(effectRow);
-        container.Add(chanceRow);
         return container;
     }
 
@@ -611,9 +579,9 @@ public sealed class SkillNodeView : Node
                 DrawSerializedObject(Asset, "Effects", "VFX", "ProjectileData");
                 break;
             case SkillNodeKind.Effect:
-                if (IsExecutionEffectEntryNode())
+                if (IsExecutionEffectSlotNode())
                 {
-                    DrawEffectEntry();
+                    DrawEffectSlot();
                 }
                 else
                 {
@@ -631,15 +599,15 @@ public sealed class SkillNodeView : Node
         EditorGUIUtility.labelWidth = previousLabelWidth;
     }
 
-    private void DrawEffectEntry()
+    private void DrawEffectSlot()
     {
         if (_skill?.Execution == null || _skill.Execution.Effects == null || EffectIndex < 0 || EffectIndex >= _skill.Execution.Effects.Count)
         {
-            EditorGUILayout.HelpBox("Effect entry is missing.", MessageType.Warning);
+            EditorGUILayout.HelpBox("Effect slot is missing.", MessageType.Warning);
             return;
         }
 
-        EffectBase effect = _skill.Execution.Effects[EffectIndex].Effect;
+        EffectBase effect = _skill.Execution.Effects[EffectIndex];
         if (effect != null)
         {
             DrawSerializedObject(effect, "VFX", "Summon");
@@ -650,13 +618,13 @@ public sealed class SkillNodeView : Node
         }
     }
 
-    private void DrawEffectEntryProperty(int index, string relativePropertyName, bool structureChanged)
+    private void DrawEffectSlotProperty(int index, bool structureChanged)
     {
-        UnityEngine.Object owner = GetEffectEntryOwner();
-        List<EffectEntry> effects = GetEffectEntries();
+        UnityEngine.Object owner = GetEffectSlotOwner();
+        List<EffectBase> effects = GetEffectEntries();
         if (owner == null || effects == null || index < 0 || index >= effects.Count)
         {
-            EditorGUILayout.HelpBox("Effect entry is missing.", MessageType.Warning);
+            EditorGUILayout.HelpBox("Effect slot is missing.", MessageType.Warning);
             return;
         }
 
@@ -664,8 +632,7 @@ public sealed class SkillNodeView : Node
         serializedObject.Update();
 
         SerializedProperty effectsProperty = serializedObject.FindProperty("Effects");
-        SerializedProperty entryProperty = effectsProperty.GetArrayElementAtIndex(index);
-        SerializedProperty property = entryProperty.FindPropertyRelative(relativePropertyName);
+        SerializedProperty property = effectsProperty.GetArrayElementAtIndex(index);
         if (property == null)
         {
             serializedObject.ApplyModifiedProperties();
@@ -674,12 +641,12 @@ public sealed class SkillNodeView : Node
 
         EditorGUI.BeginChangeCheck();
         float previousLabelWidth = EditorGUIUtility.labelWidth;
-        EditorGUIUtility.labelWidth = relativePropertyName == "Chance" ? 54f : 44f;
+        EditorGUIUtility.labelWidth = 44f;
         EditorGUILayout.PropertyField(property, true);
         EditorGUIUtility.labelWidth = previousLabelWidth;
         if (EditorGUI.EndChangeCheck())
         {
-            Undo.RecordObject(owner, "Edit Effect Entry");
+            Undo.RecordObject(owner, "Edit Effect Slot");
             serializedObject.ApplyModifiedProperties();
             SkillGraphAssetUtility.MarkDirty(owner);
             OnAssetChanged?.Invoke(owner, structureChanged);
@@ -689,42 +656,42 @@ public sealed class SkillNodeView : Node
         serializedObject.ApplyModifiedProperties();
     }
 
-    private void AddEmptyEffectEntry()
+    private void AddEmptyEffectSlot()
     {
-        UnityEngine.Object owner = GetEffectEntryOwner();
+        UnityEngine.Object owner = GetEffectSlotOwner();
         if (owner == null)
         {
             return;
         }
 
-        Undo.RecordObject(owner, "Add Effect Entry");
-        List<EffectEntry> effects = EnsureEffectEntries();
+        Undo.RecordObject(owner, "Add Effect Slot");
+        List<EffectBase> effects = EnsureEffectEntries();
         if (effects == null)
         {
             return;
         }
 
-        effects.Add(new EffectEntry());
+        effects.Add(null);
         SkillGraphAssetUtility.MarkDirty(owner);
         OnRefreshRequested?.Invoke();
     }
 
-    private void RemoveEffectEntry(int index)
+    private void RemoveEffectSlot(int index)
     {
-        UnityEngine.Object owner = GetEffectEntryOwner();
-        List<EffectEntry> effects = GetEffectEntries();
+        UnityEngine.Object owner = GetEffectSlotOwner();
+        List<EffectBase> effects = GetEffectEntries();
         if (owner == null || effects == null || index < 0 || index >= effects.Count)
         {
             return;
         }
 
-        Undo.RecordObject(owner, "Remove Effect Entry");
+        Undo.RecordObject(owner, "Remove Effect Slot");
         effects.RemoveAt(index);
         SkillGraphAssetUtility.MarkDirty(owner);
         OnRefreshRequested?.Invoke();
     }
 
-    private UnityEngine.Object GetEffectEntryOwner()
+    private UnityEngine.Object GetEffectSlotOwner()
     {
         if (Asset is ExecutionSystemData || Asset is SummonData)
         {
@@ -734,7 +701,7 @@ public sealed class SkillNodeView : Node
         return null;
     }
 
-    private List<EffectEntry> GetEffectEntries()
+    private List<EffectBase> GetEffectEntries()
     {
         if (Asset is ExecutionSystemData execution)
         {
@@ -749,13 +716,13 @@ public sealed class SkillNodeView : Node
         return null;
     }
 
-    private List<EffectEntry> EnsureEffectEntries()
+    private List<EffectBase> EnsureEffectEntries()
     {
         if (Asset is ExecutionSystemData execution)
         {
             if (execution.Effects == null)
             {
-                execution.Effects = new List<EffectEntry>();
+                execution.Effects = new List<EffectBase>();
             }
 
             return execution.Effects;
@@ -765,7 +732,7 @@ public sealed class SkillNodeView : Node
         {
             if (summonData.Effects == null)
             {
-                summonData.Effects = new List<EffectEntry>();
+                summonData.Effects = new List<EffectBase>();
             }
 
             return summonData.Effects;
@@ -774,7 +741,7 @@ public sealed class SkillNodeView : Node
         return null;
     }
 
-    private bool IsExecutionEffectEntryNode()
+    private bool IsExecutionEffectSlotNode()
     {
         return Kind == SkillNodeKind.Effect && EffectIndex >= 0 && Key == "effect-" + EffectIndex;
     }

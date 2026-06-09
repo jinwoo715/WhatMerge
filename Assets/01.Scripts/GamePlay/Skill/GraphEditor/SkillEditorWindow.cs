@@ -161,23 +161,36 @@ public class SkillEditorWindow : EditorWindow
         palette.contentContainer.style.paddingTop = 8f;
         palette.contentContainer.style.paddingBottom = 8f;
 
+        var originPadding = new StyleLength(4);
+        var spacePadding = new StyleLength(4);
+
+
         AddPaletteHeader(palette, "Nodes");
         AddPaletteHeader(palette, "Execution");
-        AddPaletteButton<TargetMeleeAttack>(palette, "Single Target Melee");
-        AddPaletteButton<ConeMeleeAttack>(palette, "Cone Melee");
+        AddPaletteButton<MeleeAttackData>(palette, "Melee");
         AddPaletteButton<ProjectileSkill>(palette, "Projectile Attack");
 
         AddPaletteHeader(palette, "Target");
-        AddPaletteButton<Skill.Data.TargetData>(palette, "Target System");
+        AddPaletteButton<SelfTargetData>(palette, "Self");
+        AddPaletteButton<NearHeroTargetData>(palette, "NearHero");
+        AddPaletteButton<AllHeroTargetData>(palette, "AllHero");
+
+        AddPaletteButton<SingleEnemyTargetData>(palette, "SingleEnemy");
+        AddPaletteButton<ConeEnemyTargetData>(palette, "ConeEnemy");
+        AddPaletteButton<AllEnemyTargetData>(palette, "AllEnemy");
+        
 
         AddPaletteHeader(palette, "Trigger");
-        AddPaletteButton<TriggerData>(palette, "Trigger System");
+        AddPaletteButton<NoneTriggerData>(palette, "None Trigger");
+        AddPaletteButton<HitCountTriggerData>(palette, "HitCount Trigger");
+        AddPaletteButton<ManaTriggerData>(palette, "Mana Trigger");
 
         AddPaletteHeader(palette, "Effect");
         AddPaletteButton<DamageEffect>(palette, "Damage Effect");
         AddPaletteButton<BuffEffect>(palette, "Buff Effect");
         AddPaletteButton<DebuffEffect>(palette, "Debuff Effect");
         AddPaletteButton<AttributeEffect>(palette, "Status Effect");
+        AddPaletteButton<SummonEffect>(palette, "Summon Effect");
 
         AddPaletteHeader(palette, "Item");
         AddPaletteButton<ProjectileData>(palette, "Projectile");
@@ -186,26 +199,26 @@ public class SkillEditorWindow : EditorWindow
         AddPaletteHeader(palette, "VFX");
         AddPaletteButton<SkillVfxSystem>(palette, "Skill Visual");
 
-        var spacer = new VisualElement { style = { height = 16f } };
-        palette.Add(spacer);
+        //var spacer = new VisualElement { style = { height = 16f } };
+        //palette.Add(spacer);
 
-        _newSkillNameField = new TextField("Name")
-        {
-            value = _newSkillName
-        };
-        _newSkillNameField.labelElement.style.minWidth = 38f;
-        _newSkillNameField.labelElement.style.width = 38f;
-        _newSkillNameField.labelElement.style.marginRight = 2f;
-        _newSkillNameField.RegisterValueChangedCallback(evt => _newSkillName = evt.newValue);
-        palette.Add(_newSkillNameField);
+        //_newSkillNameField = new TextField("Name")
+        //{
+        //    value = _newSkillName
+        //};
+        //_newSkillNameField.labelElement.style.minWidth = 38f;
+        //_newSkillNameField.labelElement.style.width = 38f;
+        //_newSkillNameField.labelElement.style.marginRight = 2f;
+        //_newSkillNameField.RegisterValueChangedCallback(evt => _newSkillName = evt.newValue);
+        //palette.Add(_newSkillNameField);
 
-        var createButton = new Button(CreateActiveSkill)
-        {
-            text = "Create Active Skill"
-        };
-        createButton.style.height = 30f;
-        createButton.style.marginTop = 6f;
-        palette.Add(createButton);
+        //var createButton = new Button(CreateActiveSkill)
+        //{
+        //    text = "Create Active Skill"
+        //};
+        //createButton.style.height = 30f;
+        //createButton.style.marginTop = 6f;
+        //palette.Add(createButton);
 
         return palette;
     }

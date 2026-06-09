@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 925f7569eafe7b843a61c2f587db9dcd, type: 3}
   m_Name: Wizard_Junakrion_SummonEffect
   m_EditorClassIdentifier: 
-  EffectUID: 0
+  Chance: 1
   VFX: {fileID: 0}
-  Summon: {fileID: 11400000, guid: 5169c5c26898f6e48965ff4093159b8f, type: 2}
+  Summon: {fileID: 11400000, guid: f7aeb009ab125214e81ba2a7a08b32eb, type: 2}

@@ -45,7 +45,6 @@ namespace Skill.Projectile
             OnArriveTrigger = (context) => CheckTrigger(EProjectileEffectTrigger.OnArrive, context);
 
             _moveStretagy.OnArrived += OnArriveTrigger;
-
             _effectExecuter.SetData(soData.ResolveData, data);
         }
 
@@ -76,6 +75,7 @@ namespace Skill.Projectile
         public void OnDespawn()
         {
             IsActive = false;
+            _currentTime = 0;
             _moveStretagy.OnArrived -= OnArriveTrigger;
         }
         public void OnSpawn()

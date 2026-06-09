@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Wizard_Attack_Projectile
   m_EditorClassIdentifier: 
   Effects:
-  - Effect: {fileID: 11400000, guid: 99eaa801cd6e2aa458d20255ed2711ef, type: 2}
-    Chance: 1
+  - {fileID: 11400000, guid: 99eaa801cd6e2aa458d20255ed2711ef, type: 2}
   VFX: {fileID: 0}
-  ProjectileData: {fileID: 11400000, guid: ebf61edb37ea1394da23557814509c34, type: 2}
+  ProjectileData: {fileID: 11400000, guid: c6cfd3cf40808b64099da0761f1c67b5, type: 2}

@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83b791adccb755f4d8d81237b11e9ad7, type: 3}
   m_Name: Spearman_JavelinThrow_ProjectileData
   m_EditorClassIdentifier: 
-  SpriteName: 
-  MoveType: 0
-  Speed: 0
-  LifeTime: 0
-  EffectTrigger: 0
-  DestroyTrigger: 0
+  SpriteName: Spear
+  MoveType: 1
+  Speed: 4
+  LifeTime: 3
+  EffectTrigger: 2
+  DestroyTrigger: 2
   ResolveData:
     Type: 0
     Radius: 0

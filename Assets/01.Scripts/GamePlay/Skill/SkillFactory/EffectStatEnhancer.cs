@@ -15,7 +15,7 @@ namespace Skill.Data
 
         public void ApplySkill(ISkillModifier skill)
         {
-            skill.ModifyParam(Data.TargetEffect.EffectUID, Data.AddValue);
+            if (Data.TargetEffect != null) skill.ModifyParam(Data.TargetEffect, Data.AddValue);
         }
     }
 
@@ -30,7 +30,7 @@ namespace Skill.Data
 
         public void ApplySkill(ISkillModifier skill)
         {
-            skill.ModifyChance(Data.TargetEffect.EffectUID, Data.AddChance);
+            if (Data.TargetEffect != null) skill.ModifyChance(Data.TargetEffect, Data.AddChance);
         }
     }
 

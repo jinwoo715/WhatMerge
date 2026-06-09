@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Wizard_ShadowBeat_ProjectileSkill
   m_EditorClassIdentifier: 
   Effects:
-  - Effect: {fileID: 11400000, guid: 804f61aaa1adccf4cb28b814dd364a6c, type: 2}
-    Chance: 1
+  - {fileID: 11400000, guid: 804f61aaa1adccf4cb28b814dd364a6c, type: 2}
   VFX: {fileID: 0}
-  ProjectileData: {fileID: 11400000, guid: 1741196522833004e98e44c1e67be040, type: 2}
+  ProjectileData: {fileID: 11400000, guid: 5157371cd1525b44a8a4d9dbc7430fd3, type: 2}

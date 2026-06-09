@@ -20,6 +20,6 @@ MonoBehaviour:
     MotionName: Attack
     ReadyMotionTime: 0.2
     ExecutionMotionTime: 0.2
-  Execution: {fileID: 11400000, guid: 8208f864da30e104d9ec0b01088151c8, type: 2}
-  Target: {fileID: 11400000, guid: 391f511f57ae54048a3bd131383e2289, type: 2}
-  Trigger: {fileID: 11400000, guid: 57dbb908b6e9273498ed414a0bf9cc41, type: 2}
+  Execution: {fileID: 11400000, guid: 82f6b6fb14e26794ca4d6ffc70daca3b, type: 2}
+  Target: {fileID: 11400000, guid: 9799d8720638bb8499829a5a6895d687, type: 2}
+  Trigger: {fileID: 11400000, guid: 4ee9ba6a005e9f64380abdd42099db3e, type: 2}

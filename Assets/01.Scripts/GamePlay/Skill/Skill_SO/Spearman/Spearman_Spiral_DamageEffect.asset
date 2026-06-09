@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9d7858b2c150ac4599c4ae4e304bfef, type: 3}
   m_Name: Spearman_Spiral_DamageEffect
   m_EditorClassIdentifier: 
-  EffectUID: 0
+  Chance: 1
   VFX: {fileID: 0}
-  DamageRatio: 3.3
+  DamageRatio: 2.5

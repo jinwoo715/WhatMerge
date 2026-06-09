@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Bomber_TimeBomb_ProjectileSkill
   m_EditorClassIdentifier: 
   Effects:
-  - Effect: {fileID: 11400000, guid: 3998820c6c3cafd4baf2696be9bd43e7, type: 2}
-    Chance: 1
+  - {fileID: 11400000, guid: 3998820c6c3cafd4baf2696be9bd43e7, type: 2}
   VFX: {fileID: 0}
-  ProjectileData: {fileID: 11400000, guid: d6754d6e5a0022b4fbec84d3ac6bca68, type: 2}
+  ProjectileData: {fileID: 11400000, guid: 6311ae22ce65782468eca6f6026f945a, type: 2}

@@ -15,7 +15,7 @@ namespace Skill.Data {
         public TargetResolveData ResolveData;
         public SummonMove Move;
 
-        public List<EffectEntry> Effects;
+        public List<EffectBase> Effects;
     }
 
     [System.Serializable]

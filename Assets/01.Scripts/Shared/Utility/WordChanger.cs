@@ -11,7 +11,7 @@ public class WordChanger : EditorWindow
     private string _replaceWord;
     private string _path;
 
-    [MenuItem("Tools/Data/Map")]
+    [MenuItem("Tools/Data/WordChanger")]
     public static void WordChange()
     {
         var window = GetWindow<WordChanger>("WordChange");

@@ -7,5 +7,10 @@ namespace Skill.Data
     public class DamageEffect : EffectBase
     {
         public float DamageRatio;
+
+        public override void AddStat(float value)
+        {
+            DamageRatio += value;
+        }
     }
 }

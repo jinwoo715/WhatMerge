@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0573a7a9871ae0349851f0e4b44c1858, type: 3}
   m_Name: SkillSet_Spearman
   m_EditorClassIdentifier: 
-  UID: 4
+  UID: 3
   Sets:
   - Level: 0
     Skill: {fileID: 11400000, guid: de6452a51ca66914dbf6ff5b695310fa, type: 2}

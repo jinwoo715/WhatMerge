@@ -8,7 +8,7 @@ namespace Skill.Data
     public class PassiveSkillData : SkillBaseData
     {
         [Header("Å½»ö")]
-        public TargetData Target;
+        public HeroTargetData Target;
 
         [Header("È¿°ú")]
         public List<BuffData> Effects;

@@ -7,7 +7,7 @@
                 "x": 40.0,
                 "y": 160.0,
                 "width": 266.0,
-                "height": 336.0
+                "height": 396.0
             }
         },
         {
@@ -24,10 +24,10 @@
             "Key": "execution",
             "Position": {
                 "serializedVersion": "2",
-                "x": -520.0,
-                "y": 196.0,
-                "width": 319.0,
-                "height": 289.0
+                "x": -450.0,
+                "y": 228.0,
+                "width": 308.0,
+                "height": 247.0
             }
         },
         {
@@ -54,20 +54,20 @@
             "Key": "target",
             "Position": {
                 "serializedVersion": "2",
-                "x": -532.0,
-                "y": 554.0,
-                "width": 278.0,
-                "height": 176.0
+                "x": -450.0,
+                "y": 531.0,
+                "width": 344.0,
+                "height": 156.0
             }
         },
         {
             "Key": "trigger",
             "Position": {
                 "serializedVersion": "2",
-                "x": -520.0,
-                "y": 814.0,
-                "width": 295.0,
-                "height": 176.0
+                "x": -450.0,
+                "y": 706.0,
+                "width": 327.0,
+                "height": 156.0
             }
         },
         {
@@ -84,9 +84,9 @@
             "Key": "effect-0",
             "Position": {
                 "serializedVersion": "2",
-                "x": -942.0,
-                "y": 196.0,
-                "width": 374.0,
+                "x": -889.0,
+                "y": 223.0,
+                "width": 366.0,
                 "height": 212.0
             }
         },
@@ -104,10 +104,10 @@
             "Key": "effect-summon-0",
             "Position": {
                 "serializedVersion": "2",
-                "x": -1306.0,
-                "y": 196.0,
-                "width": 297.0,
-                "height": 361.0
+                "x": -1242.0,
+                "y": 206.0,
+                "width": 289.0,
+                "height": 459.0
             }
         },
         {
@@ -124,9 +124,9 @@
             "Key": "effect-summon-0::summon-effect::0",
             "Position": {
                 "serializedVersion": "2",
-                "x": -1668.0,
-                "y": 196.0,
-                "width": 301.0,
+                "x": -1642.0,
+                "y": 206.0,
+                "width": 323.0,
                 "height": 204.0
             }
         },
@@ -134,10 +134,10 @@
             "Key": "loose-c4bb0298f9d90064ca9b2e7efdfcc298",
             "Position": {
                 "serializedVersion": "2",
-                "x": 420.0,
-                "y": 90.0,
+                "x": -1173.0,
+                "y": 229.0,
                 "width": 289.0,
-                "height": 307.0
+                "height": 427.0
             }
         },
         {
@@ -169,6 +169,46 @@
                 "width": 301.0,
                 "height": 204.0
             }
+        },
+        {
+            "Key": "loose-a0235fef5b406b74c9d939b4d6e51a2a",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -1704.0,
+                "y": 261.0,
+                "width": 303.0,
+                "height": 224.0
+            }
+        },
+        {
+            "Key": "loose-93e0f5cec62efe6478506851b257adf6",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -414.0,
+                "y": 280.0,
+                "width": 308.0,
+                "height": 215.0
+            }
+        },
+        {
+            "Key": "loose-3936019b4a26f9645b88d5762fddc4cc",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -450.0,
+                "y": 531.0,
+                "width": 344.0,
+                "height": 156.0
+            }
+        },
+        {
+            "Key": "loose-74773ff1e6f6da54d805f14e159c9438",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -450.0,
+                "y": 706.0,
+                "width": 327.0,
+                "height": 156.0
+            }
         }
     ],
     "AssetPositions": [
@@ -179,7 +219,7 @@
                 "x": 40.0,
                 "y": 160.0,
                 "width": 266.0,
-                "height": 336.0
+                "height": 396.0
             }
         },
         {
@@ -189,7 +229,7 @@
                 "x": -520.0,
                 "y": 196.0,
                 "width": 319.0,
-                "height": 289.0
+                "height": 247.0
             }
         },
         {
@@ -209,16 +249,16 @@
                 "x": -520.0,
                 "y": 814.0,
                 "width": 295.0,
-                "height": 176.0
+                "height": 136.0
             }
         },
         {
             "Key": "asset-5c133f36ca9d92e4590e4e9f1a10d71a",
             "Position": {
                 "serializedVersion": "2",
-                "x": -942.0,
-                "y": 196.0,
-                "width": 374.0,
+                "x": -889.0,
+                "y": 223.0,
+                "width": 366.0,
                 "height": 212.0
             }
         },
@@ -236,8 +276,8 @@
             "Key": "asset-a816f9e8b942aa145826955837733eae",
             "Position": {
                 "serializedVersion": "2",
-                "x": -1656.0,
-                "y": 205.0,
+                "x": -1642.0,
+                "y": 206.0,
                 "width": 323.0,
                 "height": 204.0
             }
@@ -246,10 +286,10 @@
             "Key": "asset-c4bb0298f9d90064ca9b2e7efdfcc298",
             "Position": {
                 "serializedVersion": "2",
-                "x": 420.0,
-                "y": 90.0,
+                "x": -1242.0,
+                "y": 206.0,
                 "width": 289.0,
-                "height": 307.0
+                "height": 459.0
             }
         },
         {
@@ -259,7 +299,7 @@
                 "x": -1306.0,
                 "y": 196.0,
                 "width": 297.0,
-                "height": 361.0
+                "height": 459.0
             }
         },
         {
@@ -269,7 +309,7 @@
                 "x": -532.0,
                 "y": 554.0,
                 "width": 278.0,
-                "height": 176.0
+                "height": 136.0
             }
         },
         {
@@ -281,17 +321,57 @@
                 "width": 301.0,
                 "height": 204.0
             }
+        },
+        {
+            "Key": "asset-a0235fef5b406b74c9d939b4d6e51a2a",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -1711.0,
+                "y": 271.0,
+                "width": 334.0,
+                "height": 204.0
+            }
+        },
+        {
+            "Key": "asset-93e0f5cec62efe6478506851b257adf6",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -450.0,
+                "y": 228.0,
+                "width": 308.0,
+                "height": 247.0
+            }
+        },
+        {
+            "Key": "asset-3936019b4a26f9645b88d5762fddc4cc",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -450.0,
+                "y": 531.0,
+                "width": 344.0,
+                "height": 156.0
+            }
+        },
+        {
+            "Key": "asset-74773ff1e6f6da54d805f14e159c9438",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -450.0,
+                "y": 706.0,
+                "width": 327.0,
+                "height": 156.0
+            }
         }
     ],
     "LooseAssetGuids": [],
     "ViewPosition": {
-        "x": 1493.0,
-        "y": -41.0,
+        "x": 1343.0,
+        "y": 70.0,
         "z": 0.0
     },
     "ViewScale": {
-        "x": 0.8695651888847351,
-        "y": 0.8695651888847351,
+        "x": 0.7561436891555786,
+        "y": 0.7561436891555786,
         "z": 1.0
     }
 }

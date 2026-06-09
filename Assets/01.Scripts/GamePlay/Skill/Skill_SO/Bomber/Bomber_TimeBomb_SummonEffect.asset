@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 925f7569eafe7b843a61c2f587db9dcd, type: 3}
   m_Name: Bomber_TimeBomb_SummonEffect
   m_EditorClassIdentifier: 
-  EffectUID: 0
+  Chance: 1
   VFX: {fileID: 0}
-  Summon: {fileID: 11400000, guid: 17df668d37ec3e54b875fa35e07b8c6c, type: 2}
+  Summon: {fileID: 11400000, guid: 9cbe0d4cd27708e4db66ef2d7d707239, type: 2}

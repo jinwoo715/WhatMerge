@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Bomber_FlameBullet_AttributeEffect
   m_EditorClassIdentifier: 
   EffectUID: 0
+  Chance: 0.3
   VFX: {fileID: 0}
   Duration: 3
   Attribute: 1

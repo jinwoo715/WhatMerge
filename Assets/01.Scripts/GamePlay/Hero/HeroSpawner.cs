@@ -2,6 +2,7 @@ using Entity;
 using Heros;
 using Map;
 using Skill;
+using Skill.Data;
 using System;
 using System.Collections; 
 using System.Collections.Generic;
@@ -11,7 +12,10 @@ using UnityEngine.U2D;
 public class HeroSpawner : MonoBehaviour, IHeroSummonService
 {
     [Header("Mock")]
-    public Skill.Data.SkillSetContainer set;
+    public List<SkillSetContainer> sets;
+
+    private Dictionary<int, SkillSetContainer> dictionary = new Dictionary<int, SkillSetContainer>();
+
     public SkillFactory factory;
 
     [SerializeField] private Hero _heroPrefab;
@@ -36,6 +40,11 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
 
         _heroPool.OnCreateEvent += SpawnInit;
         _heroPool.Init(this.transform, _heroPrefab, 10);
+
+        foreach (var set in sets)
+        {
+            dictionary.Add(set.UID, set);
+        }
     }
     public bool TrySpawnRandomHero()
     {
@@ -98,7 +107,7 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
         hero.SetData(data, atkData, heroAtlas, saveData.Level);
         hero.SetEvolution(evolutionLevel);
 
-        var skillSet = factory.CreateSkill(hero, level, set);
+        var skillSet = factory.CreateSkill(hero, level, dictionary[hero.UID]);
 
         SkillController controller = new SkillController(skillSet.ActiveSkills, skillSet.PassiveSkills, hero, data.AS);
 

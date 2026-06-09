@@ -14,39 +14,39 @@
             "Key": "trigger",
             "Position": {
                 "serializedVersion": "2",
-                "x": -430.0,
-                "y": 324.0,
-                "width": 260.0,
-                "height": 176.0
+                "x": -353.0,
+                "y": 304.0,
+                "width": 347.0,
+                "height": 156.0
             }
         },
         {
             "Key": "execution",
             "Position": {
                 "serializedVersion": "2",
-                "x": -430.0,
-                "y": -248.0,
-                "width": 279.0,
-                "height": 289.0
+                "x": -353.0,
+                "y": -149.0,
+                "width": 328.0,
+                "height": 247.0
             }
         },
         {
             "Key": "target",
             "Position": {
                 "serializedVersion": "2",
-                "x": -430.0,
-                "y": 107.0,
-                "width": 272.0,
-                "height": 176.0
+                "x": -353.0,
+                "y": 117.0,
+                "width": 364.0,
+                "height": 156.0
             }
         },
         {
             "Key": "effect-0",
             "Position": {
                 "serializedVersion": "2",
-                "x": -869.0,
-                "y": -325.0,
-                "width": 260.0,
+                "x": -747.0,
+                "y": -185.0,
+                "width": 312.0,
                 "height": 204.0
             }
         },
@@ -109,6 +109,66 @@
                 "width": 315.0,
                 "height": 224.0
             }
+        },
+        {
+            "Key": "loose-056b601678e2cf448a254b994519d8fc",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -430.0,
+                "y": 114.0,
+                "width": 329.0,
+                "height": 156.0
+            }
+        },
+        {
+            "Key": "loose-b0908271f198d5d4d93336ca75c8e33f",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -353.0,
+                "y": -149.0,
+                "width": 328.0,
+                "height": 215.0
+            }
+        },
+        {
+            "Key": "loose-a64f459daff4cee4e97c8aac90e435fd",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -747.0,
+                "y": -185.0,
+                "width": 312.0,
+                "height": 204.0
+            }
+        },
+        {
+            "Key": "loose-d7ef278cee1b16846be2072b6d9ff19d",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -353.0,
+                "y": 125.0,
+                "width": 347.0,
+                "height": 156.0
+            }
+        },
+        {
+            "Key": "loose-77146eae4b5edb444b98240e56affbf1",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -353.0,
+                "y": 98.0,
+                "width": 317.0,
+                "height": 136.0
+            }
+        },
+        {
+            "Key": "loose-77020fc8edbad814882f9e2e4e1b1b3b",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -353.0,
+                "y": 98.0,
+                "width": 364.0,
+                "height": 156.0
+            }
         }
     ],
     "AssetPositions": [
@@ -139,7 +199,7 @@
                 "x": -430.0,
                 "y": -248.0,
                 "width": 279.0,
-                "height": 289.0
+                "height": 215.0
             }
         },
         {
@@ -177,9 +237,9 @@
             "Position": {
                 "serializedVersion": "2",
                 "x": -430.0,
-                "y": 324.0,
+                "y": 80.0,
                 "width": 260.0,
-                "height": 176.0
+                "height": 136.0
             }
         },
         {
@@ -231,17 +291,87 @@
                 "width": 260.0,
                 "height": 204.0
             }
+        },
+        {
+            "Key": "asset-c6d38f8ea1ff5dd4299b27280760511d",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -871.0,
+                "y": -330.0,
+                "width": 302.0,
+                "height": 204.0
+            }
+        },
+        {
+            "Key": "asset-056b601678e2cf448a254b994519d8fc",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -430.0,
+                "y": 114.0,
+                "width": 329.0,
+                "height": 156.0
+            }
+        },
+        {
+            "Key": "asset-b0908271f198d5d4d93336ca75c8e33f",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -353.0,
+                "y": -149.0,
+                "width": 328.0,
+                "height": 247.0
+            }
+        },
+        {
+            "Key": "asset-a64f459daff4cee4e97c8aac90e435fd",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -747.0,
+                "y": -185.0,
+                "width": 312.0,
+                "height": 204.0
+            }
+        },
+        {
+            "Key": "asset-d7ef278cee1b16846be2072b6d9ff19d",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -353.0,
+                "y": 304.0,
+                "width": 347.0,
+                "height": 156.0
+            }
+        },
+        {
+            "Key": "asset-77146eae4b5edb444b98240e56affbf1",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -353.0,
+                "y": 98.0,
+                "width": 317.0,
+                "height": 136.0
+            }
+        },
+        {
+            "Key": "asset-77020fc8edbad814882f9e2e4e1b1b3b",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -353.0,
+                "y": 117.0,
+                "width": 364.0,
+                "height": 156.0
+            }
         }
     ],
     "LooseAssetGuids": [],
     "ViewPosition": {
-        "x": 890.0,
-        "y": 379.0,
+        "x": 770.0,
+        "y": 146.0,
         "z": 0.0
     },
     "ViewScale": {
-        "x": 0.6575162410736084,
-        "y": 0.6575162410736084,
+        "x": 0.8695651888847351,
+        "y": 0.8695651888847351,
         "z": 1.0
     }
 }

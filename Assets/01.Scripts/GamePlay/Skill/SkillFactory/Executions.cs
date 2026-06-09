@@ -13,9 +13,6 @@ namespace Skill
     public interface IExecute
     {
         IEnumerator Execute(IReadOnlyList<Creature> targets);
-        void AddEffect(EffectEntry effectEntry);
-        void EnhanceValue(int index, float value);
-        void EnhanceChance(int index, float value);
     }
     public abstract class ExecutionBase : IExecute
     {
@@ -25,12 +22,13 @@ namespace Skill
         private ISpriteChanger _spriteChanger;
         protected readonly IVFXService _vfxService;
         protected readonly ICombatService _attackRegister;
-        protected readonly List<EffectEntry> ExtraEffects = new List<EffectEntry>();
+        protected readonly List<EffectBase> Effects = new List<EffectBase>();
 
         public ExecutionBase(ActiveSkillContext activeContext, SkillCommonContext commonContext)
         {
             _executionSystem = activeContext.System;
             _animaData = activeContext.AnimationData;
+            Effects = activeContext.RuntimeEffects;
             _owner = activeContext.Hero;
             _spriteChanger = _owner.SpriteChanger;
             _attackRegister = commonContext.CombatService;
@@ -54,27 +52,15 @@ namespace Skill
         {
             _spriteChanger.SetIdle();
         }
-        public void AddEffect(EffectEntry effectEntry)
-        {
-            ExtraEffects.Add(effectEntry);
-        }
-        public void EnhanceValue(int index, float value)
-        {
-
-        }
-        public void EnhanceChance(int index, float value)
-        {
-
-        }
     }
-    public class TargetMeleeExecution : ExecutionBase
+
+    //단일 적용
+    public class MeleeExecution : ExecutionBase
     {
-        public TargetMeleeExecution(ActiveSkillContext activeContext, SkillCommonContext commonContext) : base(activeContext, commonContext) { }
+        public MeleeExecution(ActiveSkillContext activeContext, SkillCommonContext commonContext) : base(activeContext, commonContext) { }
         public override IEnumerator Execute(IReadOnlyList<Creature> targets)
         {
             yield return SetReadyMotion();
-
-            ICreature target = targets[0] as ICreature;
 
             yield return SetExecutionMotion();
 
@@ -87,73 +73,22 @@ namespace Skill
             int ratioPenetration = (int)stat.GetStat(EHeroStat.RatioPenetration);
 
             AttackPayload attackPayload = new AttackPayload(damage, fixPenetration, ratioPenetration);
-            DamageContext dc = new DamageContext(attackPayload, target, _owner);
 
-            dc.skillEffects = EffectRoller.GetConfirmEffects(_executionSystem.Effects);
-
-            _attackRegister.RegisterAttack(dc);
-
-            SetIdleMotion();
-        }
-    }
-    public class ConeMeleeExecution : ExecutionBase
-    {
-        private float _angle;
-        public ConeMeleeExecution(ActiveSkillContext activeContext, SkillCommonContext commonContext) : base(activeContext, commonContext)
-        {
-            if (_executionSystem is ConeMeleeAttack cone)
+            foreach (var target in targets)
             {
-                _angle = cone.Angle;
-            }
-            else
-            {
-                Debug.LogError($"Not Match Type {_executionSystem}");
-            }
-        }
-
-        public override IEnumerator Execute(IReadOnlyList<Creature> targets)
-        {
-            yield return SetReadyMotion();
-
-            IDamageable target = SearchUtility.GetNearestTarget<IDamageable>(targets, _owner.Position);
-
-            Vector3 dir = (target.Position - _owner.Position).normalized;
-
-            List<IDamageable> resultTargets = SearchUtility.GetConeTargets<IDamageable>(targets, _owner.Position, dir, _angle);
-
-            yield return SetExecutionMotion();
-
-            if (_executionSystem.VFX)
-                _vfxService.ShowVFX(_executionSystem.VFX);
-
-            var stat = _owner.StatReadOnly;
-            int damage = (int)stat.GetStat(EHeroStat.Damage);
-            int fixPenetration = (int)stat.GetStat(EHeroStat.FixPenetration);
-            int ratioPenetration = (int)stat.GetStat(EHeroStat.RatioPenetration);
-
-            Debug.Log(_executionSystem.Effects.Count);
-
-            foreach (var enemy in resultTargets)
-            {
-                AttackPayload attackPayload = new AttackPayload(damage, fixPenetration, ratioPenetration);
-                DamageContext dc = new DamageContext(attackPayload, enemy, _owner);
-
-                foreach (var effect in _executionSystem.Effects)
-                {
-                    int chance = Random.Range(0, 1);
-
-                    if (effect.Chance >= chance)
-                    {
-                        dc.RegisterEffect(effect.Effect);
-                    }
-                }
-
+                ICreature creature = target as ICreature;
+                DamageContext dc = new DamageContext(attackPayload, creature, _owner);
+                dc.skillEffects = EffectRoller.GetConfirmEffects(Effects);
                 _attackRegister.RegisterAttack(dc);
             }
 
             SetIdleMotion();
         }
     }
+
+    //연속 적용
+
+    //투사체 적용
     public class TargetProjectile : ExecutionBase
     {
         private IProjectileProvider _projectile;
@@ -178,41 +113,12 @@ namespace Skill
             SkillPayload context = new SkillPayload();
             context.Attacker = _owner;
             context.Target = target;
-            context.effects = EffectRoller.GetConfirmEffects(_executionSystem.Effects);
+            context.effects = EffectRoller.GetConfirmEffects(Effects);
 
             int damage = Mathf.RoundToInt(_owner.GetStat(EAttackStatType.Damage));
             context.payLoad = new AttackPayload(damage, 0, 0);
 
             _projectile.SpawnProjectile(projectile, context);
-
-            SetIdleMotion();
-        }
-    }
-    public class SummonExecution : ExecutionBase
-    {
-        public SummonExecution(ActiveSkillContext activeContext, SkillCommonContext commonContext) : base(activeContext, commonContext) { }
-        public override IEnumerator Execute(IReadOnlyList<Creature> targets)
-        {
-            yield return SetReadyMotion();
-
-            IDamageable target = SearchUtility.GetNearestTarget<IDamageable>(targets, _owner.Position);
-
-            yield return SetExecutionMotion();
-
-            if (_executionSystem.VFX)
-                _vfxService.ShowVFX(_executionSystem.VFX);
-
-            var stat = _owner.StatReadOnly;
-            int damage = (int)stat.GetStat(EHeroStat.Damage);
-            int fixPenetration = (int)stat.GetStat(EHeroStat.FixPenetration);
-            int ratioPenetration = (int)stat.GetStat(EHeroStat.RatioPenetration);
-
-            AttackPayload attackPayload = new AttackPayload(damage, fixPenetration, ratioPenetration);
-            DamageContext dc = new DamageContext(attackPayload, target, _owner);
-
-            dc.skillEffects = EffectRoller.GetConfirmEffects(_executionSystem.Effects);
-
-            _attackRegister.RegisterAttack(dc);
 
             SetIdleMotion();
         }

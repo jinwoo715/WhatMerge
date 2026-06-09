@@ -36,13 +36,134 @@ namespace Skill
         public Hero Hero { get; }
         public SkillAnimationData AnimationData { get; }
         public ExecutionSystemData System { get; }
-        public ActiveSkillContext(Hero hero, SkillAnimationData animationData, ExecutionSystemData system)
+        public List<EffectBase> RuntimeEffects { get; }
+        public ActiveSkillContext(Hero hero, SkillAnimationData animationData, ExecutionSystemData system, List<EffectBase> effects)
         {
             Hero = hero;
             AnimationData = animationData;
             System = system;
+            RuntimeEffects = effects;
         }
     }
+
+    public class RuntimeSkillBuild
+    {
+        public ActiveSkillData SourceSkill;
+        public ActiveSkill Skill;
+        public List<EffectBase> Effects = new List<EffectBase>();
+        public List<RuntimeEffectSlot> Slots = new List<RuntimeEffectSlot>();
+        private readonly Dictionary<int, SummonEffect> _writableSummons = new Dictionary<int, SummonEffect>();
+
+        public void SetEffects(List<EffectBase> effects)
+        {
+            Effects = effects;
+
+            for (int i = 0; i < effects.Count; i++)
+            {
+                int rootIndex = i;
+                EffectBase rootEffect = Effects[rootIndex];
+
+                AddRootSlot(rootIndex, rootEffect);
+
+                if(rootEffect is SummonEffect summonEffect)
+                {
+                    AddSummonSlots(rootIndex, summonEffect);
+                }
+
+                var slot = new RuntimeEffectSlot(Effects[i]);
+                slot.Replace = (effect) => ReplaceEffect(rootIndex, effect);
+                Slots.Add(slot);
+            }
+        }
+
+        private void AddSummonSlots(int rootIndex, SummonEffect summonEffect)
+        {
+            if (summonEffect.Summon?.Effects == null)
+                return;
+
+            var effects = summonEffect.Summon.Effects;
+            for (int i = 0; i < effects.Count; i++)
+            {
+                int innerIndex = i;
+                EffectBase innerEffect = effects[innerIndex];
+
+                var slot = new RuntimeEffectSlot(innerEffect);
+                slot.Replace = copiedEffect =>
+                {
+                    SummonEffect writableSummonEffect = EnsureWritableSummonEffect(rootIndex);
+                    writableSummonEffect.Summon.Effects[innerIndex] = copiedEffect;
+                };
+
+                Slots.Add(slot);
+            }
+        }
+
+        private SummonEffect EnsureWritableSummonEffect(int rootIndex)
+        {
+            if (_writableSummons.TryGetValue(rootIndex, out var cached))
+                return cached;
+
+            SummonEffect current = Effects[rootIndex] as SummonEffect;
+
+            if (current == null || current.Summon == null)
+                return null;
+
+            SummonEffect copiedSummonEffect = UnityEngine.Object.Instantiate(current);
+
+            SummonData copiedSummonData = UnityEngine.Object.Instantiate(current.Summon);
+            copiedSummonData.Effects = new List<EffectBase>(current.Summon.Effects);
+
+            copiedSummonEffect.Summon = copiedSummonData;
+            Effects[rootIndex] = copiedSummonEffect;
+
+            _writableSummons.Add(rootIndex, copiedSummonEffect);
+            return copiedSummonEffect;
+        }
+
+        private void AddRootSlot(int index, EffectBase effect)
+        {
+            var slot = new RuntimeEffectSlot(effect);
+            slot.Replace = copiedEffect => Effects[index] = copiedEffect;
+            Slots.Add(slot);
+        }
+
+        public void ExtraEffect(EffectBase effectBase)
+        {
+            int index = Effects.Count;
+            var slot = new RuntimeEffectSlot(effectBase);
+            slot.Replace = (effect) => ReplaceEffect(index, effect);
+            Slots.Add(slot);
+            Effects.Add(effectBase);
+        }
+        public void ReplaceEffect(int index, EffectBase effect)
+        {
+            Effects[index] = effect;
+        }
+    }
+    public class RuntimeEffectSlot
+    {
+        public Action<EffectBase> Replace;
+
+        public EffectBase Original;
+        public EffectBase Current;
+
+        public RuntimeEffectSlot(EffectBase effectBase)
+        {
+            Original = effectBase;
+        }
+
+        public EffectBase GetWritableEffect()
+        {
+            if(Current == null)
+            {
+                Current = UnityEngine.Object.Instantiate(Original);
+                Replace(Current);
+            }
+
+            return Current;
+        }
+    }
+
     public class SkillFactory
     {
         private SkillCommonContext _skillExecutionService;
@@ -57,28 +178,36 @@ namespace Skill
 
             SkillSet skillSet = new SkillSet();
 
-            Dictionary<int, ISkillModifier> gets = new Dictionary<int, ISkillModifier>();
+            Dictionary<ActiveSkillData, RuntimeSkillBuild> datas = new Dictionary<ActiveSkillData, RuntimeSkillBuild>();
 
-            Queue<EffectStatEnhancer> statEnhancers = new Queue<EffectStatEnhancer>();
             Queue<EffectStatEnhanceData> statEnhancerDatas = new Queue<EffectStatEnhanceData>();
-            Queue<EffectChanceEnhancer> chanceEnhancers = new Queue<EffectChanceEnhancer>();
-            Queue<ExtraEffect> effects = new Queue<ExtraEffect>();
+            Queue<EffectChanceEnhanceData> chanceEnhancers = new Queue<EffectChanceEnhanceData>();
+            Queue<ExtraEffectData> effects = new Queue<ExtraEffectData>();
 
             foreach (var data in sets)
             {
                 var Skill = data.Skill;
-
-                Debug.Log(Skill.UID);
+                Debug.Log(Skill.name);
 
                 switch (Skill.SkillType)
                 {
                     case ESkillType.Active:
                         ActiveSkillData so = Skill as ActiveSkillData;
-                        ActiveSkill skill = CreateActiveSkill(so, owner);
 
+                        Debug.Log(so);
+                        Debug.Log(so.Execution);
+                        Debug.Log(so.Execution.Effects);
+                        var runtimeEffects = new List<EffectBase>(so.Execution.Effects);
+
+                        ActiveSkill skill = CreateActiveSkill(so, owner, runtimeEffects);
                         skillSet.ActiveSkills.Add(skill);
 
-                        gets.Add(so.UID, skill);
+                        RuntimeSkillBuild runtimeSkillBuild = new RuntimeSkillBuild();
+                        runtimeSkillBuild.SetEffects(runtimeEffects);
+                        runtimeSkillBuild.Skill = skill;
+                        runtimeSkillBuild.SourceSkill = so;
+
+                        datas.Add(so, runtimeSkillBuild);
 
                         break;
                     case ESkillType.Passive:
@@ -94,66 +223,81 @@ namespace Skill
                     case ESkillType.SkillStatEnhancer:
 
                         EffectStatEnhanceData skillEnhancerData = Skill as EffectStatEnhanceData;
-                        EffectStatEnhancer statEnhancer = new EffectStatEnhancer(skillEnhancerData);
                         statEnhancerDatas.Enqueue(skillEnhancerData);
-                        statEnhancers.Enqueue(statEnhancer);
 
                         break;
 
                     case ESkillType.SkillChanceEnhancer:
 
                         EffectChanceEnhanceData skillChanceData = Skill as EffectChanceEnhanceData;
-                        EffectChanceEnhancer statChanceEnhancer = new EffectChanceEnhancer(skillChanceData);
-                        chanceEnhancers.Enqueue(statChanceEnhancer);
+                        chanceEnhancers.Enqueue(skillChanceData);
 
                         break;
 
                     case ESkillType.ExtraEffect:
 
                         ExtraEffectData entry = (Skill as ExtraEffectData);
-                        ExtraEffect extraEffect = new ExtraEffect(entry);
-
-                        effects.Enqueue(extraEffect);
+                        effects.Enqueue(entry);
 
                         break;
                 }
             }
 
-            foreach (var statAdder in statEnhancers)
+            //TODO
+
+            foreach (var statAdder in statEnhancerDatas)
             {
-                if(gets.TryGetValue(statAdder.Data.UID, out ISkillModifier skill))
+                if (datas.TryGetValue(statAdder.TargetSkill, out var skills))
                 {
-                    statAdder.ApplySkill(skill);
-                    Debug.Log("Stat Add");
+                    foreach (var slot in skills.Slots)
+                    {
+                        if(statAdder.TargetEffect == slot.Original)
+                        {
+                            var effect = slot.GetWritableEffect();
+
+                            effect.AddStat(statAdder.AddValue);
+
+                            break;
+                        }
+                    }
                 }
             }
 
             foreach (var chacneAdder in chanceEnhancers)
             {
-                if (gets.TryGetValue(chacneAdder.Data.UID, out ISkillModifier skill))
+                if (datas.TryGetValue(chacneAdder.TargetSkill, out var skills))
                 {
-                    chacneAdder.ApplySkill(skill);
-                    Debug.Log("Chance Add");
+                    foreach (var slot in skills.Slots)
+                    {
+                        if (chacneAdder.TargetEffect == slot.Original)
+                        {
+                            var effect = slot.GetWritableEffect();
+
+                            effect.AddChance(chacneAdder.AddChance);
+
+                            break;
+                        }
+                    }
                 }
             }
+
             foreach (var extra in effects)
             {
-                if (gets.TryGetValue(extra.EffectEntry.TargetSkill.UID, out ISkillModifier skill))
+                if (datas.TryGetValue(extra.TargetSkill, out RuntimeSkillBuild skills))
                 {
-                    extra.ApplySkill(skill);
+                    skills.ExtraEffect(extra.Effect);
                     Debug.Log("Extra");
                 }
             }
-    
 
             return skillSet;
         }
-        private ActiveSkill CreateActiveSkill(ActiveSkillData skillSO, Hero owner)
+        private ActiveSkill CreateActiveSkill(ActiveSkillData skillSO, Hero owner, List<EffectBase> effects)
         {
             ITrigger trigger = GetTrigger(skillSO.Trigger);
             ITarget target = GetTarget(skillSO.Target, owner);
 
-            ActiveSkillContext executionService = new ActiveSkillContext(owner, skillSO.AnimationData, skillSO.Execution);
+            ActiveSkillContext executionService = new ActiveSkillContext(owner, skillSO.AnimationData, skillSO.Execution, effects);
             IExecute execution = GetExecution(executionService);
             
             ActiveSkill activeSkill = new ActiveSkill(skillSO.UID, owner, trigger, target, execution);
@@ -162,35 +306,27 @@ namespace Skill
         }
         public ITrigger GetTrigger(TriggerData system)
         {
-            int value = system.RequireCost;
-            switch (system.TriggerType)
+            return system switch
             {
-                case ESkillTriggerType.None:
-                    return new NoneRequire();
-                case ESkillTriggerType.HitCount:
-                    return new HitCountRequire(value);
-                case ESkillTriggerType.Mana:
-                    return new ManaRequire(value);
-            }
-            return default;
+                NoneTriggerData => new NoneRequire(),
+                HitCountTriggerData hitCount => new HitCountRequire(hitCount.HitCount),
+                ManaTriggerData mana => new ManaRequire(mana.Mana),
+                _ => null,
+            };
         }
+
         private ITarget GetTarget(TargetData system, Hero owner)
         {
-            switch (system.TargetType)
+            return system switch
             {
-                case ESkillTargetType.Self:
-                    return new SelfTargetFinder(owner);
-                case ESkillTargetType.NearHeros:
-                    return new NearHeroFinder(_skillExecutionService.FieldHeroService, owner, system.Radius);
-                case ESkillTargetType.AllHeros:
-                    return new AllHeroFinder(_skillExecutionService.FieldHeroService);
-                case ESkillTargetType.NearEnemies:
-                    return new NearEnemyFinder(owner, system.Radius);
-                case ESkillTargetType.AllEnemies:
-                    return new AllEnemyFinder(_skillExecutionService.FieldEnemyService);
-            }
-
-            return null;
+                SelfTargetData => new SelfTargetFinder(owner),
+                NearHeroTargetData near => new NearHeroFinder(_skillExecutionService.FieldHeroService, owner, (int)near.TargetRange),
+                AllHeroTargetData => new AllHeroFinder(_skillExecutionService.FieldHeroService),
+                SingleEnemyTargetData near => new SingleEnemyFinder(owner.transform, near.Radius),
+                ConeEnemyTargetData coneNear => new ConeEnemyFinder(owner.transform, coneNear.Radius, coneNear.Angle),
+                AllEnemyTargetData => new AllEnemyFinder(_skillExecutionService.FieldEnemyService),
+                _=> null
+            };
         }
 
         //TODO 스킬 생성 수정
@@ -199,13 +335,9 @@ namespace Skill
             string name = string.Empty;
 
             string skillName = executionService.System.name;
-            if (skillName.Contains("TargetMelee"))
+            if (skillName.Contains("MeleeAttack"))
             {
-                name = "Skill.TargetMeleeExecution";
-            }
-            else if (skillName.Contains("ConeMelee"))
-            {
-                name = "Skill.ConeMeleeExecution";
+                name = "Skill.MeleeExecution";
             }
             else if (skillName.Contains("Projectile"))
             {
@@ -233,22 +365,14 @@ namespace Skill
         private PassiveSkill CreatePassiveSkill(PassiveSkillData passiveSkillSO, Hero owner)
         {
             var effects = passiveSkillSO.Effects;
-            switch (passiveSkillSO.Target.TargetType)
+
+            return passiveSkillSO.Target switch
             {
-                case ESkillTargetType.Self:
-                    return new SelfBuffPassive(owner, effects);
-                case ESkillTargetType.NearHeros:
-                    return new NearHeroBuffPassive(_skillExecutionService.FieldHeroService, owner, effects);
-                case ESkillTargetType.AllHeros:
-                    return new AllHeroBuffPassive(_skillExecutionService.FieldHeroService, owner, effects);
-                case ESkillTargetType.NearEnemies:
-                    break;
-                case ESkillTargetType.AllEnemies:
-                    break;
-                default:
-                    break;
-            }
-            return null;
+                SelfTargetData => new SelfBuffPassive(owner, effects),
+                NearHeroTargetData => new NearHeroBuffPassive(_skillExecutionService.FieldHeroService, owner, effects),
+                AllHeroTargetData => new AllHeroBuffPassive(_skillExecutionService.FieldHeroService, owner, effects),
+                _ => null
+            };
         }
     }
 }

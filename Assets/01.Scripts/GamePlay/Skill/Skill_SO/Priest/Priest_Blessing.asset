@@ -20,6 +20,6 @@ MonoBehaviour:
     MotionName: Blessing
     ReadyMotionTime: 0.2
     ExecutionMotionTime: 0.4
-  Execution: {fileID: 11400000, guid: 62ec2b4d3cf28bf469e26ea583d8c07a, type: 2}
-  Target: {fileID: 11400000, guid: 1fdf1cb4b58681b459a185e0e86b5c96, type: 2}
-  Trigger: {fileID: 11400000, guid: 16b1187c07e0adf47b9b0d9b80f83b97, type: 2}
+  Execution: {fileID: 11400000, guid: 99e0eae4d0a0e8c45889399bdfd3083d, type: 2}
+  Target: {fileID: 11400000, guid: 65c941fc84b206e46a77fb8357036bc3, type: 2}
+  Trigger: {fileID: 11400000, guid: 480e381fc83e5824cbe90dfa59c75cd3, type: 2}

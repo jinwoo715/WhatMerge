@@ -7,7 +7,7 @@
                 "x": 107.0,
                 "y": 98.0,
                 "width": 266.0,
-                "height": 336.0
+                "height": 396.0
             }
         },
         {
@@ -26,8 +26,8 @@
                 "serializedVersion": "2",
                 "x": -550.0,
                 "y": 102.0,
-                "width": 377.0,
-                "height": 351.0
+                "width": 437.0,
+                "height": 307.0
             }
         },
         {
@@ -46,7 +46,7 @@
                 "serializedVersion": "2",
                 "x": -1117.0,
                 "y": 295.0,
-                "width": 346.0,
+                "width": 330.0,
                 "height": 316.0
             }
         },
@@ -125,19 +125,49 @@
             "Position": {
                 "serializedVersion": "2",
                 "x": -550.0,
-                "y": 477.0,
-                "width": 331.0,
-                "height": 176.0
+                "y": 416.0,
+                "width": 383.0,
+                "height": 156.0
             }
         },
         {
             "Key": "trigger",
             "Position": {
                 "serializedVersion": "2",
-                "x": -553.0,
-                "y": 653.0,
-                "width": 334.0,
-                "height": 176.0
+                "x": -550.0,
+                "y": 572.0,
+                "width": 366.0,
+                "height": 156.0
+            }
+        },
+        {
+            "Key": "loose-53dfec77ce98f464ba722c02f670a486",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -550.0,
+                "y": 567.0,
+                "width": 366.0,
+                "height": 156.0
+            }
+        },
+        {
+            "Key": "loose-54914934a3e9b6e4ca97081d080c2230",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -550.0,
+                "y": 411.0,
+                "width": 383.0,
+                "height": 156.0
+            }
+        },
+        {
+            "Key": "loose-1c26c9a278076764eace3b047468fe57",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -1117.0,
+                "y": 295.0,
+                "width": 330.0,
+                "height": 316.0
             }
         }
     ],
@@ -149,7 +179,7 @@
                 "x": 107.0,
                 "y": 98.0,
                 "width": 266.0,
-                "height": 336.0
+                "height": 396.0
             }
         },
         {
@@ -158,8 +188,8 @@
                 "serializedVersion": "2",
                 "x": -550.0,
                 "y": 102.0,
-                "width": 377.0,
-                "height": 351.0
+                "width": 437.0,
+                "height": 307.0
             }
         },
         {
@@ -219,19 +249,49 @@
                 "x": -553.0,
                 "y": 653.0,
                 "width": 334.0,
-                "height": 176.0
+                "height": 136.0
+            }
+        },
+        {
+            "Key": "asset-53dfec77ce98f464ba722c02f670a486",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -550.0,
+                "y": 572.0,
+                "width": 366.0,
+                "height": 156.0
+            }
+        },
+        {
+            "Key": "asset-54914934a3e9b6e4ca97081d080c2230",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -550.0,
+                "y": 416.0,
+                "width": 383.0,
+                "height": 156.0
+            }
+        },
+        {
+            "Key": "asset-1c26c9a278076764eace3b047468fe57",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -1117.0,
+                "y": 295.0,
+                "width": 330.0,
+                "height": 316.0
             }
         }
     ],
     "LooseAssetGuids": [],
     "ViewPosition": {
-        "x": 1211.0,
-        "y": 222.0,
+        "x": 1175.0,
+        "y": 18.0,
         "z": 0.0
     },
     "ViewScale": {
-        "x": 0.5717532634735107,
-        "y": 0.5717532634735107,
+        "x": 0.7561436891555786,
+        "y": 0.7561436891555786,
         "z": 1.0
     }
 }

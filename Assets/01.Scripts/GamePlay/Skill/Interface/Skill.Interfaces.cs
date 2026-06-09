@@ -10,9 +10,9 @@ namespace Skill
     }
     public interface ISkillModifier
     {
-        public void ModifyParam(int effectIndex, float value);
-        public void ModifyChance(int effectIndex, float value);
-        public void AddEffect(EffectEntry effect);
+        public void ModifyParam(EffectBase targetEffect, float value);
+        public void ModifyChance(EffectBase targetEffect, float value);
+        public void AddEffect(EffectBase effect);
     }
     public interface IActiveSkill : ISkill, ISkillModifier
     {

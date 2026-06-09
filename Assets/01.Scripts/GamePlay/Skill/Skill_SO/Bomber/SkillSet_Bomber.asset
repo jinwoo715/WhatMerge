@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0573a7a9871ae0349851f0e4b44c1858, type: 3}
   m_Name: SkillSet_Bomber
   m_EditorClassIdentifier: 
-  UID: 1
+  UID: 8
   Sets:
   - Level: 0
     Skill: {fileID: 11400000, guid: 51fc8b382821cc740b38e9039a395162, type: 2}

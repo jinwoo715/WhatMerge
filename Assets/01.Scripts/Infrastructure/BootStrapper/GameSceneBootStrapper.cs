@@ -104,7 +104,7 @@ namespace Core.BootStrapper
 
             //TODO
             #region Test
-            _skillExecutionService = new SkillCommonContext(_projectileSpawner, _summonSpawner, _vfxSpawner, _battleManager, _buff, _heroController, _fieldEnemyService);
+            _skillExecutionService = new SkillCommonContext(_projectileSpawner, _battleManager, _heroController, _fieldEnemyService);
             _skillFactory.Init(_skillExecutionService);
             _heroSpawner.factory = _skillFactory;
 

@@ -7,49 +7,10 @@ namespace Skill.Data
     public class SkillEnhancer : SkillBaseData
     {
         [Header("강화될 스킬")]
-        public SkillBaseData TargetSkill;
+        public ActiveSkillData TargetSkill;
 
-        public List<EffectEntry> EffectEntries;
-
-        public int SelectEffectIndex;
-
-#if UNITY_EDITOR
-        [SerializeField, HideInInspector]
-        private SkillBaseData _cachedTargetSkill;
-
-        private void OnValidate()
-        {
-            if (TargetSkill == _cachedTargetSkill)
-                return;
-
-            _cachedTargetSkill = TargetSkill;
-
-            CopyEffectEntriesFromTargetSkill();
-        }
-
-        private void CopyEffectEntriesFromTargetSkill()
-        {
-            EffectEntries.Clear();
-
-            if (TargetSkill == null)
-                return;
-
-            if(TargetSkill is ActiveSkillData skill)
-            {
-                foreach (EffectEntry entry in skill.Execution.Effects)
-                {
-                    if (entry == null)
-                        continue;
-
-                    EffectEntries.Add(new EffectEntry
-                    {
-                        Effect = entry.Effect,
-                        Chance = entry.Chance
-                    });
-                }
-            }
-        }
-#endif
+        [Header("강화 효과")]
+        public EffectBase TargetEffect;
     }
 
 

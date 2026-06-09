@@ -30,20 +30,21 @@ namespace Skill
         }
         public IEnumerator Execute()
         {
+       
             IReadOnlyList<Creature> Targets = Search.GetTargets(_owner.Position);
             yield return Execution.Execute(Targets);
         }
-        public void ModifyParam(int effectIndex, float value)
+        public void ModifyParam(EffectBase targetEffect, float value)
         {
-           
+            //Execution.EnhanceValue(targetEffect, value);
         }
-        public void ModifyChance(int effectIndex, float value)
+        public void ModifyChance(EffectBase targetEffect, float value)
         {
-            
+            //Execution.EnhanceChance(targetEffect, value);
         }
-        public void AddEffect(EffectEntry effect)
+        public void AddEffect(EffectBase effect)
         {
-            Execution.AddEffect(effect);
+            //Execution.AddEffect(effect);
         }
     }
 }

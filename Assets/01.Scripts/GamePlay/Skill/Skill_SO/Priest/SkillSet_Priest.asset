@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0573a7a9871ae0349851f0e4b44c1858, type: 3}
   m_Name: SkillSet_Priest
   m_EditorClassIdentifier: 
-  UID: 1
+  UID: 10
   Sets:
   - Level: 0
     Skill: {fileID: 11400000, guid: bd1a72ce1a93808429599b20dad4e1d9, type: 2}

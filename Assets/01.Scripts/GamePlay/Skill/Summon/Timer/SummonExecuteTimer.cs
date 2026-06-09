@@ -9,6 +9,7 @@ namespace Skill.Summon
         private float _lifeTime;
         private SummonApplyTiming _applyTiming;
         private float _currentTime;
+        private float _nextApplyTime;
         private bool _isApplied;
 
         public event Action OnExecute;
@@ -19,6 +20,7 @@ namespace Skill.Summon
             _lifeTime = lifeTime;
             _currentTime = 0;
             _applyTiming = applyTiming;
+            _nextApplyTime = _applyTiming.Delay;
             _isApplied = false;
         }
 
@@ -27,14 +29,25 @@ namespace Skill.Summon
             _currentTime += Time.deltaTime;
 
             if (_isApplied && !_applyTiming.IsIntervalApply)
+            {
+                CheckTimeout();
                 return;
+            }
 
-            if (_currentTime >= _applyTiming.Delay)
+            if (_currentTime >= _nextApplyTime)
             {
                 _isApplied = true;
+
+                _nextApplyTime += _applyTiming.Delay;
+
                 OnExecute?.Invoke();
             }
 
+            CheckTimeout();
+        }
+
+        private void CheckTimeout()
+        {
             if (_currentTime >= _lifeTime)
             {
                 OnTimeOut?.Invoke();
