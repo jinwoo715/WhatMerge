@@ -1,5 +1,5 @@
-using Combat;
 using UnityEngine;
+using WhatMerge.Combat;
 
 namespace Skill
 {

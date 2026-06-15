@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Enemies
+namespace WhatMerge.Enemies
 {
     public interface IFieldEnemyService
     {
@@ -18,6 +18,6 @@ namespace Enemies
         event Action OnDeathBossEnemy;
         void AddFieldEnemy(Enemy enemy);
 
-        void AllEnemyStatModify(EEnemyStatType statType, float value);
+        void AllEnemyStatModify(EnemyStatType statType, float value);
     }
 }

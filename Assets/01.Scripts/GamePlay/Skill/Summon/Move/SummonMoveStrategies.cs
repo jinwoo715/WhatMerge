@@ -1,23 +1,24 @@
 using Combat;
 using System;
 using UnityEngine;
+using WhatMerge.Combat;
 
 namespace Skill.Summon
 {
     public class NoneMoveStrategy : ISummonMoveStrategy
     {
         public event Action OnLooseTarget;
-        public void Init(Transform owner, ICreature target, float speed) { }
+        public void Init(Transform owner, ICombatant target, float speed) { }
         public void Tick() { }
     }
     public class AttachMoveStrategy : ISummonMoveStrategy
     {
         public event Action OnLooseTarget;
 
-        private ICreature _target;
+        private ICombatant _target;
         private Transform _owner;
 
-        public void Init(Transform owner, ICreature target, float speed)
+        public void Init(Transform owner, ICombatant target, float speed)
         {
             _target = target;
             _owner = owner;
@@ -31,7 +32,7 @@ namespace Skill.Summon
     }
     public class ToTargetMoveStrategy : ISummonMoveStrategy
     {
-        private ICreature _target;
+        private ICombatant _target;
         private Transform _owner;
 
         private float _speed;
@@ -43,7 +44,7 @@ namespace Skill.Summon
 
         public event Action OnLooseTarget;
 
-        public void Init(Transform owner, ICreature target, float speed)
+        public void Init(Transform owner, ICombatant target, float speed)
         {
             _target = target;
             _owner = owner;

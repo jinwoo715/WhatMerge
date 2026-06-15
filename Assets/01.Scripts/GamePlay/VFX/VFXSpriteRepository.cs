@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.U2D;
+using WhatMerge.Infrastructure;
 
 public class VFXSpriteRepository : ISpriteRepository
 {

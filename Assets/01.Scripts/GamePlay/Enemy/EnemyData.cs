@@ -1,4 +1,6 @@
-namespace Enemies
+using WhatMerge.Combat;
+
+namespace WhatMerge.Enemies
 {
     [System.Serializable]
     public class EnemyData : BaseData
@@ -8,7 +10,7 @@ namespace Enemies
         public float HP;
         public float Amour;
         public float MoveSpeed;
-        public EAttributeType Attribute;
+        public ElementType Attribute;
         public int Coin;
         public int SkillUID;
         public bool IsBoss;

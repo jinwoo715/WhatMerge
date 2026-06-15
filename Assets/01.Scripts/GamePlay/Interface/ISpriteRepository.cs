@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Enemies
+namespace WhatMerge.Infrastructure
 {
     public interface ISpriteRepository
     {

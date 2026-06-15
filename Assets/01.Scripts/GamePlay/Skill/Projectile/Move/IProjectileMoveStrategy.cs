@@ -1,6 +1,7 @@
 using Combat;
 using System;
 using UnityEngine;
+using WhatMerge.Combat;
 
 namespace Skill.Projectile
 {
@@ -8,7 +9,7 @@ namespace Skill.Projectile
     {
         event Action<SkillImpactContext> OnArrived;
         bool IsArrived { get; }
-        void Init(Transform owner, ICreature target, float speed);
+        void Init(Transform owner, ICombatant target, float speed);
         void Tick();
     }
 }

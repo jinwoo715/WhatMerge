@@ -1,10 +1,9 @@
-using Enemies;
 using Entity;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using WhatMerge.Combat;
+using WhatMerge.Enemies;
 
 public static class SearchUtility
 {
@@ -170,7 +169,7 @@ public static class SearchUtility
         Collider2D[] collider = Physics2D.OverlapCircleAll(position, radius, LayerMask.GetMask("Enemy"));
         return collider.Length != 0;
     }
-    public static T GetNearestTarget<T>(IReadOnlyList<Creature> list, Vector3 pivot) where T : class
+    public static T GetNearestTarget<T>(IReadOnlyList<ICombatant> list, Vector3 pivot) where T : class
     {
         float minSqrDistance = Mathf.Infinity;
 
@@ -185,7 +184,7 @@ public static class SearchUtility
 
             if(item.IsActive)
             {
-                float distance = Vector3.SqrMagnitude(item.transform.position - pivot);
+                float distance = Vector3.SqrMagnitude(item.Position - pivot);
 
                 if (distance < minSqrDistance)
                 {
@@ -197,20 +196,20 @@ public static class SearchUtility
 
         return nearestTarget;
     }
-    public static List<T> GetConeTargets<T>(IReadOnlyList<Creature> list, Vector3 pivot, Vector3 dir, float angle) where T : class
+    public static List<T> GetConeTargets<T>(IReadOnlyList<ICombatant> list, Vector3 pivot, Vector3 dir, float angle) where T : class
     {
         List<T> results = new List<T>();
 
         foreach (var target in list)
         {
-            Vector3 directionToEnemy = (target.transform.position - pivot).normalized;
+            Vector3 directionToEnemy = (target.Position - pivot).normalized;
 
             float dotProduct = Vector3.Dot(dir, directionToEnemy);
             float angleToEnemy = Mathf.Acos(dotProduct) * Mathf.Rad2Deg;
 
             if (angleToEnemy < angle)
             {
-                Debug.Log($"Detect Enemy : {target.name}");
+                Debug.Log($"Detect Enemy : {target}");
 
                 if(target is T result)
                 {

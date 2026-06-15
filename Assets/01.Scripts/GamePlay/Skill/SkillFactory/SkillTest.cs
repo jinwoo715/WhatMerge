@@ -1,5 +1,5 @@
 using Combat;
-using Enemies;
+using WhatMerge.Enemies;
 using Entity;
 using Skill.Data;
 using Skill.Projectile;
@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using WhatMerge.Combat;
 
 namespace Skill
 {

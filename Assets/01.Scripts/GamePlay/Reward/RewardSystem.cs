@@ -3,14 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum ECompensationType
+public enum EnemyRewordType
 {
     Gold,
 }
 
 public class RewardData
 {
-    public ECompensationType CompensationType;
+    public EnemyRewordType CompensationType;
     public int Value;
 }
 
@@ -35,7 +35,7 @@ public class RewardSystem
 
         switch (data.CompensationType)
         {
-            case ECompensationType.Gold:
+            case EnemyRewordType.Gold:
                 _gameGoldService.GainMoney(data.Value);
                 break;
             default:

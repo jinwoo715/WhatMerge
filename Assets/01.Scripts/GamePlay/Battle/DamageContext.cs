@@ -3,7 +3,7 @@ using Skill.Data;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-namespace Combat
+namespace WhatMerge.Combat
 {
     public class AttackPayload
     {
@@ -38,7 +38,7 @@ namespace Combat
     public class DamageContext
     {
         public IAttackable Attacker;
-        public ICreature Target;
+        public ICombatant Target;
         public AttackPayload AttackPayload;
         public Vector3 VFXPosition;
 
@@ -50,7 +50,7 @@ namespace Combat
             Attacker = attacker;
             VFXPosition = vfxPosition;
         }
-        public DamageContext(AttackPayload attackPayload, ICreature target, IAttackable attacker)
+        public DamageContext(AttackPayload attackPayload, ICombatant target, IAttackable attacker)
         {
             AttackPayload = attackPayload;
             Target = target;

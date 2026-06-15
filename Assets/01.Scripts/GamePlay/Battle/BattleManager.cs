@@ -7,8 +7,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using WhatMerge.Combat;
 
-namespace Combat
+namespace WhatMerge.Combat
 {
     public class BattleManager : ICombatService
     {
@@ -76,14 +77,14 @@ namespace Combat
         }
         private int CalculateFinalDamage(IDamageable target, AttackPayload payload, float multipleValue)
         {
-            int amour = target.Amour;
+            int amour = target.Armor;
 
             float reduceRatio = 1 - StatCalculator.GetDamageReductionRate(amour, payload.PercentPenetration, payload.FlatPenetration);
 
             return StatCalculator.RoundInt(payload.AttackDamage * multipleValue * reduceRatio);
         }
 
-        private void ProcessBuffEffect(ICreature target, BuffEffect buff)
+        private void ProcessBuffEffect(ICombatant target, BuffEffect buff)
         {
             Debug.Log($"Àû¿ë : {target}");
 

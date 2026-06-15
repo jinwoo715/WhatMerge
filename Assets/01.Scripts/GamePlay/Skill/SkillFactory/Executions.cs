@@ -7,12 +7,13 @@ using Stat;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using WhatMerge.Combat;
 
 namespace Skill
 {
     public interface IExecute
     {
-        IEnumerator Execute(IReadOnlyList<Creature> targets);
+        IEnumerator Execute(IReadOnlyList<ICombatant> targets);
     }
     public abstract class ExecutionBase : IExecute
     {
@@ -33,7 +34,7 @@ namespace Skill
             _spriteChanger = _owner.SpriteChanger;
             _attackRegister = commonContext.CombatService;
         }
-        public abstract IEnumerator Execute(IReadOnlyList<Creature> targets);
+        public abstract IEnumerator Execute(IReadOnlyList<ICombatant> targets);
         public IEnumerator SetReadyMotion()
         {
             _spriteChanger.SetSprite(_animaData.MotionReadyName);
@@ -58,7 +59,7 @@ namespace Skill
     public class MeleeExecution : ExecutionBase
     {
         public MeleeExecution(ActiveSkillContext activeContext, SkillCommonContext commonContext) : base(activeContext, commonContext) { }
-        public override IEnumerator Execute(IReadOnlyList<Creature> targets)
+        public override IEnumerator Execute(IReadOnlyList<ICombatant> targets)
         {
             yield return SetReadyMotion();
 
@@ -76,8 +77,7 @@ namespace Skill
 
             foreach (var target in targets)
             {
-                ICreature creature = target as ICreature;
-                DamageContext dc = new DamageContext(attackPayload, creature, _owner);
+                DamageContext dc = new DamageContext(attackPayload, target, _owner);
                 dc.skillEffects = EffectRoller.GetConfirmEffects(Effects);
                 _attackRegister.RegisterAttack(dc);
             }
@@ -99,7 +99,7 @@ namespace Skill
             _projectile = commonContext.Projectile;
         }
 
-        public override IEnumerator Execute(IReadOnlyList<Creature> targets)
+        public override IEnumerator Execute(IReadOnlyList<ICombatant> targets)
         {
             yield return SetReadyMotion();
 

@@ -1,10 +1,12 @@
+using Enemies;
 using Map;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using WhatMerge.Infrastructure;
 
-namespace Enemies
+namespace WhatMerge.Enemies
 {
     public class EnemySpawner : MonoBehaviour, IEnemySpawnService
     {

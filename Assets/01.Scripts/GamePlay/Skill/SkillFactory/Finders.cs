@@ -1,27 +1,28 @@
-using Enemies;
 using Entity;
 using System.Collections.Generic;
 using UnityEngine;
+using WhatMerge.Combat;
+using WhatMerge.Enemies;
 
 namespace Skill
 {
     public interface ITarget
     {
         bool HasTargetInRange(Vector3 pivot);
-        IReadOnlyList<Creature> GetTargets(Vector3 pivot);
+        IReadOnlyList<ICombatant> GetTargets(Vector3 pivot);
     }
     public class SelfTargetFinder : ITarget
     {
-        private Creature _owner;
+        private ICombatant _owner;
 
-        public SelfTargetFinder(Creature owner)
+        public SelfTargetFinder(ICombatant owner)
         {
             _owner = owner;
         }
 
-        public IReadOnlyList<Creature> GetTargets(Vector3 pivot)
+        public IReadOnlyList<ICombatant> GetTargets(Vector3 pivot)
         {
-            return new List<Creature> { _owner };
+            return new List<ICombatant> { _owner };
         }
 
         public bool HasTargetInRange(Vector3 pivot)
@@ -45,11 +46,11 @@ namespace Skill
             _range = range;
         }
 
-        public IReadOnlyList<Creature> GetTargets(Vector3 pivot)
+        public IReadOnlyList<ICombatant> GetTargets(Vector3 pivot)
         {
             var heros = _fieldHero.GetNearHeros(_owner.OccupiedTile, _range);
 
-            List<Creature> results = new List<Creature>();
+            List<ICombatant> results = new List<ICombatant>();
 
             foreach (var hero in heros)
             {
@@ -71,7 +72,7 @@ namespace Skill
         {
             _fieldHeroService = fieldHeroService;
         }
-        public IReadOnlyList<Creature> GetTargets(Vector3 pivot)
+        public IReadOnlyList<ICombatant> GetTargets(Vector3 pivot)
         {
             return _fieldHeroService.GetAllFieldHero;
         }
@@ -88,7 +89,7 @@ namespace Skill
         public float _radius;
         protected Enemy _latestEnemy;
 
-        public abstract IReadOnlyList<Creature> GetTargets(Vector3 pivot);
+        public abstract IReadOnlyList<ICombatant> GetTargets(Vector3 pivot);
         public bool HasTargetInRange(Vector3 pivot)
         {
             if(_latestEnemy == null)
@@ -127,9 +128,9 @@ namespace Skill
             _owner = owner;
             _radius = radius;
         }
-        public override IReadOnlyList<Creature> GetTargets(Vector3 pivot)
+        public override IReadOnlyList<ICombatant> GetTargets(Vector3 pivot)
         {
-            List<Creature> results = new List<Creature>();
+            List<ICombatant> results = new List<ICombatant>();
 
             if (_latestEnemy != null)
             {
@@ -162,9 +163,9 @@ namespace Skill
             _angle = angle;
         }
 
-        public override IReadOnlyList<Creature> GetTargets(Vector3 pivot)
+        public override IReadOnlyList<ICombatant> GetTargets(Vector3 pivot)
         {
-            List<Creature> results = new List<Creature>();
+            List<ICombatant> results = new List<ICombatant>();
 
             Enemy pivotEnemy;
 
@@ -207,7 +208,7 @@ namespace Skill
             _fieldEnemyService = fieldEnemyService;
         }
 
-        public IReadOnlyList<Creature> GetTargets(Vector3 pivot)
+        public IReadOnlyList<ICombatant> GetTargets(Vector3 pivot)
         {
             return _fieldEnemyService.GetAllFieldEnemy;
         }

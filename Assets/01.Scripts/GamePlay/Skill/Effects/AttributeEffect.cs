@@ -1,4 +1,5 @@
 using UnityEngine;
+using WhatMerge.Combat;
 
 namespace Skill.Data
 {
@@ -11,7 +12,7 @@ namespace Skill.Data
     //¼Ó¼º
     public class AttributeEffect : StatusEffectBase
     {
-        public EAttributeType Attribute;
+        public ElementType Attribute;
     }
 
 

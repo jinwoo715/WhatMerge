@@ -4,6 +4,7 @@ using Skill.Data;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using WhatMerge.Combat;
 
 namespace Skill
 {
@@ -31,7 +32,7 @@ namespace Skill
         public IEnumerator Execute()
         {
        
-            IReadOnlyList<Creature> Targets = Search.GetTargets(_owner.Position);
+            IReadOnlyList<ICombatant> Targets = Search.GetTargets(_owner.Position);
             yield return Execution.Execute(Targets);
         }
         public void ModifyParam(EffectBase targetEffect, float value)

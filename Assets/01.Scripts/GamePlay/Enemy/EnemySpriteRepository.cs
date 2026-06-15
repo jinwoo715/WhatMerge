@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.U2D;
+using WhatMerge.Infrastructure;
 
-namespace Enemies
+namespace WhatMerge.Enemies
 {
     public class EnemySpriteRepository : ISpriteRepository
     {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Enemies;
 using System;
+using WhatMerge.Enemies;
 
 namespace Stage
 {

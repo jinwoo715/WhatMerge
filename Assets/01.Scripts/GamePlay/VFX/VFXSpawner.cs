@@ -3,6 +3,7 @@ using Skill.Data;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using WhatMerge.Infrastructure;
 
 public interface IVFXService
 {

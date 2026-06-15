@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Enemies
+namespace WhatMerge.Enemies
 {
     public class FieldEnemyService : IFieldEnemyService
     {
@@ -32,7 +32,7 @@ namespace Enemies
             OnChangedActiveEnemyCount?.Invoke(GetActiveEnemyCount);
         }
 
-        public void AllEnemyStatModify(EEnemyStatType statType, float value)
+        public void AllEnemyStatModify(EnemyStatType statType, float value)
         {
             throw new NotImplementedException();
         }

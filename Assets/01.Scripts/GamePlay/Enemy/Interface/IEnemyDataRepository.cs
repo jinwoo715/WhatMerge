@@ -1,4 +1,4 @@
-namespace Enemies
+namespace WhatMerge.Enemies
 {
     public interface IEnemyDataRepository
     {

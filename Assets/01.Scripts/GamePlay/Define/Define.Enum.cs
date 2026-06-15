@@ -1,14 +1,4 @@
-public enum EAttributeType
-{
-    None,
-    Fire,
-    Ice,
-    Electric,
-    Earth,
-    Wind,
-    Light,
-    Dark
-}
+
 public enum EStatusType
 {
     None,

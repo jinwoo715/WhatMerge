@@ -6,6 +6,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using WhatMerge.Combat;
+using WhatMerge.Infrastructure;
 
 namespace Skill.Summon
 {
@@ -54,7 +56,7 @@ namespace Skill.Summon
                     return Vector3.zero;
             }
         }
-        private ISummonMoveStrategy GetMoveStretagy(SummonMove move, Transform owner, ICreature target)
+        private ISummonMoveStrategy GetMoveStretagy(SummonMove move, Transform owner, ICombatant target)
         {
             ISummonMoveStrategy moveStrategy = default;
 

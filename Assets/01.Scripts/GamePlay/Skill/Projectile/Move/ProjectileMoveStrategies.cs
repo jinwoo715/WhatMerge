@@ -1,6 +1,7 @@
 using Combat;
 using System;
 using UnityEngine;
+using WhatMerge.Combat;
 
 namespace Skill.Projectile
 {
@@ -14,7 +15,7 @@ namespace Skill.Projectile
 
         public event Action<SkillImpactContext> OnArrived;
 
-        public void Init(Transform owner, ICreature target, float speed)
+        public void Init(Transform owner, ICombatant target, float speed)
         {
             _dir = (target.Position - owner.position).normalized;
             _speed = speed;
@@ -29,14 +30,14 @@ namespace Skill.Projectile
     public class HomingMove : IProjectileMoveStrategy
     {
         private Transform _owner;
-        ICreature _target;
+        ICombatant _target;
         private float _speed;
 
         public bool IsArrived { get; private set; }
 
         public event Action<SkillImpactContext> OnArrived;
 
-        public void Init(Transform owner, ICreature target, float speed)
+        public void Init(Transform owner, ICombatant target, float speed)
         {
             _owner = owner;
             _target = target;
@@ -83,7 +84,7 @@ namespace Skill.Projectile
 
         public event Action<SkillImpactContext> OnArrived;
 
-        public void Init(Transform owner, ICreature target, float speed)
+        public void Init(Transform owner, ICombatant target, float speed)
         {
             _owner = owner;
             _startPosition = owner.position;

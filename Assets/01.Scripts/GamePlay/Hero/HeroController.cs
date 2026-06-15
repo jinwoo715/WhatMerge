@@ -9,6 +9,8 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.U2D;
 
+namespace Combat { }
+
 namespace Heros
 {
     public interface IHeroSummonService

@@ -1,6 +1,6 @@
 using System;
 
-namespace Enemies
+namespace WhatMerge.Enemies
 {
     public interface IEnemySpawnService
     {
