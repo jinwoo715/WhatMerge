@@ -14,6 +14,7 @@ namespace WhatMerge.Enemies
 
         public event Action OnEndWaveSpawn;
         public event Action<Enemy> OnSpawnEnemy;
+        public event Action<Enemy> OnReturnEnemy;
 
         private ObjectPool<Enemy> _enemyPool = new ObjectPool<Enemy>();
 
@@ -61,7 +62,13 @@ namespace WhatMerge.Enemies
         public void InitializeSpawnEnemy(Enemy enemy)
         {
             enemy.Initialize(_pathProvider);
-            enemy.OnDeath += _enemyPool.ReturnItem;
+            enemy.OnDeath += OnEnemyDeath;
+        }
+
+        private void OnEnemyDeath(Enemy enemy)
+        {
+            _enemyPool.ReturnItem(enemy);
+            OnReturnEnemy?.Invoke(enemy);
         }
     }
 }

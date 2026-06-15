@@ -14,64 +14,60 @@ namespace WhatMerge.Enemies
         [SerializeField] private EnemySpriteController _spriteController;
 
         private EnemyStats _stats = new EnemyStats();
-
-        public event Action<Enemy> OnDeath;
-        public event Action<Enemy> OnReturn;
-        public event Action<EnemyRewordType, int> OnOccuredReward;
-
         private EnemyData _data;
         private int _currentHP;
 
+        public event Action<Enemy> OnDeath;
+
         public bool IsBoss => _data.IsBoss;
         public bool IsActive { get; private set; }
-        public ElementType Element => ElementType.None;
-        public int Armor => Mathf.RoundToInt(_stats.GetStat(EnemyStatType.Amour));
+        public int Armor => Mathf.RoundToInt(_stats.GetStat(EnemyStatType.Armor));
         public int CurrentHP => _currentHP;
         public Vector3 Position => this.transform.position;
 
         public void Initialize(IPathProvider pathProvider)
         {
-            _move.OnDirectionChanged += FlipEnemy;
+            _move.OnDirectionChanged += _spriteController.SetDirection;
             _move.Initialize(transform, pathProvider);
-            IsActive = true;
+
+            _stats.OnChangedStat += (type, speed) =>
+            {
+                if (type == EnemyStatType.MoveSpeed)
+                {
+                    _move.UpdateSpeed(speed);
+                }
+            };
         }
         public void Init(EnemyData data, List<Sprite> sprites)
         {
             _data = data;
-            _stats.SetBaseValue(EnemyStatType.HP, data.HP);
-            _stats.SetBaseValue(EnemyStatType.Amour, data.Amour);
+            _stats.SetBaseValue(EnemyStatType.MaxHP, data.HP);
+            _stats.SetBaseValue(EnemyStatType.Armor, data.Amour);
             _stats.SetBaseValue(EnemyStatType.MoveSpeed, data.MoveSpeed);
 
-            _currentHP = Mathf.RoundToInt(_stats.GetStat(EnemyStatType.HP));
+            _currentHP = Mathf.RoundToInt(_stats.GetStat(EnemyStatType.MaxHP));
             _move.Init(_stats.GetStat(EnemyStatType.MoveSpeed));
+            
             _spriteController.Init(sprites, 0.25f);
-        }
-        private void FlipEnemy(EMoveDirection moveDirection)
-        {
-            if (moveDirection == EMoveDirection.Up || moveDirection == EMoveDirection.Right)
-                _spriteController.Flip(true);
-            else
-                _spriteController.Flip(false);
+
+            IsActive = true;
         }
         public void TakeDamage(AttackResultPayload resultPayload)
         {
+            if (!IsActive)
+                return;
+
             _currentHP -= resultPayload.Damage;
+
+            _currentHP = Mathf.Clamp(_currentHP, 0, (int)_stats.GetStat(EnemyStatType.MaxHP));
 
             if (_currentHP <= 0)
                 Death();
         }
         private void Death()
         {
-            OnDeath?.Invoke(this);
-            OnReturn?.Invoke(this);
-        }
-        public void OnSpawn()
-        {
-            IsActive = true;
-        }
-        public void OnDespawn()
-        {
             IsActive = false;
+            OnDeath?.Invoke(this);
         }
         public RewardData GetRewardData()
         {
@@ -81,9 +77,7 @@ namespace WhatMerge.Enemies
 
             return reward;
         }
-        public void SetAttribute(ElementType attributeType, float duration)
-        {
-            Debug.Log($"{attributeType} : {duration}");
-        }
+        public void OnSpawn() { }
+        public void OnDespawn() { }
     }
 }

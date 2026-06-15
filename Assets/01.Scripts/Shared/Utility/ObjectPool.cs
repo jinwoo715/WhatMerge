@@ -5,7 +5,7 @@ using UnityEngine;
 public interface IPooledItem<T>
 {
     public bool IsActive { get; }
-    event Action<T> OnReturn;
+
     void OnSpawn();
     void OnDespawn();
 }
@@ -45,7 +45,6 @@ public class ObjectPool<T> where T : MonoBehaviour, IPooledItem<T>
         T item = GameObject.Instantiate(_origin, _parent);
 
         item.gameObject.SetActive(false);
-        item.OnReturn += ReturnItem;
 
         OnCreateEvent?.Invoke(item);
 

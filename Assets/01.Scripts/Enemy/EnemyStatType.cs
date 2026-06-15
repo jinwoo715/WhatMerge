@@ -2,8 +2,8 @@ namespace WhatMerge.Enemies
 {
     public enum EnemyStatType
     {
-        HP,
+        MaxHP,
         MoveSpeed,
-        Amour
+        Armor
     }
 }

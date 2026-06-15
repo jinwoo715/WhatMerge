@@ -24,8 +24,6 @@ namespace WhatMerge.Enemies
         {
             _activeEnemies.Add(enemy);
 
-            enemy.OnDeath += DeathEnemy;
-
             if (enemy.IsBoss)
                 _activeBoss = enemy;
 

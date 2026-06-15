@@ -32,12 +32,10 @@ public class MoveController : MonoBehaviour
 
         MoveToDestination();
     }
-
     private void OnDisable()
     {
         _isMoveable = false;
     }
-
     public void Initialize(Transform owner, IPathProvider pathProvider)
     {
         _owner = owner;
@@ -50,6 +48,12 @@ public class MoveController : MonoBehaviour
         _destination = _provider.GetDestination(_moveIndex);
         _isMoveable = true;
     }
+
+    public void UpdateSpeed(float speed)
+    {
+        _speed = speed;
+    }
+
     public void MoveToDestination()
     {
         if (IsArrived())

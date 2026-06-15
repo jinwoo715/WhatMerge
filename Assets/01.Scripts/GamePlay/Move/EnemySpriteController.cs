@@ -18,7 +18,15 @@ public class EnemySpriteController : MonoBehaviour
         _moveSpriteInterval = moveSpriteInterval;
     }
 
-    public void Flip(bool isRight)
+    public void SetDirection(EMoveDirection moveDirection)
+    {
+        if (moveDirection == EMoveDirection.Up || moveDirection == EMoveDirection.Right)
+            Flip(true);
+        else
+            Flip(false);
+    }
+
+    private void Flip(bool isRight)
     {
         _spriteRenderer.flipX = !isRight;
     }

@@ -65,7 +65,6 @@ namespace Entity
 
         public event Action<IReadOnlyTile> OnOccupiedTile;
         public event Action<IReadOnlyTile> OnFreeTile;
-        public event Action<Hero> OnReturn;
 
         public SkillServiceLocate Context { get; private set; }
 
@@ -142,17 +141,9 @@ namespace Entity
 
         public void SetTile(IReadOnlyTile tile, Vector2 position)
         {
-            //if (IsExistUnderTile())
-            //    OnFreeTile?.Invoke(_underTile);
-
-            //OnOccupiedTile?.Invoke(tile);
             _underTile = tile;
 
             this.transform.position = position;
-        }
-        private bool IsExistUnderTile()
-        {
-            return _underTile != null;
         }
 
         public float GetStat(EAttackStatType attackStatType)
@@ -199,11 +190,6 @@ namespace Entity
         public void OnDespawn()
         {
            
-        }
-
-        public void Return()
-        {
-            OnReturn?.Invoke(this);
         }
     }
 }

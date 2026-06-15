@@ -18,4 +18,5 @@ public interface IFieldHeroService
     void SellHero(Hero hero);
     List<Hero> GetNearHeros(IReadOnlyTile pivot, int range);
     void SetHeroBuff(EHeroStatType stat, float value);
+    void ClearHero(Hero hero);
 }

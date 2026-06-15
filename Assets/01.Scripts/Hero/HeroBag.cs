@@ -36,8 +36,6 @@ namespace Heros
 
         public void PutInTheBag(Hero hero)
         {
-            hero.Return();
-
             _bagValue[_currentIndex].Init(hero.UID, hero.EvolutionLevel, hero.Name);
 
             _currentUsedBagSpace++;

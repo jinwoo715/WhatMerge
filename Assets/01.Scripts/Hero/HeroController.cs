@@ -165,8 +165,7 @@ namespace Heros
         }
         public void ReturnHero(Hero hero)
         {
-            hero.Return();
-            hero.OnReturn -= ClearHero;
+            ClearHero(hero);
         }
 
         public void ClearHero(Hero hero)
@@ -198,8 +197,6 @@ namespace Heros
         {
             _fieldHeros.Add(tile, hero);
             _fieldHero.Add((tile.X, tile.Y), hero);
-
-            hero.OnReturn += ClearHero;
         }
 
         public void PointDownTile(Tile tile)
