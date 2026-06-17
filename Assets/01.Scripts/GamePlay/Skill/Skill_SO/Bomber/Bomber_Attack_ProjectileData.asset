@@ -18,6 +18,4 @@ MonoBehaviour:
   LifeTime: 5
   EffectTrigger: 2
   DestroyTrigger: 2
-  ResolveData:
-    Type: 1
-    Radius: 0.5
+  ResolveData: {fileID: 11400000, guid: 955060a77de23ef44a21b0cb871899ab, type: 2}

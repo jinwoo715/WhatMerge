@@ -1,5 +1,5 @@
 using Combat;
-using Entity;
+using WhatMerge.Heros;
 using Skill.Data;
 using System.Collections.Generic;
 using WhatMerge.Combat;

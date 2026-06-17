@@ -16,11 +16,9 @@ MonoBehaviour:
   LifeTime: 1.5
   SpawnPosition: 0
   ApplyTiming:
+    ApplyType: 0
     Delay: 1.5
-    IsIntervalApply: 0
-  ResolveData:
-    Type: 1
-    Radius: 0.5
+  ResolveData: {fileID: 11400000, guid: cfcbdae0b5256c743abd46dcb3ecd4b3, type: 2}
   Move:
     Move: 2
     Speed: 0

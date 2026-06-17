@@ -3,17 +3,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Stat
+namespace WhatMerge.Heros
 {
     public interface IHeroStatModifier
     {
-        public event Action<EHeroStat, float> OnStatChange;
-        void SetBaseValue(EHeroStat stat, float value);
-        void AddFixedStatValue(EHeroStat stat, float value);
-        void AddMultiplyValue(EHeroStat stat, float value);
+        public event Action<HeroStatType, float> OnStatChanged;
+        void AddFixedValue(HeroStatType type, float value);
+        void AddMultiplier(HeroStatType type, float value);
     }
     public interface IHeroStatReadOnly
     {
-        float GetStat(EHeroStat stat);
+        float GetStat(HeroStatType stat);
     }
 }

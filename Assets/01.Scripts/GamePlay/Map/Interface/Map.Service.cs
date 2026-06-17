@@ -1,14 +1,14 @@
 using UnityEngine;
 
-namespace Map
+namespace WhatMerge.Map
 {
     public interface IHeroMapService
     {
         bool HasEmptyHeroTile { get; }
         bool TryGetNextHeroTile(out Tile tile);
-        Vector2 GetTileWorldPosition(IReadOnlyTile tile);
-        void OccupyHeroTile(IReadOnlyTile tile);
-        void FreeHeroTile(IReadOnlyTile tile);
+        Vector2 GetTileWorldPosition(ITileReadOnly tile);
+        void OccupyHeroTile(ITileReadOnly tile);
+        void FreeHeroTile(ITileReadOnly tile);
     }
 
     public interface IPathProvider

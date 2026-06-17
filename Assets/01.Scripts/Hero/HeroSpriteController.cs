@@ -10,7 +10,12 @@ public interface ISpriteChanger
     void SetIdle();
 }
 
-public class HeroSpriteController : MonoBehaviour, ISpriteChanger
+public interface IHeroVisual
+{
+    void SetEvolutionLevel(int level);
+}
+
+public class HeroSpriteController : MonoBehaviour, ISpriteChanger, IHeroVisual
 {
     [SerializeField] private SpriteRenderer _spriteRenderer;
     private SpriteAtlas _spriteAtlas;
@@ -24,11 +29,6 @@ public class HeroSpriteController : MonoBehaviour, ISpriteChanger
     {
         _spriteAtlas = spriteAtlas;
         _heroName = heroName;
-    }
-
-    public void SetLevel(int level)
-    {
-        SetDefaultSpriteKey(level);
     }
 
     public void SetDefaultSpriteKey(int level)
@@ -50,5 +50,10 @@ public class HeroSpriteController : MonoBehaviour, ISpriteChanger
         _spriteRenderer.sprite = _spriteAtlas.GetSprite(_builder.ToString());
 
         _builder.Clear();
+    }
+
+    public void SetEvolutionLevel(int level)
+    {
+        SetDefaultSpriteKey(level);
     }
 }

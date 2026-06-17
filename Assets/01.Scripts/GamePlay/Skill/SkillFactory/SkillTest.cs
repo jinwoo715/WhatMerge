@@ -1,14 +1,11 @@
-using Combat;
 using WhatMerge.Enemies;
-using Entity;
 using Skill.Data;
 using Skill.Projectile;
-using Skill.Summon;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using WhatMerge.Combat;
+using WhatMerge.Heros;
 
 namespace Skill
 {
@@ -35,6 +32,7 @@ namespace Skill
     public class ActiveSkillContext
     {
         public Hero Hero { get; }
+        public ISpriteChanger SpriteChanger { get; }
         public SkillAnimationData AnimationData { get; }
         public ExecutionSystemData System { get; }
         public List<EffectBase> RuntimeEffects { get; }
@@ -44,6 +42,7 @@ namespace Skill
             AnimationData = animationData;
             System = system;
             RuntimeEffects = effects;
+            SpriteChanger = hero.GetComponent<ISpriteChanger>();
         }
     }
 
@@ -369,7 +368,7 @@ namespace Skill
 
             return passiveSkillSO.Target switch
             {
-                SelfTargetData => new SelfBuffPassive(owner, effects),
+                SelfTargetData => new SelfBuffPassive(owner.StatModify, effects),
                 NearHeroTargetData => new NearHeroBuffPassive(_skillExecutionService.FieldHeroService, owner, effects),
                 AllHeroTargetData => new AllHeroBuffPassive(_skillExecutionService.FieldHeroService, owner, effects),
                 _ => null

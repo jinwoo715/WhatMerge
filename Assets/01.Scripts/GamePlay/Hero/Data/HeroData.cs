@@ -8,10 +8,10 @@ public class HeroData : BaseData
     public float AS;
     public float Radius;
 
-    public int BaseAttack;
-    public int FirstSkill;
-    public int SecondSkill;
-    public int SpecialSkill;
+    public int Penetration;
+
+    public float CriticalChance;
+    public float CriticalMultiple;
 }
 
 

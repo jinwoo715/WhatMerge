@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
+using Skill;
 using Skill.Data;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
@@ -17,7 +18,8 @@ public enum SkillNodeKind
     ExecutionVfx,
     Effect,
     ProjectileData,
-    SummonData
+    SummonData,
+    EffectTargetData
 }
 
 public sealed class SkillNodeView : Node
@@ -262,6 +264,9 @@ public sealed class SkillNodeView : Node
             case SkillNodeKind.SummonData:
                 AddOutputPort("Summon", typeof(SummonData));
                 break;
+            case SkillNodeKind.EffectTargetData:
+                AddOutputPort("EffectTarget", typeof(EffectTargetData));
+                break;
         }
     }
 
@@ -339,6 +344,12 @@ public sealed class SkillNodeView : Node
             return;
         }
 
+        if (Kind == SkillNodeKind.SummonData)
+        {
+            CreateSummonDataBodyFields();
+            return;
+        }
+
         if (Kind == SkillNodeKind.Execution)
         {
             CreateExecutionBodyFields();
@@ -347,13 +358,18 @@ public sealed class SkillNodeView : Node
         {
             CreateEffectBodyFields();
         }
-        else if (Kind == SkillNodeKind.SummonData)
+
+        AddInspector(DrawInspector);
+
+        if (Kind == SkillNodeKind.ProjectileData)
         {
-            CreateSummonDataBodyFields();
+            CreateProjectileDataBodyFields();
         }
+    }
 
-
-        var inspector = new IMGUIContainer(DrawInspector)
+    private void AddInspector(Action drawAction)
+    {
+        var inspector = new IMGUIContainer(drawAction)
         {
             style =
             {
@@ -375,6 +391,11 @@ public sealed class SkillNodeView : Node
         }
     }
 
+    private void CreateProjectileDataBodyFields()
+    {
+        AddBodyFieldSlot("EffectTarget", "ResolveData", typeof(EffectTargetData), Asset is ProjectileData projectileData ? projectileData.ResolveData : null);
+    }
+
     private void CreateEffectBodyFields()
     {
         AddBodyFieldSlot("VFX", "VFX", typeof(SkillVfxSystem), Asset is EffectBase effect ? effect.VFX : null);
@@ -386,6 +407,9 @@ public sealed class SkillNodeView : Node
 
     private void CreateSummonDataBodyFields()
     {
+        AddInspector(() => DrawSerializedObject(Asset, "ResolveData", "Move", "Effects"));
+        AddBodyFieldSlot("EffectTarget", "ResolveData", typeof(EffectTargetData), Asset is SummonData summonData ? summonData.ResolveData : null);
+        AddInspector(() => DrawSerializedProperty(Asset, "Move", false));
         CreateEffectsFoldout();
     }
 
@@ -569,11 +593,11 @@ public sealed class SkillNodeView : Node
             case SkillNodeKind.Trigger:
             case SkillNodeKind.Target:
             case SkillNodeKind.ExecutionVfx:
-            case SkillNodeKind.ProjectileData:
+            case SkillNodeKind.EffectTargetData:
                 DrawSerializedObject(Asset);
                 break;
-            case SkillNodeKind.SummonData:
-                DrawSerializedObject(Asset, "Effects");
+            case SkillNodeKind.ProjectileData:
+                DrawSerializedObject(Asset, "ResolveData");
                 break;
             case SkillNodeKind.Execution:
                 DrawSerializedObject(Asset, "Effects", "VFX", "ProjectileData");
@@ -851,6 +875,7 @@ public sealed class SkillNodeView : Node
             || propertyPath == "Trigger"
             || propertyPath == "VFX"
             || propertyPath == "ProjectileData"
+            || propertyPath == "ResolveData"
             || propertyPath == "Summon"
             || propertyPath == "Effect"
             || propertyPath.StartsWith("Effects");

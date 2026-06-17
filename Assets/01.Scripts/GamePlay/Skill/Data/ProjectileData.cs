@@ -17,19 +17,6 @@ namespace Skill.Data
         public EProjectileEffectTrigger EffectTrigger;
         public EProjectileEffectTrigger DestroyTrigger;
 
-        public TargetResolveData ResolveData;
-    }
-
-    [System.Serializable]
-    public class TargetResolveData
-    {
-        public ETargetResolveType Type;
-        public float Radius;
-    }
-
-    public enum ETargetResolveType
-    {
-        Single,
-        Area
+        public EffectTargetData ResolveData;
     }
 }

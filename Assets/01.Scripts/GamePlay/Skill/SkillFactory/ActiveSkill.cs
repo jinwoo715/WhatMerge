@@ -1,10 +1,8 @@
-using Combat;
-using Entity;
 using Skill.Data;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using WhatMerge.Combat;
+using WhatMerge.Heros;
 
 namespace Skill
 {

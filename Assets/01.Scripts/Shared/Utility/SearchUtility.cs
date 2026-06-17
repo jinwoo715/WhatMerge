@@ -1,4 +1,3 @@
-using Entity;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -67,6 +66,18 @@ public static class SearchUtility
         return detectedEnemy;
     }
 
+    public static List<Enemy> GetNearEnemies(Vector3 pivot, float range)
+    {
+        Collider2D[] searchTotalEnemy = Physics2D.OverlapCircleAll(pivot, range, LayerMask.GetMask("Enemy"));
+        List<Enemy> detectedEnemy = new List<Enemy>();
+
+        foreach (var enemy in searchTotalEnemy)
+        {
+            detectedEnemy.Add(enemy.GetComponent<Enemy>());
+        }
+        return detectedEnemy;
+    }
+
     public static Enemy GetNearestEnemy(Vector3 position, float radius)
     {
         return GetNearest2DTarget<Enemy>(position, radius, LayerMask.GetMask("Enemy"));
@@ -95,7 +106,7 @@ public static class SearchUtility
 
         return currentCollider.GetComponent<T>();
     }
-    public static List<T> GetNearest2DTargets<T>(Vector3 position, float radius, LayerMask layer, int count) where T : MonoBehaviour
+    public static List<T> GetNear2DTargets<T>(Vector3 position, float radius, LayerMask layer, int count) where T : MonoBehaviour
     {
         Collider2D[] collider = Physics2D.OverlapCircleAll(position, radius, layer);
 

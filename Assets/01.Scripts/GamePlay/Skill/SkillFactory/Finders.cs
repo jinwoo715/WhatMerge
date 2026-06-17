@@ -1,24 +1,27 @@
-using Entity;
 using System.Collections.Generic;
 using UnityEngine;
 using WhatMerge.Combat;
 using WhatMerge.Enemies;
+using WhatMerge.Heros;
 
 namespace Skill
 {
     public interface ITarget
     {
+        float Range { get; }
         bool HasTargetInRange(Vector3 pivot);
         IReadOnlyList<ICombatant> GetTargets(Vector3 pivot);
     }
     public class SelfTargetFinder : ITarget
     {
         private ICombatant _owner;
+        public float Range => 0;
 
         public SelfTargetFinder(ICombatant owner)
         {
             _owner = owner;
         }
+
 
         public IReadOnlyList<ICombatant> GetTargets(Vector3 pivot)
         {
@@ -38,6 +41,7 @@ namespace Skill
         private int _range;
         private Hero _owner;
         private IFieldHeroService _fieldHero;
+        public float Range => _range;
 
         public NearHeroFinder(IFieldHeroService fieldHero, Hero owner, int range)
         {
@@ -67,6 +71,7 @@ namespace Skill
     }
     public class AllHeroFinder : ITarget
     {
+        public float Range => 0;
         private IFieldHeroService _fieldHeroService;
         public AllHeroFinder(IFieldHeroService fieldHeroService)
         {
@@ -88,6 +93,7 @@ namespace Skill
         public Transform _owner;
         public float _radius;
         protected Enemy _latestEnemy;
+        public float Range => _radius;
 
         public abstract IReadOnlyList<ICombatant> GetTargets(Vector3 pivot);
         public bool HasTargetInRange(Vector3 pivot)
@@ -202,6 +208,8 @@ namespace Skill
     public class AllEnemyFinder : ITarget
     {
         private IFieldEnemyService _fieldEnemyService;
+
+        public float Range => 0;
 
         public AllEnemyFinder(IFieldEnemyService fieldEnemyService)
         {

@@ -1,10 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace Map
+namespace WhatMerge.Map
 {
-    public interface IReadOnlyTile
+    public interface ITileReadOnly
     {
         int X { get; }
         int Y { get; }
@@ -16,7 +14,7 @@ namespace Map
         public void UnOccupyTile();
     }
 
-    public class Tile : MonoBehaviour, IReadOnlyTile, IModifyTile
+    public class Tile : MonoBehaviour, ITileReadOnly, IModifyTile
     {
         private int _x;
         private int _y;

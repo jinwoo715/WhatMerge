@@ -1,9 +1,7 @@
-using Entity;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
+using WhatMerge.Heros;
 
 namespace Skill.Data
 {
@@ -18,23 +16,23 @@ namespace Skill.Data
 
     public abstract class BuffPassiveSkill : PassiveSkill
     {
-        public void ApplyBuff(IStatModifier statModifier, List<BuffData> effects)
+        public void ApplyBuff(IHeroStatModifier statModifier, List<BuffData> effects)
         {
             foreach (var effect in effects)
             {
                 if (effect is BuffData buff)
                 {
-                    statModifier.ModifyStat(buff.BuffType, buff.IncreaseRatio);
+                    statModifier.AddMultiplier(buff.BuffType, buff.IncreaseRatio);
                 }
             }
         }
-        public void RevertBuff(IStatModifier statModifier, List<BuffData> effects)
+        public void RevertBuff(IHeroStatModifier statModifier, List<BuffData> effects)
         {
             foreach (var effect in effects)
             {
                 if (effect is BuffData buff)
                 {
-                    statModifier.ModifyStat(buff.BuffType, -buff.IncreaseRatio);
+                    statModifier.AddMultiplier(buff.BuffType, -buff.IncreaseRatio);
                 }
             }
         }
@@ -42,9 +40,9 @@ namespace Skill.Data
 
     public class SelfBuffPassive : BuffPassiveSkill
     {
-        public IStatModifier _statModifier;
+        public IHeroStatModifier _statModifier;
         public List<BuffData> _effects;
-        public SelfBuffPassive(IStatModifier statModifier, List<BuffData> effects)
+        public SelfBuffPassive(IHeroStatModifier statModifier, List<BuffData> effects)
         {
             _statModifier = statModifier;
             _effects = effects;
@@ -83,11 +81,11 @@ namespace Skill.Data
 
             foreach (var enter in entered)
             {
-                ApplyBuff(enter, _effects);
+                ApplyBuff(enter.StatModify, _effects);
             }
             foreach (var exit in exited)
             {
-                RevertBuff(exit, _effects);
+                RevertBuff(exit.StatModify, _effects);
             }
 
             _appliedHeros = nearHeros;
@@ -97,7 +95,7 @@ namespace Skill.Data
         {
             foreach (var hero in _appliedHeros)
             {
-                RevertBuff(hero, _effects);
+                RevertBuff(hero.StatModify, _effects);
             }
         }
     }
@@ -116,8 +114,8 @@ namespace Skill.Data
             _owner = owner;
             _effects = effects;
 
-            OnSpawnHeroBuffApply += (hero) => ApplyBuff(hero, _effects);
-            OnDespawnHeroBuffRelease += (hero) => RevertBuff(hero, _effects);
+            OnSpawnHeroBuffApply += (hero) => ApplyBuff(hero.StatModify, _effects);
+            OnDespawnHeroBuffRelease += (hero) => RevertBuff(hero.StatModify, _effects);
 
             _fieldHeroService.OnSpawnedHero += OnSpawnHeroBuffApply;
             _fieldHeroService.OnDestroyHero += OnDespawnHeroBuffRelease;
@@ -129,7 +127,7 @@ namespace Skill.Data
 
             foreach (var hero in allHeros)
             {
-                ApplyBuff(hero, _effects);
+                ApplyBuff(hero.StatModify, _effects);
             }
         }
 
@@ -142,7 +140,7 @@ namespace Skill.Data
 
             foreach (var hero in allHeros)
             {
-                RevertBuff(hero, _effects);
+                RevertBuff(hero.StatModify, _effects);
             }
         }
     }

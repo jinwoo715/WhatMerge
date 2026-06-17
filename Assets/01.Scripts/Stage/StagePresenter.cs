@@ -1,7 +1,6 @@
 using System;
-using UnityEngine;
 
-namespace Stage
+namespace WhatMerge.Stage
 {
     public class StagePresenter
     {

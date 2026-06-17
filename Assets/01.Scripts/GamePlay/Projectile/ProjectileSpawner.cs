@@ -16,6 +16,28 @@ namespace Skill.Projectile
         public void SpawnProjectile(Data.ProjectileData data, SkillPayload context);
     }
 
+    public class TargetExecuterManager
+    {
+        private readonly SingleTargetExecuter _singleExecuter;
+        private readonly AreaTargetExecuter _areaExecuter;
+
+        public TargetExecuterManager(ICombatService combatService)
+        {
+            _singleExecuter = new SingleTargetExecuter(combatService);
+            _areaExecuter = new AreaTargetExecuter(combatService);
+        }
+
+        public SkillExecuter GetExecuter(EffectTargetData data)
+        {
+            return data switch
+            {
+                SingleEffectTargetData => _singleExecuter,
+                AreaEffectTargetData => _areaExecuter,
+                _ => throw new System.Exception()
+            };
+        }
+    }
+
     public class ProjectileSpawner : MonoBehaviour, IProjectileProvider
     {
         [SerializeField] private ProjectileItem _itemPrefab;
@@ -27,19 +49,16 @@ namespace Skill.Projectile
 
         private ICombatService _combatService;
 
+        private TargetExecuterManager _executers;
+
         public void Init(ISpriteRepository spriteRepository, ICombatService combatService)
         {
             _spriteRepository = spriteRepository;
             _combatService = combatService;
 
-            _projectileItemPool.OnCreateEvent += CreateProjectile;
             _projectileItemPool.Init(this.transform, _itemPrefab, 10);
-        }
 
-        private void CreateProjectile(ProjectileItem item)
-        {
-            SkillExecuter skillExecuter = new SkillExecuter(_combatService);
-            item.Initialize(skillExecuter);
+            _executers = new TargetExecuterManager(combatService);
         }
 
         public Sprite GetProjectileSprite(string projectileData, int level)
@@ -86,7 +105,9 @@ namespace Skill.Projectile
 
             var projectileSprite = GetProjectileSprite(data.SpriteName, context.Attacker.EvolutionLevel);
 
-            obj.Init(context, move, data, projectileSprite);
+            var executer = _executers.GetExecuter(data.ResolveData);
+
+            obj.Init(context, move, data, projectileSprite, executer);
         }
     }
 }

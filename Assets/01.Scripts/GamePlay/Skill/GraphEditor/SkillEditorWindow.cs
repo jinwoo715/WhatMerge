@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using Skill;
 using Skill.Data;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -195,6 +196,10 @@ public class SkillEditorWindow : EditorWindow
         AddPaletteHeader(palette, "Item");
         AddPaletteButton<ProjectileData>(palette, "Projectile");
         AddPaletteButton<SummonData>(palette, "Summon");
+
+        AddPaletteHeader(palette, "EffectTarget");
+        AddPaletteButton<SingleEffectTargetData>(palette, "Single");
+        AddPaletteButton<AreaEffectTargetData>(palette, "Area");
 
         AddPaletteHeader(palette, "VFX");
         AddPaletteButton<SkillVfxSystem>(palette, "Skill Visual");

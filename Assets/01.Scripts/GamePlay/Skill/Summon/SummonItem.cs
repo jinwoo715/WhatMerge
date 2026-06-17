@@ -24,10 +24,8 @@ namespace Skill.Summon
         public event Action<SummonItem> OnReturn;
         private Action OnTimeOut;
 
-        public void Initialize(SkillExecuter executer, SummonExecuteTimer timer)
+        public void Initialize(SummonExecuteTimer timer)
         {
-            _executer = executer;
-
             _timer = timer;
             _timer.OnExecute += Execute;
 
@@ -41,8 +39,10 @@ namespace Skill.Summon
             Debug.Log("TimeOut");
         }
 
-        internal void Init(SkillPayload payload, ISummonMoveStrategy move, SummonData summonData, Sprite sprite)
+        internal void Init(SkillPayload payload, ISummonMoveStrategy move, SummonData summonData, Sprite sprite, SkillExecuter executer)
         {
+            _executer = executer;
+
             _move = move;
             _summonData = summonData;
             _renderer.sprite = sprite;
@@ -51,8 +51,6 @@ namespace Skill.Summon
             _move.OnLooseTarget += TimeOut;
 
             _timer.Init(_summonData.LifeTime, summonData.ApplyTiming);
-
-            _executer.SetData(summonData.ResolveData, _payload);
         }
 
         private void Update()
@@ -63,7 +61,7 @@ namespace Skill.Summon
 
         private void Execute()
         {
-            _executer.Execute(new SkillImpactContext(_payload.Target as IDamageable, this.transform.position));
+            _executer.Execute(new SkillImpactContext(_payload.Target as IDamageable, this.transform.position), _summonData.ResolveData, _payload);
         }
 
         public void OnDespawn()

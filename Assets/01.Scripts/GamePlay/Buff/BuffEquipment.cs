@@ -4,13 +4,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using WhatMerge.Heros;
 public class BuffPayload
 {
-    public IStatModifier StatModifier { get; private set; }
+    public IHeroStatModifier StatModifier { get; private set; }
     public BuffEffect BuffData { get; private set; }
 
-    public BuffPayload(IStatModifier statModifier, BuffEffect buffData)
+    public BuffPayload(IHeroStatModifier statModifier, BuffEffect buffData)
     {
         StatModifier = statModifier;
         BuffData = buffData;
@@ -26,10 +26,10 @@ public class BuffEquipment
         var buff = buffPayload.BuffData.BuffData;
         var duration = buffPayload.BuffData.Duration;
 
-        buffPayload.StatModifier.ModifyStat(buff.BuffType, buff.IncreaseRatio);
+        buffPayload.StatModifier.AddMultiplier(buff.BuffType, buff.IncreaseRatio);
         yield return new WaitForSeconds(duration);
 
-        buffPayload.StatModifier.ModifyStat(buff.BuffType, -buff.IncreaseRatio);
+        buffPayload.StatModifier.AddMultiplier(buff.BuffType, -buff.IncreaseRatio);
         OnEndBuff?.Invoke(this);
     }
 

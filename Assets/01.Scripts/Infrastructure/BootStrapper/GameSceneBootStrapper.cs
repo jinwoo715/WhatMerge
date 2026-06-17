@@ -1,23 +1,21 @@
 using UnityEngine;
-using Map;
-using Heros;
-using Heros.UI;
-using Stage;
+using WhatMerge.Map;
+using WhatMerge.Stage;
 using Core.Scene;
 using Skill;
-using Combat;
 using UnityEngine.U2D;
 using Skill.Summon;
 using Skill.Projectile;
 using WhatMerge.Enemies;
 using WhatMerge.Combat;
+using WhatMerge.Heros;
 
 namespace Core.BootStrapper
 {
     public class GameSceneBootStrapper : MonoBehaviour
     {
         [Header("Hero")]
-        [SerializeField] private HeroRangeViewer _heroRangeViewer;
+        [SerializeField] private HeroRangeIndicator _heroRangeViewer;
         [SerializeField] private HeroBagViewer _bagViewer;
         [SerializeField] private HeroSpawner _heroSpawner;
         [SerializeField] private HeroSummonViewer _heroSummonViewer;
@@ -33,7 +31,7 @@ namespace Core.BootStrapper
         [Header("Map")]
         [SerializeField] private MapBoard _map;
         [SerializeField] private TileClicker _heroClicker;
-        [SerializeField] private TileMarkerPresenter _tileMarkerPresenter;
+        [SerializeField] private TileIndicator _tileMarkerPresenter;
 
         [Header("Enemy")]
         [SerializeField] private EnemySpawner _enemySpawner;

@@ -1,18 +1,15 @@
-using Entity;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Stat;
 
-namespace Heros
+namespace WhatMerge.Heros
 {
-    public class HeroRangeViewer : MonoBehaviour
+    public class HeroRangeIndicator : MonoBehaviour
     {
         [SerializeField] private GameObject _heroRangeObject;
         
         public void ShowHeroRange(Hero hero)
         {
-            float range = hero.StatReadOnly.GetStat(EHeroStat.AttackRange);
+            float range = hero.BasicAttackRange*2;
 
             _heroRangeObject.transform.localScale = Vector3.one * range;
             _heroRangeObject.transform.position = hero.transform.position;

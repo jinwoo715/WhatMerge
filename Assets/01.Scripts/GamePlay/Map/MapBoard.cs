@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Map
+namespace WhatMerge.Map
 {
     public class MapBoard : MonoBehaviour, IHeroMapService, IPathProvider
     {
@@ -15,7 +15,7 @@ namespace Map
 
         private List<Tile> _enemyDestinations = new List<Tile>();
 
-        private HashSet<IReadOnlyTile> OccupiedTiles = new HashSet<IReadOnlyTile>();
+        private HashSet<ITileReadOnly> OccupiedTiles = new HashSet<ITileReadOnly>();
         private Tile _nextHeroEmptyTile = null;
         public bool HasEmptyHeroTile => _nextHeroEmptyTile != null;
 
@@ -76,7 +76,7 @@ namespace Map
 
             _nextHeroEmptyTile = null;
         }
-        public void OccupyHeroTile(IReadOnlyTile tile)
+        public void OccupyHeroTile(ITileReadOnly tile)
         {
             OccupiedTiles.Add(tile);
 
@@ -85,7 +85,7 @@ namespace Map
 
             SetNextEmptyHeroTile();
         }
-        public void FreeHeroTile(IReadOnlyTile tile)
+        public void FreeHeroTile(ITileReadOnly tile)
         {
             Tile freeTile = GetTile(tile);
             freeTile.UnOccupyTile();
@@ -109,13 +109,13 @@ namespace Map
             _nextHeroEmptyTile = returnTile;
         }
 
-        private Tile GetTile(IReadOnlyTile readOnlyTile)
+        private Tile GetTile(ITileReadOnly readOnlyTile)
         {
             return _grid[readOnlyTile.X, readOnlyTile.Y];
         }
 
 
-        public Vector2 GetTileWorldPosition(IReadOnlyTile tile)
+        public Vector2 GetTileWorldPosition(ITileReadOnly tile)
         {
             return _gridWorld.GridToWorldPosition(tile);
         }

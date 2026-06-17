@@ -5,23 +5,15 @@ using Enemies;
 using System;
 using WhatMerge.Enemies;
 
-namespace Stage
+namespace WhatMerge.Stage
 {
-    public interface IStageService
-    {
-        event Action OnClearAllWave;
-        event Action OnExceedEnemyCount;
-        event Action OnTimeOut;
-        
-        void StartStage();
-    }
+    //Stage Start
 
-    public interface IWaveInfoProvider
-    {
-        event Action<int> OnChangeCurrentWave;
-        event Action<float> OnChangeRemainTime;
-        event Action<int, int> OnChangeAliveEnemy;
-    }
+    //Wave Start
+
+    //Stage Victory
+    //Stage Fail
+
 
     public class StageManager : MonoBehaviour, IStageService, IWaveInfoProvider
     {
@@ -155,6 +147,10 @@ namespace Stage
                     _enemySpawnService.StartWaveEnemySpawn(_activeWaves[i]);
                 }
             }
+        }
+        public void SummonMiddBoss()
+        {
+            
         }
     }
 }

@@ -1,13 +1,9 @@
-using Enemies;
 using Heros;
 using Newtonsoft.Json;
-using Skill;
-using Skill.Projectile;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.U2D;
 using WhatMerge.Enemies;
+using WhatMerge.Heros;
 
 public interface IDataProvider
 {

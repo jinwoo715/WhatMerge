@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Skill;
 using Skill.Data;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
@@ -12,6 +13,7 @@ using SkillVfxSystem = Skill.Data.VFXData;
 public sealed class SkillGraphView : GraphView
 {
     private const string SummonDataEffectKeyMarker = "::summon-effect::";
+    private const string EffectTargetKeyMarker = "::effect-target";
     private readonly SkillEditorWindow _window;
     private readonly Dictionary<string, Rect> _nodePositions = new Dictionary<string, Rect>();
     private readonly Dictionary<string, Rect> _assetPositions = new Dictionary<string, Rect>();
@@ -142,6 +144,7 @@ public sealed class SkillGraphView : GraphView
         }
 
         AddSummonDataEffectNodes();
+        AddEffectTargetNodes();
 
         AddCachedReferenceEdge("execution", "Execution", "active", "Execution");
         AddCachedReferenceEdge("target", "Target", "active", "Target");
@@ -177,6 +180,7 @@ public sealed class SkillGraphView : GraphView
         }
 
         AddSummonDataEffectEdges();
+        AddEffectTargetEdges();
 
         _isBuilding = false;
     }
@@ -283,8 +287,13 @@ public sealed class SkillGraphView : GraphView
         evt.menu.AppendAction("Create Node/Effect/Summon", _ => CreateAndAssignNode<SummonEffect>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendAction("Create Node/Effect/Status", _ => CreateAndAssignNode<AttributeEffect>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendSeparator("Create Node/");
+
         evt.menu.AppendAction("Create Node/Item/Projectile", _ => CreateAndAssignNode<ProjectileData>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendAction("Create Node/Item/Summon", _ => CreateAndAssignNode<SummonData>(graphPosition), DropdownMenuAction.AlwaysEnabled);
+        
+        evt.menu.AppendAction("Create Node/Item/EffectTarget/SingleTarget", _ => CreateAndAssignNode<SingleEffectTargetData>(graphPosition), DropdownMenuAction.AlwaysEnabled);
+        evt.menu.AppendAction("Create Node/Item/EffectTarget/AreaTarget", _ => CreateAndAssignNode<AreaEffectTargetData>(graphPosition), DropdownMenuAction.AlwaysEnabled);
+
         evt.menu.AppendSeparator("Create Node/");
         evt.menu.AppendAction("Create Node/VFX/Skill Visual", _ => CreateAndAssignNode<SkillVfxSystem>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendSeparator();
@@ -694,7 +703,44 @@ public sealed class SkillGraphView : GraphView
             return summonEffectKey;
         }
 
+        string effectTargetKey = GetEffectTargetNodeKeyForAsset(asset);
+        if (!string.IsNullOrEmpty(effectTargetKey))
+        {
+            return effectTargetKey;
+        }
+
         return GetLooseKey(asset);
+    }
+
+    private string GetEffectTargetNodeKeyForAsset(UnityEngine.Object asset)
+    {
+        if (asset == null)
+        {
+            return string.Empty;
+        }
+
+        foreach (SkillNodeView node in _nodes.Values)
+        {
+            if (TryGetEffectTargetData(node, out EffectTargetData effectTargetData) && effectTargetData == asset)
+            {
+                return GetEffectTargetNodeKey(node.Key);
+            }
+        }
+
+        for (int i = 0; i < _looseAssets.Count; i++)
+        {
+            if (_looseAssets[i] is ProjectileData projectileData && projectileData.ResolveData == asset)
+            {
+                return GetEffectTargetNodeKey(GetLooseKey(projectileData));
+            }
+
+            if (_looseAssets[i] is SummonData summonData && summonData.ResolveData == asset)
+            {
+                return GetEffectTargetNodeKey(GetLooseKey(summonData));
+            }
+        }
+
+        return string.Empty;
     }
 
     private string GetSummonDataEffectNodeKeyForAsset(UnityEngine.Object asset)
@@ -822,6 +868,54 @@ public sealed class SkillGraphView : GraphView
         }
     }
 
+    private void AddEffectTargetNodes()
+    {
+        List<SkillNodeView> ownerNodes = _nodes.Values
+            .Where(node => TryGetEffectTargetData(node, out _))
+            .ToList();
+
+        for (int i = 0; i < ownerNodes.Count; i++)
+        {
+            SkillNodeView ownerNode = ownerNodes[i];
+            TryGetEffectTargetData(ownerNode, out EffectTargetData effectTargetData);
+
+            Rect ownerPosition = ownerNode.GetPosition();
+            Rect defaultPosition = new Rect(ownerPosition.x + 330f, ownerPosition.y + 40f, 270f, 220f);
+            AddNode(SkillNodeKind.EffectTargetData, GetEffectTargetNodeKey(ownerNode.Key), "Effect Target", effectTargetData, -1, defaultPosition, new Color(0.55f, 0.75f, 0.95f));
+        }
+    }
+
+    private void AddEffectTargetEdges()
+    {
+        List<SkillNodeView> ownerNodes = _nodes.Values
+            .Where(node => TryGetEffectTargetData(node, out _))
+            .ToList();
+
+        for (int i = 0; i < ownerNodes.Count; i++)
+        {
+            SkillNodeView ownerNode = ownerNodes[i];
+            AddCachedReferenceEdge(GetEffectTargetNodeKey(ownerNode.Key), "EffectTarget", ownerNode.Key, "ResolveData");
+        }
+    }
+
+    private static bool TryGetEffectTargetData(SkillNodeView node, out EffectTargetData effectTargetData)
+    {
+        effectTargetData = null;
+        if (node?.Asset is ProjectileData projectileData)
+        {
+            effectTargetData = projectileData.ResolveData;
+            return effectTargetData != null;
+        }
+
+        if (node?.Asset is SummonData summonData)
+        {
+            effectTargetData = summonData.ResolveData;
+            return effectTargetData != null;
+        }
+
+        return false;
+    }
+
     private void AddLooseNode(ScriptableObject asset, int index)
     {
         if (!TryGetNodeInfo(asset, out SkillNodeKind kind, out string title, out Color color))
@@ -889,6 +983,14 @@ public sealed class SkillGraphView : GraphView
             kind = SkillNodeKind.SummonData;
             title = "Summon";
             color = new Color(0.34f, 0.76f, 0.92f);
+            return true;
+        }
+
+        if (asset is EffectTargetData)
+        {
+            kind = SkillNodeKind.EffectTargetData;
+            title = "Effect Target";
+            color = new Color(0.55f, 0.75f, 0.95f);
             return true;
         }
 
@@ -1037,9 +1139,23 @@ public sealed class SkillGraphView : GraphView
             return;
         }
 
+        if (nodeView.Kind == SkillNodeKind.ProjectileData && nodeView.Asset is ProjectileData projectileData)
+        {
+            Undo.RecordObject(projectileData, "Assign Projectile Slot");
+            switch (slotName)
+            {
+                case "ResolveData":
+                    projectileData.ResolveData = newAsset as EffectTargetData;
+                    break;
+            }
+
+            SkillGraphAssetUtility.MarkDirty(projectileData);
+            return;
+        }
+
         if (nodeView.Kind == SkillNodeKind.SummonData && nodeView.Asset is SummonData summonData)
         {
-            Undo.RecordObject(summonData, "Assign Summon Effect Slot");
+            Undo.RecordObject(summonData, "Assign Summon Slot");
             if (TryGetEffectSlotIndex(slotName, out int effectIndex))
             {
                 if (newAsset is EffectBase indexedEffect)
@@ -1050,6 +1166,16 @@ public sealed class SkillGraphView : GraphView
                 SkillGraphAssetUtility.MarkDirty(summonData);
                 return;
             }
+
+            switch (slotName)
+            {
+                case "ResolveData":
+                    summonData.ResolveData = newAsset as EffectTargetData;
+                    break;
+            }
+
+            SkillGraphAssetUtility.MarkDirty(summonData);
+            return;
         }
 
         if (nodeView.Kind == SkillNodeKind.Effect && nodeView.Asset is EffectBase effectAsset)
@@ -1145,9 +1271,26 @@ public sealed class SkillGraphView : GraphView
             return;
         }
 
+        if (nodeView.Kind == SkillNodeKind.ProjectileData && nodeView.Asset is ProjectileData projectileData)
+        {
+            Undo.RecordObject(projectileData, "Clear Projectile Slot");
+            switch (slotName)
+            {
+                case "ResolveData":
+                    if (projectileData.ResolveData == oldAsset)
+                    {
+                        projectileData.ResolveData = null;
+                    }
+                    break;
+            }
+
+            SkillGraphAssetUtility.MarkDirty(projectileData);
+            return;
+        }
+
         if (nodeView.Kind == SkillNodeKind.SummonData && nodeView.Asset is SummonData summonData)
         {
-            Undo.RecordObject(summonData, "Clear Summon Effect Slot");
+            Undo.RecordObject(summonData, "Clear Summon Slot");
             if (TryGetEffectSlotIndex(slotName, out int effectIndex))
             {
                 if (summonData.Effects != null
@@ -1161,6 +1304,19 @@ public sealed class SkillGraphView : GraphView
                 SkillGraphAssetUtility.MarkDirty(summonData);
                 return;
             }
+
+            switch (slotName)
+            {
+                case "ResolveData":
+                    if (summonData.ResolveData == oldAsset)
+                    {
+                        summonData.ResolveData = null;
+                    }
+                    break;
+            }
+
+            SkillGraphAssetUtility.MarkDirty(summonData);
+            return;
         }
 
         if (nodeView.Kind == SkillNodeKind.Effect && nodeView.Asset is EffectBase effectAsset)
@@ -1237,6 +1393,13 @@ public sealed class SkillGraphView : GraphView
 
     private static string GetSlotNodeKey(SkillNodeView inputNode, string slotName)
     {
+        if (inputNode != null
+            && (inputNode.Kind == SkillNodeKind.ProjectileData || inputNode.Kind == SkillNodeKind.SummonData)
+            && slotName == "ResolveData")
+        {
+            return GetEffectTargetNodeKey(inputNode.Key);
+        }
+
         if (inputNode != null && inputNode.Kind == SkillNodeKind.Effect && slotName == "VFX" && inputNode.EffectIndex >= 0)
         {
             return "effect-vfx-" + inputNode.EffectIndex;
@@ -1277,6 +1440,29 @@ public sealed class SkillGraphView : GraphView
     private static string GetSummonDataEffectNodeKey(string summonNodeKey, int effectIndex)
     {
         return summonNodeKey + SummonDataEffectKeyMarker + effectIndex;
+    }
+
+    private static string GetEffectTargetNodeKey(string ownerNodeKey)
+    {
+        return ownerNodeKey + EffectTargetKeyMarker;
+    }
+
+    private static bool TryGetEffectTargetNodeInfo(SkillNodeView nodeView, out string ownerNodeKey)
+    {
+        ownerNodeKey = string.Empty;
+        if (nodeView == null || string.IsNullOrEmpty(nodeView.Key))
+        {
+            return false;
+        }
+
+        int markerIndex = nodeView.Key.LastIndexOf(EffectTargetKeyMarker, StringComparison.Ordinal);
+        if (markerIndex < 0)
+        {
+            return false;
+        }
+
+        ownerNodeKey = nodeView.Key.Substring(0, markerIndex);
+        return !string.IsNullOrEmpty(ownerNodeKey);
     }
 
     private static bool TryGetSummonDataEffectNodeInfo(SkillNodeView nodeView, out string summonNodeKey, out int effectIndex)
@@ -1355,6 +1541,17 @@ public sealed class SkillGraphView : GraphView
             }
         }
 
+        if (nodeView.Kind == SkillNodeKind.ProjectileData && nodeView.Asset is ProjectileData projectileData)
+        {
+            switch (slotName)
+            {
+                case "ResolveData":
+                    return projectileData.ResolveData == asset;
+                default:
+                    return false;
+            }
+        }
+
         if (nodeView.Kind == SkillNodeKind.SummonData && nodeView.Asset is SummonData summonData)
         {
             if (TryGetEffectSlotIndex(slotName, out int effectIndex))
@@ -1366,7 +1563,13 @@ public sealed class SkillGraphView : GraphView
                     && summonData.Effects[effectIndex] == asset;
             }
 
-            return false;
+            switch (slotName)
+            {
+                case "ResolveData":
+                    return summonData.ResolveData == asset;
+                default:
+                    return false;
+            }
         }
 
         if (nodeView.Kind == SkillNodeKind.Effect && nodeView.Asset is EffectBase effectAsset)
@@ -1415,6 +1618,19 @@ public sealed class SkillGraphView : GraphView
             return true;
         }
 
+        for (int i = 0; i < _looseAssets.Count; i++)
+        {
+            if (_looseAssets[i] is ProjectileData looseProjectileData && looseProjectileData.ResolveData == asset)
+            {
+                return true;
+            }
+
+            if (_looseAssets[i] is SummonData looseSummonData && looseSummonData.ResolveData == asset)
+            {
+                return true;
+            }
+        }
+
         if (_skill.Execution == null)
         {
             return false;
@@ -1426,6 +1642,11 @@ public sealed class SkillGraphView : GraphView
         }
 
         if (_skill.Execution is ProjectileSkill projectileSkill && projectileSkill.ProjectileData == asset)
+        {
+            return true;
+        }
+
+        if (_skill.Execution is ProjectileSkill projectileSkillWithTarget && projectileSkillWithTarget.ProjectileData?.ResolveData == asset)
         {
             return true;
         }
@@ -1449,6 +1670,11 @@ public sealed class SkillGraphView : GraphView
             }
 
             if (entry is SummonEffect summonEffect && summonEffect.Summon == asset)
+            {
+                return true;
+            }
+
+            if (entry is SummonEffect summonEffectWithTarget && summonEffectWithTarget.Summon?.ResolveData == asset)
             {
                 return true;
             }
@@ -1498,7 +1724,17 @@ public sealed class SkillGraphView : GraphView
 
     private static bool IsReferencedBySummonDataEffects(SummonData summonData, UnityEngine.Object asset, HashSet<SummonData> visited)
     {
-        if (summonData == null || !visited.Add(summonData) || summonData.Effects == null)
+        if (summonData == null || !visited.Add(summonData))
+        {
+            return false;
+        }
+
+        if (summonData.ResolveData == asset)
+        {
+            return true;
+        }
+
+        if (summonData.Effects == null)
         {
             return false;
         }
@@ -1506,6 +1742,12 @@ public sealed class SkillGraphView : GraphView
         for (int i = 0; i < summonData.Effects.Count; i++)
         {
             if (summonData.Effects[i] == asset)
+            {
+                return true;
+            }
+
+            if (summonData.Effects[i] is SummonEffect summonEffect
+                && IsReferencedBySummonDataEffects(summonEffect.Summon, asset, visited))
             {
                 return true;
             }
@@ -1665,6 +1907,24 @@ public sealed class SkillGraphView : GraphView
                         Undo.RecordObject(summonEffect, "Remove Summon Data");
                         summonEffect.Summon = null;
                         SkillGraphAssetUtility.MarkDirty(summonEffect);
+                    }
+                }
+                break;
+            case SkillNodeKind.EffectTargetData:
+                if (TryGetEffectTargetNodeInfo(nodeView, out string ownerNodeKey)
+                    && _nodes.TryGetValue(ownerNodeKey, out SkillNodeView ownerNode))
+                {
+                    if (ownerNode.Asset is ProjectileData projectileData && projectileData.ResolveData == nodeView.Asset)
+                    {
+                        Undo.RecordObject(projectileData, "Remove Effect Target Data");
+                        projectileData.ResolveData = null;
+                        SkillGraphAssetUtility.MarkDirty(projectileData);
+                    }
+                    else if (ownerNode.Asset is SummonData summonData && summonData.ResolveData == nodeView.Asset)
+                    {
+                        Undo.RecordObject(summonData, "Remove Effect Target Data");
+                        summonData.ResolveData = null;
+                        SkillGraphAssetUtility.MarkDirty(summonData);
                     }
                 }
                 break;

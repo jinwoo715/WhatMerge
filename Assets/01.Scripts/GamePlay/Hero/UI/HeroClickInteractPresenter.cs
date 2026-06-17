@@ -1,5 +1,4 @@
-using Entity;
-using Heros;
+using WhatMerge.Heros;
 using UnityEngine;
 using UnityEngine.UI;
 

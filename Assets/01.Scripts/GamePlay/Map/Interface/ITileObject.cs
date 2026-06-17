@@ -1,15 +1,11 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace Map
+namespace WhatMerge.Map
 { 
     public interface ITileObject
     {
-        IReadOnlyTile OccupiedTile { get; }
-        event Action<IReadOnlyTile> OnOccupiedTile;
-        event Action<IReadOnlyTile> OnFreeTile;
-        void SetTile(IReadOnlyTile tile, Vector2 position);
+        ITileReadOnly OccupiedTile { get; }
+        void SetTile(ITileReadOnly tile, Vector2 position);
     }
 }

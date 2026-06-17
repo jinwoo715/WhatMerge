@@ -1,13 +1,12 @@
-using Entity;
-using Heros;
-using Map;
+using WhatMerge.Heros;
+using WhatMerge.Map;
 using Skill;
 using Skill.Data;
 using System;
-using System.Collections; 
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.U2D;
+using Heros;
 
 public class HeroSpawner : MonoBehaviour, IHeroSummonService
 {
@@ -38,7 +37,6 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
         _heroDataRepo = heroDataRepo;
         _heroDeck = deck;
 
-        _heroPool.OnCreateEvent += SpawnInit;
         _heroPool.Init(this.transform, _heroPrefab, 10);
 
         foreach (var set in sets)
@@ -104,21 +102,19 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
         ATKData atkData = _heroDataRepo.GetATKData(data.ATKUID);
         SpriteAtlas heroAtlas = _spriteAtlasRepository.GetAtlas(data.Name);
 
-        hero.SetData(data, atkData, heroAtlas, saveData.Level);
-        hero.SetEvolution(evolutionLevel);
+        HeroSpriteController heroSpriteController = hero.GetComponent<HeroSpriteController>();
+
+        hero.SetData(data, atkData, heroSpriteController, saveData.Level, evolutionLevel);
+        heroSpriteController.Init(heroAtlas, data.Name, saveData.Level);
 
         var skillSet = factory.CreateSkill(hero, level, dictionary[hero.UID]);
 
         SkillController controller = new SkillController(skillSet.ActiveSkills, skillSet.PassiveSkills, hero, data.AS);
 
-        hero.skillController = controller;
+        hero.SetSkill(controller);
         return hero;
     }
 
-    public void SpawnInit(Hero hero)
-    {
-        hero.SpawnInit();
-    }
     public void ReturnHero(Hero hero)
     {
         _heroPool.ReturnItem(hero);

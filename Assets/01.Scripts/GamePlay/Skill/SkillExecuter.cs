@@ -1,5 +1,3 @@
-using Combat;
-using Enemies;
 using Skill.Data;
 using UnityEngine;
 using Skill.Projectile;
@@ -8,42 +6,43 @@ using WhatMerge.Combat;
 
 namespace Skill
 {
-    public class SkillExecuter
+    public abstract class SkillExecuter
     {
-        private ICombatService _combatService;
-        private SkillPayload _payload;
-        private TargetResolveData _targetResolveType;
+        protected ICombatService _combatService;
 
         public SkillExecuter(ICombatService combatService)
         {
             _combatService = combatService;
         }
+        public abstract void Execute(SkillImpactContext impactContext, EffectTargetData targetResolveType, SkillPayload payload);
+    }
 
-        public void SetData(TargetResolveData targetResolveType, SkillPayload payload)
+    public class SingleTargetExecuter : SkillExecuter
+    {
+        public SingleTargetExecuter(ICombatService combatService) : base(combatService) { }
+
+        public override void Execute(SkillImpactContext impactContext, EffectTargetData targetResolveType, SkillPayload payload)
         {
-            _targetResolveType = targetResolveType;
-            _payload = payload;
+            DamageContext context = new DamageContext(payload.payLoad, impactContext.ImpactTarget, payload.Attacker);
+            context.skillEffects = payload.effects;
+            _combatService.RegisterAttack(context);
         }
+    }
+    public class AreaTargetExecuter : SkillExecuter
+    {
+        public AreaTargetExecuter(ICombatService combatService) : base(combatService) { }
 
-        //TODO
-        public void Execute(SkillImpactContext impactContext)
+        public override void Execute(SkillImpactContext impactContext, EffectTargetData targetResolveType, SkillPayload payload)
         {
-            if (_targetResolveType.Type == ETargetResolveType.Single)
-            {
-                DamageContext context = new DamageContext(_payload.payLoad, impactContext.ImpactTarget, _payload.Attacker);
-                context.skillEffects = _payload.effects;
-                _combatService.RegisterAttack(context);
-            }
-            else if (_targetResolveType.Type == ETargetResolveType.Area)
-            {
-                var enemies = SearchUtility.GetNearAll2DTargets<Enemy>(impactContext.ImpactPosition, _targetResolveType.Radius, LayerMask.GetMask("Enemy"));
+            float radius = (targetResolveType as AreaEffectTargetData).Radius;
 
-                foreach (var enemy in enemies)
-                {
-                    DamageContext context = new DamageContext(_payload.payLoad, enemy, _payload.Attacker);
-                    context.skillEffects = _payload.effects;
-                    _combatService.RegisterAttack(context);
-                }
+            var enemies = SearchUtility.GetNearEnemies(impactContext.ImpactPosition, radius);
+
+            foreach (var enemy in enemies)
+            {
+                DamageContext context = new DamageContext(payload.payLoad, enemy, payload.Attacker);
+                context.skillEffects = payload.effects;
+                _combatService.RegisterAttack(context);
             }
         }
     }

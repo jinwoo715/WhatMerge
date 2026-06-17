@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace Map
+namespace WhatMerge.Map
 {
     public class GridWorld
     {
@@ -14,7 +12,7 @@ namespace Map
             _yOffset = ySize / 2f - 0.5f;
         }
 
-        public Vector2 GridToWorldPosition(IReadOnlyTile tile)
+        public Vector2 GridToWorldPosition(ITileReadOnly tile)
         {
             return new Vector2(tile.X - _xOffset, tile.Y - _yOffset);
         }

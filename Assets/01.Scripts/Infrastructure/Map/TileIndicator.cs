@@ -2,15 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Map {
-    public interface ITileMarkerPresenter
+namespace WhatMerge.Map 
+{
+    public interface ITileIndicator
     {
         void ShowTileMarker(Tile tile);
         void UpdateTileMarker(Tile tile);
         void HideTileMarker();
     }
 
-    public class TileMarkerPresenter : MonoBehaviour, ITileMarkerPresenter
+    public class TileIndicator : MonoBehaviour, ITileIndicator
     {
         [SerializeField] private GameObject _startTileMarker;
         [SerializeField] private GameObject _currentTileMarker;

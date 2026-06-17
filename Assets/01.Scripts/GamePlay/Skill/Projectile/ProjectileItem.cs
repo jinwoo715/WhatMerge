@@ -14,41 +14,37 @@ namespace Skill.Projectile
         private EProjectileEffectTrigger _destroyTrigger;
         private IProjectileMoveStrategy _moveStretagy;
         
-        private SkillPayload _data;
         private SkillExecuter _effectExecuter;
 
         private Data.ProjectileData _soData;
+
+        private SkillPayload _payload;
 
         public bool IsActive { get; private set; }
         public event Action<ProjectileItem> OnReturn;
 
         private Action<SkillImpactContext> OnArriveTrigger;
 
-        public void Initialize(SkillExecuter effectExecuter)
+        public void Init(SkillPayload data, IProjectileMoveStrategy moveStretagy, Data.ProjectileData soData, Sprite sprite, SkillExecuter effectExecuter)
         {
             _effectExecuter = effectExecuter;
-        }
-
-        public void Init(SkillPayload data, IProjectileMoveStrategy moveStretagy, Data.ProjectileData soData, Sprite sprite)
-        {
-            _data = data;
+            _payload = data;
             _moveStretagy = moveStretagy;
             _renderer.sprite = sprite;
             _trigger = soData.EffectTrigger;
             _destroyTrigger = soData.DestroyTrigger;
             _soData = soData;
-            OnArriveTrigger = (context) => CheckTrigger(EProjectileEffectTrigger.OnArrive, context);
+            OnArriveTrigger = (context) => CheckTrigger(EProjectileEffectTrigger.OnArrive, context.ImpactTarget);
 
             _moveStretagy.OnArrived += OnArriveTrigger;
-            _effectExecuter.SetData(soData.ResolveData, data);
         }
 
         private void Update()
         {
             //시간 초과
-            if (_currentTime >= 3.0f)
+            if (_currentTime >= _soData.LifeTime)
             {
-                OnReturn?.Invoke(this);
+                CheckTrigger(EProjectileEffectTrigger.OnTimeOut, null);
                 return;
             }
 
@@ -58,11 +54,17 @@ namespace Skill.Projectile
             _moveStretagy.Tick();
         }
 
-        private void CheckTrigger(EProjectileEffectTrigger trigger, SkillImpactContext context)
+        private void CheckTrigger(EProjectileEffectTrigger trigger, IDamageable target)
         {
             if (trigger == _trigger)
             {
-                _effectExecuter.Execute(context);
+                SkillImpactContext skillImpactContext = new SkillImpactContext(target, this.transform.position);
+
+                _effectExecuter.Execute(skillImpactContext, _soData.ResolveData, _payload);
+            }
+
+            if(trigger == _destroyTrigger)
+            {
                 OnReturn?.Invoke(this);
             }
         }
@@ -86,7 +88,7 @@ namespace Skill.Projectile
                 {
                     if (!IsActive) return;
 
-                    CheckTrigger(EProjectileEffectTrigger.OnHit, new SkillImpactContext(target, target.Position));
+                    CheckTrigger(EProjectileEffectTrigger.OnHit, target);
                 }
             }
         }

@@ -1,195 +1,107 @@
-using Heros;
-using Heros.Stat;
-using Map;
+using WhatMerge.Map;
 using Skill;
-using Stat;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.U2D;
 using WhatMerge.Combat;
 
-public interface IHeroInfoProvider
-{
-    public Transform Transform { get; }
-    public string Name { get; }
-    public int EvolutionLevel { get; }
-    public int UID { get; }
-}
 
-public interface IAttackStatProvider
+namespace WhatMerge.Heros
 {
-    float GetStat(EAttackStatType attackStatType);
-}
-
-public interface IStatModifier
-{
-    void ModifyStat(EHeroStatType stat, float value);
-}
-
-public enum EAttackStatType
-{
-    Damage,
-    FlatPentration,
-    PercentPenetration,
-    Radius,
-    AttackSpeed
-}
-
-
-public interface IHeros : ICreature, IStatModifier
-{
-    IHeroInfoProvider Provider { get; }
-}
-
-namespace Entity
-{
-    public class Creature : MonoBehaviour
+    public interface IHeroInfoProvider
     {
-        public bool IsActive { get; set; }
+        public int UID { get; }
+        public string Name { get; }
+        public int EvolutionLevel { get; }
     }
 
-    public class Hero : Creature, ITileObject, IHeroInfoProvider, IAttackStatProvider, IAttackable, IHeros, IPooledItem<Hero>
+    public interface IAttackRangeProvider
     {
-        [SerializeField] private HeroSpriteController _spriteController;
+        float BasicAttackRange { get; }
+    }
 
-        //TODO
-        public SkillController skillController;
-
+    public class Hero : MonoBehaviour, ITileObject, IHeroInfoProvider, IAttacker, IPooledItem<Hero>, IAttackRangeProvider
+    {
+        private SkillController _skillController;
+        private HeroStats _stat = new HeroStats();
         private HeroData _heroData;
         private ATKData _atkData;
 
-        private HeroStatController _stat = new HeroStatController();
+        private int _upgradeLevel = 1;
 
-        private IReadOnlyTile _underTile;
+        private IHeroVisual _heroVisual;
 
-        public event Action<IReadOnlyTile> OnOccupiedTile;
-        public event Action<IReadOnlyTile> OnFreeTile;
-
-        public SkillServiceLocate Context { get; private set; }
-
-        private int _heroLevel = 1;
-        private int _evolutionLevel = 0;
-        public Transform Transform => this.transform;
+        public bool IsActive { get; private set; }
         public string Name => _heroData.Name;
-        public int EvolutionLevel => _evolutionLevel;
-
-        public ISpriteChanger SpriteChanger => _spriteController;
-
+        public int EvolutionLevel { get; private set; }
         public Vector3 Position => this.transform.position;
-
-        public IHeroInfoProvider Provider => throw new NotImplementedException();
-
-        public IHeroStatReadOnly StatReadOnly => _stat;
-
         public int UID => _heroData.UID;
+        public ITileReadOnly OccupiedTile { get; private set; }
+        public IHeroStatModifier StatModify => _stat;
+        public float BasicAttackRange => _skillController.BasicAttackRange;
 
-        public IReadOnlyTile OccupiedTile => _underTile;
-
-        public void SpawnInit()
-        {
-            Context = new SkillServiceLocate();
-            Context.Register<ICreature>(this);
-            Context.Register<IAttackable>(this);
-            Context.Register<Transform>(this.transform);
-            Context.Register<IHeroInfoProvider>(this);
-            Context.Register<ISpriteChanger>(SpriteChanger);
-            Context.Register<IAttackStatProvider>(this);
-        }
-        public void SetData(HeroData data, ATKData atkData, SpriteAtlas spriteAtlas, int level)
+        public void SetData(HeroData data, ATKData atkData, IHeroVisual heroVisual, int upgradeLevel, int evolutionLevel)
         {
             _heroData = data;
             _atkData = atkData;
-            _heroLevel = level;
+            _upgradeLevel = upgradeLevel;
 
-            _stat.SetBaseValue(EHeroStat.AttackSpeed, data.AS);
+            _stat.SetBaseValue(HeroStatType.AttackPerSecond, data.AS);
+            _stat.SetBaseValue(HeroStatType.CriticalChance, data.CriticalChance);
+            _stat.SetBaseValue(HeroStatType.CriticalMultiplier, data.CriticalMultiple);
+            _stat.SetBaseValue(HeroStatType.FlatPenetration, data.Penetration);
 
-            _spriteController.Init(spriteAtlas, _heroData.Name, _evolutionLevel);
+            EvolutionLevel = evolutionLevel;
+            _heroVisual = heroVisual;
+
+            SetEvolution();
         }
-
-        public void SetEvolution(int evolutionLevel)
+        public void SetSkill(SkillController skillController)
         {
-            _evolutionLevel = evolutionLevel;
-
-            int baseATK = StatCalculator.BaseATK(_evolutionLevel, _atkData);
-            float setAtk = StatCalculator.ATK(_heroLevel, baseATK, _atkData.GrowthRatio, _atkData.TierMultiplier);
-            _stat.SetBaseValue(EHeroStat.Damage, setAtk);
-
-            _spriteController.SetLevel(_evolutionLevel);
+            _skillController = skillController;
         }
-
-        public void EvolutionUp()
+        public void UpgradeEvolution()
         {
-            _evolutionLevel++;
-            SetEvolution(_evolutionLevel);
+            EvolutionLevel++;
+            SetEvolution();
         }
+        private void SetEvolution()
+        {
+            int baseATK = StatCalculator.BaseATK(EvolutionLevel, _atkData);
+            float setAtk = StatCalculator.ATK(_upgradeLevel, baseATK, _atkData.GrowthRatio, _atkData.TierMultiplier);
+            _stat.SetBaseValue(HeroStatType.Damage, setAtk);
 
+            _heroVisual.SetEvolutionLevel(EvolutionLevel);
+        }
         private void Update()
         {
-            if (skillController == null) return;
+            if (_skillController == null) return;
 
-            skillController.Tick(Time.deltaTime);
+            _skillController.Tick(Time.deltaTime);
         }
-
-        public void SetPassive(List<ISkill> skills)
+        public void SetTile(ITileReadOnly tile, Vector2 position)
         {
-            foreach (var skill in skills)
-            {
-                //StartCoroutine(skill.Execute());
-            }
-        }
-
-        public void SetTile(IReadOnlyTile tile, Vector2 position)
-        {
-            _underTile = tile;
-
+            OccupiedTile = tile;
             this.transform.position = position;
         }
-
-        public float GetStat(EAttackStatType attackStatType)
+        public AttackPayload CreateAttackPayload()
         {
-            switch (attackStatType)
-            {
-                case EAttackStatType.Damage:
-                    return _stat.GetStat(EHeroStat.Damage);
-                case EAttackStatType.FlatPentration:
-                    return 0;
-                case EAttackStatType.PercentPenetration:
-                    return 0;
-                case EAttackStatType.Radius:
-                    break;
-                case EAttackStatType.AttackSpeed:
-                    break;
-                default:
-                    break;
-            }
-            return 1;
+            int damage = Mathf.RoundToInt(_stat.GetStat(HeroStatType.Damage));
+            int flatPenetration = Mathf.RoundToInt(_stat.GetStat(HeroStatType.FlatPenetration));
+            int percentPenetration = Mathf.RoundToInt(_stat.GetStat(HeroStatType.PercentPenetration));
+
+            AttackPayload payload = new AttackPayload(damage, flatPenetration, percentPenetration);
+
+            return payload;
         }
-
-        public void RequestDamage(DamageContext dc)
+        public void OnSpawn() 
         {
-            throw new NotImplementedException();
+            IsActive = true;
         }
-
-        public DamageContext CreateDamageContext()
+        public void OnDespawn() 
         {
-            throw new NotImplementedException();
-        }
-
-        public void ModifyStat(EHeroStatType stat, float value)
-        {
-            Debug.Log($"Apply Stat : {stat}, {value}");
-            _stat.AddMultiplyValue(EHeroStat.Damage, value);
-        }
-
-        public void OnSpawn()
-        {
-            
-        }
-
-        public void OnDespawn()
-        {
-           
+            IsActive = false;
+            _skillController.StopRunner();
         }
     }
 }

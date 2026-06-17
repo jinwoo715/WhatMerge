@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Stage;
+using WhatMerge.Stage;
 using Enemies;
 namespace Core.Scene
 {

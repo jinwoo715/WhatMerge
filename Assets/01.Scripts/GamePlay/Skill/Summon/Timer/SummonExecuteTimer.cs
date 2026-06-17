@@ -28,7 +28,7 @@ namespace Skill.Summon
         {
             _currentTime += Time.deltaTime;
 
-            if (_isApplied && !_applyTiming.IsIntervalApply)
+            if (_isApplied && _applyTiming.ApplyType == SummonApplyType.Once)
             {
                 CheckTimeout();
                 return;

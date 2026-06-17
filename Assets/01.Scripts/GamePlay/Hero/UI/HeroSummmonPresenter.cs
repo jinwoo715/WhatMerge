@@ -1,9 +1,6 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
-namespace Heros.UI
+namespace WhatMerge.Heros
 {
     [Serializable]
     public class HeroSummmonPresenter

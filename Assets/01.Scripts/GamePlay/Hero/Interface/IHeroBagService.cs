@@ -1,7 +1,6 @@
-using Entity;
 using System;
 
-namespace Heros
+namespace WhatMerge.Heros
 {
     public interface IHeroBagService
     {

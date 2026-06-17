@@ -2,10 +2,11 @@ using Skill.Data;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using WhatMerge.Heros;
 
 public interface IBuffRegister
 {
-    void RegisterBuff(BuffEffect timedBuffEffect, IStatModifier statModifier);
+    void RegisterBuff(BuffEffect timedBuffEffect, IHeroStatModifier statModifier);
 }
 
 //TODO
@@ -47,7 +48,7 @@ public class BuffManager : MonoBehaviour, IBuffRegister
         _buffPool.Push(buff);
     }
 
-    public void RegisterBuff(BuffEffect timedBuffEffect, IStatModifier statModifier)
+    public void RegisterBuff(BuffEffect timedBuffEffect, IHeroStatModifier statModifier)
     {
         BuffEquipment buff = GetBuff();
         BuffPayload buffPayload = new BuffPayload(statModifier, timedBuffEffect);

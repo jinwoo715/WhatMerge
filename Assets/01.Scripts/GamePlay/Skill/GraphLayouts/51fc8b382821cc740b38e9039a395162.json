@@ -44,10 +44,10 @@
             "Key": "execution-projectile",
             "Position": {
                 "serializedVersion": "2",
-                "x": -902.0,
-                "y": 268.0,
-                "width": 304.0,
-                "height": 316.0
+                "x": -974.0,
+                "y": 353.0,
+                "width": 411.0,
+                "height": 271.0
             }
         },
         {
@@ -139,6 +139,26 @@
                 "width": 320.0,
                 "height": 136.0
             }
+        },
+        {
+            "Key": "loose-955060a77de23ef44a21b0cb871899ab",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -1360.0,
+                "y": 546.0,
+                "width": 350.0,
+                "height": 156.0
+            }
+        },
+        {
+            "Key": "execution-projectile::effect-target",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -1319.0,
+                "y": 506.0,
+                "width": 350.0,
+                "height": 156.0
+            }
         }
     ],
     "AssetPositions": [
@@ -216,10 +236,10 @@
             "Key": "asset-accc5853c6681fc4199d13af8ff215ad",
             "Position": {
                 "serializedVersion": "2",
-                "x": -902.0,
-                "y": 268.0,
-                "width": 304.0,
-                "height": 316.0
+                "x": -974.0,
+                "y": 353.0,
+                "width": 411.0,
+                "height": 271.0
             }
         },
         {
@@ -241,17 +261,27 @@
                 "width": 320.0,
                 "height": 136.0
             }
+        },
+        {
+            "Key": "asset-955060a77de23ef44a21b0cb871899ab",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -1360.0,
+                "y": 546.0,
+                "width": 350.0,
+                "height": 156.0
+            }
         }
     ],
     "LooseAssetGuids": [],
     "ViewPosition": {
-        "x": 743.0,
-        "y": 97.0,
+        "x": 1201.0,
+        "y": 119.0,
         "z": 0.0
     },
     "ViewScale": {
-        "x": 0.7561436891555786,
-        "y": 0.7561436891555786,
+        "x": 0.8695651888847351,
+        "y": 0.8695651888847351,
         "z": 1.0
     }
 }

@@ -1,13 +1,10 @@
-using Enemies;
-using Entity;
 using Skill;
 using Skill.Data;
 using Skill.Summon;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using WhatMerge.Combat;
+using WhatMerge.Heros;
 
 namespace WhatMerge.Combat
 {
@@ -88,7 +85,7 @@ namespace WhatMerge.Combat
         {
             Debug.Log($"Àû¿ë : {target}");
 
-            if (target is IStatModifier modifier)
+            if (target is IHeroStatModifier modifier)
             {
                 _buffRegister.RegisterBuff(buff, modifier);
             }

@@ -5,23 +5,17 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace WhatMerge.Combat
 {
-    public class AttackPayload
+    public struct AttackPayload
     {
         public int AttackDamage;
         public int FlatPenetration;
         public float PercentPenetration;
-        public bool IsPiercing;
 
         public AttackPayload(int damage, int flatPenetration, float percentPenetration)
         {
             AttackDamage = damage;
             FlatPenetration = flatPenetration;
             PercentPenetration = percentPenetration;
-            IsPiercing = false;
-        }
-
-        public void AddStatusEffect(int uid)
-        {
         }
     }
 
@@ -37,20 +31,20 @@ namespace WhatMerge.Combat
 
     public class DamageContext
     {
-        public IAttackable Attacker;
+        public IAttacker Attacker;
         public ICombatant Target;
         public AttackPayload AttackPayload;
         public Vector3 VFXPosition;
 
         public DamageContext() { }
-        public DamageContext(string vfx, Vector3 vfxPosition, IAttackable attacker)
+        public DamageContext(string vfx, Vector3 vfxPosition, IAttacker attacker)
         {
             AttackPayload = new AttackPayload(0,0,0);
             Target = null;
             Attacker = attacker;
             VFXPosition = vfxPosition;
         }
-        public DamageContext(AttackPayload attackPayload, ICombatant target, IAttackable attacker)
+        public DamageContext(AttackPayload attackPayload, ICombatant target, IAttacker attacker)
         {
             AttackPayload = attackPayload;
             Target = target;

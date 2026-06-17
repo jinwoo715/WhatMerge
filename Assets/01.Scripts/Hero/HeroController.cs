@@ -1,6 +1,5 @@
 using Combat;
-using Entity;
-using Map;
+using WhatMerge.Map;
 using Skill;
 using System;
 using System.Collections;
@@ -8,10 +7,11 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.U2D;
+using WhatMerge.Heros;
 
 namespace Combat { }
 
-namespace Heros
+namespace WhatMerge.Heros
 {
     public interface IHeroSummonService
     {
@@ -118,9 +118,6 @@ namespace Heros
             return EHeroOverlapResult.None;
         }
     }
-
-
-
     public enum EHeroOverlapResult
     {
         None,
@@ -128,14 +125,9 @@ namespace Heros
         Merge
     }
 
-    public class FieldHeroManager
-    {
-
-    }
-
     public class HeroController : IFieldHeroService, IHeroTileService
     {
-        private Dictionary<IReadOnlyTile, Hero> _fieldHeros = new Dictionary<IReadOnlyTile, Hero>();
+        private Dictionary<ITileReadOnly, Hero> _fieldHeros = new Dictionary<ITileReadOnly, Hero>();
         private Dictionary<(int x,int y), Hero> _fieldHero = new Dictionary<(int, int), Hero>();
 
         private Hero _clickedHero = null;
@@ -147,7 +139,7 @@ namespace Heros
 
         private IHeroMapService _heroMapService;
         private IHeroOverlapResult _overlapProcessor;
-        private ITileMarkerPresenter _markerPresenter;
+        private ITileIndicator _markerPresenter;
         private IGameGoldService _gameGoldService;
         private IHeroSummonService _heroSpawnService;
         public event Action<Hero> OnSelectHero;
@@ -155,7 +147,7 @@ namespace Heros
         public event Action<Hero> OnSpawnedHero;
         public event Action<Hero> OnDestroyHero;
 
-        public void Init(IHeroSummonService heroSpawnService, IHeroOverlapResult heroOverlapProcessor, IHeroMapService heroMapService, ITileMarkerPresenter markerPresenter, IGameGoldService gameGoldService)
+        public void Init(IHeroSummonService heroSpawnService, IHeroOverlapResult heroOverlapProcessor, IHeroMapService heroMapService, ITileIndicator markerPresenter, IGameGoldService gameGoldService)
         {
             _heroSpawnService = heroSpawnService;
             _gameGoldService = gameGoldService;
@@ -170,13 +162,13 @@ namespace Heros
 
         public void ClearHero(Hero hero)
         {
-            IReadOnlyTile tile = hero.OccupiedTile;
+            ITileReadOnly tile = hero.OccupiedTile;
             _fieldHeros.Remove(tile);
             _fieldHero.Remove((tile.X, tile.Y));
             _heroMapService.FreeHeroTile(tile);
         }
 
-        public void SetHeroPosition(IReadOnlyTile tile, Hero hero)
+        public void SetHeroPosition(ITileReadOnly tile, Hero hero)
         {
             if (hero.OccupiedTile != null)
                 _heroMapService.FreeHeroTile(hero.OccupiedTile);
@@ -246,7 +238,7 @@ namespace Heros
                             break;
                         case EHeroOverlapResult.Evolution:
                             ReturnHero(_clickedHero);
-                            hero.EvolutionUp();
+                            hero.UpgradeEvolution();
 
                             break;
                         case EHeroOverlapResult.Merge:
@@ -286,7 +278,7 @@ namespace Heros
             _gameGoldService.GainMoney(10);
         }
 
-        public List<Hero> GetNearHeros(IReadOnlyTile pivot, int range)
+        public List<Hero> GetNearHeros(ITileReadOnly pivot, int range)
         {
             List<Hero> heros = new List<Hero>();
 
@@ -330,7 +322,7 @@ namespace Heros
             return heros;
         }
 
-        public void SetHeroBuff(EHeroStatType stat, float value)
+        public void SetHeroBuff(HeroStatType stat, float value)
         {
             throw new NotImplementedException();
         }

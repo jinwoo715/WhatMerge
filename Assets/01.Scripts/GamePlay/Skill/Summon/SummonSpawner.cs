@@ -2,6 +2,7 @@ using Combat;
 using Enemies;
 using Skill;
 using Skill.Data;
+using Skill.Projectile;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,7 +17,9 @@ namespace Skill.Summon
         [SerializeField] private SummonItem _item;
 
         private ObjectPool<SummonItem> _summonItemPool = new ObjectPool<SummonItem>();
-        private Dictionary<EMove, Stack<ISummonMoveStrategy>> _summonMoveStrategies = new Dictionary<EMove, Stack<ISummonMoveStrategy>>();
+        private Dictionary<SummonMoveType, Stack<ISummonMoveStrategy>> _summonMoveStrategies = new Dictionary<SummonMoveType, Stack<ISummonMoveStrategy>>();
+
+        private TargetExecuterManager _executers;
 
         ISpriteRepository _spriteRepository;
         ICombatService _combatService;
@@ -28,13 +31,14 @@ namespace Skill.Summon
 
             _summonItemPool.OnCreateEvent += SummonItemInit;
             _summonItemPool.Init(this.transform, _item, 5);
+
+            _executers = new TargetExecuterManager(combatService);
         }
 
         private void SummonItemInit(SummonItem item)
         {
-            SkillExecuter executer = new SkillExecuter(_combatService);
             SummonExecuteTimer timer = new SummonExecuteTimer();
-            item.Initialize(executer, timer);
+            item.Initialize(timer);
         }
 
         public Vector3 GetSpawnPosition(Vector3 pivot, ESpawnPosition PositionType)
@@ -69,13 +73,13 @@ namespace Skill.Summon
             {
                 switch (move.Move)
                 {
-                    case EMove.None:
+                    case SummonMoveType.None:
                         moveStrategy = new NoneMoveStrategy();
                         break;
-                    case EMove.ToTarget:
+                    case SummonMoveType.ToTarget:
                         moveStrategy = new ToTargetMoveStrategy();
                         break;
-                    case EMove.Attach:
+                    case SummonMoveType.Attach:
                         moveStrategy = new AttachMoveStrategy();
                         break;
                 }
@@ -92,7 +96,7 @@ namespace Skill.Summon
             Sprite sprite = _spriteRepository.GetSprite(dataSO.SpriteName);
             ISummonMoveStrategy move = GetMoveStretagy(dataSO.Move, summonObj.transform, skillPayload.Target);
 
-            summonObj.Init(skillPayload, move, dataSO, sprite);
+            summonObj.Init(skillPayload, move, dataSO, sprite, _executers.GetExecuter(dataSO.ResolveData));
         }
     }
 }

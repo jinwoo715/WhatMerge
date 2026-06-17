@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.U2D;
 
-namespace Heros
+namespace WhatMerge.Heros
 {
     public class HeroBagPresenter
     {

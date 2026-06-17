@@ -1,6 +1,3 @@
-using Combat;
-using Enemies;
-using Entity;
 using Skill.Data;
 using Skill.Projectile;
 using Stat;
@@ -8,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using WhatMerge.Combat;
+using WhatMerge.Heros;
 
 namespace Skill
 {
@@ -31,7 +29,7 @@ namespace Skill
             _animaData = activeContext.AnimationData;
             Effects = activeContext.RuntimeEffects;
             _owner = activeContext.Hero;
-            _spriteChanger = _owner.SpriteChanger;
+            _spriteChanger = activeContext.SpriteChanger;
             _attackRegister = commonContext.CombatService;
         }
         public abstract IEnumerator Execute(IReadOnlyList<ICombatant> targets);
@@ -55,7 +53,7 @@ namespace Skill
         }
     }
 
-    //¥‹¿œ ¿˚øÎ
+    //Îã®Ïùº Ï†ÅÏö©
     public class MeleeExecution : ExecutionBase
     {
         public MeleeExecution(ActiveSkillContext activeContext, SkillCommonContext commonContext) : base(activeContext, commonContext) { }
@@ -68,16 +66,11 @@ namespace Skill
             if (_executionSystem.VFX)
                 _vfxService.ShowVFX(_executionSystem.VFX);
 
-            var stat = _owner.StatReadOnly;
-            int damage = (int)stat.GetStat(EHeroStat.Damage);
-            int fixPenetration = (int)stat.GetStat(EHeroStat.FixPenetration);
-            int ratioPenetration = (int)stat.GetStat(EHeroStat.RatioPenetration);
-
-            AttackPayload attackPayload = new AttackPayload(damage, fixPenetration, ratioPenetration);
+            var stat = _owner.CreateAttackPayload();
 
             foreach (var target in targets)
             {
-                DamageContext dc = new DamageContext(attackPayload, target, _owner);
+                DamageContext dc = new DamageContext(stat, target, _owner);
                 dc.skillEffects = EffectRoller.GetConfirmEffects(Effects);
                 _attackRegister.RegisterAttack(dc);
             }
@@ -86,9 +79,9 @@ namespace Skill
         }
     }
 
-    //ø¨º” ¿˚øÎ
+    //Ïó∞ÏÜç Ï†ÅÏö©
 
-    //≈ıªÁ√º ¿˚øÎ
+    //Ìà¨ÏÇ¨Ï≤¥ Ï†ÅÏö©
     public class TargetProjectile : ExecutionBase
     {
         private IProjectileProvider _projectile;
@@ -115,7 +108,7 @@ namespace Skill
             context.Target = target;
             context.effects = EffectRoller.GetConfirmEffects(Effects);
 
-            int damage = Mathf.RoundToInt(_owner.GetStat(EAttackStatType.Damage));
+            int damage = Mathf.RoundToInt(_owner.CreateAttackPayload().AttackDamage);
             context.payLoad = new AttackPayload(damage, 0, 0);
 
             _projectile.SpawnProjectile(projectile, context);

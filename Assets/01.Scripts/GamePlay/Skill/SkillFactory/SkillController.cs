@@ -4,11 +4,18 @@ using UnityEngine;
 
 namespace Skill
 {
-    public class SkillController : ISkillResourceModifier
+    public interface ISkillRunner
+    {
+        void Tick(float tickValue);
+        void StopRunner();
+    }
+
+    public class SkillController : ISkillResourceModifier, ISkillRunner
     {
         private List<IActiveSkill> _activeSkills;
         private List<IPassiveSkill> _passiveSkills;
         private MonoBehaviour _coroutineRunner;
+        private Coroutine _currentSkill;
 
         private float _executionTime;
         private float _time;
@@ -19,13 +26,15 @@ namespace Skill
 
         private float _manaChargeMultiple = 1;
 
+        public float BasicAttackRange => _activeSkills.Count > 0 ? _activeSkills[0].Search.Range : 0f;
+
         public SkillController(List<IActiveSkill> activeSkills, List<IPassiveSkill> passiveSkills, MonoBehaviour coroutineRunner, float delay)
         {
             _activeSkills = activeSkills;
             _passiveSkills = passiveSkills;
             _coroutineRunner = coroutineRunner;
             _executionTime = delay;
-
+            
             ApplyPassive();
         }
 
@@ -55,7 +64,7 @@ namespace Skill
 
                 if (executeSkill != null)
                 {
-                    _coroutineRunner.StartCoroutine(CoExecuteSkill(executeSkill));
+                    _currentSkill = _coroutineRunner.StartCoroutine(CoExecuteSkill(executeSkill));
                 }
 
                 _time = 0;
@@ -87,9 +96,11 @@ namespace Skill
             _isUsingSkill = true;
 
             skill.Trigger.UseTriggerResource(this);
-            yield return _coroutineRunner.StartCoroutine(skill.Execute());
+            yield return skill.Execute();
 
             _isUsingSkill = false;
+
+            _currentSkill = null;
         }
 
         private void ChargeMana(float manaAmount)
@@ -125,5 +136,15 @@ namespace Skill
         {
             _manaChargeMultiple += ratio;
         }
+
+        public void StopRunner()
+        {
+            if (_currentSkill != null)
+                _coroutineRunner.StopCoroutine(_currentSkill);
+
+            _currentSkill = null;
+        }
+
+
     }
 }

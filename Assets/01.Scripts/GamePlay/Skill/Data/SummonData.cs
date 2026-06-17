@@ -12,7 +12,7 @@ namespace Skill.Data {
         public ESpawnPosition SpawnPosition;
 
         public SummonApplyTiming ApplyTiming;
-        public TargetResolveData ResolveData;
+        public EffectTargetData ResolveData;
         public SummonMove Move;
 
         public List<EffectBase> Effects;
@@ -21,24 +21,23 @@ namespace Skill.Data {
     [System.Serializable]
     public class SummonApplyTiming
     {
+        public SummonApplyType ApplyType;
         public float Delay;
-        public bool IsIntervalApply;
+    }
+
+    public enum SummonApplyType
+    {
+        Once,
+        Interval
     }
 
     [System.Serializable]
     public class SummonMove
     {
-        public EMove Move;
+        public SummonMoveType Move;
         public float Speed;
     }
 
-    public enum EApplyTiming
-    {
-        AtStart,
-        AtEnd,
-        AtTime,
-        AtInterval
-    }
     public enum ESpawnPosition
     {
         TargetPivot,
@@ -49,12 +48,10 @@ namespace Skill.Data {
 
         ScreenCenter,
     }
-    public enum EMove
+    public enum SummonMoveType
     {
         None,
-
         ToTarget,
-
         Attach,
     }
 }
