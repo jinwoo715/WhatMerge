@@ -15,18 +15,15 @@ namespace WhatMerge.Enemies
         bool IFieldEnemyService.IsAliveBoss => _activeBoss != null;
 
         public event Action<int> OnChangedActiveEnemyCount;
-        public event Action OnDeathBossEnemy;
         public event Action OnDeathAllEnemy;
+        public event Action<Enemy> OnDeathBossEnemy;
+        public event Action<Enemy> OnDeathMidBossEnemy;
         public event Action<Enemy> OnEnemyDeath;
         public event Action<Enemy> OnSpawnEnemy;
 
         public void AddFieldEnemy(Enemy enemy)
         {
             _activeEnemies.Add(enemy);
-
-            if (enemy.IsBoss)
-                _activeBoss = enemy;
-
             OnChangedActiveEnemyCount?.Invoke(GetActiveEnemyCount);
         }
 
@@ -43,10 +40,13 @@ namespace WhatMerge.Enemies
 
             enemy.OnDeath -= DeathEnemy;
 
-            if (_activeBoss == enemy)
+            if(enemy.Type == EnemyType.Boss)
             {
-                _activeBoss = null;
-                OnDeathBossEnemy?.Invoke();
+                OnDeathBossEnemy?.Invoke(enemy);
+            }
+            else if(enemy.Type == EnemyType.MiddleBoss)
+            {
+                OnDeathMidBossEnemy?.Invoke(enemy);
             }
 
             OnChangedActiveEnemyCount?.Invoke(GetActiveEnemyCount);

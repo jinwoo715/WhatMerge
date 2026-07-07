@@ -7,9 +7,9 @@ namespace WhatMerge.Stage
 {
     public interface IStageService
     {
-        event Action OnClearAllWave;
-        event Action OnExceedEnemyCount;
-        event Action OnTimeOut;
+        event Action OnStageClear;
+        event Action OnStageFail;
+
         void StartStage();
         void SummonMiddBoss();
     }

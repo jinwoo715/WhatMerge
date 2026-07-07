@@ -6,7 +6,6 @@ public class HeroData : BaseData
     
     public int ATKUID;
     public float AS;
-    public float Radius;
 
     public int Penetration;
 

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace WhatMerge.Map
 {
-    public class MapBoard : MonoBehaviour, IHeroMapService, IPathProvider
+    public class MapBoard : MonoBehaviour, IFieldTileService, IPathProvider
     {
         [SerializeField] private Tile _tilePrefab;
         [SerializeField] private int _xSize = 5;
@@ -17,7 +17,6 @@ namespace WhatMerge.Map
 
         private HashSet<ITileReadOnly> OccupiedTiles = new HashSet<ITileReadOnly>();
         private Tile _nextHeroEmptyTile = null;
-        public bool HasEmptyHeroTile => _nextHeroEmptyTile != null;
 
         public void Init()
         {
@@ -47,7 +46,7 @@ namespace WhatMerge.Map
             _enemyDestinations.Add(_grid[_xSize-1, 0]);
         }
 
-        public bool TryGetNextHeroTile(out Tile tile)
+        public bool TryGetNextFieldTile(out Tile tile)
         {
             if (_nextHeroEmptyTile != null)
             {
@@ -76,7 +75,7 @@ namespace WhatMerge.Map
 
             _nextHeroEmptyTile = null;
         }
-        public void OccupyHeroTile(ITileReadOnly tile)
+        public void OccupyFieldTile(ITileReadOnly tile)
         {
             OccupiedTiles.Add(tile);
 
@@ -85,7 +84,7 @@ namespace WhatMerge.Map
 
             SetNextEmptyHeroTile();
         }
-        public void FreeHeroTile(ITileReadOnly tile)
+        public void FreeFieldTile(ITileReadOnly tile)
         {
             Tile freeTile = GetTile(tile);
             freeTile.UnOccupyTile();

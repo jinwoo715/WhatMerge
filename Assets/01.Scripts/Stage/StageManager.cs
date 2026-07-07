@@ -7,104 +7,92 @@ using WhatMerge.Enemies;
 
 namespace WhatMerge.Stage
 {
-    //Stage Start
-
-    //Wave Start
-
-    //Stage Victory
-    //Stage Fail
-
-
     public class StageManager : MonoBehaviour, IStageService, IWaveInfoProvider
     {
-        private StageData _currentStage;
+        public StageData2 _currentStageData;
+        public int StartIndex = 1;
 
-        private bool _isStart = false;
-
-        private float _currentTimer;
-        
-        private int _nomalWaveTime;
-        private int _bossWaveTime;
+        private StageState _stageState = StageState.None;
+        private WaveType _waveType = WaveType.Nomal;
 
         private int _currentWave;
+        private int _maxWaveIndex;
+        private float _currentTimer;
+        private int _maxEnemyCount;
 
         private IEnemySpawnService _enemySpawnService;
         private IFieldEnemyService _fieldEnemyService;
 
-        public event Action OnClearAllWave;
-        public event Action OnTimeOut;
+        public event Action OnStageClear;
+        public event Action OnStageFail;
 
         public event Action<int> OnChangeCurrentWave;
         public event Action<float> OnChangeRemainTime;
         public event Action<int, int> OnChangeAliveEnemy;
-        public event Action OnExceedEnemyCount;
 
-        private List<WaveData> _activeWaves = new List<WaveData>();
-
-        private int _maxEnemyCount;
-        private int _bossWave;
+        private List<WaveData2> _activeWaves = new List<WaveData2>();
 
         public void Init(IEnemySpawnService enemySpawnService, IFieldEnemyService fieldEnemyService, StageData stageInfo, StageSettingConfig settingConfig)
         {
             _enemySpawnService = enemySpawnService;
             _fieldEnemyService = fieldEnemyService;
-            _currentStage = stageInfo;
 
-            _maxEnemyCount = settingConfig.MaxEnemy;
-            _nomalWaveTime = settingConfig.WaveTime;
-            _bossWaveTime = settingConfig.BossWaveTime;
-            _bossWave = settingConfig.BossWavePivot;
-
-            _currentWave = settingConfig.StartWaveIndex -1;
+            _maxEnemyCount = _currentStageData.MaxAcceptableEnemyCount;
 
             _fieldEnemyService.OnChangedActiveEnemyCount += HandleEnemyCount;
-            _fieldEnemyService.OnDeathBossEnemy += UpdateActiveWave;
-        }
-        private void HandleEnemyCount(int aliveEnemy)
-        {
-            OnChangeAliveEnemy?.Invoke(aliveEnemy, _maxEnemyCount);
+            _fieldEnemyService.OnDeathBossEnemy += HandleBossDeath;
 
-            if (aliveEnemy > _maxEnemyCount)
+            SetMaxWaveIndex();
+        }
+
+        private void SetMaxWaveIndex()
+        {
+            foreach (var wave in _currentStageData.WaveList)
             {
-                OnExceedEnemyCount?.Invoke();
-                _isStart = false;
+                if (wave.EndWave > _maxWaveIndex)
+                    _maxWaveIndex = wave.EndWave;
+            }
+
+            foreach (var wave in _currentStageData.BossWave)
+            {
+                if (wave.Wave > _maxWaveIndex)
+                    _maxWaveIndex = wave.Wave;
             }
         }
+
         public void StartStage()
         {
-            _isStart = true;
-
-            OnChangeCurrentWave?.Invoke(_currentWave +1);
-            OnChangeAliveEnemy?.Invoke(0, _maxEnemyCount);
-
-            _currentTimer = 3.0f;
+            EnterWave(StartIndex);
         }
-        private bool IsBossWave()
+        private void EnterWave(int wave)
         {
-            return _currentWave % _bossWave == 0;
-        }
-        private void UpdateActiveWave()
-        {
-            if (IsBossWave())
+            if(wave > _maxWaveIndex)
             {
-                if (_fieldEnemyService.IsAliveBoss)
-                {
-                    _isStart = false;
-                    OnTimeOut?.Invoke();
-                    return;
-                }
+                ClearStage();
+                return;
             }
 
-            _currentWave++;
+            _currentWave = wave;
+
+            bool isBoss = IsBossWave();
+
+            _waveType = isBoss ? WaveType.Boss : WaveType.Nomal;
+            _currentTimer = _currentStageData.WaveTime;
+
+            UpdateWaveList();
+
+            if (isBoss)
+                RequestBossEnemySpawn();
+
+            RequestNomalEnemySpawn();
 
             OnChangeCurrentWave?.Invoke(_currentWave);
-
-            SetTimer();
-
-            foreach (var wave in _currentStage.WaveDatas)
+            OnChangeRemainTime?.Invoke(_currentTimer);
+        }
+        private void UpdateWaveList()
+        {
+            foreach (var wave in _currentStageData.WaveList)
             {
-                if (wave.StartWave > _currentWave) break;
-
                 if (IsInAreaWave(wave))
                 {
                     if (!_activeWaves.Contains(wave))
@@ -117,20 +105,49 @@ namespace WhatMerge.Stage
                 }
             }
         }
-        private void SetTimer()
-        {
-            if (_currentWave % 10 == 0)
-                _currentTimer = _bossWaveTime;
-            else
-                _currentTimer = _nomalWaveTime;
-        }
-        private bool IsInAreaWave(WaveData waveData)
+        private bool IsInAreaWave(WaveData2 waveData)
         {
             return waveData.StartWave <= _currentWave && waveData.EndWave >= _currentWave;
         }
+        private void RequestNomalEnemySpawn()
+        {
+            for (int i = 0; i < _activeWaves.Count; i++)
+            {
+                var wave = _activeWaves[i];
+
+                EnemySpawnReceipt spawnReceipt = new EnemySpawnReceipt();
+                spawnReceipt.Delay = wave.StartDelay;
+                spawnReceipt.SpawnCount = wave.SpawnCount;
+                spawnReceipt.SpawnInterval = wave.SpawnInterval;
+                spawnReceipt.EnemyUID = wave.EnemyUID;
+
+                _enemySpawnService.StartWaveEnemySpawn(spawnReceipt);
+            }
+        }
+
+        private bool IsBossWave()
+        {
+            return _currentStageData.BossWave.Find((x) => x.Wave == _currentWave) != null;
+        }
+        private void RequestBossEnemySpawn()
+        {
+            BossWaveData boss = _currentStageData.BossWave.Find(x => x.Wave == _currentWave);
+
+            var receipt = new EnemySpawnReceipt
+            {
+                EnemyUID = boss.EnemyUID,
+                SpawnCount = 1,
+                SpawnInterval = 0,
+                Delay = 0
+            };
+
+            _enemySpawnService.StartWaveEnemySpawn(receipt);
+        }
+        
         private void Update()
         {
-            if (_isStart == false) return;
+            if (_stageState != StageState.Running)
+                return;
 
             _currentTimer -= Time.deltaTime;
 
@@ -138,15 +155,45 @@ namespace WhatMerge.Stage
 
             if(_currentTimer < 0)
             {
-                UpdateActiveWave();
-
-                if (_isStart == false) return;
-
-                for (int i = 0; i < _activeWaves.Count; i++)
-                {
-                    _enemySpawnService.StartWaveEnemySpawn(_activeWaves[i]);
-                }
+                if (_waveType == WaveType.Boss)
+                    FailStage();
+                else
+                    EnterWave(_currentWave + 1);
             }
+        }
+
+        private void FailStage()
+        {
+            _stageState = StageState.Failed;
+            _enemySpawnService.CancelWaveSpawn();
+            OnStageFail?.Invoke();
+        }
+        private void ClearStage()
+        {
+            _stageState = StageState.Clear;
+            OnStageClear?.Invoke();
+        }
+
+        private void HandleEnemyCount(int aliveEnemy)
+        {
+            OnChangeAliveEnemy?.Invoke(aliveEnemy, _maxEnemyCount);
+
+            if (aliveEnemy > _maxEnemyCount)
+                FailStage();
+
+            if (aliveEnemy == 0)
+                ProcessRemainTime();
+        }
+
+        private void HandleBossDeath(Enemy enemy)
+        {
+            if (_waveType == WaveType.Boss)
+                _waveType = WaveType.Nomal;
+        }
+        private void ProcessRemainTime()
+        {
+            if (_currentTimer >= 5)
+                _currentTimer = 5;
         }
         public void SummonMiddBoss()
         {

@@ -7,6 +7,7 @@ namespace WhatMerge.Enemies
     {
         public string Name;
         public string Description;
+        public EnemyType EnemyType;
         public float HP;
         public float Amour;
         public float MoveSpeed;

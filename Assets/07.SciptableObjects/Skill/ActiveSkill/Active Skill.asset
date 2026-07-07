@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e081a4569ff6834785aa3208bde2218, type: 3}
+  m_Name: Active Skill
+  m_EditorClassIdentifier: 
+  SkillType: 0
+  UID: 0
+  Name: 
+  Description: 
+  AnimationData:
+    MotionName: 
+    ReadyMotionTime: 0.2
+    ExecutionMotionTime: 0.2
+  Execution: {fileID: 11400000, guid: 5d52d6435ff3b324eb7675e6907a08d1, type: 2}
+  Target: {fileID: 11400000, guid: b749edcfdda3dd143a242a8451f09d8f, type: 2}
+  Trigger: {fileID: 11400000, guid: 21e94f3ca1ae8424f9c71e3c1458f75e, type: 2}

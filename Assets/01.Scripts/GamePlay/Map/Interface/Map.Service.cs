@@ -2,13 +2,12 @@ using UnityEngine;
 
 namespace WhatMerge.Map
 {
-    public interface IHeroMapService
+    public interface IFieldTileService
     {
-        bool HasEmptyHeroTile { get; }
-        bool TryGetNextHeroTile(out Tile tile);
+        bool TryGetNextFieldTile(out Tile tile);
         Vector2 GetTileWorldPosition(ITileReadOnly tile);
-        void OccupyHeroTile(ITileReadOnly tile);
-        void FreeHeroTile(ITileReadOnly tile);
+        void OccupyFieldTile(ITileReadOnly tile);
+        void FreeFieldTile(ITileReadOnly tile);
     }
 
     public interface IPathProvider

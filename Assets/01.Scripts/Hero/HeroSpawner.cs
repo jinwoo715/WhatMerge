@@ -20,7 +20,7 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
     [SerializeField] private Hero _heroPrefab;
     private ObjectPool<Hero> _heroPool = new ObjectPool<Hero>();
 
-    IHeroMapService _heroMapService;
+    IFieldTileService _heroMapService;
     IResourcesReader _spriteAtlasRepository;
     IHeroInfoRepository _heroDataRepo;
 
@@ -30,7 +30,7 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
 
     public int SpawnedCount => 0;
 
-    public void Init(IHeroMapService heroMapService, IResourcesReader spriteAtlasRepository, IHeroInfoRepository heroDataRepo, HeroDeck deck)
+    public void Init(IFieldTileService heroMapService, IResourcesReader spriteAtlasRepository, IHeroInfoRepository heroDataRepo, HeroDeck deck)
     {
         _heroMapService = heroMapService;
         _spriteAtlasRepository = spriteAtlasRepository;
@@ -61,13 +61,13 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
     }
     public bool SpawnHero(int uid, int evolution)
     {
-        if (_heroMapService.TryGetNextHeroTile(out Tile tile))
+        if (_heroMapService.TryGetNextFieldTile(out Tile tile))
         {
             Vector3 pos = _heroMapService.GetTileWorldPosition(tile);
             Hero hero = SpawnHero(uid, evolution, pos);
             hero.SetTile(tile, pos);
 
-            _heroMapService.OccupyHeroTile(tile);
+            _heroMapService.OccupyFieldTile(tile);
 
             OnSpawndRanHero?.Invoke(tile, hero);
 
@@ -87,7 +87,7 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
         Hero hero = SpawnHero(uid, evolutionLevel, pos);
         hero.SetTile(tile, pos);
 
-        _heroMapService.OccupyHeroTile(tile);
+        _heroMapService.OccupyFieldTile(tile);
 
         OnSpawndRanHero?.Invoke(tile, hero);
     }

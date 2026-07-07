@@ -28,9 +28,7 @@ namespace WhatMerge.Heros
         private ATKData _atkData;
 
         private int _upgradeLevel = 1;
-
         private IHeroVisual _heroVisual;
-
         public bool IsActive { get; private set; }
         public string Name => _heroData.Name;
         public int EvolutionLevel { get; private set; }
@@ -39,6 +37,7 @@ namespace WhatMerge.Heros
         public ITileReadOnly OccupiedTile { get; private set; }
         public IHeroStatModifier StatModify => _stat;
         public float BasicAttackRange => _skillController.BasicAttackRange;
+        public int SpawnIndex { get; }
 
         public void SetData(HeroData data, ATKData atkData, IHeroVisual heroVisual, int upgradeLevel, int evolutionLevel)
         {
@@ -89,8 +88,9 @@ namespace WhatMerge.Heros
             int damage = Mathf.RoundToInt(_stat.GetStat(HeroStatType.Damage));
             int flatPenetration = Mathf.RoundToInt(_stat.GetStat(HeroStatType.FlatPenetration));
             int percentPenetration = Mathf.RoundToInt(_stat.GetStat(HeroStatType.PercentPenetration));
-
-            AttackPayload payload = new AttackPayload(damage, flatPenetration, percentPenetration);
+            float criticalChance = _stat.GetStat(HeroStatType.CriticalChance);
+            float criticalMultiplier = _stat.GetStat(HeroStatType.CriticalMultiplier);
+            AttackPayload payload = new AttackPayload(damage, flatPenetration, percentPenetration, criticalChance, criticalMultiplier);
 
             return payload;
         }

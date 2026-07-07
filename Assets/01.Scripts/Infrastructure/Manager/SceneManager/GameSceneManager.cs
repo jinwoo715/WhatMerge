@@ -13,13 +13,18 @@ namespace Core.Scene
         {
             _stage = stageService;
 
-            stageService.OnExceedEnemyCount += OnFailWave;
-            stageService.OnTimeOut += OnFailWave;
+            _stage.OnStageFail += OnFailWave;
+            _stage.OnStageClear += OnVictory;
         }
 
         private void OnFailWave()
         {
             Debug.Log("¡≥¥Ÿ!!");
+        }
+
+        private void OnVictory()
+        {
+            Debug.Log("¿Ã∞Â¥Ÿ!");
         }
 
         private void OnGUI()
@@ -30,7 +35,7 @@ namespace Core.Scene
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
 
-            if (GUILayout.Button("Game Start", GUILayout.Width(200), GUILayout.Height(50)))
+            if (GUILayout.Button("Game Start", GUILayout.Width(400), GUILayout.Height(150)))
             {
                 _stage.StartStage();
             }

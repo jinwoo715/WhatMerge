@@ -7,22 +7,49 @@ using WhatMerge.Combat;
 
 namespace WhatMerge.Enemies
 {
-    public class Enemy : MonoBehaviour, IDamageable, IPooledItem<Enemy>, IRewardProvider
+    public interface IStatusHolder
+    {
+        StatusContainer Status { get; }
+    }
+    public class StatusContainer
+    {
+        private readonly int MaxStackElement = 5;
+
+        Dictionary<ElementType, int> _elementCounts = new();
+
+        public StatusContainer()
+        {
+            int count = Enum.GetValues(typeof(ElementType)).Length;
+
+            for (int i = 0; i < count; i++)
+            {
+                _elementCounts.Add((ElementType)i, 0);
+            }
+        }
+
+        public bool IsAddableStatus(ElementType elementType) => _elementCounts[elementType] >= MaxStackElement;
+        public bool HasStatus(ElementType elementType) => _elementCounts[elementType] > 0;
+        public void AddStatus(ElementType elementType) { }
+        public void RemoveStatus(ElementType elementType) { }
+    }
+
+    public class Enemy : MonoBehaviour, IDamageable, IPooledItem<Enemy>, IRewardProvider, IStatusHolder
     {
         [SerializeField] private MoveController _move;
         [SerializeField] private EnemySpriteController _spriteController;
 
+        private StatusContainer _status = new StatusContainer();
         private EnemyStats _stats = new EnemyStats();
         private EnemyData _data;
         private int _currentHP;
 
         public event Action<Enemy> OnDeath;
-
-        public bool IsBoss => _data.IsBoss;
+        public EnemyType Type => _data.EnemyType;
         public bool IsActive { get; private set; }
         public int Armor => Mathf.RoundToInt(_stats.GetStat(EnemyStatType.Armor));
         public int CurrentHP => _currentHP;
         public Vector3 Position => this.transform.position;
+        public StatusContainer Status => _status;
 
         public void Initialize(IPathProvider pathProvider)
         {

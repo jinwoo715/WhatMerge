@@ -13,6 +13,14 @@ namespace Combat { }
 
 namespace WhatMerge.Heros
 {
+    public enum HeroSearchType
+    {
+        Self,
+        RangeA,
+        RangeB,
+        All
+    }
+
     public interface IHeroSummonService
     {
         int SpawnedCount { get; }
@@ -23,7 +31,7 @@ namespace WhatMerge.Heros
         event Action<Tile, Hero> OnSpawndRanHero;
     }
 
-    public interface IHeroTileService
+    public interface IFieldHeroSelecter
     {
         void PointDownTile(Tile tile);
         void PointUpTile(Tile tile);
@@ -125,7 +133,7 @@ namespace WhatMerge.Heros
         Merge
     }
 
-    public class HeroController : IFieldHeroService, IHeroTileService
+    public class HeroController : IFieldHeroService, IFieldHeroSelecter
     {
         private Dictionary<ITileReadOnly, Hero> _fieldHeros = new Dictionary<ITileReadOnly, Hero>();
         private Dictionary<(int x,int y), Hero> _fieldHero = new Dictionary<(int, int), Hero>();
@@ -137,17 +145,17 @@ namespace WhatMerge.Heros
         public int TotalBagItem => 3;
         public int CurrentUsedBagItem => 0;
 
-        private IHeroMapService _heroMapService;
+        private IFieldTileService _heroMapService;
         private IHeroOverlapResult _overlapProcessor;
         private ITileIndicator _markerPresenter;
         private IGameGoldService _gameGoldService;
         private IHeroSummonService _heroSpawnService;
         public event Action<Hero> OnSelectHero;
-        public event Action OnChangedFieldHero;
+        public event Action OnChangedHeroPosition;
         public event Action<Hero> OnSpawnedHero;
         public event Action<Hero> OnDestroyHero;
 
-        public void Init(IHeroSummonService heroSpawnService, IHeroOverlapResult heroOverlapProcessor, IHeroMapService heroMapService, ITileIndicator markerPresenter, IGameGoldService gameGoldService)
+        public void Init(IHeroSummonService heroSpawnService, IHeroOverlapResult heroOverlapProcessor, IFieldTileService heroMapService, ITileIndicator markerPresenter, IGameGoldService gameGoldService)
         {
             _heroSpawnService = heroSpawnService;
             _gameGoldService = gameGoldService;
@@ -165,13 +173,13 @@ namespace WhatMerge.Heros
             ITileReadOnly tile = hero.OccupiedTile;
             _fieldHeros.Remove(tile);
             _fieldHero.Remove((tile.X, tile.Y));
-            _heroMapService.FreeHeroTile(tile);
+            _heroMapService.FreeFieldTile(tile);
         }
 
         public void SetHeroPosition(ITileReadOnly tile, Hero hero)
         {
             if (hero.OccupiedTile != null)
-                _heroMapService.FreeHeroTile(hero.OccupiedTile);
+                _heroMapService.FreeFieldTile(hero.OccupiedTile);
 
             if (_fieldHeros.ContainsKey(hero.OccupiedTile))
             {
@@ -179,7 +187,7 @@ namespace WhatMerge.Heros
                 _fieldHero.Remove((tile.X, tile.Y));
             }
 
-            _heroMapService.OccupyHeroTile(tile);
+            _heroMapService.OccupyFieldTile(tile);
             _fieldHeros.Add(tile, hero);
             _fieldHero.Add((tile.X, tile.Y), hero);
 
@@ -294,7 +302,7 @@ namespace WhatMerge.Heros
                 for (int i = 0; i < dir.GetLength(0); i++)
                 {
                     int dx = pivot.X + dir[i, 0];
-                    int dy = pivot.X + dir[i, 1];
+                    int dy = pivot.Y + dir[i, 1];
 
                     if(_fieldHero.TryGetValue((dx,dy), out Hero hero))
                     {
@@ -310,7 +318,7 @@ namespace WhatMerge.Heros
                 for (int i = 0; i < dir.GetLength(0); i++)
                 {
                     int dx = pivot.X + dir[i, 0];
-                    int dy = pivot.X + dir[i, 1];
+                    int dy = pivot.Y + dir[i, 1];
 
                     if (_fieldHero.TryGetValue((dx, dy), out Hero hero))
                     {

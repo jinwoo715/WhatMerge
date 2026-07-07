@@ -15,7 +15,9 @@ namespace WhatMerge.Enemies
         event Action<int> OnChangedActiveEnemyCount;
 
         event Action OnDeathAllEnemy;
-        event Action OnDeathBossEnemy;
+        event Action<Enemy> OnDeathBossEnemy;
+        event Action<Enemy> OnDeathMidBossEnemy;
+
         void AddFieldEnemy(Enemy enemy);
 
         void AllEnemyStatModify(EnemyStatType statType, float value);

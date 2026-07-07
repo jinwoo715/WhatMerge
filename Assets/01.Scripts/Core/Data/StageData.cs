@@ -21,14 +21,3 @@ public class WaveData
     public int SpawnCount;
     public float SpawnInterval;
 }
-
-[System.Serializable]
-public class WaveDataBundle
-{
-    public List<WaveData> Waves;
-}
-
-public class StageReward
-{
-    public int RewardUID;
-}

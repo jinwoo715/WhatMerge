@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public interface IFieldHeroService
 {
     event Action<Hero> OnSelectHero;
-    event Action OnChangedFieldHero;
+    event Action OnChangedHeroPosition;
 
     event Action<Hero> OnSpawnedHero;
     event Action<Hero> OnDestroyHero;

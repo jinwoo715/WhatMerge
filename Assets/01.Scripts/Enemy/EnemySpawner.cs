@@ -8,6 +8,13 @@ using WhatMerge.Infrastructure;
 
 namespace WhatMerge.Enemies
 {
+    public enum EnemyType
+    {
+        Nomal,
+        MiddleBoss,
+        Boss
+    }
+
     public class EnemySpawner : MonoBehaviour, IEnemySpawnService
     {
         [SerializeField] private Enemy _enemyPrefab;
@@ -32,13 +39,13 @@ namespace WhatMerge.Enemies
             _enemyPool.Init(this.transform, _enemyPrefab, 10);
         }
 
-        public void StartWaveEnemySpawn(WaveData data)
+        public void StartWaveEnemySpawn(EnemySpawnReceipt data)
         {
             StartCoroutine(SpawnWaveEnemy(data));
         }
-        public IEnumerator SpawnWaveEnemy(WaveData data)
+        public IEnumerator SpawnWaveEnemy(EnemySpawnReceipt data)
         {
-            yield return new WaitForSeconds(data.StartDelay);
+            yield return new WaitForSeconds(data.Delay);
 
             EnemyData enemyData = _enemyDataRepository.GetData(data.EnemyUID);
 
@@ -69,6 +76,11 @@ namespace WhatMerge.Enemies
         {
             _enemyPool.ReturnItem(enemy);
             OnReturnEnemy?.Invoke(enemy);
+        }
+
+        public void CancelWaveSpawn()
+        {
+            throw new NotImplementedException();
         }
     }
 }
