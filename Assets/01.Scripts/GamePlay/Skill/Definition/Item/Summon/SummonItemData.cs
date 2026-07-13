@@ -7,7 +7,6 @@ namespace Skill.Data
     {
         public string Sprite;
         public float Duration;
-        public List<EffectBase> Effects;
     }
 
     [System.Serializable]

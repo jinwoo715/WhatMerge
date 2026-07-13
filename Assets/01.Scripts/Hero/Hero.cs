@@ -88,7 +88,7 @@ namespace WhatMerge.Heros
             int damage = Mathf.RoundToInt(_stat.GetStat(HeroStatType.Damage));
             int flatPenetration = Mathf.RoundToInt(_stat.GetStat(HeroStatType.FlatPenetration));
             int percentPenetration = Mathf.RoundToInt(_stat.GetStat(HeroStatType.PercentPenetration));
-            float criticalChance = _stat.GetStat(HeroStatType.CriticalChance);
+            int criticalChance = Mathf.RoundToInt(_stat.GetStat(HeroStatType.CriticalChance));
             float criticalMultiplier = _stat.GetStat(HeroStatType.CriticalMultiplier);
             AttackPayload payload = new AttackPayload(damage, flatPenetration, percentPenetration, criticalChance, criticalMultiplier);
 

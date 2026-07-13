@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Skill.Data
@@ -6,11 +7,23 @@ namespace Skill.Data
 
     public class DamageEffect : EffectBase
     {
-        public float DamageRatio;
+        public const string DamageRatioStat = "DamageRatio";
 
-        public override void AddStat(float value)
+        private static readonly EffectStatDefinition[] EnhanceableStats =
         {
-            DamageRatio += value;
+            new EffectStatDefinition(DamageRatioStat, "Damage Ratio")
+        };
+
+        public float DamageRatio;
+        public override void AddStat(string key, float value)
+        {
+            if(key == DamageRatioStat)
+                DamageRatio += value;
+        }
+
+        public override IReadOnlyList<EffectStatDefinition> GetEnhanceableStats()
+        {
+            return EnhanceableStats;
         }
     }
 }

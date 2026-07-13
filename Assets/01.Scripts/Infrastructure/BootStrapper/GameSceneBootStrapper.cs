@@ -50,7 +50,9 @@ namespace Core.BootStrapper
         [Header("Battle")]
         [SerializeField] private DamageTextSpawner _damageViewer;
         [SerializeField] private EconomyViewer _economyViewer;
-        private BattleManager _battleManager = new BattleManager();
+        private CombatService _combatService = new CombatService();
+        private DamageCalculator _damageCalculator = new DamageCalculator();
+        private EffectProcessor _effectProcessor;
         private RewardSystem _rewardSystem = new RewardSystem();
 
         [Header("Stage")]
@@ -72,7 +74,7 @@ namespace Core.BootStrapper
         private SkillFactory _skillFactory = new SkillFactory();
 
         [Header("Facade")]
-        private SkillCommonContext _skillExecutionService;
+        private SkillRuntimeContext _skillRuntimeContext;
 
         private void Start()
         {
@@ -100,8 +102,8 @@ namespace Core.BootStrapper
 
             //TODO
             #region Test
-            _skillExecutionService = new SkillCommonContext(_battleManager, _heroController, _fieldEnemyService);
-            _skillFactory.Init(_skillExecutionService);
+            _skillRuntimeContext = new SkillRuntimeContext(_combatService, _heroController, _fieldEnemyService, _vfxSpawner);
+            _skillFactory.Init(_skillRuntimeContext);
             _heroSpawner.factory = _skillFactory;
 
             #endregion
@@ -146,25 +148,26 @@ namespace Core.BootStrapper
 
             _vfxSpawner.Init(_vfxRepository);
 
-            _battleManager.Init(_vfxSpawner, _summonSpawner, _buff);
+            _effectProcessor = new EffectProcessor(_damageCalculator, _vfxSpawner, _summonSpawner, _buff);
+            _combatService.Init(_effectProcessor);
 
             _rewardSystem.Init(_economy);
 
-            _projectileSpawner.Init(_projectileRepository, _battleManager);
-            _summonSpawner.Init(_projectileRepository, _battleManager);
+            _projectileSpawner.Init(_projectileRepository, _combatService);
+            _summonSpawner.Init(_projectileRepository, _combatService);
             _buff.Init(data);
         }
         private void Bind()
         {
             _skillContext.Register<IFieldEnemyService>(_fieldEnemyService);
-            _skillContext.Register<ICombatService>(_battleManager);
+            _skillContext.Register<ICombatService>(_combatService);
             _skillContext.Register<IProjectileProvider>(_projectileSpawner);
             _skillContext.Register<ISummonProvider>(_summonSpawner);
             _skillContext.Register<IBuffRegister>(_buff);
 
             _heroSpawner.OnSpawndRanHero += _heroController.AddFieldHero;
 
-            _battleManager.OnApplyDamage += _damageViewer.ShowDamageText;
+            _combatService.OnApplyDamage += _damageViewer.ShowDamageText;
 
             _heroClicker.OnPointDownTile += _heroController.PointDownTile;
             _heroClicker.OnPointDownTile += (tile) => { _heroClickInteractViewer.HideInteractUI(); };

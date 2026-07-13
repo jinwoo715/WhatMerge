@@ -4,9 +4,9 @@ namespace Skill
 {
     public class EffectStatEnhancer : ISkillEnhancer
     {
-        public EffectStatEnhanceData Data { get; }
+        public EffectValueEnhanceData Data { get; }
 
-        public EffectStatEnhancer(EffectStatEnhanceData data)
+        public EffectStatEnhancer(EffectValueEnhanceData data)
         {
             Data = data;
         }

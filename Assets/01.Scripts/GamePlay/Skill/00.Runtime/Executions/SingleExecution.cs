@@ -7,16 +7,18 @@ namespace Skill
 {
     public class SingleExecution : ExecutionBase
     {
-        public SingleExecution(ActiveSkillContext activeContext, SkillCommonContext commonContext) : base(activeContext, commonContext) { }
+        public SingleExecution(SkillExecutionContext executionContext, SkillRuntimeContext runtimeContext) : base(executionContext, runtimeContext) { }
 
         public override IEnumerator Execute(IReadOnlyList<ICombatant> targets)
         {
             yield return SetReadyMotion();
-            yield return SetExecutionMotion();
 
             ShowExecutionVfx();
-            List<ICombatant> activeTargets = GetActiveTargets(targets);
-            ApplyEffectsToTarget(SearchUtility.GetNearestTarget<ICombatant>(activeTargets, _owner.Position));
+
+            ICombatant combatant = NearestTarget(targets);
+            ApplyEffectsToTarget(combatant);
+
+            yield return SetExecutionMotion();
 
             SetIdleMotion();
         }

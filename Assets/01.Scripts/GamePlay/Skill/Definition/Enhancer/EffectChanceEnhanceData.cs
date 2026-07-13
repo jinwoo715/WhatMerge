@@ -7,7 +7,7 @@ namespace Skill.Data
     [CreateAssetMenu(fileName = "EffectChanceEnhaner", menuName = "Skill/SkillEnhancer/EffectChanceEnhaner", order = 0)]
     public class EffectChanceEnhanceData : Enhancer
     {
-        [Header("강화 수치")]
+        [Header("확률 상승 수치")]
         [Range(0, 1)]
         public float AddChance;
     }

@@ -10,9 +10,9 @@ namespace Skill
     {
         private readonly float _angle;
 
-        public ConeExecution(ActiveSkillContext activeContext, SkillCommonContext commonContext) : base(activeContext, commonContext)
+        public ConeExecution(SkillExecutionContext executionContext, SkillRuntimeContext runtimeContext) : base(executionContext, runtimeContext)
         {
-            if (activeContext.Execution is ConeExecutionData coneExecution)
+            if (executionContext.ExecutionData is ConeExecutionData coneExecution)
             {
                 _angle = coneExecution.Angle;
             }
@@ -20,16 +20,19 @@ namespace Skill
 
         public override IEnumerator Execute(IReadOnlyList<ICombatant> targets)
         {
-            yield return SetReadyMotion();
-
-            List<ICombatant> activeTargets = GetActiveTargets(targets);
-            ICombatant pivotTarget = SearchUtility.GetNearestTarget<ICombatant>(activeTargets, _owner.Position);
+            ICombatant pivotTarget = NearestTarget(targets);
             Vector3 direction = pivotTarget != null ? (pivotTarget.Position - _owner.Position).normalized : _owner.transform.right;
+            List<ICombatant> coneTargetList = SearchUtility.GetConeTargets<ICombatant>(targets, _owner.Position, direction, _angle);
 
-            yield return SetExecutionMotion();
+            foreach (var combatant in coneTargetList)
+            {
+                yield return SetReadyMotion();
 
-            ShowExecutionVfx();
-            ApplyEffectsToTargets(SearchUtility.GetConeTargets<ICombatant>(activeTargets, _owner.Position, direction, _angle));
+                ShowExecutionVfx();
+                ApplyEffectsToTarget(combatant);
+
+                yield return SetExecutionMotion();
+            }
 
             SetIdleMotion();
         }

@@ -8,5 +8,10 @@ namespace Skill.Data
     {
         public BuffData BuffData;
         public float Duration;
+
+        public override void AddStat(string key, float value)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

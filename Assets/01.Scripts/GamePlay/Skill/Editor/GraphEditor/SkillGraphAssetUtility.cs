@@ -8,7 +8,7 @@ using UnityEngine;
 public static class SkillGraphAssetUtility
 {
     public const string DefaultAssetFolder = "Assets/01.Scripts/GamePlay/Skill/Test/SO";
-    public const string LayoutFolder = "Assets/01.Scripts/GamePlay/Skill/GraphLayouts";
+    public const string LayoutFolder = "Assets/01.Scripts/GamePlay/Skill/Editor/GraphLayouts";
 
     public static ActiveSkillData CreateActiveSkill(string skillName)
     {

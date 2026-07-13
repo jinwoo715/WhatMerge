@@ -6,5 +6,10 @@ namespace Skill.Data
     public class StunEffect : DurationEffectBase
     {
         public float StunTime;
+
+        public override void AddStat(string key, float value)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

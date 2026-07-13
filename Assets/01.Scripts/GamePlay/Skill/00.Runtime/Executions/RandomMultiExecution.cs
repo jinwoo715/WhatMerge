@@ -10,9 +10,9 @@ namespace Skill
     {
         private readonly int _multiCount;
 
-        public RandomMultiExecution(ActiveSkillContext activeContext, SkillCommonContext commonContext) : base(activeContext, commonContext)
+        public RandomMultiExecution(SkillExecutionContext executionContext, SkillRuntimeContext runtimeContext) : base(executionContext, runtimeContext)
         {
-            if (activeContext.Execution is RandomMultiExecutionData randomMultiExecution)
+            if (executionContext.ExecutionData is RandomMultiExecutionData randomMultiExecution)
             {
                 _multiCount = randomMultiExecution.MultiCount;
             }
@@ -20,26 +20,33 @@ namespace Skill
 
         public override IEnumerator Execute(IReadOnlyList<ICombatant> targets)
         {
+            HashSet<int> randomIndex = GetRandomCombatantIndex(targets);
+
             yield return SetReadyMotion();
-            yield return SetExecutionMotion();
 
             ShowExecutionVfx();
 
-            List<ICombatant> activeTargets = GetActiveTargets(targets);
-            int applyCount = _multiCount > 0 ? Mathf.Min(_multiCount, activeTargets.Count) : activeTargets.Count;
+            foreach (int index in randomIndex)
+            {
+                ApplyEffectsToTarget(targets[index]);
+            }
+
+            yield return SetExecutionMotion();
+
+            SetIdleMotion();
+        }
+
+        private HashSet<int> GetRandomCombatantIndex(IReadOnlyList<ICombatant> targets)
+        {
+            int applyCount = _multiCount > 0 ? Mathf.Min(_multiCount, targets.Count) : targets.Count;
             HashSet<int> selectedIndexes = new HashSet<int>();
 
             while (selectedIndexes.Count < applyCount)
             {
-                selectedIndexes.Add(Random.Range(0, activeTargets.Count));
+                selectedIndexes.Add(Random.Range(0, targets.Count));
             }
 
-            foreach (int index in selectedIndexes)
-            {
-                ApplyEffectsToTarget(activeTargets[index]);
-            }
-
-            SetIdleMotion();
+            return selectedIndexes;
         }
     }
 }

@@ -9,5 +9,10 @@ namespace Skill.Data
     public class ElementEffect : DurationEffectBase
     {
         public ElementType Attribute;
+
+        public override void AddStat(string key, float value)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

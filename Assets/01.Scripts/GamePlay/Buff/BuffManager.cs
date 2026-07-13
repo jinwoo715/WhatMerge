@@ -9,8 +9,13 @@ public interface IBuffRegister
     void RegisterBuff(BuffEffect timedBuffEffect, IHeroStatModifier statModifier);
 }
 
+public interface IEffectRoutineRunner
+{
+    Coroutine RunEffect(IEnumerator effectRoutine);
+}
+
 //TODO
-public class BuffManager : MonoBehaviour, IBuffRegister
+public class BuffManager : MonoBehaviour, IBuffRegister, IEffectRoutineRunner
 {
     private Stack<BuffEquipment> _buffPool = new Stack<BuffEquipment>();
     IDataProvider _dataProvider;
@@ -53,5 +58,10 @@ public class BuffManager : MonoBehaviour, IBuffRegister
         BuffEquipment buff = GetBuff();
         BuffPayload buffPayload = new BuffPayload(statModifier, timedBuffEffect);
         StartCoroutine(buff.CoApplyBuff(buffPayload));
+    }
+
+    public Coroutine RunEffect(IEnumerator effectRoutine)
+    {
+        return StartCoroutine(effectRoutine);
     }
 }

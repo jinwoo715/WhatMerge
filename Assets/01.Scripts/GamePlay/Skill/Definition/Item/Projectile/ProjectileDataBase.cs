@@ -8,7 +8,5 @@ namespace Skill.Data
         public string Sprite;
         public float Speed;
         public float LifeTime;
-
-        public List<EffectBase> Effects;
     }
 }

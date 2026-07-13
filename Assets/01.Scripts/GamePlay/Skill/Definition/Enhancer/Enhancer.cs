@@ -6,14 +6,12 @@ namespace Skill.Data
 {
     public class Enhancer : SkillBaseData
     {
-        [Header("강화될 스킬")]
+        [Header("대상 Skill")]
         public ActiveSkillData TargetSkill;
 
-        [Header("강화 효과")]
+        [Header("대상 Effect")]
         public EffectBase TargetEffect;
     }
-
-
 
     //스킬에 추가 이펙트 넣기
     //이펙트 값 강화하기

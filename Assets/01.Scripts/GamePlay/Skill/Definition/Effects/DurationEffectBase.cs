@@ -3,7 +3,7 @@ using WhatMerge.Combat;
 
 namespace Skill.Data
 {
-    public class DurationEffectBase : EffectBase
+    public abstract class DurationEffectBase : EffectBase
     {
         public float Duration;
     }

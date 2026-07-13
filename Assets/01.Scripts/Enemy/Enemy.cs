@@ -27,13 +27,29 @@ namespace WhatMerge.Enemies
             }
         }
 
-        public bool IsAddableStatus(ElementType elementType) => _elementCounts[elementType] >= MaxStackElement;
+        public bool IsAddableStatus(ElementType elementType) => _elementCounts[elementType] < MaxStackElement;
         public bool HasStatus(ElementType elementType) => _elementCounts[elementType] > 0;
-        public void AddStatus(ElementType elementType) { }
-        public void RemoveStatus(ElementType elementType) { }
+        public void AddStatus(ElementType elementType)
+        {
+            if (!IsAddableStatus(elementType))
+                return;
+
+            _elementCounts[elementType]++;
+        }
+        public void RemoveStatus(ElementType elementType)
+        {
+            _elementCounts[elementType] = Mathf.Max(0, _elementCounts[elementType] - 1);
+        }
+        public void Clear()
+        {
+            foreach (ElementType elementType in Enum.GetValues(typeof(ElementType)))
+            {
+                _elementCounts[elementType] = 0;
+            }
+        }
     }
 
-    public class Enemy : MonoBehaviour, IDamageable, IPooledItem<Enemy>, IRewardProvider, IStatusHolder
+    public class Enemy : MonoBehaviour, IDamageable, IPooledItem<Enemy>, IRewardProvider, IStatusHolder, IEnemyStatModifier
     {
         [SerializeField] private MoveController _move;
         [SerializeField] private EnemySpriteController _spriteController;
@@ -48,8 +64,10 @@ namespace WhatMerge.Enemies
         public bool IsActive { get; private set; }
         public int Armor => Mathf.RoundToInt(_stats.GetStat(EnemyStatType.Armor));
         public int CurrentHP => _currentHP;
+        public int MaxHP => Mathf.RoundToInt(_stats.GetStat(EnemyStatType.MaxHP));
         public Vector3 Position => this.transform.position;
         public StatusContainer Status => _status;
+        public int LifeCycleVersion { get; private set; }
 
         public void Initialize(IPathProvider pathProvider)
         {
@@ -66,6 +84,8 @@ namespace WhatMerge.Enemies
         }
         public void Init(EnemyData data, List<Sprite> sprites)
         {
+            LifeCycleVersion++;
+            _status.Clear();
             _data = data;
             _stats.SetBaseValue(EnemyStatType.MaxHP, data.HP);
             _stats.SetBaseValue(EnemyStatType.Armor, data.Amour);
@@ -103,7 +123,19 @@ namespace WhatMerge.Enemies
 
             return reward;
         }
+        public void AddFixedValue(EnemyStatType type, float value)
+        {
+            _stats.AddFixedValue(type, value);
+        }
+        public void AddMultiplier(EnemyStatType type, float value)
+        {
+            _stats.AddMultiplier(type, value);
+        }
         public void OnSpawn() { }
-        public void OnDespawn() { }
+        public void OnDespawn()
+        {
+            IsActive = false;
+            _status.Clear();
+        }
     }
 }

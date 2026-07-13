@@ -9,34 +9,28 @@ namespace Skill
     public class SequenceExecution : ExecutionBase
     {
         private readonly int _sequenceCount;
-        private readonly float _tickTime;
 
-        public SequenceExecution(ActiveSkillContext activeContext, SkillCommonContext commonContext) : base(activeContext, commonContext)
+        public SequenceExecution(SkillExecutionContext executionContext, SkillRuntimeContext runtimeContext) : base(executionContext, runtimeContext)
         {
-            if (activeContext.Execution is SequenceHitExecutionData sequenceExecution)
+            if (executionContext.ExecutionData is SequenceHitExecutionData sequenceExecution)
             {
                 _sequenceCount = sequenceExecution.SequenceCount;
-                _tickTime = sequenceExecution.TickTime;
             }
         }
 
         public override IEnumerator Execute(IReadOnlyList<ICombatant> targets)
         {
-            yield return SetReadyMotion();
-            yield return SetExecutionMotion();
+            ICombatant combatant = NearestTarget(targets);
 
-            ShowExecutionVfx();
-
-            int count = Mathf.Max(1, _sequenceCount);
-            List<ICombatant> activeTargets = GetActiveTargets(targets);
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < _sequenceCount; i++)
             {
-                ApplyEffectsToTarget(SearchUtility.GetNearestTarget<ICombatant>(activeTargets, _owner.Position));
+                yield return SetReadyMotion();
 
-                if (_tickTime > 0f && i < count - 1)
-                {
-                    yield return new WaitForSeconds(_tickTime);
-                }
+                ShowExecutionVfx();
+
+                ApplyEffectsToTarget(combatant);
+
+                yield return SetExecutionMotion();
             }
 
             SetIdleMotion();

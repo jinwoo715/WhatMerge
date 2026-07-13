@@ -1,15 +1,12 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Skill.Data
 {
-    public interface IEffectModifier
+    public abstract class EffectBase : ScriptableObject, IEffectValueModifier
     {
-        void AddStat(float value);
-        void AddChance(float value);
-    }
+        private static readonly EffectStatDefinition[] EmptyEnhanceableStats = { };
 
-    public class EffectBase : ScriptableObject, IEffectModifier
-    {
         [Range(0, 1)]
         public float Chance = 1f;
 
@@ -21,8 +18,11 @@ namespace Skill.Data
             Chance += value;
         }
 
-        public virtual void AddStat(float value)
+        public abstract void AddStat(string key, float value);
+
+        public virtual IReadOnlyList<EffectStatDefinition> GetEnhanceableStats()
         {
+            return EmptyEnhanceableStats;
         }
     }
 }

@@ -10,5 +10,10 @@ namespace Skill.Data
 
         [Range(0, 1)]
         public float TransitionRatio;
+
+        public override void AddStat(string key, float value)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

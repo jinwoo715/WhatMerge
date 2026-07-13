@@ -4,15 +4,15 @@ namespace Skill
 {
     public class ExecutionFactory
     {
-        public static IExecute CreateExecution(ActiveSkillContext executionService, SkillCommonContext skillExecutionService)
+        public static IExecute CreateExecution(SkillExecutionContext executionContext, SkillRuntimeContext runtimeContext)
         {
-            return executionService.Execution switch
+            return executionContext.ExecutionData switch
             {
-                RandomMultiExecutionData => new RandomMultiExecution(executionService, skillExecutionService),
-                SequenceHitExecutionData => new SequenceExecution(executionService, skillExecutionService),
-                ConeExecutionData => new ConeExecution(executionService, skillExecutionService),
-                SingleExecutionData => new SingleExecution(executionService, skillExecutionService),
-                _ => new SingleExecution(executionService, skillExecutionService),
+                RandomMultiExecutionData => new RandomMultiExecution(executionContext, runtimeContext),
+                SequenceHitExecutionData => new SequenceExecution(executionContext, runtimeContext),
+                ConeExecutionData => new ConeExecution(executionContext, runtimeContext),
+                SingleExecutionData => new SingleExecution(executionContext, runtimeContext),
+                _ => new SingleExecution(executionContext, runtimeContext),
             };
         }
     }
