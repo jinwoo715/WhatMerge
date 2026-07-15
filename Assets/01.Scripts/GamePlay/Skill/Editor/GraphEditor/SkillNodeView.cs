@@ -18,7 +18,9 @@ public enum SkillNodeKind
     ExecutionVfx,
     Effect,
     ProjectileData,
-    SummonItemData
+    SummonItemData,
+    SummonMove,
+    SummonExecution
 }
 
 public sealed class SkillNodeView : Node
@@ -263,6 +265,12 @@ public sealed class SkillNodeView : Node
             case SkillNodeKind.SummonItemData:
                 AddOutputPort("Summon", typeof(SummonItemData));
                 break;
+            case SkillNodeKind.SummonMove:
+                AddOutputPort("Move", typeof(SummonMove));
+                break;
+            case SkillNodeKind.SummonExecution:
+                AddOutputPort("Execution", typeof(SummonExecution));
+                break;
         }
     }
 
@@ -354,6 +362,10 @@ public sealed class SkillNodeView : Node
         {
             CreateEffectBodyFields();
         }
+        else if (Kind == SkillNodeKind.SummonExecution)
+        {
+            CreateSummonExecutionBodyFields();
+        }
 
         AddInspector(DrawInspector);
 
@@ -393,6 +405,35 @@ public sealed class SkillNodeView : Node
         if (Asset is SpawnEffect spawnEffect)
         {
             AddBodyFieldSlot("Item", "Item", typeof(SpawnItemData), spawnEffect.Item);
+        }
+
+        if (Asset is ProjectileSpawnEffect projectileSpawnEffect)
+        {
+            AddBodyFieldSlot("Projectile", "Projectile", typeof(ProjectileDataBase), projectileSpawnEffect.Projectile);
+        }
+
+        if (Asset is SummonSpawnEffect summonSpawnEffect)
+        {
+            AddBodyFieldSlot("Move", "Move", typeof(SummonMove), summonSpawnEffect.Move);
+            AddBodyFieldSlot("Execution", "Execution", typeof(SummonExecution), summonSpawnEffect.Execution);
+        }
+
+        if (Asset is DurationEffect durationEffect)
+        {
+            AddBodyFieldSlot("Effect", "Effect", typeof(DurationEffectBase), durationEffect.Effect);
+        }
+    }
+
+    private void CreateSummonExecutionBodyFields()
+    {
+        if (Asset is SummonOnceExecution onceExecution)
+        {
+            AddBodyFieldSlot("Effect", "Effect", typeof(NomalEffect), onceExecution.Effect);
+        }
+
+        if (Asset is OnStayExecutionSummon onEnterExecution)
+        {
+            AddBodyFieldSlot("Duration Effect", "DurationEffect", typeof(DurationEffectBase), onEnterExecution.DurationEffect);
         }
     }
 
@@ -586,7 +627,11 @@ public sealed class SkillNodeView : Node
                 DrawSerializedObject(Asset);
                 break;
             case SkillNodeKind.ProjectileData:
+            case SkillNodeKind.SummonMove:
                 DrawSerializedObject(Asset);
+                break;
+            case SkillNodeKind.SummonExecution:
+                DrawSummonExecutionInspectorFields();
                 break;
             case SkillNodeKind.Execution:
                 DrawSerializedObject(Asset, "Effects", "VFX");
@@ -598,7 +643,7 @@ public sealed class SkillNodeView : Node
                 }
                 else
                 {
-                    DrawSerializedObject(Asset, "VFX", "Item");
+                    DrawEffectInspectorFields(Asset as EffectBase);
                 }
                 break;
         }
@@ -624,12 +669,52 @@ public sealed class SkillNodeView : Node
         EffectBase effect = execution.Effects[EffectIndex];
         if (effect != null)
         {
-            DrawSerializedObject(effect, "VFX", "Item");
+            DrawEffectInspectorFields(effect);
         }
         else
         {
             EditorGUILayout.HelpBox("Assign an effect asset.", MessageType.Info);
         }
+    }
+
+    private void DrawEffectInspectorFields(EffectBase effect)
+    {
+        if (effect is SummonSpawnEffect)
+        {
+            DrawSerializedObject(effect, "VFX", "Item", "Move", "Execution");
+            return;
+        }
+
+        if (effect is ProjectileSpawnEffect)
+        {
+            DrawSerializedObject(effect, "VFX", "Item", "Projectile");
+            return;
+        }
+
+        if (effect is DurationEffect)
+        {
+            DrawSerializedObject(effect, "VFX", "Item", "Effect");
+            return;
+        }
+
+        DrawSerializedObject(effect, "VFX", "Item");
+    }
+
+    private void DrawSummonExecutionInspectorFields()
+    {
+        if (Asset is SummonOnceExecution)
+        {
+            DrawSerializedObject(Asset, "Effect");
+            return;
+        }
+
+        if (Asset is OnStayExecutionSummon)
+        {
+            DrawSerializedObject(Asset, "DurationEffect");
+            return;
+        }
+
+        DrawSerializedObject(Asset);
     }
 
     private void DrawEffectSlotProperty(int index, bool structureChanged)

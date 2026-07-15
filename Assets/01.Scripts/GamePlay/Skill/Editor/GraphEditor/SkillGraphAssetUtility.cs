@@ -216,6 +216,41 @@ public static class SkillGraphAssetUtility
             {
                 yield return spawnEffect.Item;
             }
+
+            if (entry is ProjectileSpawnEffect projectileSpawnEffect && projectileSpawnEffect.Projectile != null)
+            {
+                yield return projectileSpawnEffect.Projectile;
+            }
+
+            if (entry is DurationEffect durationEffect && durationEffect.Effect != null)
+            {
+                yield return durationEffect.Effect;
+            }
+
+            if (entry is SummonSpawnEffect summonSpawnEffect)
+            {
+                if (summonSpawnEffect.Move != null)
+                {
+                    yield return summonSpawnEffect.Move;
+                }
+
+                if (summonSpawnEffect.Execution != null)
+                {
+                    yield return summonSpawnEffect.Execution;
+                }
+
+                if (summonSpawnEffect.Execution is SummonOnceExecution onceExecution
+                    && onceExecution.Effect != null)
+                {
+                    yield return onceExecution.Effect;
+                }
+
+                if (summonSpawnEffect.Execution is OnStayExecutionSummon onEnterExecution
+                    && onEnterExecution.DurationEffect != null)
+                {
+                    yield return onEnterExecution.DurationEffect;
+                }
+            }
         }
     }
 

@@ -5,7 +5,7 @@ namespace Skill.Data
 {
     [CreateAssetMenu(fileName = "DamageEffect", menuName = "Skill/Effect/DamageEffect", order = 0)]
 
-    public class DamageEffect : EffectBase
+    public class DamageEffect : NomalEffect
     {
         public const string DamageRatioStat = "DamageRatio";
 

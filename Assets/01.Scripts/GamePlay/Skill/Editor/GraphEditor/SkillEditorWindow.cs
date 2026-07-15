@@ -189,29 +189,36 @@ public class SkillEditorWindow : EditorWindow
 
         AddPaletteHeader(palette, "효과");
         AddPaletteButton<DamageEffect>(palette, "Damage Effect");
-        AddPaletteButton<BuffEffect>(palette, "Buff Effect");
-        AddPaletteButton<SpawnEffect>(palette, "Spawn Effect");
+        AddPaletteButton<SummonSpawnEffect>(palette, "Summon Spawn Effect");
+        AddPaletteButton<ProjectileSpawnEffect>(palette, "Projectile Spawn Effect");
         AddPaletteButton<RangeEffect>(palette, "Range Effect");
+        AddPaletteButton<GoldEffect>(palette, "Gold");
+        AddPaletteButton<KnockBack>(palette, "KnockBack");
+
+        AddPaletteHeader(palette, "");
+        AddPaletteButton<DurationEffect>(palette, "Duration Effect");
+        AddPaletteButton<BuffEffect>(palette, "Buff Effect");
         AddPaletteButton<DotEffect>(palette, "Dot Effect");
         AddPaletteButton<DamageTransferEffect>(palette, "Damage Transfer");
         AddPaletteButton<ArmorReduction>(palette, "Decrease Armour");
         AddPaletteButton<SlowEffect>(palette, "Slow");
         AddPaletteButton<ElementEffect>(palette, "Element Effect");
         AddPaletteButton<StunEffect>(palette, "Stun");
-        AddPaletteButton<KnockBack>(palette, "KnockBack");
-        AddPaletteButton<GoldEffect>(palette, "Gold");
 
         AddPaletteHeader(palette, "투척 아이템");
         AddPaletteButton<StraightProjectileData>(palette, "Straight Projectile");
         AddPaletteButton<HomingProjectileData>(palette, "Homing Projectile");
         AddPaletteButton<ParabolaProjectileData>(palette, "Parabola Projectile");
 
-        AddPaletteHeader(palette, "소환 아이템");
-        AddPaletteButton<DelayEffectSummonData>(palette, "Delay Apply Summon");
-        AddPaletteButton<AttachSummonData>(palette, "Attach Summon");
-        AddPaletteButton<MoveableSummonData>(palette, "Moveable Summon");
-        AddPaletteButton<DotFlooringData>(palette, "Dot Flooring");
-        AddPaletteButton<DebuffFlooringData>(palette, "Debuff Flooring");
+        AddPaletteHeader(palette, "소환 템플릿");
+        AddPaletteButton<SummonNoneMove>(palette, "None Move");
+        AddPaletteButton<SummonAttachMove>(palette, "Attach Move");
+        AddPaletteButton<SummonApproachMove>(palette, "Approach Move");
+
+        AddPaletteButton<OnExpireExecutionSummon>(palette, "OnExpire Execution");
+        AddPaletteButton<OnStayExecutionSummon>(palette, "OnStay Execution");
+        AddPaletteButton<OnStayExecutionSummon>(palette, "OnEnter Execution");
+        AddPaletteButton<OnTickExecutionSummon>(palette, "Tick Execution");
 
         AddPaletteHeader(palette, "VFX");
         AddPaletteButton<SkillVfxSystem>(palette, "Skill Visual");

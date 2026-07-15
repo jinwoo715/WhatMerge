@@ -74,8 +74,8 @@ namespace Skill.Summon
         {
             return summonItemData switch
             {
-                AttachSummonData => new AttachMoveStrategy(owner, target),
-                MoveableSummonData => new ToTargetMoveStrategy(owner, target, summonItemData),
+                //AttachSummonData => new AttachMoveStrategy(owner, target),
+                //MoveableSummonData => new ToTargetMoveStrategy(owner, target, summonItemData),
                 _=> new NoneMoveStrategy(),
             };
         }

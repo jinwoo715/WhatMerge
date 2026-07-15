@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Skill.Data
 {
-    public class RangeEffect : EffectBase, IEffectContainer
+    public class RangeEffect : NomalEffect, IEffectContainer
     {
         public float Range;
         public List<EffectBase> Effects;

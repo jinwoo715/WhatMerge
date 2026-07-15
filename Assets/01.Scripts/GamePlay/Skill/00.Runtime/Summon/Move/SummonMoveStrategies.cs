@@ -55,8 +55,8 @@ namespace Skill.Summon
             _duration = data.Duration;
             _current = 0;
 
-            var spawnType = (data as MoveableSummonData).SpawnPoint;
-            owner.position += GetSpawnPosition(spawnType);
+            //var spawnType = (data as MoveableSummonData).SpawnPoint;
+            //owner.position += GetSpawnPosition(spawnType);
 
             _origin = owner.position;
             _enemyDeltaPosition = _target.Position;

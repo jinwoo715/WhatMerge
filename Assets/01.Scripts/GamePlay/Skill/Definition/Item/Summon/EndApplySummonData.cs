@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Skill.Data
 {
-    public class DelayEffectSummonData : SummonItemData
+    public class EndApplySummonData : SummonItemData
     {
 
     }

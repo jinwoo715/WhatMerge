@@ -53,10 +53,10 @@ namespace WhatMerge.Combat
                         ProcessDotEffect(dot, damageContext);
                         break;
                     case SlowEffect slow:
-                        ProcessEnemyTimedMultiplier(damageContext.Target, EnemyStatType.MoveSpeed, -slow.SlowRatio, slow.Duration);
+                        //ProcessEnemyTimedMultiplier(damageContext.Target, EnemyStatType.MoveSpeed, -slow.SlowRatio, slow.Duration);
                         break;
                     case ArmorReduction armorReduction:
-                        ProcessEnemyTimedMultiplier(damageContext.Target, EnemyStatType.Armor, -armorReduction.Value, armorReduction.Duration);
+                        //ProcessEnemyTimedMultiplier(damageContext.Target, EnemyStatType.Armor, -armorReduction.Value, armorReduction.Duration);
                         break;
                     case ElementEffect element:
                         ProcessElementEffect(damageContext.Target, element);
@@ -138,11 +138,11 @@ namespace WhatMerge.Combat
             if (damageContext.Target is not IDamageable damageable)
                 return;
 
-            if (dot.Duration <= 0f || dot.IntervalTime <= 0f)
-            {
-                ApplyDamage(damageable, _damageCalculator.CalculateDotDamage(damageable, dot));
-                return;
-            }
+            //if (dot.Duration <= 0f || dot.IntervalTime <= 0f)
+            //{
+            //    ApplyDamage(damageable, _damageCalculator.CalculateDotDamage(damageable, dot));
+            //    return;
+            //}
 
             int lifeCycleVersion = GetLifeCycleVersion(damageable);
             StartCoroutine(CoProcessDotEffect(damageable, dot, lifeCycleVersion));
@@ -152,13 +152,13 @@ namespace WhatMerge.Combat
         {
             float elapsedTime = 0f;
 
-            while (elapsedTime + dot.IntervalTime <= dot.Duration + Mathf.Epsilon && IsSameLifeCycleActive(damageable, lifeCycleVersion))
+            //while (elapsedTime + dot.IntervalTime <= dot.Duration + Mathf.Epsilon && IsSameLifeCycleActive(damageable, lifeCycleVersion))
             {
                 yield return new WaitForSeconds(dot.IntervalTime);
                 elapsedTime += dot.IntervalTime;
 
-                if (!IsSameLifeCycleActive(damageable, lifeCycleVersion))
-                    break;
+                //if (!IsSameLifeCycleActive(damageable, lifeCycleVersion))
+                //    break;
 
                 ApplyDamage(damageable, _damageCalculator.CalculateDotDamage(damageable, dot));
             }
@@ -189,8 +189,8 @@ namespace WhatMerge.Combat
             if (target is not Enemy enemy)
                 return;
 
-            if (element.Duration <= 0f)
-                return;
+            //if (element.Duration <= 0f)
+            //    return;
 
             StartCoroutine(CoProcessElementEffect(enemy, enemy.LifeCycleVersion, element));
         }
@@ -198,7 +198,9 @@ namespace WhatMerge.Combat
         private IEnumerator CoProcessElementEffect(Enemy enemy, int lifeCycleVersion, ElementEffect element)
         {
             enemy.Status.AddStatus(element.Attribute);
-            yield return new WaitForSeconds(element.Duration);
+            //yield return new WaitForSeconds(element.Duration);
+
+            yield return null;
 
             if (enemy.LifeCycleVersion == lifeCycleVersion)
                 enemy.Status.RemoveStatus(element.Attribute);

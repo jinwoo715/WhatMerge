@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Active Skill_SingleExecutionData
   m_EditorClassIdentifier: 
   Effects:
-  - {fileID: 11400000, guid: 58677b3e79718f244ae0331889b4b453, type: 2}
+  - {fileID: 11400000, guid: 3dfdac4b05f74fe4db60e7445ae64d85, type: 2}
   VFX: {fileID: 0}

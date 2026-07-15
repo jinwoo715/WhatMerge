@@ -9,6 +9,8 @@ using WhatMerge.Combat;
 
 namespace Skill.Summon  
 {
+
+
     public class SummonItem : MonoBehaviour, IPooledItem<SummonItem>
     {
         [SerializeField] private SpriteRenderer _renderer;
@@ -49,11 +51,11 @@ namespace Skill.Summon
 
         private TargetLostEventType GetTargetLostEventType()
         {
-            if (_summonData is AttachSummonData attachSummonData)
-                return attachSummonData.TargetLostEventType;
+            //if (_summonData is AttachSummonData attachSummonData)
+            //    return attachSummonData.TargetLostEventType;
 
-            if (_summonData is MoveableSummonData moveableSummonData)
-                return moveableSummonData.TargetLostEventType;
+            //if (_summonData is MoveableSummonData moveableSummonData)
+            //    return moveableSummonData.TargetLostEventType;
 
             return TargetLostEventType.Disappear;
         }

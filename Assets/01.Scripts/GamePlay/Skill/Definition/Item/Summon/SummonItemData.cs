@@ -7,8 +7,16 @@ namespace Skill.Data
     {
         public string Sprite;
         public float Duration;
-    }
 
+        public ESpawnPosition SpawnPosition;
+        public SummonMoveType MoveType;
+    }
+    public enum SummonMoveType
+    {
+        None,
+        Follow,
+        Close
+    }
     public enum ESpawnPosition
     {
         TargetPivot,

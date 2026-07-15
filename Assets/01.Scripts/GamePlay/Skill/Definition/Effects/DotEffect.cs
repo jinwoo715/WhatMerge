@@ -33,7 +33,7 @@ namespace Skill.Data
                     IntervalTime += value;
                     break;
                 case DurationStat:
-                    Duration += value;
+                    //Duration += value;
                     break;
             }
         }
