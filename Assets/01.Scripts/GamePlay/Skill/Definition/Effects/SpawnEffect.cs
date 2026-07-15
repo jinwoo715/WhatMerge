@@ -4,9 +4,6 @@ namespace Skill.Data
     {
         public SpawnItemData Item;
 
-        public override void AddStat(string key, float value)
-        {
-            throw new System.NotImplementedException();
-        }
+        public override void AddStat(string key, float value) { }
     }
 }

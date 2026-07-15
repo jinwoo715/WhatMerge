@@ -8,6 +8,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.U2D;
 using WhatMerge.Heros;
+using System.Linq;
 
 namespace Combat { }
 
@@ -140,7 +141,7 @@ namespace WhatMerge.Heros
 
         private Hero _clickedHero = null;
 
-        public IReadOnlyList<Hero> GetAllFieldHero => throw new NotImplementedException();
+        public IReadOnlyList<Hero> GetAllFieldHero => _fieldHeros.Values.ToList();
         public bool IsUsableBag => CurrentUsedBagItem < TotalBagItem;
         public int TotalBagItem => 3;
         public int CurrentUsedBagItem => 0;
@@ -174,6 +175,7 @@ namespace WhatMerge.Heros
             _fieldHeros.Remove(tile);
             _fieldHero.Remove((tile.X, tile.Y));
             _heroMapService.FreeFieldTile(tile);
+            OnDestroyHero?.Invoke(hero);
         }
 
         public void SetHeroPosition(ITileReadOnly tile, Hero hero)
@@ -197,6 +199,7 @@ namespace WhatMerge.Heros
         {
             _fieldHeros.Add(tile, hero);
             _fieldHero.Add((tile.X, tile.Y), hero);
+            OnSpawnedHero?.Invoke(hero);
         }
 
         public void PointDownTile(Tile tile)
@@ -278,11 +281,11 @@ namespace WhatMerge.Heros
 
             _markerPresenter.UpdateTileMarker(tile);
         }
-
         public void SellHero(Hero hero)
         {
             Debug.Log("팔았다!");
             //TODO 판매 금액 산정 방법
+            ClearHero(hero);
             _gameGoldService.GainMoney(10);
         }
 
@@ -328,11 +331,6 @@ namespace WhatMerge.Heros
             }
 
             return heros;
-        }
-
-        public void SetHeroBuff(HeroStatType stat, float value)
-        {
-            throw new NotImplementedException();
         }
     }
 }

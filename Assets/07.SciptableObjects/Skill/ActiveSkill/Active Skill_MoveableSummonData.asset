@@ -9,11 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f533bfe326bf8fd4e93675c6e579ab82, type: 3}
-  m_Name: Active Skill_StraightProjectileData
+  m_Script: {fileID: 11500000, guid: 5ab128738881cf34398a11697831c24c, type: 3}
+  m_Name: Active Skill_MoveableSummonData
   m_EditorClassIdentifier: 
   Effects: []
   Sprite: 
+  Duration: 0
+  SpawnPoint: 0
   Speed: 0
-  LifeTime: 0
-  IsPiercing: 0

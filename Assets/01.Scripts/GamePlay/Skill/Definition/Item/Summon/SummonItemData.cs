@@ -9,26 +9,6 @@ namespace Skill.Data
         public float Duration;
     }
 
-    [System.Serializable]
-    public class SummonApplyTiming
-    {
-        public SummonApplyType ApplyType;
-        public float Delay;
-    }
-
-    public enum SummonApplyType
-    {
-        Once,
-        Interval
-    }
-
-    [System.Serializable]
-    public class SummonMove
-    {
-        public SummonMoveType Move;
-        public float Speed;
-    }
-
     public enum ESpawnPosition
     {
         TargetPivot,
@@ -36,13 +16,5 @@ namespace Skill.Data
         TargetLower,
         TargetRight,
         TargetLeft,
-        ScreenCenter,
-    }
-
-    public enum SummonMoveType
-    {
-        None,
-        ToTarget,
-        Attach,
     }
 }

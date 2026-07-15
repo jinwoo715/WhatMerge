@@ -13,18 +13,18 @@ namespace Skill.Projectile
 
         public bool IsArrived { get; set; }
 
-        public event Action<SkillImpactContext> OnArrived;
+        public event Action OnArrived;
 
-        public void Init(Transform owner, ICombatant target, float speed)
+        public LinearMove(Transform owner, ICombatant target, float speed)
         {
             _dir = (target.Position - owner.position).normalized;
             _speed = speed;
             _owner = owner;
         }
 
-        public void Tick()
+        public void Tick(float tick)
         {
-            _owner.position += _dir * Time.deltaTime * _speed;
+            _owner.position += _dir * tick * _speed;
         }
     }
     public class HomingMove : IProjectileMoveStrategy
@@ -35,19 +35,16 @@ namespace Skill.Projectile
 
         public bool IsArrived { get; private set; }
 
-        public event Action<SkillImpactContext> OnArrived;
+        public event Action OnArrived;
 
-        public void Init(Transform owner, ICombatant target, float speed)
+        public HomingMove(Transform owner, ICombatant target, float speed)
         {
             _owner = owner;
             _target = target;
             _speed = speed;
-            IsArrived = false;
         }
-        public void Tick()
+        public void Tick(float tick)
         {
-            if (IsArrived) return;
-
             Vector3 dir = (_target.Position - _owner.position).normalized;
             _owner.position += dir * Time.deltaTime * _speed;
 
@@ -57,8 +54,7 @@ namespace Skill.Projectile
             if (distance <= 0.001f)
             {
                 _owner.transform.position = _target.Position;
-                OnArrived?.Invoke(new SkillImpactContext(_target as IDamageable, _owner.position));
-                IsArrived = true;
+                OnArrived?.Invoke();
             }
         }
 
@@ -80,9 +76,9 @@ namespace Skill.Projectile
         private float _progress;
         private float _speed;
 
-        public bool IsArrived { get; private set; }
+        private bool IsArrived;
 
-        public event Action<SkillImpactContext> OnArrived;
+        public event Action OnArrived;
 
         public void Init(Transform owner, ICombatant target, float speed)
         {
@@ -91,10 +87,9 @@ namespace Skill.Projectile
             _destination = target.Position;
             _speed = speed;
             _progress = 0;
-            IsArrived = false;
         }
 
-        public void Tick()
+        public void Tick(float tick)
         {
             if (IsArrived) return;
 
@@ -113,8 +108,7 @@ namespace Skill.Projectile
             float distance = Vector3.SqrMagnitude(_owner.position - _destination);
             if (distance <= 0.001f)
             {
-                OnArrived?.Invoke(new SkillImpactContext(null, pos));
-                IsArrived = true;
+                OnArrived?.Invoke();
             }
         }
     }

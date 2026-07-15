@@ -8,9 +8,9 @@ using WhatMerge.Heros;
 public class BuffPayload
 {
     public IHeroStatModifier StatModifier { get; private set; }
-    public BuffEffect BuffData { get; private set; }
+    public BuffData BuffData { get; private set; }
 
-    public BuffPayload(IHeroStatModifier statModifier, BuffEffect buffData)
+    public BuffPayload(IHeroStatModifier statModifier, BuffData buffData)
     {
         StatModifier = statModifier;
         BuffData = buffData;
@@ -19,33 +19,31 @@ public class BuffPayload
 
 public class BuffEquipment
 {
-    public Action<BuffEquipment> OnEndBuff;
+    private BuffPayload _payload;
+    public Coroutine Coroutine;
+    public event Action<BuffEquipment> OnEndBuff;
 
-    public IEnumerator CoApplyBuff(BuffPayload buffPayload)
+    public void AppplyBuff(BuffPayload payload, Coroutine coroutine) 
     {
-        var buff = buffPayload.BuffData.BuffData;
-        var duration = buffPayload.BuffData.Duration;
+        Coroutine = coroutine;
+        _payload = payload;
 
-        buffPayload.StatModifier.AddMultiplier(buff.BuffType, buff.IncreaseRatio);
-        yield return new WaitForSeconds(duration);
+        var buff = _payload.BuffData;
+        var modifier = _payload.StatModifier;
 
-        buffPayload.StatModifier.AddMultiplier(buff.BuffType, -buff.IncreaseRatio);
-        OnEndBuff?.Invoke(this);
+        modifier.AddMultiplier(buff.BuffType, buff.IncreaseRatio);
     }
 
-    //private void ApplyBuff(List<BuffData> buffDatas, IStatModifier target)
-    //{
-    //    for (int i = 0; i < buffDatas.Count; i++)
-    //    {
-    //        target.ModifyStat(buffDatas[i].BuffValue);
-    //    }
-    //}
+    public void ReleaseBuff() 
+    {
+        var buff = _payload.BuffData;
+        var modifier = _payload.StatModifier;
 
-    //private void RevertBuff(List<BuffData> buffDatas, IStatModifier target)
-    //{
-    //    for (int i = 0; i < buffDatas.Count; i++)
-    //    {
-    //        target.ModifyStat(-buffDatas[i].BuffValue);
-    //    }
-    //}
+        modifier.AddMultiplier(buff.BuffType, -buff.IncreaseRatio);
+
+        OnEndBuff?.Invoke(this);
+
+        Coroutine = null;
+        _payload = null;
+    }
 }

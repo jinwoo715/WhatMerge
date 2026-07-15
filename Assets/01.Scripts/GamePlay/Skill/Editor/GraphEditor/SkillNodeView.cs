@@ -259,11 +259,9 @@ public sealed class SkillNodeView : Node
                 break;
             case SkillNodeKind.ProjectileData:
                 AddOutputPort("Projectile", typeof(ProjectileDataBase));
-                AddOutputPort("Item", typeof(SpawnItemData));
                 break;
             case SkillNodeKind.SummonItemData:
                 AddOutputPort("Summon", typeof(SummonItemData));
-                AddOutputPort("Item", typeof(SpawnItemData));
                 break;
         }
     }

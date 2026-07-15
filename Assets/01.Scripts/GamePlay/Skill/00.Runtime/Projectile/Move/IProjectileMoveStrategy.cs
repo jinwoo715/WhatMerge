@@ -7,9 +7,7 @@ namespace Skill.Projectile
 {
     public interface IProjectileMoveStrategy
     {
-        event Action<SkillImpactContext> OnArrived;
-        bool IsArrived { get; }
-        void Init(Transform owner, ICombatant target, float speed);
-        void Tick();
+        event Action OnArrived;
+        void Tick(float tick);
     }
 }

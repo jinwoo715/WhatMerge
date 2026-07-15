@@ -9,11 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f533bfe326bf8fd4e93675c6e579ab82, type: 3}
-  m_Name: Active Skill_StraightProjectileData
+  m_Script: {fileID: 11500000, guid: bf3ce7ef6c92c4f4cbece1f73c3516b7, type: 3}
+  m_Name: Active Skill_DelayEffectSummonData
   m_EditorClassIdentifier: 
   Effects: []
   Sprite: 
-  Speed: 0
-  LifeTime: 0
-  IsPiercing: 0
+  Duration: 0

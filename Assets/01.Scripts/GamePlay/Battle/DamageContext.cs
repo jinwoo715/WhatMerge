@@ -1,8 +1,7 @@
-using Enemies;
 using Skill.Data;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 namespace WhatMerge.Combat
 {
     public struct AttackPayload
@@ -39,14 +38,20 @@ namespace WhatMerge.Combat
         public ICombatant Target;
         public AttackPayload AttackPayload;
         public Vector3 VFXPosition;
-        public List<EffectBase> skillEffects = new List<EffectBase>();
+        public List<EffectBase> Effects;
 
-        public DamageContext(AttackPayload attackPayload, ICombatant target, IAttacker attacker)
+        public DamageContext(AttackPayload attackPayload, ICombatant target, IAttacker attacker, List<EffectBase> effects = null)
         {
             AttackPayload = attackPayload;
             Target = target;
             Attacker = attacker;
+            Effects = effects ?? new List<EffectBase>();
             //VFXPosition = target.Position;
+        }
+
+        public DamageContext WithTarget(ICombatant target)
+        {
+            return new DamageContext(AttackPayload, target, Attacker, Effects);
         }
     }
 }

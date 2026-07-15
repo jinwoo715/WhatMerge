@@ -12,64 +12,84 @@ namespace Skill.Summon
     public class SummonItem : MonoBehaviour, IPooledItem<SummonItem>
     {
         [SerializeField] private SpriteRenderer _renderer;
-
-        private SummonExecuteTimer _timer;
-        private ICombatService _combatService;
-
         private SummonItemData _summonData;
         private ISummonMoveStrategy _move;
-        private SkillPayload _payload;
+        private DamageContext _damageContext;
 
         public bool IsActive { get; private set; }
         public event Action<SummonItem> OnReturn;
-        private Action OnTimeOut;
+        public event Action<DamageContext> OnExecute;
 
-        public void Initialize(SummonExecuteTimer timer)
+        private float _currentTimer;
+
+        private void ExecuteAndExpire()
         {
-            _timer = timer;
-            _timer.OnExecute += Execute;
-
-            OnTimeOut += () => OnReturn?.Invoke(this);
-
-            _timer.OnTimeOut += TimeOut;
+            OnExecute?.Invoke(_damageContext);
+            Expire();
         }
-        public void TimeOut()
+
+        private void Expire()
         {
             OnReturn?.Invoke(this);
-            Debug.Log("TimeOut");
         }
 
-        internal void Init(SkillPayload payload, ISummonMoveStrategy move, SummonItemData summonData, Sprite sprite, ICombatService combatService)
+        private void OnTargetLost()
         {
-            _combatService = combatService;
+            switch (GetTargetLostEventType())
+            {
+                case TargetLostEventType.Disappear:
+                    Expire();
+                    break;
 
+                case TargetLostEventType.OnExecute:
+                    ExecuteAndExpire();
+                    break;
+            }
+        }
+
+        private TargetLostEventType GetTargetLostEventType()
+        {
+            if (_summonData is AttachSummonData attachSummonData)
+                return attachSummonData.TargetLostEventType;
+
+            if (_summonData is MoveableSummonData moveableSummonData)
+                return moveableSummonData.TargetLostEventType;
+
+            return TargetLostEventType.Disappear;
+        }
+
+        internal void Init(DamageContext damageContext, ISummonMoveStrategy move, SummonItemData summonData, Sprite sprite)
+        {
             _move = move;
             _summonData = summonData;
             _renderer.sprite = sprite;
-            _payload = payload;
+            _damageContext = damageContext;
 
-            _move.OnLooseTarget += TimeOut;
+            _move.OnTargetLost += OnTargetLost;
 
-            _timer.Init(_summonData.Duration, new SummonApplyTiming { ApplyType = SummonApplyType.Once });
+            _currentTimer = 0;
         }
-
         private void Update()
         {
-            _move.Tick();
-            _timer.Tick();
-        }
+            if (!IsActive)
+                return;
 
-        private void Execute()
-        {
-            DamageContext context = new DamageContext(_payload.payLoad, _payload.Target as IDamageable, _payload.Attacker);
-            context.skillEffects = _payload.effects;
-            _combatService.RegisterAttack(context);
-        }
+            _currentTimer += Time.deltaTime;
 
+            _move.Tick(Time.deltaTime);
+
+            if (!IsActive)
+                return;
+
+            if (_currentTimer >= _summonData.Duration)
+            {
+                ExecuteAndExpire();
+            }
+        }
         public void OnDespawn()
         {
             IsActive = false;
-            _move.OnLooseTarget -= TimeOut;
+            _move.OnTargetLost -= OnTargetLost;
         }
         public void OnSpawn()
         {

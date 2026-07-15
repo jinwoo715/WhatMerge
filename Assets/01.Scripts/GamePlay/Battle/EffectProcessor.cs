@@ -1,6 +1,5 @@
 using Skill;
 using Skill.Data;
-using Skill.Summon;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,35 +8,28 @@ using WhatMerge.Enemies;
 
 namespace WhatMerge.Combat
 {
-    public class EffectProcessor
+    public class EffectProcessor : MonoBehaviour
     {
-        private readonly DamageCalculator _damageCalculator;
-        private readonly IEffectRoutineRunner _effectRoutineRunner;
-        private readonly IVFXService _vfx;
-        private readonly List<IEffectHandler> _handlers;
+        private DamageCalculator _damageCalculator;
+        private IVFXService _vfx;
+        private IReadOnlyList<IEffectHandler> _handlers;
 
         public event Action<Vector3, int> OnApplyDamage;
 
-        public EffectProcessor(DamageCalculator damageCalculator, IVFXService vfx, ISummonProvider summonProvider, IBuffRegister buffRegister)
+        public void Init(DamageCalculator damageCalculator, IVFXService vfx, IReadOnlyList<IEffectHandler> handlers)
         {
+            UnbindHandlerEvents();
+
             _damageCalculator = damageCalculator;
             _vfx = vfx;
-            _effectRoutineRunner = buffRegister as IEffectRoutineRunner;
+            _handlers = handlers ?? new List<IEffectHandler>();
 
-            DamageEffectHandler damageEffectHandler = new DamageEffectHandler(_damageCalculator);
-            damageEffectHandler.OnApplyDamage += HandleApplyDamage;
-
-            _handlers = new List<IEffectHandler>
-            {
-                damageEffectHandler,
-                new SpawnEffectHandler(summonProvider),
-                new BuffEffectHandler(buffRegister)
-            };
+            BindHandlerEvents();
         }
 
         public void Process(DamageContext damageContext)
         {
-            ProcessEffects(damageContext.skillEffects, damageContext);
+            ProcessEffects(damageContext.Effects, damageContext);
         }
 
         private void ProcessEffects(List<EffectBase> effects, DamageContext damageContext)
@@ -75,6 +67,9 @@ namespace WhatMerge.Combat
 
         private bool TryHandleEffect(EffectBase effect, DamageContext damageContext)
         {
+            if (_handlers == null)
+                return false;
+
             foreach (var handler in _handlers)
             {
                 if (!handler.CanHandle(effect))
@@ -90,6 +85,35 @@ namespace WhatMerge.Combat
         private void HandleApplyDamage(Vector3 position, int damage)
         {
             OnApplyDamage?.Invoke(position, damage);
+        }
+
+        private void BindHandlerEvents()
+        {
+            if (_handlers == null)
+                return;
+
+            foreach (var handler in _handlers)
+            {
+                if (handler is IApplyDamageNotifier damageNotifier)
+                    damageNotifier.OnApplyDamage += HandleApplyDamage;
+            }
+        }
+
+        private void UnbindHandlerEvents()
+        {
+            if (_handlers == null)
+                return;
+
+            foreach (var handler in _handlers)
+            {
+                if (handler is IApplyDamageNotifier damageNotifier)
+                    damageNotifier.OnApplyDamage -= HandleApplyDamage;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            UnbindHandlerEvents();
         }
 
         private void ShowEffectVFX(EffectBase effect, DamageContext damageContext)
@@ -114,14 +138,14 @@ namespace WhatMerge.Combat
             if (damageContext.Target is not IDamageable damageable)
                 return;
 
-            if (_effectRoutineRunner == null || dot.Duration <= 0f || dot.IntervalTime <= 0f)
+            if (dot.Duration <= 0f || dot.IntervalTime <= 0f)
             {
                 ApplyDamage(damageable, _damageCalculator.CalculateDotDamage(damageable, dot));
                 return;
             }
 
             int lifeCycleVersion = GetLifeCycleVersion(damageable);
-            _effectRoutineRunner.RunEffect(CoProcessDotEffect(damageable, dot, lifeCycleVersion));
+            StartCoroutine(CoProcessDotEffect(damageable, dot, lifeCycleVersion));
         }
 
         private IEnumerator CoProcessDotEffect(IDamageable damageable, DotEffect dot, int lifeCycleVersion)
@@ -145,10 +169,10 @@ namespace WhatMerge.Combat
             if (target is not Enemy enemy)
                 return;
 
-            if (_effectRoutineRunner == null || duration <= 0f)
+            if (duration <= 0f)
                 return;
 
-            _effectRoutineRunner.RunEffect(CoProcessEnemyTimedMultiplier(enemy, enemy.LifeCycleVersion, statType, multiplier, duration));
+            StartCoroutine(CoProcessEnemyTimedMultiplier(enemy, enemy.LifeCycleVersion, statType, multiplier, duration));
         }
 
         private IEnumerator CoProcessEnemyTimedMultiplier(Enemy enemy, int lifeCycleVersion, EnemyStatType statType, float multiplier, float duration)
@@ -165,10 +189,10 @@ namespace WhatMerge.Combat
             if (target is not Enemy enemy)
                 return;
 
-            if (_effectRoutineRunner == null || element.Duration <= 0f)
+            if (element.Duration <= 0f)
                 return;
 
-            _effectRoutineRunner.RunEffect(CoProcessElementEffect(enemy, enemy.LifeCycleVersion, element));
+            StartCoroutine(CoProcessElementEffect(enemy, enemy.LifeCycleVersion, element));
         }
 
         private IEnumerator CoProcessElementEffect(Enemy enemy, int lifeCycleVersion, ElementEffect element)

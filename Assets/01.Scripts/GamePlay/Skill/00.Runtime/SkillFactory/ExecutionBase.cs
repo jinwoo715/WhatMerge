@@ -74,7 +74,7 @@ namespace Skill
             }
 
             DamageContext context = new DamageContext(_owner.CreateAttackPayload(), target, _owner);
-            context.skillEffects = EffectRoller.GetConfirmEffects(_effects);
+            context.Effects = EffectRoller.GetConfirmEffects(_effects);
             _attackRegister.RegisterAttack(context);
         }
         protected ICombatant NearestTarget(IReadOnlyList<ICombatant> targets)

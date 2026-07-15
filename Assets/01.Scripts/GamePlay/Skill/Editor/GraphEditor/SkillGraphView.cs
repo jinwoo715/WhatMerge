@@ -229,7 +229,6 @@ public sealed class SkillGraphView : GraphView
         evt.menu.AppendSeparator("Create Node/");
         evt.menu.AppendAction("Create Node/Effect/Damage", _ => CreateAndAssignNode<DamageEffect>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendAction("Create Node/Effect/Buff", _ => CreateAndAssignNode<BuffEffect>(graphPosition), DropdownMenuAction.AlwaysEnabled);
-        evt.menu.AppendAction("Create Node/Effect/Timed Buff", _ => CreateAndAssignNode<BuffEffect>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendAction("Create Node/Effect/Spawn", _ => CreateAndAssignNode<SpawnEffect>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendAction("Create Node/Effect/Status/Dot", _ => CreateAndAssignNode<DotEffect>(graphPosition), DropdownMenuAction.AlwaysEnabled);
         evt.menu.AppendAction("Create Node/Effect/Status/Damage Transfer", _ => CreateAndAssignNode<DamageTransferEffect>(graphPosition), DropdownMenuAction.AlwaysEnabled);

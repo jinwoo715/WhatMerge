@@ -16,23 +16,23 @@ namespace Skill.Projectile
 
         private Data.ProjectileDataBase _soData;
 
-        private SkillPayload _payload;
+        private DamageContext _damageContext;
 
         public bool IsActive { get; private set; }
         public event Action<ProjectileItem> OnReturn;
 
         private Action<SkillImpactContext> OnArriveTrigger;
 
-        public void Init(SkillPayload data, IProjectileMoveStrategy moveStretagy, Data.ProjectileDataBase soData, Sprite sprite, ICombatService combatService)
+        public void Init(DamageContext damageContext, IProjectileMoveStrategy moveStretagy, Data.ProjectileDataBase soData, Sprite sprite, ICombatService combatService)
         {
             _combatService = combatService;
-            _payload = data;
+            _damageContext = damageContext;
             _moveStretagy = moveStretagy;
             _renderer.sprite = sprite;
             _soData = soData;
             OnArriveTrigger = (context) => CheckTrigger(EProjectileEffectTrigger.OnArrive, context.ImpactTarget);
 
-            _moveStretagy.OnArrived += OnArriveTrigger;
+            //_moveStretagy.OnArrived += OnArriveTrigger;
         }
 
         private void Update()
@@ -47,16 +47,12 @@ namespace Skill.Projectile
             if (IsActive == false) return;
             
             _currentTime += Time.deltaTime;
-            _moveStretagy.Tick();
+            _moveStretagy.Tick(Time.deltaTime);
         }
 
         private void CheckTrigger(EProjectileEffectTrigger trigger, IDamageable target)
         {
-            {
-                DamageContext context = new DamageContext(_payload.payLoad, target, _payload.Attacker);
-                context.skillEffects = _payload.effects;
-                _combatService.RegisterAttack(context);
-            }
+            _combatService.RegisterAttack(_damageContext.WithTarget(target));
 
             OnReturn?.Invoke(this);
         }
@@ -65,7 +61,7 @@ namespace Skill.Projectile
         {
             IsActive = false;
             _currentTime = 0;
-            _moveStretagy.OnArrived -= OnArriveTrigger;
+            //_moveStretagy.OnArrived -= OnArriveTrigger;
         }
         public void OnSpawn()
         {

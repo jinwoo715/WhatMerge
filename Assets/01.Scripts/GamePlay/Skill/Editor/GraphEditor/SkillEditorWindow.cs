@@ -191,6 +191,7 @@ public class SkillEditorWindow : EditorWindow
         AddPaletteButton<DamageEffect>(palette, "Damage Effect");
         AddPaletteButton<BuffEffect>(palette, "Buff Effect");
         AddPaletteButton<SpawnEffect>(palette, "Spawn Effect");
+        AddPaletteButton<RangeEffect>(palette, "Range Effect");
         AddPaletteButton<DotEffect>(palette, "Dot Effect");
         AddPaletteButton<DamageTransferEffect>(palette, "Damage Transfer");
         AddPaletteButton<ArmorReduction>(palette, "Decrease Armour");
@@ -206,11 +207,11 @@ public class SkillEditorWindow : EditorWindow
         AddPaletteButton<ParabolaProjectileData>(palette, "Parabola Projectile");
 
         AddPaletteHeader(palette, "소환 아이템");
+        AddPaletteButton<DelayEffectSummonData>(palette, "Delay Apply Summon");
         AddPaletteButton<AttachSummonData>(palette, "Attach Summon");
         AddPaletteButton<MoveableSummonData>(palette, "Moveable Summon");
         AddPaletteButton<DotFlooringData>(palette, "Dot Flooring");
         AddPaletteButton<DebuffFlooringData>(palette, "Debuff Flooring");
-
 
         AddPaletteHeader(palette, "VFX");
         AddPaletteButton<SkillVfxSystem>(palette, "Skill Visual");

@@ -6,6 +6,12 @@ namespace Skill.Data
     public class MoveableSummonData : SummonItemData
     {
         public SpawnPointType SpawnPoint;
-        public float Speed;
+        public TargetLostEventType TargetLostEventType;
+    }
+
+    public enum TargetLostEventType
+    {
+        Disappear,
+        OnExecute,
     }
 }

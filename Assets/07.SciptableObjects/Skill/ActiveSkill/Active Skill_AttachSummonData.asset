@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b837333bb57722f4680e72485237d36e, type: 3}
   m_Name: Active Skill_AttachSummonData
   m_EditorClassIdentifier: 
-  Effects:
-  - {fileID: 0}
+  Effects: []
   Sprite: 
   Duration: 0

@@ -6,6 +6,7 @@ using Skill;
 using UnityEngine.U2D;
 using Skill.Summon;
 using Skill.Projectile;
+using System.Collections.Generic;
 using WhatMerge.Enemies;
 using WhatMerge.Combat;
 using WhatMerge.Heros;
@@ -50,9 +51,9 @@ namespace Core.BootStrapper
         [Header("Battle")]
         [SerializeField] private DamageTextSpawner _damageViewer;
         [SerializeField] private EconomyViewer _economyViewer;
+        [SerializeField] private EffectProcessor _effectProcessor;
         private CombatService _combatService = new CombatService();
         private DamageCalculator _damageCalculator = new DamageCalculator();
-        private EffectProcessor _effectProcessor;
         private RewardSystem _rewardSystem = new RewardSystem();
 
         [Header("Stage")]
@@ -99,6 +100,7 @@ namespace Core.BootStrapper
             _timePresenter.Init(_timeController, _timeViewer);
             _sceneManager.Init(_stage);
             _map.Init();
+            _buff.Init(_heroController);
 
             //TODO
             #region Test
@@ -148,14 +150,21 @@ namespace Core.BootStrapper
 
             _vfxSpawner.Init(_vfxRepository);
 
-            _effectProcessor = new EffectProcessor(_damageCalculator, _vfxSpawner, _summonSpawner, _buff);
+            List<IEffectHandler> effectHandlers = new List<IEffectHandler>
+            {
+                new DamageEffectHandler(_damageCalculator),
+                new BuffEffectHandler(_buff),
+                new SummonSpawnEffectHandler(_summonSpawner),
+                new ProjectileSpawnEffectHandler(_projectileSpawner)
+            };
+
+            _effectProcessor.Init(_damageCalculator, _vfxSpawner, effectHandlers);
             _combatService.Init(_effectProcessor);
 
             _rewardSystem.Init(_economy);
 
             _projectileSpawner.Init(_projectileRepository, _combatService);
             _summonSpawner.Init(_projectileRepository, _combatService);
-            _buff.Init(data);
         }
         private void Bind()
         {
@@ -163,7 +172,7 @@ namespace Core.BootStrapper
             _skillContext.Register<ICombatService>(_combatService);
             _skillContext.Register<IProjectileProvider>(_projectileSpawner);
             _skillContext.Register<ISummonProvider>(_summonSpawner);
-            _skillContext.Register<IBuffRegister>(_buff);
+            _skillContext.Register<IBuffService>(_buff);
 
             _heroSpawner.OnSpawndRanHero += _heroController.AddFieldHero;
 

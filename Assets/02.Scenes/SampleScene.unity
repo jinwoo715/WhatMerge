@@ -4366,6 +4366,50 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1187911382
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1187911384}
+  - component: {fileID: 1187911383}
+  m_Layer: 0
+  m_Name: EffectProcessor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1187911383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1187911382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6d8f2a49b754bbf8e1a7d3059c4a612, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1187911384
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1187911382}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 539.13794, y: 1647.2637, z: -5.325655}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1190944750
 GameObject:
   m_ObjectHideFlags: 0
@@ -6229,6 +6273,7 @@ MonoBehaviour:
   _vfxSpawner: {fileID: 2061574387}
   _damageViewer: {fileID: 1006936469}
   _economyViewer: {fileID: 990700998}
+  _effectProcessor: {fileID: 1187911383}
   _stage: {fileID: 1431088736}
   _stageInfoViewer: {fileID: 828544860}
   _sceneManager: {fileID: 1354951350}
@@ -7929,3 +7974,4 @@ SceneRoots:
   - {fileID: 41199737}
   - {fileID: 1518498134}
   - {fileID: 725266598}
+  - {fileID: 1187911384}
