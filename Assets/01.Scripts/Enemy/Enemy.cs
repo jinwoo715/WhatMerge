@@ -54,12 +54,15 @@ namespace WhatMerge.Enemies
         [SerializeField] private MoveController _move;
         [SerializeField] private EnemySpriteController _spriteController;
 
+        private CombatantElement _element = new CombatantElement();
         private StatusContainer _status = new StatusContainer();
         private EnemyStats _stats = new EnemyStats();
         private EnemyData _data;
         private int _currentHP;
 
         public event Action<Enemy> OnDeath;
+        public event Action<ICombatant> OnActiveOff;
+
         public EnemyType Type => _data.EnemyType;
         public bool IsActive { get; private set; }
         public int Armor => Mathf.RoundToInt(_stats.GetStat(EnemyStatType.Armor));
@@ -68,6 +71,12 @@ namespace WhatMerge.Enemies
         public Vector3 Position => this.transform.position;
         public StatusContainer Status => _status;
         public int LifeCycleVersion { get; private set; }
+
+        public IEnemyStatModifier StatModifier => _stats;
+
+        public IMoveable Move => _move;
+
+        public IElement Element => _element;
 
         public void Initialize(IPathProvider pathProvider)
         {
@@ -113,6 +122,7 @@ namespace WhatMerge.Enemies
         private void Death()
         {
             IsActive = false;
+            OnActiveOff?.Invoke(this);
             OnDeath?.Invoke(this);
         }
         public RewardData GetRewardData()
@@ -136,6 +146,7 @@ namespace WhatMerge.Enemies
         {
             IsActive = false;
             _status.Clear();
+            _element.Clear();
         }
     }
 }

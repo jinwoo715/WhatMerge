@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Skill;
 using Skill.Data;
@@ -18,7 +19,6 @@ public enum SkillNodeKind
     ExecutionVfx,
     Effect,
     ProjectileData,
-    SummonItemData,
     SummonMove,
     SummonExecution
 }
@@ -262,14 +262,11 @@ public sealed class SkillNodeView : Node
             case SkillNodeKind.ProjectileData:
                 AddOutputPort("Projectile", typeof(ProjectileDataBase));
                 break;
-            case SkillNodeKind.SummonItemData:
-                AddOutputPort("Summon", typeof(SummonItemData));
-                break;
             case SkillNodeKind.SummonMove:
                 AddOutputPort("Move", typeof(SummonMove));
                 break;
             case SkillNodeKind.SummonExecution:
-                AddOutputPort("Execution", typeof(SummonExecution));
+                AddOutputPort("Execution", typeof(SummonExecutionData));
                 break;
         }
     }
@@ -348,12 +345,6 @@ public sealed class SkillNodeView : Node
             return;
         }
 
-        if (Kind == SkillNodeKind.SummonItemData)
-        {
-            CreateSummonItemDataBodyFields();
-            return;
-        }
-
         if (Kind == SkillNodeKind.Execution)
         {
             CreateExecutionBodyFields();
@@ -402,11 +393,6 @@ public sealed class SkillNodeView : Node
     private void CreateEffectBodyFields()
     {
         AddBodyFieldSlot("VFX", "VFX", typeof(SkillVfxSystem), Asset is EffectBase effect ? effect.VFX : null);
-        if (Asset is SpawnEffect spawnEffect)
-        {
-            AddBodyFieldSlot("Item", "Item", typeof(SpawnItemData), spawnEffect.Item);
-        }
-
         if (Asset is ProjectileSpawnEffect projectileSpawnEffect)
         {
             AddBodyFieldSlot("Projectile", "Projectile", typeof(ProjectileDataBase), projectileSpawnEffect.Projectile);
@@ -415,7 +401,7 @@ public sealed class SkillNodeView : Node
         if (Asset is SummonSpawnEffect summonSpawnEffect)
         {
             AddBodyFieldSlot("Move", "Move", typeof(SummonMove), summonSpawnEffect.Move);
-            AddBodyFieldSlot("Execution", "Execution", typeof(SummonExecution), summonSpawnEffect.Execution);
+            AddBodyFieldSlot("Execution", "Execution", typeof(SummonExecutionData), summonSpawnEffect.Execution);
         }
 
         if (Asset is DurationEffect durationEffect)
@@ -426,21 +412,6 @@ public sealed class SkillNodeView : Node
 
     private void CreateSummonExecutionBodyFields()
     {
-        if (Asset is SummonOnceExecution onceExecution)
-        {
-            AddBodyFieldSlot("Effect", "Effect", typeof(NomalEffect), onceExecution.Effect);
-        }
-
-        if (Asset is OnStayExecutionSummon onEnterExecution)
-        {
-            AddBodyFieldSlot("Duration Effect", "DurationEffect", typeof(DurationEffectBase), onEnterExecution.DurationEffect);
-        }
-    }
-
-    private void CreateSummonItemDataBodyFields()
-    {
-        AddInspector(() => DrawSerializedObject(Asset, "Move", "Effects"));
-        AddInspector(() => DrawSerializedProperty(Asset, "Move", false));
         CreateEffectsFoldout();
     }
 
@@ -497,7 +468,7 @@ public sealed class SkillNodeView : Node
         foldout.style.marginRight = 4f;
         foldout.style.marginBottom = 4f;
 
-        List<EffectBase> effects = GetEffectEntries();
+        IList effects = GetEffectEntries();
         int count = effects != null ? effects.Count : 0;
         for (int i = 0; i < count; i++)
         {
@@ -548,7 +519,7 @@ public sealed class SkillNodeView : Node
             }
         };
 
-        effectRow.Add(CreateBodyInputPort(GetEffectSlotName(index), typeof(EffectBase), Port.Capacity.Single, "Effect " + (index + 1)));
+        effectRow.Add(CreateBodyInputPort(GetEffectSlotName(index), GetEffectSlotType(), Port.Capacity.Single, "Effect " + (index + 1)));
 
         var effectField = new IMGUIContainer(() => DrawEffectSlotProperty(index, true))
         {
@@ -681,46 +652,34 @@ public sealed class SkillNodeView : Node
     {
         if (effect is SummonSpawnEffect)
         {
-            DrawSerializedObject(effect, "VFX", "Item", "Move", "Execution");
+            DrawSerializedObject(effect, "VFX", "Move", "Execution");
             return;
         }
 
         if (effect is ProjectileSpawnEffect)
         {
-            DrawSerializedObject(effect, "VFX", "Item", "Projectile");
+            DrawSerializedObject(effect, "VFX", "Projectile");
             return;
         }
 
         if (effect is DurationEffect)
         {
-            DrawSerializedObject(effect, "VFX", "Item", "Effect");
+            DrawSerializedObject(effect, "VFX", "Effect");
             return;
         }
 
-        DrawSerializedObject(effect, "VFX", "Item");
+        DrawSerializedObject(effect, "VFX");
     }
 
     private void DrawSummonExecutionInspectorFields()
     {
-        if (Asset is SummonOnceExecution)
-        {
-            DrawSerializedObject(Asset, "Effect");
-            return;
-        }
-
-        if (Asset is OnStayExecutionSummon)
-        {
-            DrawSerializedObject(Asset, "DurationEffect");
-            return;
-        }
-
-        DrawSerializedObject(Asset);
+        DrawSerializedObject(Asset, "Effects");
     }
 
     private void DrawEffectSlotProperty(int index, bool structureChanged)
     {
         UnityEngine.Object owner = GetEffectSlotOwner();
-        List<EffectBase> effects = GetEffectEntries();
+        IList effects = GetEffectEntries();
         if (owner == null || effects == null || index < 0 || index >= effects.Count)
         {
             EditorGUILayout.HelpBox("Effect slot is missing.", MessageType.Warning);
@@ -764,7 +723,7 @@ public sealed class SkillNodeView : Node
         }
 
         Undo.RecordObject(owner, "Add Effect Slot");
-        List<EffectBase> effects = EnsureEffectEntries();
+        IList effects = EnsureEffectEntries();
         if (effects == null)
         {
             return;
@@ -778,7 +737,7 @@ public sealed class SkillNodeView : Node
     private void RemoveEffectSlot(int index)
     {
         UnityEngine.Object owner = GetEffectSlotOwner();
-        List<EffectBase> effects = GetEffectEntries();
+        IList effects = GetEffectEntries();
         if (owner == null || effects == null || index < 0 || index >= effects.Count)
         {
             return;
@@ -792,7 +751,7 @@ public sealed class SkillNodeView : Node
 
     private UnityEngine.Object GetEffectSlotOwner()
     {
-        if (Asset is ExecutionData || Asset is SummonItemData)
+        if (Asset is ExecutionData || Asset is SummonExecutionData)
         {
             return Asset;
         }
@@ -800,22 +759,27 @@ public sealed class SkillNodeView : Node
         return null;
     }
 
-    private List<EffectBase> GetEffectEntries()
+    private IList GetEffectEntries()
     {
         if (Asset is ExecutionData execution)
         {
             return execution.Effects;
         }
 
-        if (Asset is SummonItemData summonData)
+        if (Asset is OnStayExecutionSummon stayExecution)
         {
-            return summonData.Effects;
+            return stayExecution.Effects;
+        }
+
+        if (Asset is SummonOnceExecution onceExecution)
+        {
+            return onceExecution.Effects;
         }
 
         return null;
     }
 
-    private List<EffectBase> EnsureEffectEntries()
+    private IList EnsureEffectEntries()
     {
         if (Asset is ExecutionData execution)
         {
@@ -827,17 +791,42 @@ public sealed class SkillNodeView : Node
             return execution.Effects;
         }
 
-        if (Asset is SummonItemData summonData)
+        if (Asset is OnStayExecutionSummon stayExecution)
         {
-            if (summonData.Effects == null)
+            if (stayExecution.Effects == null)
             {
-                summonData.Effects = new List<EffectBase>();
+                stayExecution.Effects = new List<DurationEffectBase>();
             }
 
-            return summonData.Effects;
+            return stayExecution.Effects;
+        }
+
+        if (Asset is SummonOnceExecution onceExecution)
+        {
+            if (onceExecution.Effects == null)
+            {
+                onceExecution.Effects = new List<NomalEffect>();
+            }
+
+            return onceExecution.Effects;
         }
 
         return null;
+    }
+
+    private Type GetEffectSlotType()
+    {
+        if (Asset is OnStayExecutionSummon)
+        {
+            return typeof(DurationEffectBase);
+        }
+
+        if (Asset is SummonOnceExecution)
+        {
+            return typeof(NomalEffect);
+        }
+
+        return typeof(EffectBase);
     }
 
     private bool IsExecutionEffectSlotNode()

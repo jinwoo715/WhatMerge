@@ -9,9 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: d3ec8c46c8f94b86b07f00c357a82823, type: 3}
   m_Name: Active Skill_OnTickExecutionSummon
-  m_EditorClassIdentifier: Assembly-CSharp:Skill.Data:OnTickExecutionSummon
+  m_EditorClassIdentifier: 
+  Effects: []
   TickTime: 0
-  DamageType: 0
-  DotValue: 0

@@ -9,9 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 551c13a3560e54c419c7be2dc3fd88a8, type: 3}
+  m_Script: {fileID: 11500000, guid: 00ebccf6796749146aa6709bd4446898, type: 3}
   m_Name: Priest_Varius_SummonEffect
   m_EditorClassIdentifier: 
   Chance: 1
   VFX: {fileID: 0}
-  Item: {fileID: 11400000, guid: c4bb0298f9d90064ca9b2e7efdfcc298, type: 2}
+  DurationTime: 0.3
+  Move: {fileID: 11400000, guid: d5db359880d8520408774f836896726d, type: 2}
+  Execution: {fileID: 11400000, guid: ca848470cf7147fe86f66aec083bb9d8, type: 2}
+  SpawnPosition: 1

@@ -1,3 +1,5 @@
+using WhatMerge.Enemies;
+
 namespace WhatMerge.Combat
 { 
     public interface IDamageable : ICombatant
@@ -6,5 +8,7 @@ namespace WhatMerge.Combat
         int MaxHP { get; }
         int Armor { get; }
         void TakeDamage(AttackResultPayload resultPayload);
+        IEnemyStatModifier StatModifier { get; }
+        IMoveable Move { get; }
     }
 }

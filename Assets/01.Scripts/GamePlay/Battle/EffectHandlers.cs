@@ -3,6 +3,7 @@ using Skill.Data;
 using Skill.Projectile;
 using Skill.Summon;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using WhatMerge.Heros;
 
@@ -22,12 +23,14 @@ namespace WhatMerge.Combat
     public class DamageEffectHandler : IEffectHandler, IApplyDamageNotifier
     {
         private readonly DamageCalculator _damageCalculator;
+        private IDamageApplier _damageApplier;
 
         public event Action<Vector3, int> OnApplyDamage;
 
-        public DamageEffectHandler(DamageCalculator damageCalculator)
+        public DamageEffectHandler(DamageCalculator damageCalculator, IDamageApplier damageApplier)
         {
             _damageCalculator = damageCalculator;
+            _damageApplier = damageApplier;
         }
 
         public bool CanHandle(EffectBase effect)
@@ -41,17 +44,9 @@ namespace WhatMerge.Combat
                 return;
 
             int appliedDamage = _damageCalculator.CalculateFinalDamage(damageable, damageContext.AttackPayload, damageEffect.DamageRatio);
-            ApplyDamage(damageable, appliedDamage);
+            _damageApplier.TryApply(damageable, appliedDamage);
         }
 
-        private void ApplyDamage(IDamageable damageable, int appliedDamage)
-        {
-            if (damageable == null || !damageable.IsActive || appliedDamage <= 0)
-                return;
-
-            damageable.TakeDamage(new AttackResultPayload(appliedDamage));
-            OnApplyDamage?.Invoke(damageable.Position, appliedDamage);
-        }
     }
 
     public class SummonSpawnEffectHandler : IEffectHandler
@@ -65,18 +60,34 @@ namespace WhatMerge.Combat
 
         public bool CanHandle(EffectBase effect)
         {
-            return effect is SpawnEffect spawnEffect && spawnEffect.Item is SummonItemData;
+            return effect is SummonSpawnEffect;
         }
 
         public void Handle(EffectBase effect, DamageContext damageContext)
         {
-            if (_summonProvider == null || effect is not SpawnEffect spawnEffect || spawnEffect.Item is not SummonItemData summonItem)
-                return;
+            List<EffectBase> effects = new List<EffectBase>();
 
-            if (!SpawnEffectPayloadFactory.TryCreate(summonItem, damageContext, out DamageContext context))
-                return;
+            if(effect is SummonSpawnEffect spawnEffect)
+            {
+                if(spawnEffect.Execution is SummonOnceExecution once)
+                {
+                    effects = new List<EffectBase>(once.Effects);
+                }
+                else if(spawnEffect.Execution is OnStayExecutionSummon stay)
+                {
+                    effects = new List<EffectBase>(stay.Effects);
+                }
+            }
 
-            _summonProvider.SpawnSummon(summonItem, context);
+            if (effect is SummonSpawnEffect summonSpawnEffect)
+            {
+                effects = EffectRoller.GetConfirmEffects(effects);
+
+                DamageContext context = new DamageContext(damageContext.AttackPayload, damageContext.Target,
+                    damageContext.Attacker, damageContext.SkillUid, damageContext.OwnerSpawnIndex, effects);
+
+                _summonProvider.SpawnSummon(summonSpawnEffect, context);
+            }
         }
     }
 
@@ -91,24 +102,32 @@ namespace WhatMerge.Combat
 
         public bool CanHandle(EffectBase effect)
         {
-            return effect is SpawnEffect spawnEffect && spawnEffect.Item is ProjectileDataBase;
+            return effect is ProjectileSpawnEffect projectileSpawnEffect && projectileSpawnEffect.Projectile != null
+               ;
         }
 
         public void Handle(EffectBase effect, DamageContext damageContext)
         {
-            if (_projectileProvider == null || effect is not SpawnEffect spawnEffect || spawnEffect.Item is not ProjectileDataBase projectile)
+            if (_projectileProvider == null)
                 return;
 
-            if (!SpawnEffectPayloadFactory.TryCreate(projectile, damageContext, out DamageContext context))
+            if (effect is ProjectileSpawnEffect projectileSpawnEffect)
+            {
+                SpawnProjectile(projectileSpawnEffect.Projectile, damageContext);
                 return;
+            }
+        }
 
-            _projectileProvider.SpawnProjectile(projectile, context);
+        private void SpawnProjectile(ProjectileDataBase projectile, DamageContext damageContext)
+        {
+            if (SpawnEffectPayloadFactory.TryCreate(projectile, damageContext, out DamageContext context))
+                _projectileProvider.SpawnProjectile(projectile, context);
         }
     }
 
     internal static class SpawnEffectPayloadFactory
     {
-        public static bool TryCreate(SpawnItemData spawnItem, DamageContext damageContext, out DamageContext context)
+        public static bool TryCreate(ProjectileDataBase spawnItem, DamageContext damageContext, out DamageContext context)
         {
             context = null;
 
@@ -119,6 +138,8 @@ namespace WhatMerge.Combat
                 damageContext.AttackPayload,
                 damageContext.Target,
                 attacker,
+                damageContext.SkillUid,
+                damageContext.OwnerSpawnIndex,
                 EffectRoller.GetConfirmEffects(spawnItem.Effects));
             return true;
         }

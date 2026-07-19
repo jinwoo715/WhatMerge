@@ -30,6 +30,8 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
 
     public int SpawnedCount => 0;
 
+    private int _spawnIndex = 0;
+
     public void Init(IFieldTileService heroMapService, IResourcesReader spriteAtlasRepository, IHeroInfoRepository heroDataRepo, HeroDeck deck)
     {
         _heroMapService = heroMapService;
@@ -104,7 +106,7 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
 
         HeroSpriteController heroSpriteController = hero.GetComponent<HeroSpriteController>();
 
-        hero.SetData(data, atkData, heroSpriteController, saveData.Level, evolutionLevel);
+        hero.SetData(data, atkData, heroSpriteController, saveData.Level, evolutionLevel, _spawnIndex++);
         heroSpriteController.Init(heroAtlas, data.Name, saveData.Level);
 
         var skillSet = factory.CreateSkill(hero, level, dictionary[hero.UID]);

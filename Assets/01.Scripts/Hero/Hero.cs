@@ -22,6 +22,7 @@ namespace WhatMerge.Heros
 
     public class Hero : MonoBehaviour, ITileObject, IHeroInfoProvider, IAttacker, IPooledItem<Hero>, IAttackRangeProvider
     {
+        private CombatantElement _element = new CombatantElement();
         private SkillController _skillController;
         private HeroStats _stat = new HeroStats();
         private HeroData _heroData;
@@ -29,6 +30,9 @@ namespace WhatMerge.Heros
 
         private int _upgradeLevel = 1;
         private IHeroVisual _heroVisual;
+
+        public event Action<ICombatant> OnActiveOff;
+
         public bool IsActive { get; private set; }
         public string Name => _heroData.Name;
         public int EvolutionLevel { get; private set; }
@@ -37,10 +41,13 @@ namespace WhatMerge.Heros
         public ITileReadOnly OccupiedTile { get; private set; }
         public IHeroStatModifier StatModify => _stat;
         public float BasicAttackRange => _skillController.BasicAttackRange;
-        public int SpawnIndex { get; }
+        public int SpawnIndex { get; private set; }
 
-        public void SetData(HeroData data, ATKData atkData, IHeroVisual heroVisual, int upgradeLevel, int evolutionLevel)
+        public IElement Element => _element;
+
+        public void SetData(HeroData data, ATKData atkData, IHeroVisual heroVisual, int upgradeLevel, int evolutionLevel, int spawnIndex)
         {
+            SpawnIndex = spawnIndex;
             _heroData = data;
             _atkData = atkData;
             _upgradeLevel = upgradeLevel;
@@ -101,6 +108,7 @@ namespace WhatMerge.Heros
         public void OnDespawn() 
         {
             IsActive = false;
+            _element.Clear();
             _skillController.StopRunner();
         }
     }

@@ -39,19 +39,23 @@ namespace WhatMerge.Combat
         public AttackPayload AttackPayload;
         public Vector3 VFXPosition;
         public List<EffectBase> Effects;
+        public int SkillUid;
+        public int OwnerSpawnIndex;
 
-        public DamageContext(AttackPayload attackPayload, ICombatant target, IAttacker attacker, List<EffectBase> effects = null)
+        public DamageContext(AttackPayload attackPayload, ICombatant target, IAttacker attacker, int skillUid, int ownerSpawnIndex, List<EffectBase> effects = null)
         {
             AttackPayload = attackPayload;
             Target = target;
             Attacker = attacker;
             Effects = effects ?? new List<EffectBase>();
+            SkillUid = skillUid;
+            OwnerSpawnIndex = ownerSpawnIndex;
             //VFXPosition = target.Position;
         }
 
         public DamageContext WithTarget(ICombatant target)
         {
-            return new DamageContext(AttackPayload, target, Attacker, Effects);
+            return new DamageContext(AttackPayload, target, Attacker, SkillUid, OwnerSpawnIndex, Effects);
         }
     }
 }

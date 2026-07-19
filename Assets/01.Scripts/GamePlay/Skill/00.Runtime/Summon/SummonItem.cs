@@ -1,43 +1,89 @@
-using Combat;
 using Skill.Data;
-using Skill.Projectile;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using WhatMerge.Combat;
 
-namespace Skill.Summon  
+namespace Skill.Summon
 {
-
-
     public class SummonItem : MonoBehaviour, IPooledItem<SummonItem>
     {
         [SerializeField] private SpriteRenderer _renderer;
-        private SummonItemData _summonData;
+
         private ISummonMoveStrategy _move;
-        private DamageContext _damageContext;
+        private ISummonExecutionStrategy _execution;
 
         public bool IsActive { get; private set; }
         public event Action<SummonItem> OnReturn;
-        public event Action<DamageContext> OnExecute;
 
         private float _currentTimer;
+        private float _duration;
 
-        private void ExecuteAndExpire()
+        internal void Init(ISummonMoveStrategy move, ISummonExecutionStrategy execution, float duration)
         {
-            OnExecute?.Invoke(_damageContext);
-            Expire();
+            _currentTimer = 0;
+            _execution = execution;
+            _duration = duration;
+            _move = move;
+            SetMove(_move);
         }
 
-        private void Expire()
+        private void Update()
         {
-            OnReturn?.Invoke(this);
+            if (!IsActive)
+                return;
+
+            float deltaTime = Time.deltaTime;
+            _currentTimer += deltaTime;
+
+            _execution.OnTick(deltaTime);
+            _move?.Tick(deltaTime);
+
+            if (!IsActive)
+                return;
+
+            if (_currentTimer >= _duration)
+                ExecuteAndExpire();
+        }
+        private void OnTriggerEnter2D(Collider2D other)
+        {
+            if (other.CompareTag("Enemy")) 
+            {
+                _execution.OnEnter(other.GetComponent<IDamageable>());
+            }
+        }
+        private void OnTriggerExit2D(Collider2D other)
+        {
+            if (other.CompareTag("Enemy"))
+            {
+                _execution.OnExit(other.GetComponent<IDamageable>());
+            }
+        }
+        public void OnDespawn()
+        {
+            IsActive = false;
+            UnbindMoveEvent();
+            _move = null;
+        }
+        public void OnSpawn()
+        {
+            IsActive = true;
+        }
+        private void SetMove(ISummonMoveStrategy move)
+        {
+            
+            UnbindMoveEvent();
+            _move.OnTargetLost += OnTargetLost;
+        }
+        private void UnbindMoveEvent()
+        {
+            if (_move != null)
+                _move.OnTargetLost -= OnTargetLost;
         }
 
-        private void OnTargetLost()
+        private void OnTargetLost(TargetLostEventType eventType)
         {
-            switch (GetTargetLostEventType())
+            switch (eventType)
             {
                 case TargetLostEventType.Disappear:
                     Expire();
@@ -48,55 +94,16 @@ namespace Skill.Summon
                     break;
             }
         }
-
-        private TargetLostEventType GetTargetLostEventType()
+        
+        private void ExecuteAndExpire()
         {
-            //if (_summonData is AttachSummonData attachSummonData)
-            //    return attachSummonData.TargetLostEventType;
-
-            //if (_summonData is MoveableSummonData moveableSummonData)
-            //    return moveableSummonData.TargetLostEventType;
-
-            return TargetLostEventType.Disappear;
+            _execution.OnExpire();
+            Expire();
         }
-
-        internal void Init(DamageContext damageContext, ISummonMoveStrategy move, SummonItemData summonData, Sprite sprite)
+        private void Expire()
         {
-            _move = move;
-            _summonData = summonData;
-            _renderer.sprite = sprite;
-            _damageContext = damageContext;
-
-            _move.OnTargetLost += OnTargetLost;
-
-            _currentTimer = 0;
-        }
-        private void Update()
-        {
-            if (!IsActive)
-                return;
-
-            _currentTimer += Time.deltaTime;
-
-            _move.Tick(Time.deltaTime);
-
-            if (!IsActive)
-                return;
-
-            if (_currentTimer >= _summonData.Duration)
-            {
-                ExecuteAndExpire();
-            }
-        }
-        public void OnDespawn()
-        {
-            IsActive = false;
-            _move.OnTargetLost -= OnTargetLost;
-        }
-        public void OnSpawn()
-        {
-            IsActive = true;
+            _execution.Dispose();
+            OnReturn?.Invoke(this);
         }
     }
 }
-

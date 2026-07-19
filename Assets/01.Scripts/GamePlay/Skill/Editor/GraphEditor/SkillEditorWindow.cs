@@ -200,7 +200,7 @@ public class SkillEditorWindow : EditorWindow
         AddPaletteButton<BuffEffect>(palette, "Buff Effect");
         AddPaletteButton<DotEffect>(palette, "Dot Effect");
         AddPaletteButton<DamageTransferEffect>(palette, "Damage Transfer");
-        AddPaletteButton<ArmorReduction>(palette, "Decrease Armour");
+        AddPaletteButton<ArmorReductionEffect>(palette, "Decrease Armour");
         AddPaletteButton<SlowEffect>(palette, "Slow");
         AddPaletteButton<ElementEffect>(palette, "Element Effect");
         AddPaletteButton<StunEffect>(palette, "Stun");
@@ -217,7 +217,7 @@ public class SkillEditorWindow : EditorWindow
 
         AddPaletteButton<OnExpireExecutionSummon>(palette, "OnExpire Execution");
         AddPaletteButton<OnStayExecutionSummon>(palette, "OnStay Execution");
-        AddPaletteButton<OnStayExecutionSummon>(palette, "OnEnter Execution");
+        AddPaletteButton<OnEnterExecutionSummon>(palette, "OnEnter Execution");
         AddPaletteButton<OnTickExecutionSummon>(palette, "Tick Execution");
 
         AddPaletteHeader(palette, "VFX");

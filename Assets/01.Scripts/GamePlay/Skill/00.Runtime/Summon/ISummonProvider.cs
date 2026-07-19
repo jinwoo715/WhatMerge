@@ -5,6 +5,6 @@ namespace Skill.Summon
 {
     public interface ISummonProvider
     {
-        void SpawnSummon(SummonItemData dataSO, DamageContext damageContext);
+        void SpawnSummon(SummonSpawnEffect dataSO, DamageContext damageContext);
     }
 }

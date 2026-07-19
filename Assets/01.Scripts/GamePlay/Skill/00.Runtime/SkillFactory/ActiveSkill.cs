@@ -13,15 +13,17 @@ namespace Skill
         public ITarget Target { get; private set; }
         public IExecute Execution { get; private set; }
 
-        public int UID { get; }
+        public int SkillUID { get; }
+        public int SpawnIndex { get; }
 
         public ActiveSkill(int uid, Hero owner, ITrigger trigger, ITarget search, IExecute excution)
         {
-            UID = uid;
+            SkillUID = uid;
             _owner = owner;
             Trigger = trigger;
             Target = search;
             Execution = excution;
+            SpawnIndex = owner.SpawnIndex;
         }
         public bool IsUsable(SkillTriggerContext context)
         {

@@ -1,4 +1,3 @@
-using Combat;
 using Skill.Data;
 using System;
 using UnityEngine;
@@ -8,23 +7,24 @@ namespace Skill.Summon
 {
     public class NoneMoveStrategy : ISummonMoveStrategy
     {
-        public event Action OnTargetLost;
+        public event Action<TargetLostEventType> OnTargetLost;
 
         public void Tick(float tick) { }
     }
     public class AttachMoveStrategy : ISummonMoveStrategy
     {
-        public event Action OnTargetLost;
+        public event Action<TargetLostEventType> OnTargetLost;
 
         private ICombatant _target;
         private Transform _owner;
 
         public TargetLostEventType _targetLostEventType;
 
-        public AttachMoveStrategy(Transform owner, ICombatant target)
+        public AttachMoveStrategy(Transform owner, ICombatant target, TargetLostEventType targetLostEventType)
         {
             _target = target;
             _owner = owner;
+            _targetLostEventType = targetLostEventType;
         }
 
         public void Tick(float tick)
@@ -32,10 +32,10 @@ namespace Skill.Summon
             if (_target.IsActive)
                 _owner.transform.position = _target.Position;
             else
-                OnTargetLost?.Invoke();
+                OnTargetLost?.Invoke(_targetLostEventType);
         }
     }
-    public class ToTargetMoveStrategy : ISummonMoveStrategy
+    public class ApproachMoveStrategy : ISummonMoveStrategy
     {
         private ICombatant _target;
         private Transform _owner;
@@ -46,42 +46,21 @@ namespace Skill.Summon
         private Vector3 _enemyDeltaPosition;
         private Vector3 _origin;
 
-        public event Action OnTargetLost;
+        public TargetLostEventType _targetLostEventType;
 
-        public ToTargetMoveStrategy(Transform owner, ICombatant target, SummonItemData data)
+        public event Action<TargetLostEventType> OnTargetLost;
+
+        public ApproachMoveStrategy(Transform owner, ICombatant target, float duration, TargetLostEventType targetLostEventType)
         {
             _target = target;
             _owner = owner;
-            _duration = data.Duration;
+            _duration = duration;
             _current = 0;
 
-            //var spawnType = (data as MoveableSummonData).SpawnPoint;
-            //owner.position += GetSpawnPosition(spawnType);
+            _targetLostEventType = targetLostEventType;
 
             _origin = owner.position;
             _enemyDeltaPosition = _target.Position;
-        }
-
-        private Vector3 GetSpawnPosition(SpawnPointType spawnPointType)
-        {
-            Vector3 position = Vector3.zero;
-            switch (spawnPointType)
-            {
-                case SpawnPointType.Up:
-                    position += Vector3.up;
-                    break;
-                case SpawnPointType.Right:
-                    position += Vector3.right;
-                    break;
-                case SpawnPointType.Down:
-                    position += Vector3.down;
-                    break;
-                case SpawnPointType.Left:
-                    position += Vector3.left;
-                    break;
-            }
-
-            return position;
         }
 
         public void Tick(float tick)
@@ -90,7 +69,7 @@ namespace Skill.Summon
 
             if (!_target.IsActive)
             {
-                OnTargetLost?.Invoke();
+                OnTargetLost?.Invoke(_targetLostEventType);
                 return;
             }
 

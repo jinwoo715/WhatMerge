@@ -1,63 +1,63 @@
-using Combat;
-using Enemies;
 using Skill;
 using Skill.Data;
-using Skill.Projectile;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using WhatMerge.Combat;
 using WhatMerge.Infrastructure;
 
 namespace Skill.Summon
 {
-    public interface ISummonExecution
-    {
-        void Execute(DamageContext damageContext);
-    }
-
-    public class AttachSummonExecute : ISummonExecution
-    {
-        public void Execute(DamageContext damageContext)
-        {
-            var target = damageContext.Target;
-        }
-    }
-
     public class SummonSpawner : MonoBehaviour, ISummonProvider
     {
         [SerializeField] private SummonItem _originSummonItem;
 
         private ObjectPool<SummonItem> _summonItemPool = new ObjectPool<SummonItem>();
 
-        private ISpriteRepository _spriteRepository;
         private ICombatService _combatService;
 
         public void Init(ISpriteRepository spriteRepository, ICombatService combatService)
         {
-            _spriteRepository = spriteRepository;
             _combatService = combatService;
 
-            _summonItemPool.OnCreateEvent += (item) => { item.OnExecute += ProcessSummonExecuteEffect; };
             _summonItemPool.OnCreateEvent += (item) => { item.OnReturn += ReturnToPool; }; 
             _summonItemPool.Init(this.transform, _originSummonItem, 5);
         }
-        public void SpawnSummon(SummonItemData dataSO, DamageContext damageContext)
+
+        public void SpawnSummon(SummonSpawnEffect dataSO, DamageContext damageContext)
         {
-            if (damageContext == null || damageContext.Target == null)
+            if (dataSO == null || damageContext == null || damageContext.Target == null)
                 return;
 
-            Sprite sprite = _spriteRepository.GetSprite(dataSO.Sprite);
-
-            Vector3 spawnPosition = damageContext.Target.Position;
-
+            Vector3 spawnPosition = GetSpawnPosition(damageContext.Target.Position, dataSO.SpawnPosition);
             SummonItem summonObj = _summonItemPool.GetItem(spawnPosition);
 
-            ISummonMoveStrategy strategy = SummonMoveFactory.GetMoveStrategy(dataSO, summonObj.transform, damageContext.Target);
-            summonObj.Init(damageContext, strategy, dataSO, sprite);
+            ISummonMoveStrategy move = SummonMoveFactory.GetMoveStrategy(dataSO.Move, summonObj.transform, damageContext.Target, dataSO.DurationTime);
+            ISummonExecutionStrategy execution = SummonExecutionFactory.GetExecutionStrategy(dataSO.Execution, damageContext);
+            execution.OnExecuteEffect += ProcessSummonExecuteEffect;
+            summonObj.Init(move, execution, dataSO.DurationTime);
         }
 
+        private Vector3 GetSpawnPosition(Vector3 pivot, ESpawnPosition spawnType)
+        {
+            switch (spawnType)
+            {
+                case ESpawnPosition.TargetPivot:
+                    break;
+                case ESpawnPosition.TargetUpper:
+                    pivot += Vector3.up;
+                    break;
+                case ESpawnPosition.TargetLower:
+                    pivot += Vector3.down;
+                    break;
+                case ESpawnPosition.TargetRight:
+                    pivot += Vector3.right;
+                    break;
+                case ESpawnPosition.TargetLeft:
+                    pivot += Vector3.left;
+                    break;
+            }
+
+            return pivot;
+        }
         private void ReturnToPool(SummonItem item)
         {
             _summonItemPool.ReturnItem(item);
@@ -67,18 +67,39 @@ namespace Skill.Summon
             _combatService.RegisterAttack(damageContext);
         }
     }
+    public class SummonExecutionFactory
+    {
+        public static ISummonExecutionStrategy GetExecutionStrategy(SummonExecutionData execution, DamageContext damageContext)
+        {
+            return execution switch
+            {
+                OnEnterExecutionSummon => new OnEnterExecution(damageContext),
+                OnTickExecutionSummon => new OnTickExecution(damageContext, (execution as OnTickExecutionSummon).TickTime),
+                OnStayExecutionSummon => new OnStayExecution(damageContext),
+                OnExpireExecutionSummon => new OnExpireExecution(damageContext),
+                _ => new OnExpireExecution(damageContext)
+            };
+        }
+    }
 
     public class SummonMoveFactory
     {
-        public static ISummonMoveStrategy GetMoveStrategy(SummonItemData summonItemData, Transform owner, ICombatant target)
+        public static ISummonMoveStrategy GetMoveStrategy(SummonMove summonMove, Transform owner, ICombatant target, float duration)
         {
-            return summonItemData switch
+            var eventType = TargetLostEventType.Disappear;
+            if(summonMove is SummonMoveable moveable)
             {
-                //AttachSummonData => new AttachMoveStrategy(owner, target),
-                //MoveableSummonData => new ToTargetMoveStrategy(owner, target, summonItemData),
-                _=> new NoneMoveStrategy(),
+                eventType = moveable.LostTargetEvent;
+            }
+
+            return summonMove switch
+            {
+                SummonAttachMove => new AttachMoveStrategy(owner, target, eventType),
+                SummonApproachMove => new ApproachMoveStrategy(owner, target, duration, eventType),
+                _ => new NoneMoveStrategy(),
             };
         }
+
     }
 }
 

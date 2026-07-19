@@ -23,6 +23,9 @@ namespace Skill
         protected readonly IVFXService _vfxService;
         protected readonly ICombatService _attackRegister;
 
+        private readonly int SkillUid;
+        private readonly int OwnerSpawnIndex;
+
         private ICombatant _appliedCombatant;
 
         protected ExecutionBase(SkillExecutionContext executionContext, SkillRuntimeContext runtimeContext)
@@ -35,6 +38,9 @@ namespace Skill
 
             _vfxService = runtimeContext.VFX;
             _attackRegister = runtimeContext.Combat;
+
+            SkillUid = executionContext.SkillUid;
+            OwnerSpawnIndex = executionContext.Hero.SpawnIndex;
         }
         public abstract IEnumerator Execute(IReadOnlyList<ICombatant> targets);
 
@@ -73,7 +79,7 @@ namespace Skill
                 return;
             }
 
-            DamageContext context = new DamageContext(_owner.CreateAttackPayload(), target, _owner);
+            DamageContext context = new DamageContext(_owner.CreateAttackPayload(), target, _owner, SkillUid, OwnerSpawnIndex);
             context.Effects = EffectRoller.GetConfirmEffects(_effects);
             _attackRegister.RegisterAttack(context);
         }

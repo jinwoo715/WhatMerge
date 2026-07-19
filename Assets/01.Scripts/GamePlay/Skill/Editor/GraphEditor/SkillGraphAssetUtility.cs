@@ -212,11 +212,6 @@ public static class SkillGraphAssetUtility
                 yield return entry.VFX;
             }
 
-            if (entry is SpawnEffect spawnEffect && spawnEffect.Item != null)
-            {
-                yield return spawnEffect.Item;
-            }
-
             if (entry is ProjectileSpawnEffect projectileSpawnEffect && projectileSpawnEffect.Projectile != null)
             {
                 yield return projectileSpawnEffect.Projectile;
@@ -240,15 +235,27 @@ public static class SkillGraphAssetUtility
                 }
 
                 if (summonSpawnEffect.Execution is SummonOnceExecution onceExecution
-                    && onceExecution.Effect != null)
+                    && onceExecution.Effects != null)
                 {
-                    yield return onceExecution.Effect;
+                    for (int j = 0; j < onceExecution.Effects.Count; j++)
+                    {
+                        if (onceExecution.Effects[j] != null)
+                        {
+                            yield return onceExecution.Effects[j];
+                        }
+                    }
                 }
 
-                if (summonSpawnEffect.Execution is OnStayExecutionSummon onEnterExecution
-                    && onEnterExecution.DurationEffect != null)
+                if (summonSpawnEffect.Execution is OnStayExecutionSummon stayExecution
+                    && stayExecution.Effects != null)
                 {
-                    yield return onEnterExecution.DurationEffect;
+                    for (int j = 0; j < stayExecution.Effects.Count; j++)
+                    {
+                        if (stayExecution.Effects[j] != null)
+                        {
+                            yield return stayExecution.Effects[j];
+                        }
+                    }
                 }
             }
         }

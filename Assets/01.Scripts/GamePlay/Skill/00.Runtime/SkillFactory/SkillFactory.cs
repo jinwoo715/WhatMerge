@@ -127,7 +127,7 @@ namespace Skill
 
         public ActiveSkill CreateActiveSkill(ActiveSkillData skillSO, Hero owner, List<EffectBase> effects)
         {
-            SkillExecutionContext executionContext = new SkillExecutionContext(owner, skillSO.AnimationData, skillSO.Execution, effects);
+            SkillExecutionContext executionContext = new SkillExecutionContext(owner, skillSO.AnimationData, skillSO.Execution, effects, skillSO.UID);
 
             ITrigger trigger = TriggerFactory.CreateTrigger(skillSO.Trigger);
             ITarget target = TargetFactory.CreateTarget(skillSO.Target, owner, _runtimeContext);

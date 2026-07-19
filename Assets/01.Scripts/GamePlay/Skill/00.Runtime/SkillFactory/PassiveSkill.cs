@@ -8,8 +8,8 @@ namespace Skill.Data
     //TODO 패시브 스킬
     public abstract class PassiveSkill : IPassiveSkill
     {
-        public int UID { get; private set; }
-        public void SetUID(int uid) { UID = uid; }
+        public int SkillUID { get; private set; }
+        public void SetUID(int uid) { SkillUID = uid; }
         public abstract void Apply();
         public abstract void Release();
     }

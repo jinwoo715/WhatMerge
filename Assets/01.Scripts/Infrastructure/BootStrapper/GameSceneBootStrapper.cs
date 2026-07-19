@@ -77,6 +77,12 @@ namespace Core.BootStrapper
         [Header("Facade")]
         private SkillRuntimeContext _skillRuntimeContext;
 
+
+        [Header("Effect")]
+        [SerializeField] private DotEffectManager _dotEffectManager;
+        [SerializeField] private TimeEffectManager _timeEffectManager;
+        private DamageApplier _damageApplier = new DamageApplier();
+
         private void Start()
         {
             Init();
@@ -150,15 +156,17 @@ namespace Core.BootStrapper
 
             _vfxSpawner.Init(_vfxRepository);
 
+
             List<IEffectHandler> effectHandlers = new List<IEffectHandler>
             {
-                new DamageEffectHandler(_damageCalculator),
+                new DamageEffectHandler(_damageCalculator, _damageApplier),
                 new BuffEffectHandler(_buff),
                 new SummonSpawnEffectHandler(_summonSpawner),
-                new ProjectileSpawnEffectHandler(_projectileSpawner)
+                new ProjectileSpawnEffectHandler(_projectileSpawner),
             };
 
-            _effectProcessor.Init(_damageCalculator, _vfxSpawner, effectHandlers);
+            _dotEffectManager.Init(_damageApplier);
+            _effectProcessor.Init(_damageCalculator, _vfxSpawner, effectHandlers, _dotEffectManager, _timeEffectManager);
             _combatService.Init(_effectProcessor);
 
             _rewardSystem.Init(_economy);
@@ -176,7 +184,7 @@ namespace Core.BootStrapper
 
             _heroSpawner.OnSpawndRanHero += _heroController.AddFieldHero;
 
-            _combatService.OnApplyDamage += _damageViewer.ShowDamageText;
+            _damageApplier.OnApplyDamage += _damageViewer.ShowDamageText;
 
             _heroClicker.OnPointDownTile += _heroController.PointDownTile;
             _heroClicker.OnPointDownTile += (tile) => { _heroClickInteractViewer.HideInteractUI(); };

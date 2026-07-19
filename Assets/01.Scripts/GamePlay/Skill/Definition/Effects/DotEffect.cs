@@ -8,13 +8,11 @@ namespace Skill.Data
     {
         public const string ValueStat = "Value";
         public const string IntervalTimeStat = "IntervalTime";
-        public const string DurationStat = "Duration";
 
         private static readonly EffectStatDefinition[] EnhanceableStats =
         {
             new EffectStatDefinition(ValueStat, "Value"),
             new EffectStatDefinition(IntervalTimeStat, "Interval Time"),
-            new EffectStatDefinition(DurationStat, "Duration")
         };
 
         public float IntervalTime;
@@ -31,9 +29,6 @@ namespace Skill.Data
                     break;
                 case IntervalTimeStat:
                     IntervalTime += value;
-                    break;
-                case DurationStat:
-                    //Duration += value;
                     break;
             }
         }

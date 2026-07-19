@@ -11,11 +11,19 @@ public enum EMoveDirection
     Left
 }
 
-public class MoveController : MonoBehaviour
+public interface IMoveable
+{
+    void UpdateSpeed(float speed);
+    void StunOn();
+    void StunOff();
+}
+
+public class MoveController : MonoBehaviour, IMoveable
 {
     private Transform _owner;
 
     private bool _isMoveable = false;
+    private bool _isStun = false;
 
     private float _speed;
     private int _moveIndex;
@@ -28,7 +36,7 @@ public class MoveController : MonoBehaviour
 
     private void Update()
     {
-        if (!_isMoveable) return;
+        if (!_isMoveable || _isStun) return;
 
         MoveToDestination();
     }
@@ -100,5 +108,15 @@ public class MoveController : MonoBehaviour
             direction = EMoveDirection.Down;
 
         OnDirectionChanged?.Invoke(direction);
+    }
+
+    public void StunOn()
+    {
+        _isStun = true;
+    }
+
+    public void StunOff()
+    {
+        _isStun = false;
     }
 }

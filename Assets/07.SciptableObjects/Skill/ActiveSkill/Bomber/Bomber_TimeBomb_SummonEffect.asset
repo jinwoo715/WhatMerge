@@ -9,9 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 551c13a3560e54c419c7be2dc3fd88a8, type: 3}
+  m_Script: {fileID: 11500000, guid: 00ebccf6796749146aa6709bd4446898, type: 3}
   m_Name: Bomber_TimeBomb_SummonEffect
   m_EditorClassIdentifier: 
   Chance: 1
   VFX: {fileID: 0}
-  Item: {fileID: 11400000, guid: 9cbe0d4cd27708e4db66ef2d7d707239, type: 2}
+  DurationTime: 1.5
+  Move: {fileID: 11400000, guid: 6f0c9f4f27780ed41b0f4eed60d0c7c4, type: 2}
+  Execution: {fileID: 11400000, guid: 800899abcf3b4c6bb70e07aef9b871a9, type: 2}
+  SpawnPosition: 0

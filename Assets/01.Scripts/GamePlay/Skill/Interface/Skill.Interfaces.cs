@@ -6,7 +6,7 @@ namespace Skill
 {
     public interface ISkill
     {
-        int UID { get; }
+        int SkillUID { get; }
     }
     public interface ISkillModifier
     {
