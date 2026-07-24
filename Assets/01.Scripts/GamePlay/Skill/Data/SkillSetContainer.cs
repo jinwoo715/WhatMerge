@@ -31,20 +31,4 @@ namespace Skill.Data
         public int Level;
         public SkillBaseData Skill;
     }
-
-    [System.Serializable]
-    public class SkillType
-    {
-        public ESkillType Skill;
-        public int UID;
-    }
-
-    public enum ESkillType
-    {
-        Active,
-        Passive,
-        SkillStatEnhancer,
-        SkillChanceEnhancer,
-        ExtraEffect
-    }
 }

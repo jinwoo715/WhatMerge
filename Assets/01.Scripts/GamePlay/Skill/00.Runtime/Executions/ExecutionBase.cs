@@ -26,8 +26,6 @@ namespace Skill
         private readonly int SkillUid;
         private readonly int OwnerSpawnIndex;
 
-        private ICombatant _appliedCombatant;
-
         protected ExecutionBase(SkillExecutionContext executionContext, SkillRuntimeContext runtimeContext)
         {
             _executionData = executionContext.ExecutionData;

@@ -1,12 +1,5 @@
 namespace Skill
 {
-    public enum EProjectileEffectTrigger
-    {
-        OnHit,
-        OnArrive,
-        OnTimeOut,
-    }
-
     public struct SkillTriggerContext
     {
         public int HitCount;
