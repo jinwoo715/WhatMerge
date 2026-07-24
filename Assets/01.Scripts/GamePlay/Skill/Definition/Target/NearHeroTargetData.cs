@@ -2,15 +2,17 @@ using UnityEngine;
 
 namespace Skill.Data
 {
-    public enum ENearHeroTargetRange
+    public enum HeroSearchType
     {
-        Near = 1,
-        Far = 2,
+        Single,
+        Cross,
+        Surrounding,
+        All
     }
 
     [CreateAssetMenu(fileName = "NearHeroTarget", menuName = "Skill/Target/NearHeroTarget", order = 0)]
     public class NearHeroTargetData : HeroTargetData
     {
-        public ENearHeroTargetRange TargetRange;
+        public HeroSearchType TargetRange;
     }
 }

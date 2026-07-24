@@ -138,7 +138,7 @@ namespace WhatMerge.Combat
 
                 while(timer >= dotData.interval)
                 {
-                    ApplyDot(dotData.Context.Target, GetDotDamage(dotData.dotDamageType, target, dotData.value));
+                    ApplyDot(dotData.Context.Target, GetDotDamage(dotData.dotDamageType, target, dotData.value, dotData.Context.AttackPayload.AttackDamage));
                     timer -= dotData.interval ;
                 }
             }
@@ -147,7 +147,7 @@ namespace WhatMerge.Combat
         }
 
 
-        private int GetDotDamage(DotDamageType type, ICombatant target, float value)
+        private int GetDotDamage(DotDamageType type, ICombatant target, float value, int damage)
         {
             int returnValue = 0;
 
@@ -155,6 +155,9 @@ namespace WhatMerge.Combat
             {
                 case DotDamageType.Fixed:
                     returnValue = (int)value;
+                    break;
+                case DotDamageType.DamageRatio:
+                    returnValue = Mathf.RoundToInt(damage * value);
                     break;
                 case DotDamageType.CurrentHPRatio:
 

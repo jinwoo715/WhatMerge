@@ -176,12 +176,75 @@ public class Element : IStatusEffect
     }
 }
 
+public class DamageTransfer : IStatusEffect
+{
+    public bool IsExpired { get; private set; }
+
+    public readonly IDamageable Target;
+    public float Duration;
+    public readonly float TransferRange;
+    public readonly float TransferValue;
+    public readonly int TransferUnitCount;
+    public readonly IDamageApplier DamageApplier;
+
+    public DamageTransfer(IDamageApplier damageApplier, IDamageable damageable, float duration, 
+        float transferRange, float transferValue, int transferUnitCount)
+    {
+        Target = damageable;
+
+        Duration = duration;
+        TransferRange = transferRange;
+        TransferValue = transferValue;
+        TransferUnitCount = transferUnitCount;
+        DamageApplier = damageApplier;
+    }
+
+    public void Apply()
+    {
+        Target.OnAppliedNomalDamage += TransferDamage;
+    }
+
+    public void Release()
+    {
+        Target.OnAppliedNomalDamage -= TransferDamage;
+    }
+
+    public void Update(float deltaTime)
+    {
+        Duration -= deltaTime;
+
+        if (Duration <= 0)
+        {
+            IsExpired = true;
+        }
+    }
+
+    private void TransferDamage(int damage)
+    {
+        if (Target is not Enemy enemy)
+            return;
+
+        var enemies = SearchUtility.GetNearEnemiesByDistance(Target.Position, TransferRange, TransferUnitCount, enemy);
+
+        if (enemies == null || enemies.Count == 0)
+            return;
+
+        int transferDamage = Mathf.RoundToInt(damage * TransferValue);
+
+        foreach (var target in enemies)
+        {
+            DamageApplier.TryApply(target, transferDamage, DamageResultType.TransferDamage);
+        }
+    }
+}
+
 public interface ITimeEffectService
 {
     void ApplySlow(float duration, float slowEffect, ICombatant target);
     void ApplyArmorReduction(float duration, float reduction, ICombatant target);
     void ApplyStun(float duration, ICombatant target);
     void ApplyElement(float duration, ICombatant combatant, ElementType type);
+    void ApplyDamageTransfer(IDamageApplier damageApplier, float duration, ICombatant damageable, DamageTransferEffect effect);
 }
 
 public class TimeEffectManager : MonoBehaviour, ITimeEffectService
@@ -190,6 +253,7 @@ public class TimeEffectManager : MonoBehaviour, ITimeEffectService
     private Dictionary<ICombatant, Stun> _stuns = new();
     private Dictionary<ICombatant, ArmorReduction> _armorReductions = new();
     private Dictionary<(ICombatant, ElementType), Element> _elements = new();
+    private Dictionary<IDamageable, DamageTransfer> _damageTransfers = new();
 
     public void ApplySlow(float duration, float slowValue, ICombatant target)
     {
@@ -256,6 +320,49 @@ public class TimeEffectManager : MonoBehaviour, ITimeEffectService
             _elements.Add((combatant, type), element);
         }
     }
+    public void ApplyDamageTransfer(IDamageApplier damageApplier, float duration, ICombatant combatant, DamageTransferEffect effect)
+    {
+        if (combatant is not IDamageable damageable)
+            return;
+
+        if(_damageTransfers.TryGetValue(damageable, out var value))
+        {
+            //기존 수치가 더 크면 교체
+            //기존 수치와 같고 시간이 더 길면 교체
+
+            if(effect.TransitionRatio > value.TransferValue)
+            {
+                _damageTransfers[damageable].Release();
+                _damageTransfers[damageable] = new DamageTransfer(damageApplier, damageable, duration, effect.Radius, effect.TransitionRatio, effect.Count);
+                _damageTransfers[damageable].Apply();
+            }
+            else if(effect.TransitionRatio == value.TransferValue && duration > value.Duration)
+            {
+                _damageTransfers[damageable].Release();
+                _damageTransfers[damageable] = new DamageTransfer(damageApplier, damageable, duration, effect.Radius, effect.TransitionRatio, effect.Count);
+                _damageTransfers[damageable].Apply();
+            }
+        }
+        else
+        {
+            _damageTransfers.Add(damageable, new DamageTransfer(damageApplier, damageable, duration, effect.Radius, effect.TransitionRatio, effect.Count));
+            _damageTransfers[damageable].Apply();
+            damageable.OnActiveOff += RemoveAllDamageTransfer;
+        }
+    }
+
+    private void RemoveAllDamageTransfer(ICombatant combatant)
+    {
+        if(combatant is IDamageable damageable)
+        {
+            if (_damageTransfers.ContainsKey(damageable))
+            {
+                _damageTransfers[damageable].Release();
+                _damageTransfers.Remove(damageable);
+            }
+            combatant.OnActiveOff -= RemoveAllDamageTransfer;
+        }
+    }
 
     private void Update()
     {
@@ -263,8 +370,30 @@ public class TimeEffectManager : MonoBehaviour, ITimeEffectService
         UpdateStun();
         UpdateArmorReductions();
         UpdateElement();
+        UpdateDamageTransfer();
     }
 
+    private void UpdateDamageTransfer()
+    {
+        List<IDamageable> keys = new List<IDamageable>();
+
+        foreach (var transfer in _damageTransfers)
+        {
+            transfer.Value.Update(Time.deltaTime);
+
+            if (transfer.Value.IsExpired)
+            {
+                transfer.Value.Release();
+                keys.Add(transfer.Key);
+            }
+        }
+
+        for (int i = 0; i < keys.Count; i++)
+        {
+            keys[i].OnActiveOff -= RemoveAllDamageTransfer;
+            _damageTransfers.Remove(keys[i]);
+        }
+    }
     private void UpdateElement()
     {
         List<(ICombatant, ElementType)> keys = new List<(ICombatant, ElementType)>();
@@ -285,7 +414,6 @@ public class TimeEffectManager : MonoBehaviour, ITimeEffectService
             _elements.Remove(key);
         }
     }
-
     private void UpdateStun()
     {
         List<ICombatant> keys = new List<ICombatant>();

@@ -13,12 +13,12 @@ namespace Skill
         public List<EffectBase> Effects { get; }
         public int SkillUid { get; }
 
-        public SkillExecutionContext(Hero hero, SkillAnimationData animationData, ExecutionData executionData, List<EffectBase> effects, int skillUid)
+        public SkillExecutionContext(Hero hero, SkillAnimationData animationData, ExecutionData executionData, int skillUid)
         {
             Hero = hero;
             AnimationData = animationData;
             ExecutionData = executionData;
-            Effects = effects ?? new List<EffectBase>();
+            Effects = executionData.Effects;
             SpriteChanger = hero.GetComponent<ISpriteChanger>();
             SkillUid = skillUid;
         }

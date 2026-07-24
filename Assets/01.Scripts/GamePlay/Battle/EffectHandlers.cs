@@ -48,7 +48,6 @@ namespace WhatMerge.Combat
         }
 
     }
-
     public class SummonSpawnEffectHandler : IEffectHandler
     {
         private readonly ISummonProvider _summonProvider;
@@ -73,7 +72,7 @@ namespace WhatMerge.Combat
                 {
                     effects = new List<EffectBase>(once.Effects);
                 }
-                else if(spawnEffect.Execution is OnStayExecutionSummon stay)
+                else if(spawnEffect.Execution is SummonOnStayExecution stay)
                 {
                     effects = new List<EffectBase>(stay.Effects);
                 }
@@ -90,7 +89,6 @@ namespace WhatMerge.Combat
             }
         }
     }
-
     public class ProjectileSpawnEffectHandler : IEffectHandler
     {
         private readonly IProjectileProvider _projectileProvider;
@@ -124,7 +122,6 @@ namespace WhatMerge.Combat
                 _projectileProvider.SpawnProjectile(projectile, context);
         }
     }
-
     internal static class SpawnEffectPayloadFactory
     {
         public static bool TryCreate(ProjectileDataBase spawnItem, DamageContext damageContext, out DamageContext context)
@@ -144,7 +141,6 @@ namespace WhatMerge.Combat
             return true;
         }
     }
-
     public class BuffEffectHandler : IEffectHandler
     {
         private readonly IBuffService _buffRegister;

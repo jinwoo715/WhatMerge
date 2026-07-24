@@ -189,14 +189,15 @@ public class SkillEditorWindow : EditorWindow
 
         AddPaletteHeader(palette, "È¿°ú");
         AddPaletteButton<DamageEffect>(palette, "Damage Effect");
+        AddPaletteButton<ExecutionEffect>(palette, "Execution Effect");
         AddPaletteButton<SummonSpawnEffect>(palette, "Summon Spawn Effect");
         AddPaletteButton<ProjectileSpawnEffect>(palette, "Projectile Spawn Effect");
         AddPaletteButton<RangeEffect>(palette, "Range Effect");
         AddPaletteButton<GoldEffect>(palette, "Gold");
-        AddPaletteButton<KnockBack>(palette, "KnockBack");
-
-        AddPaletteHeader(palette, "");
+        AddPaletteButton<KnockBackEffect>(palette, "KnockBack");
         AddPaletteButton<DurationEffect>(palette, "Duration Effect");
+
+        AddPaletteHeader(palette, "Duration Effect");
         AddPaletteButton<BuffEffect>(palette, "Buff Effect");
         AddPaletteButton<DotEffect>(palette, "Dot Effect");
         AddPaletteButton<DamageTransferEffect>(palette, "Damage Transfer");
@@ -216,7 +217,7 @@ public class SkillEditorWindow : EditorWindow
         AddPaletteButton<SummonApproachMove>(palette, "Approach Move");
 
         AddPaletteButton<OnExpireExecutionSummon>(palette, "OnExpire Execution");
-        AddPaletteButton<OnStayExecutionSummon>(palette, "OnStay Execution");
+        AddPaletteButton<SummonOnStayExecution>(palette, "OnStay Execution");
         AddPaletteButton<OnEnterExecutionSummon>(palette, "OnEnter Execution");
         AddPaletteButton<OnTickExecutionSummon>(palette, "Tick Execution");
 

@@ -41,6 +41,7 @@ namespace Skill.Data
     public enum DotDamageType
     {
         Fixed,
+        DamageRatio,
         CurrentHPRatio,
         MaxHPRatio
     }

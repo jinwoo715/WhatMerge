@@ -16,6 +16,8 @@ namespace Skill.Data
         public void AddChance(float value)
         {
             Chance += value;
+
+            Chance = Mathf.Min(Chance, 1);
         }
 
         public abstract void AddStat(string key, float value);

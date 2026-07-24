@@ -1,3 +1,4 @@
+using Skill.Data;
 using System.Collections.Generic;
 using UnityEngine;
 using WhatMerge.Combat;
@@ -6,13 +7,13 @@ using WhatMerge.Heros;
 
 namespace Skill
 {
-    public interface ITarget
+    public interface IFinder
     {
         float Range { get; }
         bool HasTargetInRange(Vector3 pivot);
         IReadOnlyList<ICombatant> GetTargets(Vector3 pivot);
     }
-    public class SelfTargetFinder : ITarget
+    public class SelfTargetFinder : IFinder
     {
         private ICombatant _owner;
         public float Range => 0;
@@ -36,7 +37,7 @@ namespace Skill
             return false;
         }
     }
-    public class NearHeroFinder : ITarget
+    public class NearHeroFinder : IFinder
     {
         private int _range;
         private Hero _owner;
@@ -52,7 +53,7 @@ namespace Skill
 
         public IReadOnlyList<ICombatant> GetTargets(Vector3 pivot)
         {
-            var heros = _fieldHero.GetNearHeros(_owner.OccupiedTile, _range);
+            var heros = _fieldHero.GetNearHeros(_owner.OccupiedTile, (HeroSearchType)_range);
 
             List<ICombatant> results = new List<ICombatant>();
 
@@ -66,10 +67,10 @@ namespace Skill
 
         public bool HasTargetInRange(Vector3 pivot)
         {
-            return _fieldHero.GetNearHeros(_owner.OccupiedTile, _range).Count > 0;
+            return _fieldHero.GetNearHeros(_owner.OccupiedTile, (HeroSearchType)_range).Count > 0;
         }
     }
-    public class AllHeroFinder : ITarget
+    public class AllHeroFinder : IFinder
     {
         public float Range => 0;
         private IFieldHeroService _fieldHeroService;
@@ -88,7 +89,7 @@ namespace Skill
         }
     }
 
-    public abstract class NearEnemyFinder : ITarget
+    public abstract class NearEnemyFinder : IFinder
     {
         public Transform _owner;
         public float _radius;
@@ -116,14 +117,19 @@ namespace Skill
         }
         public bool IsTargetInRadius()
         {
+            if (_latestEnemy == null || !_latestEnemy.IsActive)
+                TrySetLatestByNearestEnemy();
+
             if (_latestEnemy == null)
-                SetLatestByNearestEnemy();
+                return false;
 
             return Vector2.Distance(_owner.position, _latestEnemy.Position) <= _radius;
         }
-        public void SetLatestByNearestEnemy()
+        public bool TrySetLatestByNearestEnemy()
         {
             _latestEnemy = SearchUtility.GetNearestEnemy(_owner.position, _radius);
+
+            return _latestEnemy != null;
         }
     }
 
@@ -140,8 +146,8 @@ namespace Skill
 
             if (_latestEnemy != null)
             {
-                SetLatestByNearestEnemy();
-                results.Add(_latestEnemy);
+                if(TrySetLatestByNearestEnemy())
+                    results.Add(_latestEnemy);
             }
             else
             {
@@ -151,8 +157,8 @@ namespace Skill
                 }
                 else
                 {
-                    SetLatestByNearestEnemy();
-                    results.Add(_latestEnemy);
+                    if (TrySetLatestByNearestEnemy())
+                        results.Add(_latestEnemy);
                 }
             }
             return results;
@@ -173,12 +179,12 @@ namespace Skill
         {
             List<ICombatant> results = new List<ICombatant>();
 
-            Enemy pivotEnemy;
+            Enemy pivotEnemy = null;
 
             if (_latestEnemy != null)
             {
-                SetLatestByNearestEnemy();
-                pivotEnemy = _latestEnemy;
+                if(TrySetLatestByNearestEnemy())
+                    pivotEnemy = _latestEnemy;
             }
             else
             {
@@ -188,9 +194,14 @@ namespace Skill
                 }
                 else
                 {
-                    SetLatestByNearestEnemy();
-                    pivotEnemy = _latestEnemy;
+                    if (TrySetLatestByNearestEnemy())
+                        pivotEnemy = _latestEnemy;
                 }
+            }
+
+            if(pivotEnemy == null)
+            {
+                return results;
             }
 
             Vector3 dir = (pivotEnemy.Position - pivot).normalized;
@@ -205,7 +216,7 @@ namespace Skill
         }
     }
 
-    public class AllEnemyFinder : ITarget
+    public class AllEnemyFinder : IFinder
     {
         private IFieldEnemyService _fieldEnemyService;
 

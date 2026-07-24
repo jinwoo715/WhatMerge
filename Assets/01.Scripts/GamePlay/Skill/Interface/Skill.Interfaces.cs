@@ -1,4 +1,3 @@
-using Combat;
 using Skill.Data;
 using System.Collections;
 
@@ -8,28 +7,25 @@ namespace Skill
     {
         int SkillUID { get; }
     }
-    public interface ISkillModifier
-    {
-        public void ModifyParam(EffectBase targetEffect, float value);
-        public void ModifyChance(EffectBase targetEffect, float value);
-        public void AddEffect(EffectBase effect);
-    }
-    public interface IActiveSkill : ISkill, ISkillModifier
+
+    public interface IActiveSkill : ISkill
     {
         public ITrigger Trigger { get; }
-        public ITarget Target { get; }
+        public IFinder Target { get; }
         public IExecute Execution { get; }
         bool IsUsable(SkillTriggerContext context);
         IEnumerator Execute();
+        void Dispose();
     }
     public interface IPassiveSkill : ISkill
     {
         void Apply();
+        void Release();
     }
     public interface ISkillResourceModifier
     {
         void ConsumeHitCount(int count);
-        void ConsumeMana(float amount);
+        void ConsumeMana(float amout);
         void AddHitCount(int count);
         void AddMana(float amount);
         void IncreaseManaAmoutRaio(float ratio);

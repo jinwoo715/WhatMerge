@@ -42,7 +42,7 @@ namespace Skill.Projectile
 
             ProjectileItem obj = _projectileItemPool.GetItem(attacker.Position);
 
-            var move = GetMoveStretagy(data, obj.transform, attacker);
+            var move = GetMoveStretagy(data, obj.transform, context.Target);
 
             var projectileSprite = GetProjectileSprite(data.Sprite, attacker.EvolutionLevel);
 
@@ -57,7 +57,7 @@ namespace Skill.Projectile
                 case HomingProjectileData:
                     return new HomingMove(item, target, data.Speed);
                 case ParabolaProjectileData:
-                    return new Parabola();
+                    return new Parabola(item, target, data.Speed);
                 default:
                     throw new System.ArgumentException("Unsupported projectile data.");
             }

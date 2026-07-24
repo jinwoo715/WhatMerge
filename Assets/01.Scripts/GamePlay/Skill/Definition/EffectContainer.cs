@@ -5,6 +5,7 @@ namespace Skill.Data
 {
     public interface IEffectContainer
     {
-        public List<EffectBase> GetEffects { get; set; }
+        public List<EffectBase> GetEffects { get; }
+        public void AddEffect(EffectBase effect);
     }
 }

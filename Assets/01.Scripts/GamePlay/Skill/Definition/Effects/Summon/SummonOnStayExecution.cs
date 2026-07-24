@@ -2,9 +2,9 @@ using System.Collections.Generic;
 
 namespace Skill.Data
 {
-    public class SummonOnceExecution : SummonExecutionData
+    public class SummonOnStayExecution : SummonExecutionData
     {
-        public List<NomalEffect> Effects;
+        public List<DurationEffectBase> Effects;
 
         public override List<EffectBase> GetEffectList()
         {
@@ -19,14 +19,14 @@ namespace Skill.Data
         }
         public override void AddEffect(EffectBase effect)
         {
-            if (effect is not NomalEffect nomalEffect)
+            if (effect is not DurationEffectBase durationEffect)
             {
                 throw new System.InvalidOperationException(
-                    $"{nameof(SummonOnceExecution)} cannot contain {effect?.GetType().Name ?? "null"}. " +
-                    $"Expected {nameof(NomalEffect)}.");
+                    $"{nameof(SummonOnStayExecution)} cannot contain {effect?.GetType().Name ?? "null"}. " +
+                    $"Expected {nameof(DurationEffectBase)}.");
             }
 
-            Effects.Add(nomalEffect);
+            Effects.Add(durationEffect);
         }
 
         public override void SetEffects(List<EffectBase> effectBases)
@@ -34,9 +34,9 @@ namespace Skill.Data
             Effects.Clear();
             foreach (var effect in effectBases)
             {
-                if(effect is NomalEffect nomalEffect)
+                if (effect is DurationEffectBase durationEffect)
                 {
-                    Effects.Add(nomalEffect);
+                    Effects.Add(durationEffect);
                 }
             }
         }

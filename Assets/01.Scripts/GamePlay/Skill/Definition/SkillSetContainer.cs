@@ -7,11 +7,11 @@ namespace Skill.Data
     public class SkillSetContainer : ScriptableObject
     {
         public int UID;
-        public List<UpgradeSet> Sets;
+        public List<HeroSkillSet> Sets;
 
-        public List<UpgradeSet> GetSets(int level)
+        public List<HeroSkillSet> GetSets(int level)
         {
-            List<UpgradeSet> sets = new List<UpgradeSet>();
+            List<HeroSkillSet> sets = new List<HeroSkillSet>();
 
             foreach (var set in Sets)
             {
@@ -26,7 +26,7 @@ namespace Skill.Data
     }
 
     [System.Serializable]
-    public class UpgradeSet
+    public class HeroSkillSet
     {
         public int Level;
         public SkillBaseData Skill;

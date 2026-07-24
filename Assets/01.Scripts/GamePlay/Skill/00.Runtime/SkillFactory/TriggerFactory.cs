@@ -1,4 +1,5 @@
 using Skill.Data;
+using System;
 
 namespace Skill
 {
@@ -11,7 +12,7 @@ namespace Skill
                 NoneTriggerData => new NoneTrigger(),
                 HitCountTriggerData hitCount => new HitCountTrigger(hitCount.HitCount),
                 ManaTriggerData mana => new ManaTrigger(mana.Mana),
-                _ => null,
+                _ => throw new InvalidOperationException($"Unsupported TriggerData: {data?.name ?? "null"}"),
             };
         }
     }

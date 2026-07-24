@@ -45,6 +45,13 @@ namespace Skill
                 passive.Apply();
             }
         }
+        private void ReleasePassive()
+        {
+            foreach (var passive in _passiveSkills)
+            {
+                passive.Release();
+            }
+        }
 
         public void UpdateDelayTime(float delay)
         {
@@ -110,15 +117,13 @@ namespace Skill
         public void ConsumeHitCount(int count)
         {
             Debug.Log("Concume HitCount");
-            _hitCount = 0;
-            //_hitCount -= count;
+            _hitCount = Mathf.Max(0, _hitCount - count);
         }
 
         public void ConsumeMana(float amount)
         {
             Debug.Log("Concume Mana");
-            _mana = 0;
-            //_mana -= amount;
+            _mana = Mathf.Max(0, _mana-amount);
         }
 
         public void AddHitCount(int count)
@@ -142,8 +147,12 @@ namespace Skill
                 _coroutineRunner.StopCoroutine(_currentSkill);
 
             _currentSkill = null;
+            ReleasePassive();
+
+            foreach (var activeSkill in _activeSkills)
+            {
+                activeSkill.Dispose();
+            }
         }
-
-
     }
 }

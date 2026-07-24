@@ -13,5 +13,10 @@ namespace Skill.Data
 
         public List<EffectBase> GetEffects { get => Effects; set => Effects = value; }
 
+        public void AddEffect(EffectBase effect)
+        {
+            Effects.Add(effect);
+        }
+
     }
 }

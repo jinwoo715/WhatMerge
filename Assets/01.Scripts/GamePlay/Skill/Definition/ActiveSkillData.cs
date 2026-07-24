@@ -13,7 +13,7 @@ namespace Skill.Data
         public ExecutionData Execution;
 
         [Header("Å½»ö")]
-        public TargetData Target;
+        public FinderData Finder;
 
         [Header("Æ®¸®°Å")]
         public TriggerData Trigger;

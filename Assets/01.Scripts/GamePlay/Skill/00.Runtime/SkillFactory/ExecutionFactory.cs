@@ -1,4 +1,5 @@
 using Skill.Data;
+using System;
 
 namespace Skill
 {
@@ -12,7 +13,7 @@ namespace Skill
                 SequenceHitExecutionData => new SequenceExecution(executionContext, runtimeContext),
                 ConeExecutionData => new ConeExecution(executionContext, runtimeContext),
                 SingleExecutionData => new SingleExecution(executionContext, runtimeContext),
-                _ => new SingleExecution(executionContext, runtimeContext),
+                _ => throw new InvalidOperationException($"Not Switch Type : {executionContext.ExecutionData}"),
             };
         }
     }

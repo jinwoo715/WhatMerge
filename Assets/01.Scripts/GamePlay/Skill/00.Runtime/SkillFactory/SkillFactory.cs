@@ -1,5 +1,5 @@
 using Skill.Data;
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using WhatMerge.Heros;
@@ -11,7 +11,6 @@ namespace Skill
         public List<IActiveSkill> ActiveSkills = new List<IActiveSkill>();
         public List<IPassiveSkill> PassiveSkills = new List<IPassiveSkill>();
     }
-
     public class SkillFactory
     {
         private SkillRuntimeContext _runtimeContext;
@@ -23,121 +22,84 @@ namespace Skill
 
         public SkillSet CreateSkill(Hero owner, int level, SkillSetContainer set)
         {
-            var sets = set.GetSets(level);
+            List<HeroSkillSet> sets = set.GetSets(level);
 
-            SkillSet skillSet = new SkillSet();
+            SkillSet returnSkillSet = new SkillSet();
 
-            Dictionary<ActiveSkillData, RuntimeSkillEffect> activeSkillDatas = new();
+            Dictionary<ActiveSkillData, RuntimeExecution> runtimeActiveSkills = new();
 
             Queue<EffectValueEnhanceData> statEnhancerDatas = new Queue<EffectValueEnhanceData>();
             Queue<EffectChanceEnhanceData> chanceEnhancers = new Queue<EffectChanceEnhanceData>();
-            Queue<ExtraEffectData> effects = new Queue<ExtraEffectData>();
+            Queue<ExtraEffectData> extraEffects = new Queue<ExtraEffectData>();
 
             foreach (var data in sets)
             {
-                var Skill = data.Skill;
-                Debug.Log(Skill.name);
-
-                switch (Skill.SkillType)
+                if (data.Skill == null)
                 {
-                    case ESkillType.Active:
+                    throw new InvalidOperationException(
+                        $"SkillSet '{set.name}' has null or missing skill at level {data.Level}.");
+                }
 
-                        if (Skill is ActiveSkillData skillData)
-                        {
-                            ActiveSkillData so = skillData;
+                var Skill = data.Skill;
 
-                            RuntimeSkillEffect runtimeSkillEffect = new RuntimeSkillEffect();
-                            runtimeSkillEffect.SetEffect(so.Execution);
+                switch (Skill)
+                {
+                    case ActiveSkillData activeSkill:
 
-                            activeSkillDatas.Add(skillData, runtimeSkillEffect);
+                        RuntimeExecution runtimeSkillEffect = new RuntimeExecution(activeSkill.Execution);
+    
+                        runtimeActiveSkills.Add(activeSkill, runtimeSkillEffect);
 
-                            ActiveSkill skill = CreateActiveSkill(so, owner, runtimeSkillEffect.Effects);
-                            skillSet.ActiveSkills.Add(skill);
-                        }
-
-                        break;
-                    case ESkillType.Passive:
-
-                        PassiveSkillData passiveSO = Skill as PassiveSkillData;
-                        PassiveSkill passive = CreatePassiveSkill(passiveSO, owner);
-                        passive.SetUID(passiveSO.UID);
-
-                        skillSet.PassiveSkills.Add(passive);
+                        ActiveSkill skill = CreateActiveSkill(activeSkill, owner, runtimeSkillEffect);
+                        returnSkillSet.ActiveSkills.Add(skill);
 
                         break;
+                    case PassiveSkillData passiveSkill:
 
-                    case ESkillType.SkillStatEnhancer:
+                        PassiveSkill passive = CreatePassiveSkill(passiveSkill, owner);
+                        passive.SetUID(passiveSkill.UID);
 
-                        EffectValueEnhanceData skillEnhancerData = Skill as EffectValueEnhanceData;
-                        statEnhancerDatas.Enqueue(skillEnhancerData);
-
-                        break;
-
-                    case ESkillType.SkillChanceEnhancer:
-
-                        EffectChanceEnhanceData skillChanceData = Skill as EffectChanceEnhanceData;
-                        chanceEnhancers.Enqueue(skillChanceData);
+                        returnSkillSet.PassiveSkills.Add(passive);
 
                         break;
-
-                    case ESkillType.ExtraEffect:
-
-                        ExtraEffectData entry = (Skill as ExtraEffectData);
-                        effects.Enqueue(entry);
-
+                    case EffectValueEnhanceData enhanceValueData:
+                        statEnhancerDatas.Enqueue(enhanceValueData);
                         break;
+
+                    case EffectChanceEnhanceData enhanceChanceData:
+                        chanceEnhancers.Enqueue(enhanceChanceData);
+                        break;
+
+                    case ExtraEffectData extraEffectData:
+                        extraEffects.Enqueue(extraEffectData);
+                        break;
+
+                    default:
+                        throw new InvalidOperationException($"Not Definition Skill Type : {Skill.name}");
                 }
             }
 
-            ApplyExtraEffect(activeSkillDatas, effects);
-            ApplyStatEnhance(activeSkillDatas, statEnhancerDatas);
-            ApplyChanceEnhance(activeSkillDatas, chanceEnhancers);
+            //스킬 추가에 대한 처리가 가장먼저 되어야 함
 
-            return skillSet;
+            SkillEnhancementApplier.ApplyExtraEffect(runtimeActiveSkills, extraEffects);
+            SkillEnhancementApplier.ApplyStatEnhance(runtimeActiveSkills, statEnhancerDatas);
+            SkillEnhancementApplier.ApplyChanceEnhance(runtimeActiveSkills, chanceEnhancers);
+
+            return returnSkillSet;
         }
-
-        private void ApplyStatEnhance(Dictionary<ActiveSkillData, RuntimeSkillEffect> activeSkillDatas, Queue<EffectValueEnhanceData> enhancers)
+        public ActiveSkill CreateActiveSkill(ActiveSkillData skillSO, Hero owner, RuntimeExecution runtimeExecution)
         {
-            foreach (var enhancer in enhancers)
-            {
-                var value = activeSkillDatas[enhancer.TargetSkill];
-                var effect = value.GetEffectBase(enhancer.TargetEffect);
-                effect.AddStat(enhancer.TargetStatKey, enhancer.AddValue);
-            }
-        }
-
-        private void ApplyChanceEnhance(Dictionary<ActiveSkillData, RuntimeSkillEffect> activeSkillDatas, Queue<EffectChanceEnhanceData> enhancers)
-        {
-            foreach (var enhancer in enhancers)
-            {
-                var value = activeSkillDatas[enhancer.TargetSkill];
-                var effect = value.GetEffectBase(enhancer.TargetEffect);
-                effect.AddChance(enhancer.AddChance);
-            }
-        }
-
-        private void ApplyExtraEffect(Dictionary<ActiveSkillData, RuntimeSkillEffect> activeSkillDatas, Queue<ExtraEffectData> enhancers)
-        {
-            foreach (var enhancer in enhancers)
-            {
-                var value = activeSkillDatas[enhancer.TargetSkill];
-                value.AddEffect(enhancer.EffectContainer, enhancer.Effect);
-            }
-        }
-
-        public ActiveSkill CreateActiveSkill(ActiveSkillData skillSO, Hero owner, List<EffectBase> effects)
-        {
-            SkillExecutionContext executionContext = new SkillExecutionContext(owner, skillSO.AnimationData, skillSO.Execution, effects, skillSO.UID);
+            SkillExecutionContext executionContext = new SkillExecutionContext(owner, skillSO.AnimationData, runtimeExecution.RuntimeExecutionData, skillSO.UID);
 
             ITrigger trigger = TriggerFactory.CreateTrigger(skillSO.Trigger);
-            ITarget target = TargetFactory.CreateTarget(skillSO.Target, owner, _runtimeContext);
+            IFinder target = FinderFactory.CreateTarget(skillSO.Finder, owner, _runtimeContext);
             IExecute execution = ExecutionFactory.CreateExecution(executionContext, _runtimeContext);
 
             ActiveSkill activeSkill = new ActiveSkill(skillSO.UID, owner, trigger, target, execution);
+            activeSkill.OnDispose += () => { runtimeExecution.Dispose(); };
 
             return activeSkill;
         }
-        
         private PassiveSkill CreatePassiveSkill(PassiveSkillData passiveSkillSO, Hero owner)
         {
             var effects = passiveSkillSO.Effects;
@@ -145,9 +107,9 @@ namespace Skill
             return passiveSkillSO.Target switch
             {
                 SelfTargetData => new SelfBuffPassive(owner.StatModify, effects),
-                NearHeroTargetData => new NearHeroBuffPassive(_runtimeContext.FieldHero, owner, effects),
+                NearHeroTargetData data => new NearHeroBuffPassive(_runtimeContext.FieldHero, owner, effects, data.TargetRange),
                 AllHeroTargetData => new AllHeroBuffPassive(_runtimeContext.FieldHero, owner, effects),
-                _ => null
+                _ => throw new InvalidOperationException($"Not Passive Target Exception {passiveSkillSO.Target}")
             };
         }
     }

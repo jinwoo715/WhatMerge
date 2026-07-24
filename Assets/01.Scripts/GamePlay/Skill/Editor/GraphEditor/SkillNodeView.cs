@@ -241,7 +241,7 @@ public sealed class SkillNodeView : Node
             case SkillNodeKind.ActiveSkill:
                 AddActiveSkillPropertyFields();
                 AddFieldSlot("Execution", "Execution", typeof(ExecutionData), _skill != null ? _skill.Execution : null);
-                AddFieldSlot("Target", "Target", typeof(Skill.Data.TargetData), _skill != null ? _skill.Target : null);
+                AddFieldSlot("Target", "Target", typeof(Skill.Data.FinderData), _skill != null ? _skill.Finder : null);
                 AddFieldSlot("Trigger", "Trigger", typeof(TriggerData), _skill != null ? _skill.Trigger : null);
                 break;
             case SkillNodeKind.Trigger:
@@ -251,7 +251,7 @@ public sealed class SkillNodeView : Node
                 AddOutputPort("Execution", typeof(ExecutionData));
                 break;
             case SkillNodeKind.Target:
-                AddOutputPort("Target", typeof(Skill.Data.TargetData));
+                AddOutputPort("Target", typeof(Skill.Data.FinderData));
                 break;
             case SkillNodeKind.ExecutionVfx:
                 AddOutputPort("VFX", typeof(SkillVfxSystem));
@@ -404,9 +404,9 @@ public sealed class SkillNodeView : Node
             AddBodyFieldSlot("Execution", "Execution", typeof(SummonExecutionData), summonSpawnEffect.Execution);
         }
 
-        if (Asset is DurationEffect durationEffect)
+        if (Asset is DurationEffect)
         {
-            AddBodyFieldSlot("Effect", "Effect", typeof(DurationEffectBase), durationEffect.Effect);
+            CreateEffectsFoldout();
         }
     }
 
@@ -664,7 +664,7 @@ public sealed class SkillNodeView : Node
 
         if (effect is DurationEffect)
         {
-            DrawSerializedObject(effect, "VFX", "Effect");
+            DrawSerializedObject(effect, "VFX", "Effects");
             return;
         }
 
@@ -751,7 +751,7 @@ public sealed class SkillNodeView : Node
 
     private UnityEngine.Object GetEffectSlotOwner()
     {
-        if (Asset is ExecutionData || Asset is SummonExecutionData)
+        if (Asset is ExecutionData || Asset is SummonExecutionData || Asset is DurationEffect)
         {
             return Asset;
         }
@@ -766,7 +766,7 @@ public sealed class SkillNodeView : Node
             return execution.Effects;
         }
 
-        if (Asset is OnStayExecutionSummon stayExecution)
+        if (Asset is SummonOnStayExecution stayExecution)
         {
             return stayExecution.Effects;
         }
@@ -774,6 +774,11 @@ public sealed class SkillNodeView : Node
         if (Asset is SummonOnceExecution onceExecution)
         {
             return onceExecution.Effects;
+        }
+
+        if (Asset is DurationEffect durationEffect)
+        {
+            return durationEffect.Effects;
         }
 
         return null;
@@ -791,7 +796,7 @@ public sealed class SkillNodeView : Node
             return execution.Effects;
         }
 
-        if (Asset is OnStayExecutionSummon stayExecution)
+        if (Asset is SummonOnStayExecution stayExecution)
         {
             if (stayExecution.Effects == null)
             {
@@ -811,12 +816,22 @@ public sealed class SkillNodeView : Node
             return onceExecution.Effects;
         }
 
+        if (Asset is DurationEffect durationEffect)
+        {
+            if (durationEffect.Effects == null)
+            {
+                durationEffect.Effects = new List<DurationEffectBase>();
+            }
+
+            return durationEffect.Effects;
+        }
+
         return null;
     }
 
     private Type GetEffectSlotType()
     {
-        if (Asset is OnStayExecutionSummon)
+        if (Asset is SummonOnStayExecution || Asset is DurationEffect)
         {
             return typeof(DurationEffectBase);
         }

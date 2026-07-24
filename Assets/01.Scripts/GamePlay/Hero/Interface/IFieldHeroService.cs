@@ -2,6 +2,7 @@ using WhatMerge.Heros;
 using WhatMerge.Map;
 using System;
 using System.Collections.Generic;
+using Skill.Data;
 
 public interface IFieldHeroService
 {
@@ -15,6 +16,8 @@ public interface IFieldHeroService
     void AddFieldHero(Tile tile, Hero hero);
     void SetHeroPosition(ITileReadOnly destination, Hero hero);
     void SellHero(Hero hero);
-    List<Hero> GetNearHeros(ITileReadOnly pivot, int range);
+    List<Hero> GetNearHeros(ITileReadOnly pivot, HeroSearchType range);
     void ClearHero(Hero hero);
 }
+
+

@@ -75,7 +75,7 @@ namespace Skill.Summon
             {
                 OnEnterExecutionSummon => new OnEnterExecution(damageContext),
                 OnTickExecutionSummon => new OnTickExecution(damageContext, (execution as OnTickExecutionSummon).TickTime),
-                OnStayExecutionSummon => new OnStayExecution(damageContext),
+                SummonOnStayExecution => new OnStayExecution(damageContext),
                 OnExpireExecutionSummon => new OnExpireExecution(damageContext),
                 _ => new OnExpireExecution(damageContext)
             };

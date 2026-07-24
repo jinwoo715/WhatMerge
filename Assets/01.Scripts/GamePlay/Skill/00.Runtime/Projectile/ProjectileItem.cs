@@ -21,8 +21,6 @@ namespace Skill.Projectile
         public bool IsActive { get; private set; }
         public event Action<ProjectileItem> OnReturn;
 
-        private Action<SkillImpactContext> OnArriveTrigger;
-
         public void Init(DamageContext damageContext, IProjectileMoveStrategy moveStretagy, Data.ProjectileDataBase soData, Sprite sprite, ICombatService combatService)
         {
             _combatService = combatService;
@@ -30,13 +28,12 @@ namespace Skill.Projectile
             _moveStretagy = moveStretagy;
             _renderer.sprite = sprite;
             _soData = soData;
-            OnArriveTrigger = (context) => CheckTrigger(EProjectileEffectTrigger.OnArrive, context.ImpactTarget);
-
-            //_moveStretagy.OnArrived += OnArriveTrigger;
         }
 
         private void Update()
         {
+            if (IsActive == false) return;
+
             //시간 초과
             if (_currentTime >= _soData.LifeTime)
             {
@@ -61,7 +58,6 @@ namespace Skill.Projectile
         {
             IsActive = false;
             _currentTime = 0;
-            //_moveStretagy.OnArrived -= OnArriveTrigger;
         }
         public void OnSpawn()
         {

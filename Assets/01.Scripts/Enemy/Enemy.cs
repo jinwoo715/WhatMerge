@@ -51,7 +51,7 @@ namespace WhatMerge.Enemies
 
     public class Enemy : MonoBehaviour, IDamageable, IPooledItem<Enemy>, IRewardProvider, IStatusHolder, IEnemyStatModifier
     {
-        [SerializeField] private MoveController _move;
+        private MoveController _move;
         [SerializeField] private EnemySpriteController _spriteController;
 
         private CombatantElement _element = new CombatantElement();
@@ -62,6 +62,7 @@ namespace WhatMerge.Enemies
 
         public event Action<Enemy> OnDeath;
         public event Action<ICombatant> OnActiveOff;
+        public event Action<int> OnAppliedNomalDamage;
 
         public EnemyType Type => _data.EnemyType;
         public bool IsActive { get; private set; }
@@ -71,17 +72,18 @@ namespace WhatMerge.Enemies
         public Vector3 Position => this.transform.position;
         public StatusContainer Status => _status;
         public int LifeCycleVersion { get; private set; }
-
         public IEnemyStatModifier StatModifier => _stats;
-
         public IMoveable Move => _move;
-
         public IElement Element => _element;
-
+        private void Update()
+        {
+            _move.UpdateDeltatime(Time.deltaTime);
+        }
         public void Initialize(IPathProvider pathProvider)
         {
+            _move = new MoveController(transform, pathProvider);
             _move.OnDirectionChanged += _spriteController.SetDirection;
-            _move.Initialize(transform, pathProvider);
+            
 
             _stats.OnChangedStat += (type, speed) =>
             {
@@ -106,11 +108,15 @@ namespace WhatMerge.Enemies
             _spriteController.Init(sprites, 0.25f);
 
             IsActive = true;
+            _move.ActiveOn();
         }
         public void TakeDamage(AttackResultPayload resultPayload)
         {
             if (!IsActive)
                 return;
+
+            if(resultPayload.ResultType == DamageResultType.NomalDamage)
+                OnAppliedNomalDamage?.Invoke(resultPayload.Damage);
 
             _currentHP -= resultPayload.Damage;
 
@@ -147,6 +153,11 @@ namespace WhatMerge.Enemies
             IsActive = false;
             _status.Clear();
             _element.Clear();
+            _move.ActiveOff();
+        }
+        public void KnockBack(float distance)
+        {
+            _move.Knockback(distance);
         }
     }
 }

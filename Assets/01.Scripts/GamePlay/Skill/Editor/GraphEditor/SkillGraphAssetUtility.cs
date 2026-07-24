@@ -154,7 +154,7 @@ public static class SkillGraphAssetUtility
 
         Undo.RecordObject(skill, "Clear Skill Graph");
         skill.Execution = null;
-        skill.Target = null;
+        skill.Finder = null;
         skill.Trigger = null;
         MarkDirty(skill);
         return true;
@@ -174,9 +174,9 @@ public static class SkillGraphAssetUtility
             yield return skill.Trigger;
         }
 
-        if (skill.Target != null)
+        if (skill.Finder != null)
         {
-            yield return skill.Target;
+            yield return skill.Finder;
         }
 
         if (skill.Execution == null)
@@ -217,9 +217,15 @@ public static class SkillGraphAssetUtility
                 yield return projectileSpawnEffect.Projectile;
             }
 
-            if (entry is DurationEffect durationEffect && durationEffect.Effect != null)
+            if (entry is DurationEffect durationEffect && durationEffect.Effects != null)
             {
-                yield return durationEffect.Effect;
+                for (int j = 0; j < durationEffect.Effects.Count; j++)
+                {
+                    if (durationEffect.Effects[j] != null)
+                    {
+                        yield return durationEffect.Effects[j];
+                    }
+                }
             }
 
             if (entry is SummonSpawnEffect summonSpawnEffect)
@@ -246,7 +252,7 @@ public static class SkillGraphAssetUtility
                     }
                 }
 
-                if (summonSpawnEffect.Execution is OnStayExecutionSummon stayExecution
+                if (summonSpawnEffect.Execution is SummonOnStayExecution stayExecution
                     && stayExecution.Effects != null)
                 {
                     for (int j = 0; j < stayExecution.Effects.Count; j++)

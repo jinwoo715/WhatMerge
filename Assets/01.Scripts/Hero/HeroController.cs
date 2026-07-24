@@ -9,25 +9,19 @@ using UnityEngine;
 using UnityEngine.U2D;
 using WhatMerge.Heros;
 using System.Linq;
+using Skill.Data;
 
 namespace Combat { }
 
 namespace WhatMerge.Heros
 {
-    public enum HeroSearchType
-    {
-        Self,
-        RangeA,
-        RangeB,
-        All
-    }
-
     public interface IHeroSummonService
     {
         int SpawnedCount { get; }
         bool TrySpawnRandomHero();
         bool TrySpawnHero(int uid, int evolutionLevel);
         void SpawnHeroAtTile(int uid, int evolutionLevel, Tile tile);
+        void ReturnHero(Hero hero);
 
         event Action<Tile, Hero> OnSpawndRanHero;
     }
@@ -163,6 +157,8 @@ namespace WhatMerge.Heros
             _heroMapService = heroMapService;
             _overlapProcessor = heroOverlapProcessor;
             _markerPresenter = markerPresenter;
+
+            OnDestroyHero += _heroSpawnService.ReturnHero;
         }
         public void ReturnHero(Hero hero)
         {
@@ -289,7 +285,8 @@ namespace WhatMerge.Heros
             _gameGoldService.GainMoney(10);
         }
 
-        public List<Hero> GetNearHeros(ITileReadOnly pivot, int range)
+        //TODO ¿µ¿õ ¹üÀ§ Å½»ö
+        public List<Hero> GetNearHeros(ITileReadOnly pivot, HeroSearchType range)
         {
             List<Hero> heros = new List<Hero>();
 
@@ -298,37 +295,37 @@ namespace WhatMerge.Heros
                 heros.Add(pivotHero);
             }
 
-            if (range >= 1)
-            {
-                int[,] dir = new int[4, 2] { { -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 } };
+            //if (range >= 1)
+            //{
+            //    int[,] dir = new int[4, 2] { { -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 } };
 
-                for (int i = 0; i < dir.GetLength(0); i++)
-                {
-                    int dx = pivot.X + dir[i, 0];
-                    int dy = pivot.Y + dir[i, 1];
+            //    for (int i = 0; i < dir.GetLength(0); i++)
+            //    {
+            //        int dx = pivot.X + dir[i, 0];
+            //        int dy = pivot.Y + dir[i, 1];
 
-                    if(_fieldHero.TryGetValue((dx,dy), out Hero hero))
-                    {
-                        heros.Add(hero);
-                    }
-                }
-            }
+            //        if(_fieldHero.TryGetValue((dx,dy), out Hero hero))
+            //        {
+            //            heros.Add(hero);
+            //        }
+            //    }
+            //}
 
-            if(range >= 2)
-            {
-                int[,] dir = new int[4, 2] { { -1, -1 }, { -1, 1 }, { 1, 1 }, { 1, -1 } };
+            //if(range >= 2)
+            //{
+            //    int[,] dir = new int[4, 2] { { -1, -1 }, { -1, 1 }, { 1, 1 }, { 1, -1 } };
 
-                for (int i = 0; i < dir.GetLength(0); i++)
-                {
-                    int dx = pivot.X + dir[i, 0];
-                    int dy = pivot.Y + dir[i, 1];
+            //    for (int i = 0; i < dir.GetLength(0); i++)
+            //    {
+            //        int dx = pivot.X + dir[i, 0];
+            //        int dy = pivot.Y + dir[i, 1];
 
-                    if (_fieldHero.TryGetValue((dx, dy), out Hero hero))
-                    {
-                        heros.Add(hero);
-                    }
-                }
-            }
+            //        if (_fieldHero.TryGetValue((dx, dy), out Hero hero))
+            //        {
+            //            heros.Add(hero);
+            //        }
+            //    }
+            //}
 
             return heros;
         }

@@ -22,13 +22,22 @@ namespace WhatMerge.Combat
         }
     }
 
+
+    public enum DamageResultType
+    {
+        NomalDamage,
+        TransferDamage,
+        ExecutionDamage
+    }
+
     public struct AttackResultPayload
     {
         public int Damage;
-
-        public AttackResultPayload(int damage)
+        public DamageResultType ResultType;
+        public AttackResultPayload(int damage, DamageResultType type = DamageResultType.NomalDamage)
         {
             Damage = damage;
+            ResultType = type;
         }
     }
 

@@ -80,7 +80,7 @@ namespace Skill.Projectile
 
         public event Action OnArrived;
 
-        public void Init(Transform owner, ICombatant target, float speed)
+        public Parabola(Transform owner, ICombatant target, float speed)
         {
             _owner = owner;
             _startPosition = owner.position;

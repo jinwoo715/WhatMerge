@@ -1,4 +1,5 @@
 using Skill.Data;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using WhatMerge.Combat;
@@ -10,13 +11,15 @@ namespace Skill
     {
         private Hero _owner;
         public ITrigger Trigger { get; private set; }
-        public ITarget Target { get; private set; }
+        public IFinder Target { get; private set; }
         public IExecute Execution { get; private set; }
 
         public int SkillUID { get; }
         public int SpawnIndex { get; }
 
-        public ActiveSkill(int uid, Hero owner, ITrigger trigger, ITarget search, IExecute excution)
+        public event Action OnDispose;
+
+        public ActiveSkill(int uid, Hero owner, ITrigger trigger, IFinder search, IExecute excution)
         {
             SkillUID = uid;
             _owner = owner;
@@ -34,17 +37,10 @@ namespace Skill
             IReadOnlyList<ICombatant> Targets = Target.GetTargets(_owner.Position);
             yield return Execution.Execute(Targets);
         }
-        public void ModifyParam(EffectBase targetEffect, float value)
+
+        public void Dispose()
         {
-            //Execution.EnhanceValue(targetEffect, value);
-        }
-        public void ModifyChance(EffectBase targetEffect, float value)
-        {
-            //Execution.EnhanceChance(targetEffect, value);
-        }
-        public void AddEffect(EffectBase effect)
-        {
-            //Execution.AddEffect(effect);
+            OnDispose?.Invoke();
         }
     }
 }

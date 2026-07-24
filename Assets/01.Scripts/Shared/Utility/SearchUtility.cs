@@ -97,7 +97,7 @@ public static class SearchUtility
         {
             float distance = Vector3.SqrMagnitude(position - collider[i].transform.position);
 
-            if(distance < deltaDistance)
+            if(distance < deltaDistance && collider[i].gameObject.activeSelf)
             {
                 deltaDistance = distance;
                 currentCollider = collider[i];
@@ -106,7 +106,13 @@ public static class SearchUtility
 
         return currentCollider.GetComponent<T>();
     }
-    public static List<T> GetNear2DTargets<T>(Vector3 position, float radius, LayerMask layer, int count) where T : MonoBehaviour
+
+    public static List<Enemy> GetNearEnemiesByDistance(Vector3 position, float radius, int count, Enemy except = null)
+    {
+        return GetNear2DTargets<Enemy>(position, radius, LayerMask.GetMask("Enemy"), count, except);
+    }
+
+    public static List<T> GetNear2DTargets<T>(Vector3 position, float radius, LayerMask layer, int count, Enemy except = null) where T : MonoBehaviour
     {
         Collider2D[] collider = Physics2D.OverlapCircleAll(position, radius, layer);
 
@@ -121,6 +127,9 @@ public static class SearchUtility
             if (component != null)
                 targets.Add(component);
         }
+
+        if (except != null)
+            targets.Remove(except as T);
 
         // 거리 기준으로 정렬
         targets.Sort((a, b) =>

@@ -15,13 +15,15 @@ namespace WhatMerge.Combat
         private IDotService _dotService;
         private IReadOnlyList<IEffectHandler> _handlers;
         private ITimeEffectService _timeEffectService;
-        public void Init(DamageCalculator damageCalculator, IVFXService vfx, IReadOnlyList<IEffectHandler> handlers, IDotService dotService, ITimeEffectService timeEffectService)
+        private IDamageApplier _damageApplier;
+        public void Init(DamageCalculator damageCalculator, IVFXService vfx, IReadOnlyList<IEffectHandler> handlers, IDotService dotService, ITimeEffectService timeEffectService, IDamageApplier damageApplier)
         {
             _damageCalculator = damageCalculator;
             _dotService = dotService;
             _vfx = vfx;
             _handlers = handlers;
             _timeEffectService = timeEffectService;
+            _damageApplier = damageApplier;
         }
         public void Process(DamageContext damageContext)
         {
@@ -48,27 +50,68 @@ namespace WhatMerge.Combat
                 {
                     ProcessDurationEffect(durationEffect, damageContext);
                 }
+                else if(effect is KnockBackEffect knockBackEffect)
+                {
+                    ProcessKnockbackEffect(knockBackEffect, damageContext);
+                }
+                else if(effect is ExecutionEffect executionEffect)
+                {
+                    ProcessExecutionEffect(executionEffect, damageContext);
+                }
+            }
+        }
+
+        private void ProcessExecutionEffect(ExecutionEffect effect, DamageContext context)
+        {
+            if (context.Target is not IDamageable target || !target.IsActive)
+                return;
+
+            float threshold = Mathf.Clamp01(effect.ExecuteThreshold);
+
+            if (target.CurrentHP > target.MaxHP * threshold)
+                return;
+
+            _damageApplier.TryApply(
+                target,
+                target.CurrentHP,
+                DamageResultType.ExecutionDamage);
+        }
+
+        private void ProcessKnockbackEffect(KnockBackEffect knockBackEffect, DamageContext damageContext)
+        {
+            if(damageContext.Target is IDamageable damageable)
+            {
+                damageable.KnockBack(knockBackEffect.Diatance);
             }
         }
         private void ProcessDurationEffect(DurationEffect duration, DamageContext damageContext)
         {
-            switch (duration.Effect)
+            if (duration.Effects == null)
+                return;
+
+            foreach (DurationEffectBase effect in duration.Effects)
             {
-                case DotEffect dot:
-                    _dotService.ApplyDotEffect(new DotData(duration.Duration, dot, damageContext));
-                    break;
-                case SlowEffect slow:
-                    _timeEffectService.ApplySlow(duration.Duration, slow.SlowRatio, damageContext.Target);
-                    break;
-                case StunEffect stun:
-                    _timeEffectService.ApplyStun(duration.Duration, damageContext.Target);
-                    break;
-                case ElementEffect element:
-                    _timeEffectService.ApplyElement(duration.Duration, damageContext.Target, element.Element);
-                    break;
-                case ArmorReductionEffect armorReduction:
-                    _timeEffectService.ApplyArmorReduction(duration.Duration, armorReduction.Value, damageContext.Target);
-                    break;
+                switch (effect)
+                {
+                    case DotEffect dot:
+                        _dotService.ApplyDotEffect(new DotData(duration.Duration, dot, damageContext));
+                        break;
+                    case SlowEffect slow:
+                        _timeEffectService.ApplySlow(duration.Duration, slow.SlowRatio, damageContext.Target);
+                        break;
+                    case StunEffect:
+                        _timeEffectService.ApplyStun(duration.Duration, damageContext.Target);
+                        break;
+                    case ElementEffect element:
+                        _timeEffectService.ApplyElement(duration.Duration, damageContext.Target, element.Element);
+                        break;
+                    case ArmorReductionEffect armorReduction:
+                        _timeEffectService.ApplyArmorReduction(duration.Duration, armorReduction.Value, damageContext.Target);
+                        break;
+                    case DamageTransferEffect damageTransfer:
+                        _timeEffectService.ApplyDamageTransfer(_damageApplier, duration.Duration, damageContext.Target, damageTransfer);
+                        break;
+                }
             }
         }
         private bool TryHandleEffect(EffectBase effect, DamageContext damageContext)

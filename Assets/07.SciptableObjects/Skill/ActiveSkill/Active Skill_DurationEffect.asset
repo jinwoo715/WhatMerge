@@ -15,4 +15,5 @@ MonoBehaviour:
   Chance: 1
   VFX: {fileID: 0}
   Duration: 0
-  Effect: {fileID: 11400000, guid: c7c72aa871c8b0f49a0039f7da5bf88b, type: 2}
+  Effects:
+  - {fileID: 11400000, guid: c7c72aa871c8b0f49a0039f7da5bf88b, type: 2}

@@ -1,7 +1,9 @@
+using Skill.Data;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using WhatMerge.Combat;
 
 public interface IGameGoldService
 {
@@ -9,6 +11,29 @@ public interface IGameGoldService
     event Action<int> OnChangeMoney;
     void UseMoney(int cost);
     void GainMoney(int cost);
+}
+
+public class GoldEffectHandler : IEffectHandler
+{
+    private IGameGoldService _gameGoldService;
+
+    public GoldEffectHandler(IGameGoldService gameGoldService)
+    {
+        _gameGoldService = gameGoldService;
+    }
+
+    public bool CanHandle(EffectBase effect)
+    {
+        return effect is GoldEffect;
+    }
+
+    public void Handle(EffectBase effect, DamageContext damageContext)
+    {
+        if(effect is GoldEffect goldEffect)
+        {
+            _gameGoldService.GainMoney(goldEffect.Gold);
+        }
+    }
 }
 
 public class GameEconomySystem : IGameGoldService

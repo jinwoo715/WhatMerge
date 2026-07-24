@@ -44,7 +44,6 @@ namespace Core.BootStrapper
         [SerializeField] private ProjectileSpawner _projectileSpawner;
         [SerializeField] private SummonSpawner _summonSpawner;
         [SerializeField] private VFXSpawner _vfxSpawner;
-        private SkillServiceLocate _skillContext = new SkillServiceLocate();
         private VFXSpriteRepository _vfxRepository = new VFXSpriteRepository();
         private VFXSpriteRepository _projectileRepository = new VFXSpriteRepository();
 
@@ -163,10 +162,11 @@ namespace Core.BootStrapper
                 new BuffEffectHandler(_buff),
                 new SummonSpawnEffectHandler(_summonSpawner),
                 new ProjectileSpawnEffectHandler(_projectileSpawner),
+                new GoldEffectHandler(_economy),
             };
 
             _dotEffectManager.Init(_damageApplier);
-            _effectProcessor.Init(_damageCalculator, _vfxSpawner, effectHandlers, _dotEffectManager, _timeEffectManager);
+            _effectProcessor.Init(_damageCalculator, _vfxSpawner, effectHandlers, _dotEffectManager, _timeEffectManager, _damageApplier);
             _combatService.Init(_effectProcessor);
 
             _rewardSystem.Init(_economy);
@@ -176,12 +176,6 @@ namespace Core.BootStrapper
         }
         private void Bind()
         {
-            _skillContext.Register<IFieldEnemyService>(_fieldEnemyService);
-            _skillContext.Register<ICombatService>(_combatService);
-            _skillContext.Register<IProjectileProvider>(_projectileSpawner);
-            _skillContext.Register<ISummonProvider>(_summonSpawner);
-            _skillContext.Register<IBuffService>(_buff);
-
             _heroSpawner.OnSpawndRanHero += _heroController.AddFieldHero;
 
             _damageApplier.OnApplyDamage += _damageViewer.ShowDamageText;

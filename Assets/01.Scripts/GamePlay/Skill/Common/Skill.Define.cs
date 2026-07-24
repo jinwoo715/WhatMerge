@@ -1,26 +1,5 @@
 namespace Skill
 {
-    public enum EProjectileMoveType
-    {
-        Line,
-        Homing,
-        Parabola
-    }
-
-    public enum DebuffType
-    {
-        Slow,
-        ArmorReduction
-    }
-
-    public enum SpawnPointType
-    {
-        Up,
-        Right,
-        Down,
-        Left
-    }
-
     public enum EProjectileEffectTrigger
     {
         OnHit,
