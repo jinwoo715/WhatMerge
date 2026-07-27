@@ -891,7 +891,7 @@ public sealed class SkillGraphView : GraphView
 
         for (int i = 0; i < durationEffect.Effects.Count; i++)
         {
-            DurationEffectBase durationChild = durationEffect.Effects[i];
+            DurationEffectItem durationChild = durationEffect.Effects[i];
             if (durationChild == null
                 || !TryGetNodeInfo(durationChild, out SkillNodeKind kind, out string title, out Color color))
             {
@@ -1054,7 +1054,7 @@ public sealed class SkillGraphView : GraphView
         return false;
     }
 
-    private static DurationEffectBase GetDurationEffectAt(DurationEffect durationEffect, int index)
+    private static DurationEffectItem GetDurationEffectAt(DurationEffect durationEffect, int index)
     {
         if (durationEffect?.Effects == null || index < 0 || index >= durationEffect.Effects.Count)
         {
@@ -1064,14 +1064,14 @@ public sealed class SkillGraphView : GraphView
         return durationEffect.Effects[index];
     }
 
-    private static void SetDurationEffectAt(DurationEffect durationEffect, int index, DurationEffectBase effect)
+    private static void SetDurationEffectAt(DurationEffect durationEffect, int index, DurationEffectItem effect)
     {
         if (durationEffect == null || index < 0)
         {
             return;
         }
 
-        durationEffect.Effects ??= new List<DurationEffectBase>();
+        durationEffect.Effects ??= new List<DurationEffectItem>();
         while (durationEffect.Effects.Count <= index)
         {
             durationEffect.Effects.Add(null);
@@ -1128,14 +1128,14 @@ public sealed class SkillGraphView : GraphView
     {
         if (execution is SummonOnStayExecution stayExecution)
         {
-            if (effect != null && effect is not DurationEffectBase)
+            if (effect != null && effect is not DurationEffectItem)
             {
                 return false;
             }
 
             if (stayExecution.Effects == null)
             {
-                stayExecution.Effects = new List<DurationEffectBase>();
+                stayExecution.Effects = new List<DurationEffectItem>();
             }
 
             while (stayExecution.Effects.Count <= index)
@@ -1143,20 +1143,20 @@ public sealed class SkillGraphView : GraphView
                 stayExecution.Effects.Add(null);
             }
 
-            stayExecution.Effects[index] = effect as DurationEffectBase;
+            stayExecution.Effects[index] = effect as DurationEffectItem;
             return true;
         }
 
         if (execution is SummonOnceExecution onceExecution)
         {
-            if (effect != null && effect is not NomalEffect)
+            if (effect != null && effect is not NormalEffect)
             {
                 return false;
             }
 
             if (onceExecution.Effects == null)
             {
-                onceExecution.Effects = new List<NomalEffect>();
+                onceExecution.Effects = new List<NormalEffect>();
             }
 
             while (onceExecution.Effects.Count <= index)
@@ -1164,7 +1164,7 @@ public sealed class SkillGraphView : GraphView
                 onceExecution.Effects.Add(null);
             }
 
-            onceExecution.Effects[index] = effect as NomalEffect;
+            onceExecution.Effects[index] = effect as NormalEffect;
             return true;
         }
 
@@ -1432,9 +1432,9 @@ public sealed class SkillGraphView : GraphView
             if (effectAsset is DurationEffect indexedDurationEffect
                 && TryGetEffectSlotIndex(slotName, out int durationEffectIndex))
             {
-                if (newAsset == null || newAsset is DurationEffectBase)
+                if (newAsset == null || newAsset is DurationEffectItem)
                 {
-                    SetDurationEffectAt(indexedDurationEffect, durationEffectIndex, newAsset as DurationEffectBase);
+                    SetDurationEffectAt(indexedDurationEffect, durationEffectIndex, newAsset as DurationEffectItem);
                 }
 
                 SkillGraphAssetUtility.MarkDirty(effectAsset);
@@ -2075,7 +2075,7 @@ public sealed class SkillGraphView : GraphView
                 return true;
             }
 
-            if (asset is DurationEffectBase durationAsset
+            if (asset is DurationEffectItem durationAsset
                 && entry is DurationEffect durationEffect
                 && durationEffect.Effects != null
                 && durationEffect.Effects.Contains(durationAsset))
@@ -2110,7 +2110,7 @@ public sealed class SkillGraphView : GraphView
                 return true;
             }
 
-            if (asset is DurationEffectBase durationAsset
+            if (asset is DurationEffectItem durationAsset
                 && effect is DurationEffect durationEffect
                 && durationEffect.Effects != null
                 && durationEffect.Effects.Contains(durationAsset))

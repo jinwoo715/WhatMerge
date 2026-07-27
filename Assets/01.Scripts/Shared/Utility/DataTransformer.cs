@@ -37,12 +37,6 @@ public class DataTransformer : EditorWindow
         Debug.Log("DataTransformer Completed");
     }
 
-    [MenuItem("Tools/Parse/Json To CSV %#XC")]
-    public static void ParseJsonToCSV()
-    {
-        ParseExcelDataToList(typeof(WaveData), "WaveData");
-    }
-
     #region To CSV From Json Helpers
 
     private static void ParseJsonDataToCSV(string fileName)

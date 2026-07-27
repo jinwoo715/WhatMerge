@@ -4,15 +4,15 @@ using UnityEngine;
 namespace Skill.Data
 {
     [CreateAssetMenu(fileName = "Dot", menuName = "Skill/Effect/Dot", order = 0)]
-    public class DotEffect : DurationEffectBase
+    public class DotEffect : DurationEffectItem
     {
         public const string ValueStat = "Value";
         public const string IntervalTimeStat = "IntervalTime";
 
         private static readonly EffectStatDefinition[] EnhanceableStats =
         {
-            new EffectStatDefinition(ValueStat, "Value"),
-            new EffectStatDefinition(IntervalTimeStat, "Interval Time"),
+            new EffectStatDefinition(ValueStat, "적용 수치"),
+            new EffectStatDefinition(IntervalTimeStat, "도트 Tick 시간"),
         };
 
         public float IntervalTime;
@@ -22,6 +22,8 @@ namespace Skill.Data
 
         public override void AddStat(string key, float value)
         {
+            base.AddStat(key, value);
+
             switch (key)
             {
                 case ValueStat:

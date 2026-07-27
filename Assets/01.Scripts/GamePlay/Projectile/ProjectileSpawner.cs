@@ -1,10 +1,4 @@
-using Combat;
-using Enemies;
-using Heros;
-using Skill;
 using Skill.Data;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using WhatMerge.Combat;
 using WhatMerge.Heros;
@@ -30,6 +24,7 @@ namespace Skill.Projectile
             _spriteRepository = spriteRepository;
             _combatService = combatService;
 
+            _projectileItemPool.OnCreateEvent += (item) => { item.OnReturn += ReturnToPool; };
             _projectileItemPool.Init(this.transform, _itemPrefab, 10);
         } 
         public void SpawnProjectile(ProjectileDataBase data, DamageContext context)
@@ -67,6 +62,11 @@ namespace Skill.Projectile
             string str = $"{projectileData}_{level}";
             var sp = _spriteRepository.GetSprite(str);
             return sp;
+        }
+    
+        private void ReturnToPool(ProjectileItem returnItem)
+        {
+            _projectileItemPool.ReturnItem(returnItem);
         }
     }
 }

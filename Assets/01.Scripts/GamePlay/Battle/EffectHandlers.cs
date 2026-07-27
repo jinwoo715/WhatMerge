@@ -80,8 +80,6 @@ namespace WhatMerge.Combat
 
             if (effect is SummonSpawnEffect summonSpawnEffect)
             {
-                effects = EffectRoller.GetConfirmEffects(effects);
-
                 DamageContext context = new DamageContext(damageContext.AttackPayload, damageContext.Target,
                     damageContext.Attacker, damageContext.SkillUid, damageContext.OwnerSpawnIndex, effects);
 
@@ -100,8 +98,7 @@ namespace WhatMerge.Combat
 
         public bool CanHandle(EffectBase effect)
         {
-            return effect is ProjectileSpawnEffect projectileSpawnEffect && projectileSpawnEffect.Projectile != null
-               ;
+            return effect is ProjectileSpawnEffect projectileSpawnEffect && projectileSpawnEffect.Projectile != null;
         }
 
         public void Handle(EffectBase effect, DamageContext damageContext)
@@ -137,30 +134,8 @@ namespace WhatMerge.Combat
                 attacker,
                 damageContext.SkillUid,
                 damageContext.OwnerSpawnIndex,
-                EffectRoller.GetConfirmEffects(spawnItem.Effects));
+                spawnItem.Effects);
             return true;
-        }
-    }
-    public class BuffEffectHandler : IEffectHandler
-    {
-        private readonly IBuffService _buffRegister;
-
-        public BuffEffectHandler(IBuffService buffRegister)
-        {
-            _buffRegister = buffRegister;
-        }
-
-        public bool CanHandle(EffectBase effect)
-        {
-            return effect is BuffEffect;
-        }
-
-        public void Handle(EffectBase effect, DamageContext damageContext)
-        {
-            if (_buffRegister == null || effect is not BuffEffect buff || damageContext.Target is not Hero hero)
-                return;
-
-            _buffRegister.EquipedBuff(buff, hero.StatModify);
         }
     }
 }

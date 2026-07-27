@@ -7,6 +7,9 @@ namespace Skill.Data
     {
         private static readonly EffectStatDefinition[] EmptyEnhanceableStats = { };
 
+        public static readonly string ChanceKey = "Chance";
+
+
         [Range(0, 1)]
         public float Chance = 1f;
 
@@ -20,7 +23,11 @@ namespace Skill.Data
             Chance = Mathf.Min(Chance, 1);
         }
 
-        public abstract void AddStat(string key, float value);
+        public virtual void AddStat(string key, float value)
+        {
+            if (key == ChanceKey)
+                Chance += value;
+        }
 
         public virtual IReadOnlyList<EffectStatDefinition> GetEnhanceableStats()
         {

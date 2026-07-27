@@ -5,12 +5,12 @@ using UnityEngine;
 namespace WhatMerge.Stage
 {
     [CreateAssetMenu(fileName ="Stage", menuName = "Stage/Stage", order = 0)]
-    public class StageData2 : ScriptableObject
+    public class StageData : ScriptableObject
     {
         public string Name;
         public float WaveTime;
         public int MaxAcceptableEnemyCount;
-        public List<WaveData2> WaveList;
+        public List<WaveData> WaveList;
         public List<BossWaveData> BossWave;
     }
 
@@ -22,7 +22,7 @@ namespace WhatMerge.Stage
     }
 
     [System.Serializable]
-    public class WaveData2
+    public class WaveData
     {
         public int StartWave;
         public int EndWave;
@@ -35,6 +35,4 @@ namespace WhatMerge.Stage
         [Space]
         public int EnemyUID;
     }
-
-    
 }

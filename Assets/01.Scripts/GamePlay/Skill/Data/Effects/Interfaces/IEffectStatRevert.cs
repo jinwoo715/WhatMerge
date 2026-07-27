@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace Skill.Data
 {
-    public class ProjectileSpawnEffect : EffectBase
+    public interface IEffectStatRevert
     {
-        public ProjectileDataBase Projectile;
+        void Revert();
     }
 }

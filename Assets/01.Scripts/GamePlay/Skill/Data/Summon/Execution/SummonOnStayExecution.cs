@@ -4,7 +4,7 @@ namespace Skill.Data
 {
     public class SummonOnStayExecution : SummonExecutionData
     {
-        public List<DurationEffectBase> Effects;
+        public List<DurationEffectItem> Effects;
 
         public override List<EffectBase> GetEffectList()
         {
@@ -19,11 +19,11 @@ namespace Skill.Data
         }
         public override void AddEffect(EffectBase effect)
         {
-            if (effect is not DurationEffectBase durationEffect)
+            if (effect is not DurationEffectItem durationEffect)
             {
                 throw new System.InvalidOperationException(
                     $"{nameof(SummonOnStayExecution)} cannot contain {effect?.GetType().Name ?? "null"}. " +
-                    $"Expected {nameof(DurationEffectBase)}.");
+                    $"Expected {nameof(DurationEffectItem)}.");
             }
 
             Effects.Add(durationEffect);
@@ -34,7 +34,7 @@ namespace Skill.Data
             Effects.Clear();
             foreach (var effect in effectBases)
             {
-                if (effect is DurationEffectBase durationEffect)
+                if (effect is DurationEffectItem durationEffect)
                 {
                     Effects.Add(durationEffect);
                 }

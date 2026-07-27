@@ -5,18 +5,21 @@ namespace Skill.Data
 {
     [CreateAssetMenu(fileName = "DamageEffect", menuName = "Skill/Effect/DamageEffect", order = 0)]
 
-    public class DamageEffect : NomalEffect
+    public class DamageEffect : NormalEffect
     {
         public const string DamageRatioStat = "DamageRatio";
 
-        private static readonly EffectStatDefinition[] EnhanceableStats =
+        protected static readonly EffectStatDefinition[] EnhanceableStats =
         {
-            new EffectStatDefinition(DamageRatioStat, "Damage Ratio")
+            new EffectStatDefinition(ChanceKey, "발동확률"),
+            new EffectStatDefinition(DamageRatioStat, "데미지 적용 비율")
         };
 
         public float DamageRatio;
         public override void AddStat(string key, float value)
         {
+            base.AddStat(key, value);
+
             if(key == DamageRatioStat)
                 DamageRatio += value;
         }

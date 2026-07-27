@@ -9,7 +9,7 @@ namespace WhatMerge.Stage
 {
     public class StageManager : MonoBehaviour, IStageService, IWaveInfoProvider
     {
-        public StageData2 _currentStageData;
+        public StageData _currentStageData;
         public int StartIndex = 1;
 
         private StageState _stageState = StageState.None;
@@ -30,9 +30,9 @@ namespace WhatMerge.Stage
         public event Action<float> OnChangeRemainTime;
         public event Action<int, int> OnChangeAliveEnemy;
 
-        private List<WaveData2> _activeWaves = new List<WaveData2>();
+        private List<WaveData> _activeWaves = new List<WaveData>();
 
-        public void Init(IEnemySpawnService enemySpawnService, IFieldEnemyService fieldEnemyService, StageData stageInfo, StageSettingConfig settingConfig)
+        public void Init(IEnemySpawnService enemySpawnService, IFieldEnemyService fieldEnemyService, StageSettingConfig settingConfig)
         {
             _enemySpawnService = enemySpawnService;
             _fieldEnemyService = fieldEnemyService;
@@ -105,7 +105,7 @@ namespace WhatMerge.Stage
                 }
             }
         }
-        private bool IsInAreaWave(WaveData2 waveData)
+        private bool IsInAreaWave(WaveData waveData)
         {
             return waveData.StartWave <= _currentWave && waveData.EndWave >= _currentWave;
         }
