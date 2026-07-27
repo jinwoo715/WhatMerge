@@ -11,7 +11,7 @@ public class EffectStatEnhanceDataEditor : Editor
     {
         serializedObject.Update();
 
-        DrawPropertiesExcluding(serializedObject, "TargetStatKey", "AddValue");
+        DrawPropertiesExcluding(serializedObject, "강화할 항목", "강화 수치");
 
         var data = (EffectValueEnhanceData)target;
         EffectBase targetEffect = data.TargetEffect;

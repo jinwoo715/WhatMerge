@@ -1,22 +1,32 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Skill.Data
 {
-    public class NomalEffect : EffectBase
-    {
-        public override void AddStat(string key, float value)
-        {
-            throw new System.NotImplementedException();
-        }
-    }
 
-    public class GoldEffect : NomalEffect
+
+    public class GoldEffect : NormalEffect
     {
+        public const string GainGoldAmountKey = "GoldAmount";
+
+        protected static readonly EffectStatDefinition[] EnhanceableStats =
+        {
+            new EffectStatDefinition(ChanceKey, "¹ßµ¿È®·ü"),
+            new EffectStatDefinition(GainGoldAmountKey, "Ãß°¡ È¹µæ ±Ý¾×")
+        };
+
         public int Gold;
 
         public override void AddStat(string key, float value)
         {
-            throw new System.NotImplementedException();
+            base.AddStat(key, value);
+
+            if (key == GainGoldAmountKey)
+                Gold += (int)value;
+        }
+        public override IReadOnlyList<EffectStatDefinition> GetEnhanceableStats()
+        {
+            return EnhanceableStats;
         }
     }
 }

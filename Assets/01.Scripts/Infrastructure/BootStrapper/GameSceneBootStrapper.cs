@@ -144,8 +144,7 @@ namespace Core.BootStrapper
             _enemySpriteRepository.Init(enemyAtlas);
 
             var stageConfig = GameManager.Data.StageConfig;
-            var stage = GameManager.Data.GetStageData(stageUID);
-            _stage.Init(_enemySpawner, _fieldEnemyService, stage, stageConfig);
+            _stage.Init(_enemySpawner, _fieldEnemyService, stageConfig);
 
             _economy.Init(economyConfig.StartMoney);
 
@@ -159,14 +158,13 @@ namespace Core.BootStrapper
             List<IEffectHandler> effectHandlers = new List<IEffectHandler>
             {
                 new DamageEffectHandler(_damageCalculator, _damageApplier),
-                new BuffEffectHandler(_buff),
                 new SummonSpawnEffectHandler(_summonSpawner),
                 new ProjectileSpawnEffectHandler(_projectileSpawner),
                 new GoldEffectHandler(_economy),
             };
 
             _dotEffectManager.Init(_damageApplier);
-            _effectProcessor.Init(_damageCalculator, _vfxSpawner, effectHandlers, _dotEffectManager, _timeEffectManager, _damageApplier);
+            _effectProcessor.Init(_damageCalculator, _vfxSpawner, effectHandlers, _dotEffectManager, _timeEffectManager, _damageApplier, _buff);
             _combatService.Init(_effectProcessor);
 
             _rewardSystem.Init(_economy);

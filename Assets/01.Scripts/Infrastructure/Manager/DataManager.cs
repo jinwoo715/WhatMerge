@@ -26,7 +26,6 @@ public class DataManager : MonoBehaviour, IEnemyDataRepository, IDataProvider, I
 
     private Dictionary<int, HeroData> _heroDatas = new Dictionary<int, HeroData>();
     private Dictionary<int, EnemyData> _enemyDatas = new Dictionary<int, EnemyData>();
-    private Dictionary<int, StageData> _stageDatas = new Dictionary<int, StageData>();
     private Dictionary<int, ATKData> _atkDatas = new Dictionary<int, ATKData>();
 
     private Dictionary<int, HeroSaveData> _saveHeroData = new Dictionary<int, HeroSaveData>();
@@ -50,19 +49,6 @@ public class DataManager : MonoBehaviour, IEnemyDataRepository, IDataProvider, I
 
     public void Init()
     {
-        var stageDatas = JsonConvert.DeserializeObject<List<StageData>>(_StageDataText.text);
-        for (int i = 0; i < stageDatas.Count; i++)
-        {
-            StageData data = stageDatas[i];
-            data.WaveDatas = new List<WaveData>();
-            _stageDatas.Add(data.UID, data);
-        }
-
-        foreach (var stage in _stageDatas)
-        {
-            stage.Value.WaveDatas.Sort((a, b) => a.StartWave.CompareTo(b.StartWave));
-        }
-
         _mergeDatas = DeserializeTextData<MergeData>(_mergeDataText);
 
         foreach (var item in PlayerConfig.HaveHeros)
@@ -75,25 +61,10 @@ public class DataManager : MonoBehaviour, IEnemyDataRepository, IDataProvider, I
     {
         InitDictionary(_heroDatas, resourcesReader.GetTextAsset("HeroData"));
         InitDictionary(_atkDatas, resourcesReader.GetTextAsset("ATKData"));
-        InitDictionary(_stageDatas, resourcesReader.GetTextAsset("StageData"));
         InitDictionary(_enemyDatas, resourcesReader.GetTextAsset("EnemyData"));
 
         var mergeData = resourcesReader.GetTextAsset("MergeData");
         _mergeDatas = DeserializeTextData<MergeData>(mergeData);
-
-        var wave = resourcesReader.GetTextAsset("WaveData");
-        var waveDatas = JsonConvert.DeserializeObject<List<WaveData>>(wave.text);
-
-        Debug.Log($"{wave}, {waveDatas}");
-        for (int i = 0; i < waveDatas.Count; i++)
-        {
-            WaveData wd = waveDatas[i];
-
-            if (_stageDatas[wd.StageUID].WaveDatas == null)
-                _stageDatas[wd.StageUID].WaveDatas = new List<WaveData>();
-
-            _stageDatas[wd.StageUID].WaveDatas.Add(wd);
-        }
     }
 
     private void InitDictionary<T>(Dictionary<int, T> dic, TextAsset text) where T : BaseData
@@ -126,24 +97,11 @@ public class DataManager : MonoBehaviour, IEnemyDataRepository, IDataProvider, I
             return default;
         }
     }
-    public StageData GetStageData(int uid)
-    {
-        if (_stageDatas.TryGetValue(uid, out StageData data))
-        {
-            return data;
-        }
-        else
-        {
-            Debug.LogError("Not Exist Stage UID");
-            return default;
-        }
-    }
 
     public ATKData GetATKData(int uid)
     {
         return _atkDatas[uid];
     }
-
    
     public EnemyData GetData(int uid)
     {

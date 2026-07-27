@@ -7,7 +7,7 @@ using WhatMerge.Heros;
 
 public interface IBuffService
 {
-    void EquipedBuff(BuffEffect timedBuffEffect, IHeroStatModifier combatant);
+    void EquipedBuff(BuffEffect timedBuffEffect, float duration, IHeroStatModifier combatant);
     void RegisterPassiveBuff(BuffData buff);
     void UnRegisterPassiveBuff(BuffData buff);
 
@@ -72,12 +72,12 @@ public class BuffManager : MonoBehaviour, IBuffService
     #endregion
 
     #region Active Buff
-    public void EquipedBuff(BuffEffect timedBuffEffect, IHeroStatModifier statModifier)
+    public void EquipedBuff(BuffEffect timedBuffEffect, float duration, IHeroStatModifier statModifier)
     {
         BuffEquipment buff = GetBuff();
         BuffPayload buffPayload = new BuffPayload(statModifier, timedBuffEffect.BuffData);
 
-        Coroutine co = StartCoroutine(CoEquippedBuff(timedBuffEffect.Duration, statModifier, buff));
+        Coroutine co = StartCoroutine(CoEquippedBuff(duration, statModifier, buff));
 
         buff.AppplyBuff(buffPayload, co);
 

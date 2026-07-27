@@ -4,7 +4,7 @@ namespace Skill.Data
 {
     public class SummonOnceExecution : SummonExecutionData
     {
-        public List<NomalEffect> Effects;
+        public List<NormalEffect> Effects;
 
         public override List<EffectBase> GetEffectList()
         {
@@ -19,11 +19,11 @@ namespace Skill.Data
         }
         public override void AddEffect(EffectBase effect)
         {
-            if (effect is not NomalEffect nomalEffect)
+            if (effect is not NormalEffect nomalEffect)
             {
                 throw new System.InvalidOperationException(
                     $"{nameof(SummonOnceExecution)} cannot contain {effect?.GetType().Name ?? "null"}. " +
-                    $"Expected {nameof(NomalEffect)}.");
+                    $"Expected {nameof(NormalEffect)}.");
             }
 
             Effects.Add(nomalEffect);
@@ -34,7 +34,7 @@ namespace Skill.Data
             Effects.Clear();
             foreach (var effect in effectBases)
             {
-                if(effect is NomalEffect nomalEffect)
+                if(effect is NormalEffect nomalEffect)
                 {
                     Effects.Add(nomalEffect);
                 }

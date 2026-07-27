@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using WhatMerge.Enemies;
+using WhatMerge.Heros;
 
 namespace WhatMerge.Combat
 {
@@ -16,7 +17,8 @@ namespace WhatMerge.Combat
         private IReadOnlyList<IEffectHandler> _handlers;
         private ITimeEffectService _timeEffectService;
         private IDamageApplier _damageApplier;
-        public void Init(DamageCalculator damageCalculator, IVFXService vfx, IReadOnlyList<IEffectHandler> handlers, IDotService dotService, ITimeEffectService timeEffectService, IDamageApplier damageApplier)
+        private IBuffService _buffService;
+        public void Init(DamageCalculator damageCalculator, IVFXService vfx, IReadOnlyList<IEffectHandler> handlers, IDotService dotService, ITimeEffectService timeEffectService, IDamageApplier damageApplier, IBuffService buffService)
         {
             _damageCalculator = damageCalculator;
             _dotService = dotService;
@@ -24,6 +26,7 @@ namespace WhatMerge.Combat
             _handlers = handlers;
             _timeEffectService = timeEffectService;
             _damageApplier = damageApplier;
+            _buffService = buffService;
         }
         public void Process(DamageContext damageContext)
         {
@@ -81,7 +84,7 @@ namespace WhatMerge.Combat
         {
             if(damageContext.Target is IDamageable damageable)
             {
-                damageable.KnockBack(knockBackEffect.Diatance);
+                damageable.KnockBack(knockBackEffect.Distance);
             }
         }
         private void ProcessDurationEffect(DurationEffect duration, DamageContext damageContext)
@@ -89,7 +92,7 @@ namespace WhatMerge.Combat
             if (duration.Effects == null)
                 return;
 
-            foreach (DurationEffectBase effect in duration.Effects)
+            foreach (DurationEffectItem effect in duration.Effects)
             {
                 switch (effect)
                 {
@@ -106,10 +109,20 @@ namespace WhatMerge.Combat
                         _timeEffectService.ApplyElement(duration.Duration, damageContext.Target, element.Element);
                         break;
                     case ArmorReductionEffect armorReduction:
-                        _timeEffectService.ApplyArmorReduction(duration.Duration, armorReduction.Value, damageContext.Target);
+                        _timeEffectService.ApplyArmorReduction(duration.Duration, armorReduction.ReductionValue, damageContext.Target);
                         break;
                     case DamageTransferEffect damageTransfer:
                         _timeEffectService.ApplyDamageTransfer(_damageApplier, duration.Duration, damageContext.Target, damageTransfer);
+                        break;
+                    case BuffEffect buff:
+
+                        if(damageContext.Target is not Hero hero)
+                        {
+                            Debug.LogError("잘못된 버프 타겟");
+                            break;
+                        }
+
+                        _buffService.EquipedBuff(buff, duration.Duration, hero.StatModify);
                         break;
                 }
             }

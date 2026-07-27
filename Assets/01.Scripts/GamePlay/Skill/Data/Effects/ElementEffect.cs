@@ -6,13 +6,8 @@ using WhatMerge.Combat;
 namespace Skill.Data 
 {
     [CreateAssetMenu(fileName = "Element", menuName = "Skill/Effect/Element", order = 0)]
-    public class ElementEffect : DurationEffectBase
+    public class ElementEffect : DurationEffectItem
     {
         public ElementType Element;
-
-        public override void AddStat(string key, float value)
-        {
-            throw new System.NotImplementedException();
-        }
     }
 }

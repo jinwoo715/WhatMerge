@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Skill.Data
 {
-    public class SummonSpawnEffect : NomalEffect
+    public class SummonSpawnEffect : NormalEffect
     {
         public float DurationTime;
         public SummonMove Move;

@@ -187,7 +187,7 @@ public class SkillEditorWindow : EditorWindow
         AddPaletteButton<HitCountTriggerData>(palette, "HitCount Trigger");
         AddPaletteButton<ManaTriggerData>(palette, "Mana Trigger");
 
-        AddPaletteHeader(palette, "효과");
+        AddPaletteHeader(palette, "스킬 효과");
         AddPaletteButton<DamageEffect>(palette, "Damage Effect");
         AddPaletteButton<ExecutionEffect>(palette, "Execution Effect");
         AddPaletteButton<SummonSpawnEffect>(palette, "Summon Spawn Effect");
@@ -197,7 +197,7 @@ public class SkillEditorWindow : EditorWindow
         AddPaletteButton<KnockBackEffect>(palette, "KnockBack");
         AddPaletteButton<DurationEffect>(palette, "Duration Effect");
 
-        AddPaletteHeader(palette, "Duration Effect");
+        AddPaletteHeader(palette, "지속 효과");
         AddPaletteButton<BuffEffect>(palette, "Buff Effect");
         AddPaletteButton<DotEffect>(palette, "Dot Effect");
         AddPaletteButton<DamageTransferEffect>(palette, "Damage Transfer");
@@ -206,16 +206,17 @@ public class SkillEditorWindow : EditorWindow
         AddPaletteButton<ElementEffect>(palette, "Element Effect");
         AddPaletteButton<StunEffect>(palette, "Stun");
 
-        AddPaletteHeader(palette, "투척 아이템");
+        AddPaletteHeader(palette, "투척물");
         AddPaletteButton<StraightProjectileData>(palette, "Straight Projectile");
         AddPaletteButton<HomingProjectileData>(palette, "Homing Projectile");
         AddPaletteButton<ParabolaProjectileData>(palette, "Parabola Projectile");
 
-        AddPaletteHeader(palette, "소환 템플릿");
+        AddPaletteHeader(palette, "소환물");
         AddPaletteButton<SummonNoneMove>(palette, "None Move");
         AddPaletteButton<SummonAttachMove>(palette, "Attach Move");
         AddPaletteButton<SummonApproachMove>(palette, "Approach Move");
 
+        AddPaletteHeader(palette, "");
         AddPaletteButton<OnExpireExecutionSummon>(palette, "OnExpire Execution");
         AddPaletteButton<SummonOnStayExecution>(palette, "OnStay Execution");
         AddPaletteButton<OnEnterExecutionSummon>(palette, "OnEnter Execution");

@@ -800,7 +800,7 @@ public sealed class SkillNodeView : Node
         {
             if (stayExecution.Effects == null)
             {
-                stayExecution.Effects = new List<DurationEffectBase>();
+                stayExecution.Effects = new List<DurationEffectItem>();
             }
 
             return stayExecution.Effects;
@@ -810,7 +810,7 @@ public sealed class SkillNodeView : Node
         {
             if (onceExecution.Effects == null)
             {
-                onceExecution.Effects = new List<NomalEffect>();
+                onceExecution.Effects = new List<NormalEffect>();
             }
 
             return onceExecution.Effects;
@@ -820,7 +820,7 @@ public sealed class SkillNodeView : Node
         {
             if (durationEffect.Effects == null)
             {
-                durationEffect.Effects = new List<DurationEffectBase>();
+                durationEffect.Effects = new List<DurationEffectItem>();
             }
 
             return durationEffect.Effects;
@@ -833,12 +833,12 @@ public sealed class SkillNodeView : Node
     {
         if (Asset is SummonOnStayExecution || Asset is DurationEffect)
         {
-            return typeof(DurationEffectBase);
+            return typeof(DurationEffectItem);
         }
 
         if (Asset is SummonOnceExecution)
         {
-            return typeof(NomalEffect);
+            return typeof(NormalEffect);
         }
 
         return typeof(EffectBase);

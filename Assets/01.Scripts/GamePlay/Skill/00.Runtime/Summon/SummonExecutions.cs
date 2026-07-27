@@ -51,6 +51,8 @@ namespace Skill
     {
         public DamageContext _context;
         public DamageContext _reverseContext;
+        public DamageContext Context => _context;
+        public DamageContext ReverseContext => _reverseContext;
 
         public CompositeEffectHandle(DamageContext context, ICombatant combatant)
         {
@@ -71,10 +73,10 @@ namespace Skill
 
             foreach (var effect in origin.Effects)
             {
-                if (effect is IRevert)
+                if (effect is IEffectStatRevert)
                 {
                     EffectBase revertEffect = UnityEngine.Object.Instantiate(effect);
-                    (revertEffect as IRevert).Revert();
+                    (revertEffect as IEffectStatRevert).Revert();
 
                     effects.Add(revertEffect);
                 }
@@ -83,14 +85,16 @@ namespace Skill
 
         public void Dispose()
         {
+            foreach (var obj in _context.Effects)
+            {
+                UnityEngine.Object.Destroy(obj);
+            }
+
             foreach (var obj in _reverseContext.Effects)
             {
                 UnityEngine.Object.Destroy(obj);
             }
         }
-
-        public DamageContext Context => _context;
-        public DamageContext ReverseContext => _reverseContext;
     }
 
     public class OnStayExecution : SummonExecution, IDisposable
