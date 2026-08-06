@@ -10,6 +10,7 @@ namespace WhatMerge.Combat
         Disadvantage
     }
 
+
     public interface IAttributeDamageRule
     {
         float GetMultiplier(
