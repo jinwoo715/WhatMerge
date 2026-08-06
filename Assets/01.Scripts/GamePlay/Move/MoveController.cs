@@ -82,7 +82,9 @@ public class MoveController : IMoveable
         _deltaDestination = start;
         _destination = next;
 
+        _currentDistance = 0f;
         _totalDistance = CalcuateProgress(start, next);
+        UpdateMoveDirection();
 
         _isMoveable = true;
     }

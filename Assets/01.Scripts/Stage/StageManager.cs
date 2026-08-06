@@ -103,7 +103,7 @@ namespace WhatMerge.Stage
         }
         private void OnTimeOut()
         {
-            if (_isBossWave && _enemySpawnService.IsAliveBoss)
+            if (_isBossWave && _fieldEnemyService.IsAliveBoss)
             {
                 Debug.Log("게임 종료");
                 FailStage();

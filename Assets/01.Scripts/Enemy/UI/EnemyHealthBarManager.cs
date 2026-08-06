@@ -45,7 +45,7 @@ namespace WhatMerge.Enemies
                 _viewPool.Push(CreateView());
 
             _enemySpawnService.OnSpawnEnemy += HandleEnemySpawn;
-            _enemySpawnService.OnReturnEnemy += HandleEnemyRemoved;
+            _enemySpawnService.OnDeathEnemy += HandleEnemyRemoved;
             _enemySpawnService.OnDespawnEnemy += HandleEnemyRemoved;
             _midBossChallengeInfo.OnMidBossTimeChanged += HandleMidBossTimeChanged;
             _midBossChallengeInfo.OnMidBossChallengeEnded += HandleMidBossChallengeEnded;
@@ -152,7 +152,7 @@ namespace WhatMerge.Enemies
                 return;
 
             _enemySpawnService.OnSpawnEnemy -= HandleEnemySpawn;
-            _enemySpawnService.OnReturnEnemy -= HandleEnemyRemoved;
+            _enemySpawnService.OnDeathEnemy -= HandleEnemyRemoved;
             _enemySpawnService.OnDespawnEnemy -= HandleEnemyRemoved;
             _midBossChallengeInfo.OnMidBossTimeChanged -= HandleMidBossTimeChanged;
             _midBossChallengeInfo.OnMidBossChallengeEnded -= HandleMidBossChallengeEnded;

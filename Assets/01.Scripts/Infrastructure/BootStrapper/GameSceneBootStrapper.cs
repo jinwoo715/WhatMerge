@@ -214,7 +214,7 @@ namespace Core.BootStrapper
             _stage.OnChangeRemainTime += _stageInfoPresenter.UpdateWaveTime;
 
             _enemySpawner.OnSpawnEnemy += _fieldEnemyService.AddFieldEnemy;
-            _enemySpawner.OnReturnEnemy += _fieldEnemyService.DeathEnemy;
+            _enemySpawner.OnDeathEnemy += _fieldEnemyService.DeathEnemy;
             _enemySpawner.OnDespawnEnemy += _fieldEnemyService.RemoveFieldEnemy;
 
             _economy.OnChangeMoney += _economyViewer.UpdateMoneyText;

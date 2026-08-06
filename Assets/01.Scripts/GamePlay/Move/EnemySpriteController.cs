@@ -13,9 +13,12 @@ public class EnemySpriteController : MonoBehaviour
 
     public void Init(List<Sprite> sprites, float moveSpriteInterval)
     {
-        _spriteRenderer.sprite = sprites[0];
         _moveSprite = sprites;
         _moveSpriteInterval = moveSpriteInterval;
+        _moveSpriteIndex = 0;
+        _moveTimer = 0f;
+        _front = true;
+        _spriteRenderer.sprite = _moveSprite[_moveSpriteIndex];
     }
 
     public void SetDirection(EMoveDirection moveDirection)
