@@ -18,6 +18,10 @@ namespace WhatMerge.Map
         private HashSet<ITileReadOnly> OccupiedTiles = new HashSet<ITileReadOnly>();
         private Tile _nextHeroEmptyTile = null;
 
+        public int MaxRow => _ySize;
+
+        public int MaxCol => _xSize;
+
         public void Init()
         {
             _grid = new Tile[_xSize, _ySize];

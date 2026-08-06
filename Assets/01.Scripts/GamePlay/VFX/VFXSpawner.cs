@@ -7,8 +7,7 @@ using WhatMerge.Infrastructure;
 
 public interface IVFXService
 {
-    public void ShowEffect(string name, Vector3 target, Vector3 attacker);
-    public void ShowVFX(VFXData vfxData);
+    public void ShowVFX(VFXData vfxData, Vector3 target, Vector3 owner);
 }
 
 public class VFXSpawner : MonoBehaviour, IVFXService
@@ -24,19 +23,29 @@ public class VFXSpawner : MonoBehaviour, IVFXService
         _effectPool.Init(this.transform, _hitEffect, 10);
     }
 
-    public void ShowEffect(string name, Vector3 target, Vector3 attacker)
+    public void ShowVFX(VFXData vfxData, Vector3 target, Vector3 owner)
     {
-        if (string.IsNullOrEmpty(name)) return;
+        Sprite sprite = _spriteRepository.GetSprite(name);
+        Vector3 spawnPosition = SpawnPosition(vfxData.PositionType, target, owner);
+        Vector3 dir = (target - owner).normalized;
 
-        var effect = _effectPool.GetItem(target);
-        Sprite sp = _spriteRepository.GetSprite(name);
-
-        Vector3 dir = (target - attacker).normalized;
-        effect.Init(sp, dir);
+        var effect = _effectPool.GetItem(spawnPosition);
+        effect.Init(sprite, dir);
     }
 
-    public void ShowVFX(VFXData vfxData)
+    private Vector3 SpawnPosition(VFXSpawnPositionTpye positionType, Vector3 target, Vector3 owner)
     {
-        throw new System.NotImplementedException();
+        switch (positionType)
+        {
+            case VFXSpawnPositionTpye.Owner:
+                return owner;
+            case VFXSpawnPositionTpye.Target:
+                return target;
+            case VFXSpawnPositionTpye.Middle:
+                return (target + owner) * 0.5f;
+            case VFXSpawnPositionTpye.ScreenCenter:
+            default:
+                return Vector3.zero;
+        }
     }
 }

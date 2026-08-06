@@ -38,21 +38,24 @@ public static class StatCalculator
 
     public static float GetDamageReductionRate(float amour, float percentPenetration, float flatPenetration)
     {
-        // 1. % ¹æ°ü ¸ÕÀú Àû¿ë (Àû ¹æ¾î·ÂÀÇ 30%¸¦ ³¯·Á¹ö¸²)
+        // 1. % ë°©ê´€ ë¨¼ì € ì ìš© (ì  ë°©ì–´ë ¥ì˜ 30%ë¥¼ ë‚ ë ¤ë²„ë¦¼)
         float armorAfterPercent = amour * (1f - percentPenetration);
 
-        // 2. ±× ´ÙÀ½ °íÁ¤ ¹æ°ü Àû¿ë (³²Àº ¹æ¾î·Â¿¡¼­ 15¸¦ »­)
-        // ¹æ¾î·ÂÀÌ 0 ÀÌÇÏ·Î ³»·Á°¡Áø ¾Ê°Ô Ã³¸®
+        // 2. ê·¸ ë‹¤ìŒ ê³ ì • ë°©ê´€ ì ìš© (ë‚¨ì€ ë°©ì–´ë ¥ì—ì„œ 15ë¥¼ ëºŒ)
+        // ë°©ì–´ë ¥ì´ 0 ì´í•˜ë¡œ ë‚´ë ¤ê°€ì§„ ì•Šê²Œ ì²˜ë¦¬
         float effectiveArmor = Mathf.Max(0, armorAfterPercent - flatPenetration);
 
-        // 3. ·Ñ(LoL)½Ä µ¥¹ÌÁö °¨¼ÒÀ² ¹İÈ¯ (100 / 100 + ¹æ¾î·Â)
-        // effectiveArmor°¡ 100ÀÌ¸é 0.5 ¹İÈ¯ (50% µ¥¹ÌÁö °¨¼Ò)
+        // 3. ë¡¤(LoL)ì‹ ë°ë¯¸ì§€ ê°ì†Œìœ¨ ë°˜í™˜ (100 / 100 + ë°©ì–´ë ¥)
+        // effectiveArmorê°€ 100ì´ë©´ 0.5 ë°˜í™˜ (50% ë°ë¯¸ì§€ ê°ì†Œ)
         return effectiveArmor / (100f + effectiveArmor);
     }
 
     public static float AS(float value)
     {
-        return 1 / value;
+        if (float.IsNaN(value) || float.IsInfinity(value) || value <= 0f)
+            throw new ArgumentOutOfRangeException(nameof(value), value, "Attack speed must be greater than zero.");
+
+        return 1f / value;
     }
     public static int RoundInt(float value)
     {

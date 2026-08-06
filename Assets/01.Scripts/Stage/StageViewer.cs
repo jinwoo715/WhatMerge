@@ -7,11 +7,14 @@ using UnityEngine.UI;
 
 public interface IStageView
 {
-    event Action OnClickSpawnMiddBoss;
-    void ShowMiddBossButton();
+    event Action OnClickSpawnMidBoss;
+
     void SetCurrentWave(string wave);
     void SetRemainTime(string time);
     void SetActiveEnemy(string activeEnemy, float ratio);
+
+    void ShowMiddBossButton();
+    void HideMidBossButton();
 }
 
 public class StageViewer : MonoBehaviour, IStageView
@@ -24,7 +27,12 @@ public class StageViewer : MonoBehaviour, IStageView
 
     [SerializeField] private Button _spawnMiddBossButton;
 
-    public event Action OnClickSpawnMiddBoss;
+    public event Action OnClickSpawnMidBoss;
+
+    private void Awake()
+    {
+        _spawnMiddBossButton.onClick.AddListener(() => OnClickSpawnMidBoss?.Invoke());
+    }
 
     public void SetCurrentWave(string wave)
     {
@@ -44,9 +52,9 @@ public class StageViewer : MonoBehaviour, IStageView
     {
         _spawnMiddBossButton.gameObject.SetActive(true);
     }
-    public void OnClickSpawnMiddBossButton()
+
+    public void HideMidBossButton()
     {
         _spawnMiddBossButton.gameObject.SetActive(false);
-        OnClickSpawnMiddBoss?.Invoke();
     }
 }

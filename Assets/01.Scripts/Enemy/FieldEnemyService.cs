@@ -23,8 +23,25 @@ namespace WhatMerge.Enemies
 
         public void AddFieldEnemy(Enemy enemy)
         {
+            if (enemy == null)
+                throw new ArgumentNullException(nameof(enemy));
+
+            if (_activeEnemies.Contains(enemy))
+                throw new InvalidOperationException("The enemy is already registered in the field.");
+
             _activeEnemies.Add(enemy);
+
+            if (enemy.Type == EnemyType.Boss)
+                _activeBoss = enemy;
+
+            OnSpawnEnemy?.Invoke(enemy);
             OnChangedActiveEnemyCount?.Invoke(GetActiveEnemyCount);
+        }
+
+        public void RemoveFieldEnemy(Enemy enemy)
+        {
+            RemoveEnemy(enemy);
+            NotifyEnemyCountChanged();
         }
 
         public void AllEnemyStatModify(EnemyStatType statType, float value)
@@ -34,11 +51,9 @@ namespace WhatMerge.Enemies
 
         public void DeathEnemy(Enemy enemy)
         {
-            _activeEnemies.Remove(enemy);
+            RemoveEnemy(enemy);
 
             OnEnemyDeath?.Invoke(enemy);
-
-            enemy.OnDeath -= DeathEnemy;
 
             if(enemy.Type == EnemyType.Boss)
             {
@@ -49,6 +64,23 @@ namespace WhatMerge.Enemies
                 OnDeathMidBossEnemy?.Invoke(enemy);
             }
 
+            NotifyEnemyCountChanged();
+        }
+
+        private void RemoveEnemy(Enemy enemy)
+        {
+            if (enemy == null)
+                throw new ArgumentNullException(nameof(enemy));
+
+            if (!_activeEnemies.Remove(enemy))
+                throw new InvalidOperationException("The enemy is not registered in the field.");
+
+            if (ReferenceEquals(_activeBoss, enemy))
+                _activeBoss = null;
+        }
+
+        private void NotifyEnemyCountChanged()
+        {
             OnChangedActiveEnemyCount?.Invoke(GetActiveEnemyCount);
 
             if (GetActiveEnemyCount == 0)

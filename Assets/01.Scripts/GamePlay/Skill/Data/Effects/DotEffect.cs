@@ -11,8 +11,8 @@ namespace Skill.Data
 
         private static readonly EffectStatDefinition[] EnhanceableStats =
         {
-            new EffectStatDefinition(ValueStat, "Àû¿ë ¼öÄ¡"),
-            new EffectStatDefinition(IntervalTimeStat, "µµÆ® Tick ½Ã°£"),
+            new EffectStatDefinition(ValueStat, "ì ìš© ìˆ˜ì¹˜"),
+            new EffectStatDefinition(IntervalTimeStat, "ë„íŠ¸ Tick ì‹œê°„"),
         };
 
         public float IntervalTime;

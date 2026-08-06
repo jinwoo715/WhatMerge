@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Serialization;
+using WhatMerge.Combat.Effects;
 
 namespace Skill.Data
 {

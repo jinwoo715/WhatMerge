@@ -4,12 +4,13 @@ using WhatMerge.Stage;
 using Core.Scene;
 using Skill;
 using UnityEngine.U2D;
-using Skill.Summon;
-using Skill.Projectile;
 using System.Collections.Generic;
 using WhatMerge.Enemies;
 using WhatMerge.Combat;
+using WhatMerge.Combat.Effects;
 using WhatMerge.Heros;
+using WhatMerge.Projectiles;
+using WhatMerge.Summons;
 
 namespace Core.BootStrapper
 {
@@ -36,6 +37,7 @@ namespace Core.BootStrapper
 
         [Header("Enemy")]
         [SerializeField] private EnemySpawner _enemySpawner;
+        [SerializeField] private EnemyHealthBarManager _enemyHealthBarManager;
         private EnemySpriteRepository _enemySpriteRepository = new EnemySpriteRepository();
         private FieldEnemyService _fieldEnemyService = new FieldEnemyService();
 
@@ -56,9 +58,10 @@ namespace Core.BootStrapper
         private RewardSystem _rewardSystem = new RewardSystem();
 
         [Header("Stage")]
-        private StagePresenter _stageInfoPresenter = new StagePresenter();
         [SerializeField] private StageManager _stage;
         [SerializeField] private StageViewer _stageInfoViewer;
+        [SerializeField] private MidBossInfoPopup _midBossPopup;
+        private StagePresenter _stageInfoPresenter = new StagePresenter();
 
         [Header("World")]
         [SerializeField] private GameSceneManager _sceneManager;
@@ -109,7 +112,7 @@ namespace Core.BootStrapper
 
             //TODO
             #region Test
-            _skillRuntimeContext = new SkillRuntimeContext(_combatService, _heroController, _fieldEnemyService, _vfxSpawner);
+            _skillRuntimeContext = new SkillRuntimeContext(_combatService, _heroController, _fieldEnemyService);
             _skillFactory.Init(_skillRuntimeContext);
             _heroSpawner.factory = _skillFactory;
 
@@ -144,11 +147,11 @@ namespace Core.BootStrapper
             _enemySpriteRepository.Init(enemyAtlas);
 
             var stageConfig = GameManager.Data.StageConfig;
-            _stage.Init(_enemySpawner, _fieldEnemyService, stageConfig);
-
             _economy.Init(economyConfig.StartMoney);
+            _stage.Init(_enemySpawner, _fieldEnemyService, _economy);
+            _enemyHealthBarManager.Init(_enemySpawner, _stage);
 
-            _stageInfoPresenter.Init(_stage, _stageInfoViewer);
+            _stageInfoPresenter.Init(_stage, _stage, _stageInfoViewer, _midBossPopup, data);
 
             _damageViewer.Init();
 
@@ -163,11 +166,30 @@ namespace Core.BootStrapper
                 new GoldEffectHandler(_economy),
             };
 
+            List<IDurationEffectHandler> durationEffectHandlers = new List<IDurationEffectHandler>
+            {
+                new DotDurationEffectHandler(_dotEffectManager),
+                new SlowDurationEffectHandler(_timeEffectManager),
+                new StunDurationEffectHandler(_timeEffectManager),
+                new ElementDurationEffectHandler(_timeEffectManager),
+                new ArmorReductionDurationEffectHandler(_timeEffectManager),
+                new DamageTransferDurationEffectHandler(_timeEffectManager, _damageApplier),
+                new BuffDurationEffectHandler(_buff),
+            };
+
+            var durationEffectApplier = new DurationEffectApplier(durationEffectHandlers);
+
             _dotEffectManager.Init(_damageApplier);
-            _effectProcessor.Init(_damageCalculator, _vfxSpawner, effectHandlers, _dotEffectManager, _timeEffectManager, _damageApplier, _buff);
+            _effectProcessor.Init(
+                _damageCalculator,
+                _vfxSpawner,
+                effectHandlers,
+                durationEffectApplier,
+                _timeEffectManager,
+                _damageApplier);
             _combatService.Init(_effectProcessor);
 
-            _rewardSystem.Init(_economy);
+            _rewardSystem.Init(_economy, data);
 
             _projectileSpawner.Init(_projectileRepository, _combatService);
             _summonSpawner.Init(_projectileRepository, _combatService);
@@ -193,6 +215,7 @@ namespace Core.BootStrapper
 
             _enemySpawner.OnSpawnEnemy += _fieldEnemyService.AddFieldEnemy;
             _enemySpawner.OnReturnEnemy += _fieldEnemyService.DeathEnemy;
+            _enemySpawner.OnDespawnEnemy += _fieldEnemyService.RemoveFieldEnemy;
 
             _economy.OnChangeMoney += _economyViewer.UpdateMoneyText;
 

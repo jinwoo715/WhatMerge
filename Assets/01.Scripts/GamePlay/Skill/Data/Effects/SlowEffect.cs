@@ -6,7 +6,7 @@ namespace Skill.Data
  
 
     [CreateAssetMenu(fileName = "Slow", menuName = "Skill/Effect/Slow", order = 0)]
-    public class SlowEffect : DurationEffectItem, IEffectStatRevert
+    public class SlowEffect : DurationEffectItem
     {
         public const string SlowKey = "DamageRatio";
 
@@ -30,11 +30,6 @@ namespace Skill.Data
         public override IReadOnlyList<EffectStatDefinition> GetEnhanceableStats()
         {
             return EnhanceableStats;
-        }
-
-        public void Revert()
-        {
-            SlowRatio *= -1;
         }
     }
 }

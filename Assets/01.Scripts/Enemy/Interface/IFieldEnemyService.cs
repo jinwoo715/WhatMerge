@@ -19,6 +19,7 @@ namespace WhatMerge.Enemies
         event Action<Enemy> OnDeathMidBossEnemy;
 
         void AddFieldEnemy(Enemy enemy);
+        void RemoveFieldEnemy(Enemy enemy);
 
         void AllEnemyStatModify(EnemyStatType statType, float value);
     }

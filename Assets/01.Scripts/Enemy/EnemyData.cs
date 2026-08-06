@@ -7,13 +7,13 @@ namespace WhatMerge.Enemies
     {
         public string Name;
         public string Description;
+        public string SpriteKey;
         public EnemyType EnemyType;
-        public float HP;
-        public float Amour;
+        public float MaxHP;
+        public float Armor;
         public float MoveSpeed;
         public ElementType Attribute;
-        public int Coin;
-        public int SkillUID;
-        public bool IsBoss;
+        public int SkillSetUID;
+        public int RewardGroupUID;
     }
 }

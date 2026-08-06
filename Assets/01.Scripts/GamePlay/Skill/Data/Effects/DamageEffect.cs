@@ -11,11 +11,12 @@ namespace Skill.Data
 
         protected static readonly EffectStatDefinition[] EnhanceableStats =
         {
-            new EffectStatDefinition(ChanceKey, "¹ßµ¿È®·ü"),
-            new EffectStatDefinition(DamageRatioStat, "µ¥¹ÌÁö Àû¿ë ºñÀ²")
+            new EffectStatDefinition(ChanceKey, "ë°œë™í™•ë¥ "),
+            new EffectStatDefinition(DamageRatioStat, "ë°ë¯¸ì§€ ì ìš© ë¹„ìœ¨")
         };
 
         public float DamageRatio;
+        public ElementType Attribute;
         public override void AddStat(string key, float value)
         {
             base.AddStat(key, value);

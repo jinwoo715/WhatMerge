@@ -7,21 +7,30 @@ using WhatMerge.Enemies;
 
 namespace WhatMerge.Stage
 {
-    public class StageManager : MonoBehaviour, IStageService, IWaveInfoProvider
+    //스테이지 시작
+    public class StageManager : MonoBehaviour, IStageService, IWaveInfoProvider, IMidBossChallengeInfo
     {
-        public StageData _currentStageData;
-        public int StartIndex = 1;
+        private enum MidBossState
+        {
+            Cooldown,
+            Available,
+            Active,
+            Exhausted
+        }
 
-        private StageState _stageState = StageState.None;
-        private WaveType _waveType = WaveType.Nomal;
+        [SerializeField] private StageData _currentStageData;
+        [SerializeField] private int _startIndex;
 
-        private int _currentWave;
-        private int _maxWaveIndex;
-        private float _currentTimer;
+        private int _currentWaveIndex;
+        private int _lastWaveIndex;
+
+        private float _currentTime;
+
         private int _maxEnemyCount;
 
         private IEnemySpawnService _enemySpawnService;
         private IFieldEnemyService _fieldEnemyService;
+        private IGameGoldService _gameCurrencyService;
 
         public event Action OnStageClear;
         public event Action OnStageFail;
@@ -29,175 +38,283 @@ namespace WhatMerge.Stage
         public event Action<int> OnChangeCurrentWave;
         public event Action<float> OnChangeRemainTime;
         public event Action<int, int> OnChangeAliveEnemy;
+        public event Action<MidBossData, int> OnShowMiddleBossSpawnButton;
+        public event Action OnHideMiddleBossSpawnButton;
+        public event Action<Enemy, float, float> OnMidBossTimeChanged;
+        public event Action<Enemy> OnMidBossChallengeEnded;
 
-        private List<WaveData> _activeWaves = new List<WaveData>();
+        //스테이지 시작 -> 보스 스테이지, 일반 스테이지 확인
+        //웨이브 시작
 
-        public void Init(IEnemySpawnService enemySpawnService, IFieldEnemyService fieldEnemyService, StageSettingConfig settingConfig)
+        //웨이브 성공
+        //웨이브 실패
+
+        private bool _isBossWave = false;
+        private int _remainSpawn = 0;
+
+        private MidBossData _currentMidBoss;
+        private int _midBossIndex = 0;
+        private float _midBossCooldown;
+        private float _midBossRemainTime;
+        private Enemy _activeMidBoss;
+        private MidBossState _midBossState;
+
+        public void Init(
+            IEnemySpawnService enemySpawnService,
+            IFieldEnemyService fieldEnemyService,
+            IGameGoldService gameCurrencyService)
         {
-            _enemySpawnService = enemySpawnService;
-            _fieldEnemyService = fieldEnemyService;
+            _enemySpawnService = enemySpawnService ?? throw new ArgumentNullException(nameof(enemySpawnService));
+            _fieldEnemyService = fieldEnemyService ?? throw new ArgumentNullException(nameof(fieldEnemyService));
+            _gameCurrencyService = gameCurrencyService ?? throw new ArgumentNullException(nameof(gameCurrencyService));
+
+            _enemySpawnService.OnEndWaveSpawn += OnSpawnEndHandle;
+            _fieldEnemyService.OnDeathMidBossEnemy += MidBossHandle;
+
+            _fieldEnemyService.OnChangedActiveEnemyCount += HandleFieldEnemy;
+
+            _currentWaveIndex = _startIndex;
+            _lastWaveIndex = _currentStageData.GetLastWave;
+
+            _currentTime = 3;
 
             _maxEnemyCount = _currentStageData.MaxAcceptableEnemyCount;
+            _midBossState = HasRemainingMidBoss() ? MidBossState.Cooldown : MidBossState.Exhausted;
 
-            _fieldEnemyService.OnChangedActiveEnemyCount += HandleEnemyCount;
-            _fieldEnemyService.OnDeathBossEnemy += HandleBossDeath;
-
-            SetMaxWaveIndex();
+            OnChangeAliveEnemy?.Invoke(0, _maxEnemyCount);
         }
 
-        private void SetMaxWaveIndex()
+
+        private void Update()
         {
-            foreach (var wave in _currentStageData.WaveList)
+            UpdateWaveTime();
+            UpdateMidBoss();
+        }
+        private void UpdateWaveTime()
+        {
+            _currentTime -= Time.deltaTime;
+
+            OnChangeRemainTime?.Invoke(_currentTime);
+
+            if (_currentTime <= 0)
             {
-                if (wave.EndWave > _maxWaveIndex)
-                    _maxWaveIndex = wave.EndWave;
+                OnTimeOut();
             }
-
-            foreach (var wave in _currentStageData.BossWave)
+        }
+        private void OnTimeOut()
+        {
+            if (_isBossWave && _enemySpawnService.IsAliveBoss)
             {
-                if (wave.Wave > _maxWaveIndex)
-                    _maxWaveIndex = wave.Wave;
+                Debug.Log("게임 종료");
+                FailStage();
+            }
+            else
+            {
+                Debug.Log("다음 웨이브 시작");
+                StartNextWave();
             }
         }
 
-        public void StartStage()
+        private void StartNextWave()
         {
-            EnterWave(StartIndex);
-        }
-        private void EnterWave(int wave)
-        {
-            if(wave > _maxWaveIndex)
+            _currentWaveIndex++;
+
+            if(_currentWaveIndex > _lastWaveIndex)
             {
                 ClearStage();
                 return;
             }
 
-            _currentWave = wave;
+            WaveSpawnRequest();
 
-            bool isBoss = IsBossWave();
-
-            _waveType = isBoss ? WaveType.Boss : WaveType.Nomal;
-            _currentTimer = _currentStageData.WaveTime;
-
-            UpdateWaveList();
-
-            if (isBoss)
-                RequestBossEnemySpawn();
-
-            RequestNomalEnemySpawn();
-
-            OnChangeCurrentWave?.Invoke(_currentWave);
-            OnChangeRemainTime?.Invoke(_currentTimer);
+            OnChangeCurrentWave?.Invoke(_currentWaveIndex);
+            OnChangeRemainTime?.Invoke(_currentTime);
         }
-        private void UpdateWaveList()
+
+
+
+        private void WaveSpawnRequest()
         {
-            foreach (var wave in _currentStageData.WaveList)
+            if (_currentStageData.TryBossWave(_currentWaveIndex, out var data))
             {
-                if (IsInAreaWave(wave))
-                {
-                    if (!_activeWaves.Contains(wave))
-                        _activeWaves.Add(wave);
-                }
-                else
-                {
-                    if (_activeWaves.Contains(wave))
-                        _activeWaves.Remove(wave);
-                }
+                RequestBossWave(data);
+                _currentTime = _currentStageData.BossWaveTime;
             }
-        }
-        private bool IsInAreaWave(WaveData waveData)
-        {
-            return waveData.StartWave <= _currentWave && waveData.EndWave >= _currentWave;
-        }
-        private void RequestNomalEnemySpawn()
-        {
-            for (int i = 0; i < _activeWaves.Count; i++)
+            else if (_currentStageData.TryNomalWave(_currentWaveIndex, out var waveData))
             {
-                var wave = _activeWaves[i];
-
-                EnemySpawnReceipt spawnReceipt = new EnemySpawnReceipt();
-                spawnReceipt.Delay = wave.StartDelay;
-                spawnReceipt.SpawnCount = wave.SpawnCount;
-                spawnReceipt.SpawnInterval = wave.SpawnInterval;
-                spawnReceipt.EnemyUID = wave.EnemyUID;
-
-                _enemySpawnService.StartWaveEnemySpawn(spawnReceipt);
+                RequestNomalWave(waveData);
+                _currentTime = _currentStageData.NomalWaveTime;
+            }
+            else
+            {
+                throw new InvalidOperationException($"Empty Wave Data {_currentWaveIndex}");
             }
         }
 
-        private bool IsBossWave()
+        private void OnSpawnEndHandle()
         {
-            return _currentStageData.BossWave.Find((x) => x.Wave == _currentWave) != null;
+            _remainSpawn--;
+
+            if (_remainSpawn < 0)
+                throw new InvalidOperationException("Invalid Spawn Count");
         }
-        private void RequestBossEnemySpawn()
+
+        private void RequestNomalWave(WaveData waveData)
         {
-            BossWaveData boss = _currentStageData.BossWave.Find(x => x.Wave == _currentWave);
-
-            var receipt = new EnemySpawnReceipt
+            foreach (var wave in waveData.SpawnDatas)
             {
-                EnemyUID = boss.EnemyUID,
-                SpawnCount = 1,
-                SpawnInterval = 0,
-                Delay = 0
-            };
-
-            _enemySpawnService.StartWaveEnemySpawn(receipt);
-        }
-        
-        private void Update()
-        {
-            if (_stageState != StageState.Running)
-                return;
-
-            _currentTimer -= Time.deltaTime;
-
-            OnChangeRemainTime(_currentTimer);
-
-            if(_currentTimer < 0)
-            {
-                if (_waveType == WaveType.Boss)
-                    FailStage();
-                else
-                    EnterWave(_currentWave + 1);
+                _enemySpawnService.StartWaveEnemySpawn(wave);
+                _remainSpawn++;
             }
         }
 
-        private void FailStage()
+        private void RequestBossWave(BossWaveData bossWaveData)
         {
-            _stageState = StageState.Failed;
-            _enemySpawnService.CancelWaveSpawn();
-            OnStageFail?.Invoke();
+            _enemySpawnService.StartWaveEnemySpawn(new EnemySpawnData(bossWaveData.BossUID, 1, 0, 0));
+            _remainSpawn++;
         }
+
         private void ClearStage()
         {
-            _stageState = StageState.Clear;
             OnStageClear?.Invoke();
         }
-
-        private void HandleEnemyCount(int aliveEnemy)
+        private void HandleFieldEnemy(int aliveEnemy)
         {
             OnChangeAliveEnemy?.Invoke(aliveEnemy, _maxEnemyCount);
 
             if (aliveEnemy > _maxEnemyCount)
                 FailStage();
 
-            if (aliveEnemy == 0)
-                ProcessRemainTime();
+            if (aliveEnemy == 0 && _remainSpawn == 0)
+                SkipRemainTime();
+        }
+        private void FailStage()
+        {
+            _enemySpawnService.CancelWaveSpawn();
+            OnStageFail?.Invoke();
+        }
+        private void SkipRemainTime()
+        {
+            if (_currentTime >= 5)
+                _currentTime = 5;
         }
 
-        private void HandleBossDeath(Enemy enemy)
-        {
-            if (_waveType == WaveType.Boss)
-                _waveType = WaveType.Nomal;
-        }
-        private void ProcessRemainTime()
-        {
-            if (_currentTimer >= 5)
-                _currentTimer = 5;
-        }
+
         public void SummonMiddBoss()
         {
-            
+            if (_midBossState != MidBossState.Available || _currentMidBoss == null)
+                throw new InvalidOperationException("A middle boss is not available for summoning.");
+
+            MiddleBossData middleBossData = _currentStageData.MiddleBossData
+                ?? throw new InvalidOperationException("Middle boss data is missing.");
+
+            if (middleBossData.TimeLimit <= 0f)
+                throw new InvalidOperationException("The middle boss time limit must be greater than zero.");
+
+            Enemy enemy = _enemySpawnService.SpawnEnemy(_currentMidBoss.MidBossUID);
+
+            if (enemy.Type != EnemyType.MiddleBoss)
+            {
+                _enemySpawnService.DespawnEnemy(enemy);
+                throw new InvalidOperationException(
+                    $"Enemy {enemy.UID} is configured as {enemy.Type}, not {EnemyType.MiddleBoss}.");
+            }
+
+            _activeMidBoss = enemy;
+            _midBossRemainTime = middleBossData.TimeLimit;
+            _midBossState = MidBossState.Active;
+
+            OnHideMiddleBossSpawnButton?.Invoke();
+            OnMidBossTimeChanged?.Invoke(enemy, _midBossRemainTime, middleBossData.TimeLimit);
         }
+
+        private void MidBossHandle(Enemy enemy)
+        {
+            if (_midBossState != MidBossState.Active || !ReferenceEquals(enemy, _activeMidBoss))
+                return;
+
+            _gameCurrencyService.GainMoney(_currentStageData.MiddleBossData.RewardAmount);
+            FinishMidBossChallenge(enemy);
+        }
+
+        private void UpdateMidBoss()
+        {
+            if (_midBossState == MidBossState.Cooldown)
+            {
+                UpdateMidBossCooldown();
+                return;
+            }
+
+            if (_midBossState == MidBossState.Active)
+                UpdateMidBossChallenge();
+        }
+
+        private void UpdateMidBossCooldown()
+        {
+            _midBossCooldown += Time.deltaTime;
+
+            if (_midBossCooldown < _currentStageData.MiddleBossData.CoolTime)
+                return;
+
+            if (!HasRemainingMidBoss())
+            {
+                _midBossState = MidBossState.Exhausted;
+                return;
+            }
+
+            _currentMidBoss = _currentStageData.MiddleBossData.MidBossDatas[_midBossIndex]
+                ?? throw new InvalidOperationException($"Middle boss data at index {_midBossIndex} is null.");
+            _midBossState = MidBossState.Available;
+            OnShowMiddleBossSpawnButton?.Invoke(
+                _currentMidBoss,
+                _currentStageData.MiddleBossData.RewardAmount);
+        }
+
+        private void UpdateMidBossChallenge()
+        {
+            _midBossRemainTime = Mathf.Max(0f, _midBossRemainTime - Time.deltaTime);
+            OnMidBossTimeChanged?.Invoke(
+                _activeMidBoss,
+                _midBossRemainTime,
+                _currentStageData.MiddleBossData.TimeLimit);
+
+            if (_midBossRemainTime > 0f)
+                return;
+
+            Enemy expiredMidBoss = _activeMidBoss;
+            FinishMidBossChallenge(expiredMidBoss);
+            _enemySpawnService.DespawnEnemy(expiredMidBoss);
+        }
+
+        private void FinishMidBossChallenge(Enemy enemy)
+        {
+            OnMidBossChallengeEnded?.Invoke(enemy);
+
+            _activeMidBoss = null;
+            _currentMidBoss = null;
+            _midBossRemainTime = 0f;
+            _midBossCooldown = 0f;
+            _midBossIndex++;
+            _midBossState = HasRemainingMidBoss()
+                ? MidBossState.Cooldown
+                : MidBossState.Exhausted;
+        }
+
+        private bool HasRemainingMidBoss()
+        {
+            return _currentStageData.MiddleBossData != null
+                && _currentStageData.MiddleBossData.MidBossDatas != null
+                && _midBossIndex < _currentStageData.MiddleBossData.MidBossDatas.Count;
+        }
+
+        //중간 보스 소환 가능
+        //버튼 활성화 (이미지)
+        //버튼 클릭 
+        //정보 표시 - 뷰어 열림 (이미지, 이름, 제한시간, 보상, 도전하기 버튼)
+        //도전하기 클릭
+        //소환
+
+        //잡으면 보상
+        //못 잡으면 그대로 사라짐
     }
 }

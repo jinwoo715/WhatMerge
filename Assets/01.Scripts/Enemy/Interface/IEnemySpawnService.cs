@@ -1,4 +1,5 @@
 using System;
+using WhatMerge.Stage;
 
 namespace WhatMerge.Enemies
 {
@@ -6,8 +7,13 @@ namespace WhatMerge.Enemies
     {
         event Action<Enemy> OnSpawnEnemy;
         event Action<Enemy> OnReturnEnemy;
+        event Action<Enemy> OnDespawnEnemy;
         event Action OnEndWaveSpawn;
-        void StartWaveEnemySpawn(EnemySpawnReceipt data);
+
+        bool IsAliveBoss { get; }
+        void StartWaveEnemySpawn(EnemySpawnData data);
+        Enemy SpawnEnemy(int enemyUID);
+        void DespawnEnemy(Enemy enemy);
         void CancelWaveSpawn();
     }
 
@@ -15,7 +21,15 @@ namespace WhatMerge.Enemies
     {
         public int EnemyUID;
         public int SpawnCount;
-        public float SpawnInterval;
         public float Delay;
+        public float SpawnInterval;
+
+        public EnemySpawnReceipt(int uid, int count, float startDelay, float interval)
+        {
+            EnemyUID = uid;
+            SpawnCount = count;
+            Delay = startDelay;
+            SpawnInterval = interval;
+        }
     }
 }

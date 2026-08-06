@@ -1,4 +1,5 @@
 using UnityEngine;
+using WhatMerge.Summons.Data;
 
 namespace Skill.Data
 {

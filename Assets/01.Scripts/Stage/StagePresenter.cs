@@ -1,4 +1,5 @@
 using System;
+using WhatMerge.Enemies;
 
 namespace WhatMerge.Stage
 {
@@ -6,15 +7,70 @@ namespace WhatMerge.Stage
     {
         private IWaveInfoProvider _model;
         private IStageView _view;
+        private MidBossInfoPopup _popup;
+        private IStageService _stageService;
+        private MidBossData _currentMidBossData;
+        private int _midBossRewardAmount;
+        private IEnemyDataRepository _enemyDataRepository;
 
-        public void Init(IWaveInfoProvider waveInfoProvider, IStageView viewer)
+        public void Init(
+            IStageService stageService,
+            IWaveInfoProvider waveInfoProvider,
+            IStageView viewer,
+            MidBossInfoPopup popup,
+            IEnemyDataRepository enemyDataRepository)
         {
             _model = waveInfoProvider;
             _view = viewer;
+            _popup = popup;
+            _stageService = stageService;
+            _enemyDataRepository = enemyDataRepository;
+
+            _view.OnClickSpawnMidBoss += OpenMidBossPopup;
+
+            _popup.OnCloseButton += CloseMidBossPopup;
+            _popup.OnClickTryButton += SummonMidBoss;
+
+            _stageService.OnShowMiddleBossSpawnButton += ActiveOnMidBossButton;
+            _stageService.OnHideMiddleBossSpawnButton += DeactiveMidBossButton;
 
             _model.OnChangeCurrentWave += UpdateWave;
             _model.OnChangeRemainTime += UpdateWaveTime;
             _model.OnChangeAliveEnemy += UpdateActiveEnemyCount;
+        }
+
+        private void ActiveOnMidBossButton(MidBossData midBossData, int rewardAmount)
+        {
+            _currentMidBossData = midBossData;
+            _midBossRewardAmount = rewardAmount;
+            _view.ShowMiddBossButton();
+        }
+        private void DeactiveMidBossButton()
+        {
+            _view.HideMidBossButton();
+            CloseMidBossPopup();
+        }
+        private void SummonMidBoss()
+        {
+            _stageService.SummonMiddBoss();
+            CloseMidBossPopup();
+        }
+
+        private void OpenMidBossPopup()
+        {
+            var enemyData = _enemyDataRepository.GetData(_currentMidBossData.MidBossUID);
+            string count = _midBossRewardAmount.ToString();
+
+            _popup.SetData(
+                _currentMidBossData.IconSprite,
+                enemyData.Name,
+                enemyData.Description,
+                count);
+            _popup.gameObject.SetActive(true);
+        }
+        private void CloseMidBossPopup()
+        {
+            _popup.gameObject.SetActive(false);
         }
 
         public void UpdateWave(int currentWave)

@@ -1,4 +1,5 @@
 using Skill.Data;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,13 +14,27 @@ namespace Skill
             if (effects == null)
                 return confirmedEffects;
 
-            foreach (var effect in effects)
+            for (int i = 0; i < effects.Count; i++)
             {
-                if (effect == null)
-                    continue;
+                EffectBase effect = effects[i];
 
-                if (effect.Chance >= Random.Range(0f, 1f))
+                if (effect == null)
+                    throw new InvalidOperationException($"Effect reference at index {i} is null or missing.");
+
+                if (float.IsNaN(effect.Chance)
+                    || float.IsInfinity(effect.Chance)
+                    || effect.Chance < 0f
+                    || effect.Chance > 1f)
+                {
+                    throw new InvalidOperationException(
+                        $"Effect '{effect.name}' chance must be between 0 and 1. Current value: {effect.Chance}.");
+                }
+
+                if (effect.Chance >= 1f
+                    || effect.Chance > 0f && UnityEngine.Random.value < effect.Chance)
+                {
                     confirmedEffects.Add(effect);
+                }
             }
 
             return confirmedEffects;

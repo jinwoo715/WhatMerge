@@ -37,7 +37,7 @@ namespace Core.Scene
 
             if (GUILayout.Button("Game Start", GUILayout.Width(400), GUILayout.Height(150)))
             {
-                _stage.StartStage();
+                //_stage.StartStage();
             }
 
             GUILayout.FlexibleSpace();

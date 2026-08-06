@@ -4,6 +4,8 @@ namespace WhatMerge.Map
 {
     public interface IFieldTileService
     {
+        int MaxRow { get; }
+        int MaxCol { get; }
         bool TryGetNextFieldTile(out Tile tile);
         Vector2 GetTileWorldPosition(ITileReadOnly tile);
         void OccupyFieldTile(ITileReadOnly tile);

@@ -1,0 +1,59 @@
+{
+    "NodePositions": [
+        {
+            "Key": "active",
+            "Position": {
+                "serializedVersion": "2",
+                "x": 40.0,
+                "y": 160.0,
+                "width": 266.0,
+                "height": 363.0
+            }
+        },
+        {
+            "Key": "loose-c6a82d76d93bc7e479223ab6cda59fca",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -415.0,
+                "y": 211.0,
+                "width": 342.0,
+                "height": 187.0
+            }
+        }
+    ],
+    "AssetPositions": [
+        {
+            "Key": "asset-ca8a2b12bc29f7a47ba14813bc2e8c6b",
+            "Position": {
+                "serializedVersion": "2",
+                "x": 40.0,
+                "y": 160.0,
+                "width": 266.0,
+                "height": 363.0
+            }
+        },
+        {
+            "Key": "asset-c6a82d76d93bc7e479223ab6cda59fca",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -415.0,
+                "y": 211.0,
+                "width": 342.0,
+                "height": 187.0
+            }
+        }
+    ],
+    "LooseAssetGuids": [
+        "c6a82d76d93bc7e479223ab6cda59fca"
+    ],
+    "ViewPosition": {
+        "x": 609.0,
+        "y": 35.0,
+        "z": 0.0
+    },
+    "ViewScale": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+    }
+}

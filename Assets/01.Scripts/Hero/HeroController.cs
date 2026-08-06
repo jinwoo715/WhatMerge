@@ -58,7 +58,7 @@ namespace WhatMerge.Heros
             }
         }
 
-        //Evolution Level¿Ã ∞∞¿∫∞° 
+        //Evolution LevelÏù¥ Í∞ôÏùÄÍ∞Ä
         public int GetMergeResult(int first, int second)
         {
             var key = SortUID(first, second);
@@ -109,7 +109,7 @@ namespace WhatMerge.Heros
             if (first.EvolutionLevel != second.EvolutionLevel)
                 return EHeroOverlapResult.None;
 
-            //∞‘¿” ≥ªø°º≠ ¡¯»≠ ∑π∫ß¿∫ ∞∞¥Ÿ.
+            //Í≤åÏûÑ ÎÇ¥ÏóêÏÑú ÏßÑÌôî Î†àÎ≤®ÏùÄ Í∞ôÎã§.
             if (first.UID == second.UID)
                 return EHeroOverlapResult.Evolution;
 
@@ -168,34 +168,60 @@ namespace WhatMerge.Heros
         public void ClearHero(Hero hero)
         {
             ITileReadOnly tile = hero.OccupiedTile;
+
+            if (tile == null)
+                throw new InvalidOperationException($"Hero '{hero.name}' has no occupied tile.");
+
+            if (!_fieldHeros.TryGetValue(tile, out Hero tileHero) || !ReferenceEquals(tileHero, hero))
+                throw new InvalidOperationException($"Hero '{hero.name}' is not registered at its occupied tile.");
+
+            if (!_fieldHero.TryGetValue((tile.X, tile.Y), out Hero positionHero) || !ReferenceEquals(positionHero, hero))
+                throw new InvalidOperationException($"Hero '{hero.name}' is not registered at ({tile.X}, {tile.Y}).");
+
             _fieldHeros.Remove(tile);
             _fieldHero.Remove((tile.X, tile.Y));
             _heroMapService.FreeFieldTile(tile);
+            OnChangedHeroPosition?.Invoke();
             OnDestroyHero?.Invoke(hero);
         }
 
         public void SetHeroPosition(ITileReadOnly tile, Hero hero)
         {
-            if (hero.OccupiedTile != null)
-                _heroMapService.FreeFieldTile(hero.OccupiedTile);
+            ITileReadOnly previousTile = hero.OccupiedTile;
 
-            if (_fieldHeros.ContainsKey(hero.OccupiedTile))
-            {
-                _fieldHeros.Remove(hero.OccupiedTile);
-                _fieldHero.Remove((tile.X, tile.Y));
-            }
+            if (previousTile == null)
+                throw new InvalidOperationException($"Hero '{hero.name}' has no occupied tile.");
+
+            if (previousTile.X == tile.X && previousTile.Y == tile.Y)
+                return;
+
+            if (!_fieldHeros.TryGetValue(previousTile, out Hero tileHero) || !ReferenceEquals(tileHero, hero))
+                throw new InvalidOperationException($"Hero '{hero.name}' is not registered at its occupied tile.");
+
+            if (!_fieldHero.TryGetValue((previousTile.X, previousTile.Y), out Hero positionHero) || !ReferenceEquals(positionHero, hero))
+                throw new InvalidOperationException(
+                    $"Hero '{hero.name}' is not registered at ({previousTile.X}, {previousTile.Y}).");
+
+            if (_fieldHeros.ContainsKey(tile) || _fieldHero.ContainsKey((tile.X, tile.Y)))
+                throw new InvalidOperationException($"Destination tile ({tile.X}, {tile.Y}) is already occupied.");
+
+            _heroMapService.FreeFieldTile(previousTile);
+            _fieldHeros.Remove(previousTile);
+            _fieldHero.Remove((previousTile.X, previousTile.Y));
 
             _heroMapService.OccupyFieldTile(tile);
             _fieldHeros.Add(tile, hero);
             _fieldHero.Add((tile.X, tile.Y), hero);
 
             hero.SetTile(tile, _heroMapService.GetTileWorldPosition(tile));
+            OnChangedHeroPosition?.Invoke();
         }
         public void AddFieldHero(Tile tile, Hero hero)
         {
             _fieldHeros.Add(tile, hero);
             _fieldHero.Add((tile.X, tile.Y), hero);
             OnSpawnedHero?.Invoke(hero);
+            OnChangedHeroPosition?.Invoke();
         }
 
         public void PointDownTile(Tile tile)
@@ -241,6 +267,7 @@ namespace WhatMerge.Heros
 
                             _clickedHero.SetTile(endTile, _heroMapService.GetTileWorldPosition(endTile));
                             hero.SetTile(startTile, _heroMapService.GetTileWorldPosition(startTile));
+                            OnChangedHeroPosition?.Invoke();
 
                             break;
                         case EHeroOverlapResult.Evolution:
@@ -257,7 +284,7 @@ namespace WhatMerge.Heros
                             int evolution = _clickedHero.EvolutionLevel;
                             _heroSpawnService.SpawnHeroAtTile(uid, evolution, tile);
 
-                            Debug.Log("«’√È!!");
+                            Debug.Log("Ìï©Ï∑å!!");
                             break;
                     }
                 }
@@ -279,53 +306,96 @@ namespace WhatMerge.Heros
         }
         public void SellHero(Hero hero)
         {
-            Debug.Log("∆»æ“¥Ÿ!");
-            //TODO ∆«∏≈ ±›æ◊ ªÍ¡§ πÊπ˝
+            Debug.Log("ÌåîÏïòÎã§!");
+            //TODO ÌåêÎß§ Í∏àÏï° ÏÇ∞Ï†ï Î∞©Î≤ï
             ClearHero(hero);
             _gameGoldService.GainMoney(10);
         }
 
-        //TODO øµøı π¸¿ß ≈Ωªˆ
+        //TODO ÏòÅÏõÖ Î≤îÏúÑ ÌÉêÏÉâ
         public List<Hero> GetNearHeros(ITileReadOnly pivot, HeroSearchType range)
         {
             List<Hero> heros = new List<Hero>();
 
-            if (_fieldHeros.TryGetValue(pivot, out Hero pivotHero))
+            switch (range)
             {
-                heros.Add(pivotHero);
+                case HeroSearchType.Single:
+                    if (_fieldHeros.TryGetValue(pivot, out Hero pivotHero))
+                    {
+                        heros.Add(pivotHero);
+                    }
+                    break;
+
+                case HeroSearchType.Cross:
+
+                    heros.AddRange(GetColHeros(pivot));
+                    heros.AddRange(GetRowHeros(pivot));
+
+                    break;
+                case HeroSearchType.Surrounding:
+
+                    heros.AddRange(GetSurroundHeros(pivot));
+
+                    break;
+                case HeroSearchType.All:
+
+                    heros = _fieldHero.Values.ToList();
+
+                    break;
             }
 
-            //if (range >= 1)
-            //{
-            //    int[,] dir = new int[4, 2] { { -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 } };
+            return heros;
+        }
 
-            //    for (int i = 0; i < dir.GetLength(0); i++)
-            //    {
-            //        int dx = pivot.X + dir[i, 0];
-            //        int dy = pivot.Y + dir[i, 1];
+        private List<Hero> GetRowHeros(ITileReadOnly pivot)
+        {
+            List<Hero> heros = new List<Hero>();
+            for (int i = 0; i < _heroMapService.MaxRow; i++)
+            {
+                if(_fieldHero.TryGetValue((pivot.X, i), out var hero))
+                {
+                    heros.Add(hero);
+                }
+            }
 
-            //        if(_fieldHero.TryGetValue((dx,dy), out Hero hero))
-            //        {
-            //            heros.Add(hero);
-            //        }
-            //    }
-            //}
+            return heros;
+        }
+        private List<Hero> GetColHeros(ITileReadOnly pivot)
+        {
+            List<Hero> heros = new List<Hero>();
+            for (int i = 0; i < _heroMapService.MaxCol; i++)
+            {
+                if (_fieldHero.TryGetValue((i, pivot.Y), out var hero))
+                {
+                    if (pivot.X == i)
+                        continue;
 
-            //if(range >= 2)
-            //{
-            //    int[,] dir = new int[4, 2] { { -1, -1 }, { -1, 1 }, { 1, 1 }, { 1, -1 } };
+                    heros.Add(hero);
+                }
+            }
 
-            //    for (int i = 0; i < dir.GetLength(0); i++)
-            //    {
-            //        int dx = pivot.X + dir[i, 0];
-            //        int dy = pivot.Y + dir[i, 1];
+            return heros;
+        }
+        private List<Hero> GetSurroundHeros(ITileReadOnly pivot)
+        {
+            List<Hero> heros = new List<Hero>();
 
-            //        if (_fieldHero.TryGetValue((dx, dy), out Hero hero))
-            //        {
-            //            heros.Add(hero);
-            //        }
-            //    }
-            //}
+            for (int i = -1; i < 2; i++)
+            {
+                for (int j = -1; j < 2; j++)
+                {
+                    int x = pivot.X + i;
+                    int y = pivot.Y + j;
+
+                    if (x < 0 || x >= _heroMapService.MaxCol || y < 0 || y >= _heroMapService.MaxRow || (x == pivot.X && y == pivot.Y))
+                        continue;
+
+                    if(_fieldHero.TryGetValue((x,y), out var hero))
+                    {
+                        heros.Add(hero);
+                    }
+                }
+            }
 
             return heros;
         }

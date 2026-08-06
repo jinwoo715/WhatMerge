@@ -10,11 +10,11 @@ namespace Skill.Data
 
         protected static readonly EffectStatDefinition[] EnhanceableStats =
         {
-            new EffectStatDefinition(ChanceKey, "¹ßµ¿È®·ü"),
-            new EffectStatDefinition(ExecuteKey, "Ã³Çü ±âÁØ")
+            new EffectStatDefinition(ChanceKey, "ë°œë™í™•ë¥ "),
+            new EffectStatDefinition(ExecuteKey, "ì²˜í˜• ê¸°ì¤€")
         };
 
-        //%ÀÌÇÏ Ã³Çü
+        //%ì´í•˜ ì²˜í˜•
         [Range(0,1)]
         public float ExecuteThreshold;
         public override void AddStat(string key, float value)

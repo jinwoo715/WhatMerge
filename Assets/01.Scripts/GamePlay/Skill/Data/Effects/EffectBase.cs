@@ -13,7 +13,7 @@ namespace Skill.Data
         [Range(0, 1)]
         public float Chance = 1f;
 
-        [Header("Àû¿ë È¿°ú ¾ÆÀÌÄÜ")]
+        [Header("ì ìš© íš¨ê³¼ ì•„ì´ì½˜")]
         public VFXData VFX;
 
         public void AddChance(float value)

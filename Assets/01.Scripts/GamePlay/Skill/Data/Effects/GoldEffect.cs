@@ -11,8 +11,8 @@ namespace Skill.Data
 
         protected static readonly EffectStatDefinition[] EnhanceableStats =
         {
-            new EffectStatDefinition(ChanceKey, "¹ßµ¿È®·ü"),
-            new EffectStatDefinition(GainGoldAmountKey, "Ãß°¡ È¹µæ ±İ¾×")
+            new EffectStatDefinition(ChanceKey, "ë°œë™í™•ë¥ "),
+            new EffectStatDefinition(GainGoldAmountKey, "ì¶”ê°€ íšë“ ê¸ˆì•¡")
         };
 
         public int Gold;

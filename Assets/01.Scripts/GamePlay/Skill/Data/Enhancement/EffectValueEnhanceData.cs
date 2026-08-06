@@ -8,7 +8,7 @@ namespace Skill.Data
     {
         public string TargetStatKey;
 
-        [Header("°­È­ ¼öÄ¡")]
+        [Header("ê°•í™” ìˆ˜ì¹˜")]
         public float AddValue;
     }
 }

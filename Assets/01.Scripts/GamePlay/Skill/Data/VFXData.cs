@@ -7,5 +7,14 @@ namespace Skill.Data
     {
         public string VFXName;
         public float LifeTime;
+        public VFXSpawnPositionTpye PositionType;
+    }
+
+    public enum VFXSpawnPositionTpye
+    {
+        Owner,
+        Target,
+        Middle,
+        ScreenCenter
     }
 }

@@ -8,7 +8,11 @@ namespace WhatMerge.Combat
         int CurrentHP { get; }
         int MaxHP { get; }
         int Armor { get; }
+        ElementType BaseAttribute { get; }
+        IStatusReader TemporaryAttributes { get; }
+        IStatusModifier TemporaryAttributeModifier { get; }
         event Action<int> OnAppliedNomalDamage;
+        event Action<int, int> OnHealthChanged;
         void TakeDamage(AttackResultPayload resultPayload);
         IEnemyStatModifier StatModifier { get; }
         IMoveable Move { get; }

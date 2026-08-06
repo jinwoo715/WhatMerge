@@ -1,14 +1,13 @@
-UID,Name,Description,HP,Amour,MoveSpeed,Attribute,Coin,SkillUID,IsBoss
-1,Slime,,5,0,1,None,10,0,FALSE
-2,SlimeKing,,10,0,1,None,10,0,TRUE
-3,Mushroom,,5,0,1,None,10,0,FALSE
-4,Yggdrasil,,10,0,1,None,10,0,TRUE
-5,Lizardman,,10,0,1,None,10,0,FALSE
-6,minotaur,,10,0,1,None,10,0,TRUE
-7,Werewolf,,10,0,1,None,10,0,FALSE
-8,Lycanthrope,,10,0,1,None,10,0,TRUE
-9,Golem,,10,0,1,None,10,0,FALSE
-10,Titan,,10,0,1,None,10,0,TRUE
-11,Elemental,,10,0,1,None,10,0,FALSE
-12,Guardian,,10,0,1,None,10,0,TRUE
-1001,MergeKeeper,,10,0,1,None,10,0,FALSE
+﻿UID,Name,Description,SpriteKey,EnemyType,MaxHP,Armor,MoveSpeed,Attribute,SkillSetUID,RewardGroupUID
+1,슬라임,,Slime,Normal,5,0,1,None,0,1
+2,슬라임 킹,,SlimeKing,Boss,10,0,1,None,0,2
+3,버섯,,Mushroom,Normal,5,0,1,None,0,3
+4,위그드라실,,Yggdrasil,Boss,10,0,1,None,0,4
+5,리자드맨,,Lizardman,Normal,10,0,1,None,0,5
+6,미노타우로스,,Minotaur,Boss,10,0,1,None,0,6
+7,웨어울프,,Werewolf,Normal,10,0,1,None,0,7
+8,라이칸스로프,,Lycanthrope,Boss,10,0,1,None,0,8
+9,골렘,,Golem,Normal,10,0,1,None,0,9
+10,타이탄,,Titan,Boss,10,0,1,None,0,10
+11,엘리멘탈,,Elemental,Normal,10,0,1,None,0,11
+12,가디언,,Guardian,Boss,10,0,1,None,0,12

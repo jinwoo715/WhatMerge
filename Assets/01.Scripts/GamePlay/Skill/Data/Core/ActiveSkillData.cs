@@ -6,16 +6,16 @@ namespace Skill.Data
     [CreateAssetMenu(fileName = "Active Skill", menuName = "Skill/ActiveSkill", order = 0)]
     public class ActiveSkillData : SkillBaseData
     {
-        [Header("¸ğ¼Ç")]
+        [Header("ëª¨ì…˜")]
         public SkillAnimationData AnimationData;
 
-        [Header("¹æ½Ä")]
+        [Header("ë°©ì‹")]
         public ExecutionData Execution;
 
-        [Header("Å½»ö")]
+        [Header("íƒìƒ‰")]
         public FinderData Finder;
 
-        [Header("Æ®¸®°Å")]
+        [Header("íŠ¸ë¦¬ê±°")]
         public TriggerData Trigger;
     }
 

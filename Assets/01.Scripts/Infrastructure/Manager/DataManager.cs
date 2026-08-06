@@ -1,5 +1,6 @@
 using Heros;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using WhatMerge.Enemies;
@@ -10,7 +11,19 @@ public interface IDataProvider
     List<MergeData> MergeData {get;}
 }
 
-public class DataManager : MonoBehaviour, IEnemyDataRepository, IDataProvider, IHeroInfoRepository
+public class ItemData
+{
+    public int UID;
+    public string Name;
+    public string Description;
+}
+
+public interface IItemRepository
+{
+    ItemData GetItemData(int uid);
+}
+
+public class DataManager : MonoBehaviour, IEnemyDataRepository, IEnemyRewardRepository, IDataProvider, IHeroInfoRepository, IItemRepository
 {
     [Header("TextData")]
     public TextAsset _StageDataText;
@@ -26,6 +39,7 @@ public class DataManager : MonoBehaviour, IEnemyDataRepository, IDataProvider, I
 
     private Dictionary<int, HeroData> _heroDatas = new Dictionary<int, HeroData>();
     private Dictionary<int, EnemyData> _enemyDatas = new Dictionary<int, EnemyData>();
+    private Dictionary<int, List<EnemyRewardData>> _enemyRewardsByGroup = new Dictionary<int, List<EnemyRewardData>>();
     private Dictionary<int, ATKData> _atkDatas = new Dictionary<int, ATKData>();
 
     private Dictionary<int, HeroSaveData> _saveHeroData = new Dictionary<int, HeroSaveData>();
@@ -62,6 +76,7 @@ public class DataManager : MonoBehaviour, IEnemyDataRepository, IDataProvider, I
         InitDictionary(_heroDatas, resourcesReader.GetTextAsset("HeroData"));
         InitDictionary(_atkDatas, resourcesReader.GetTextAsset("ATKData"));
         InitDictionary(_enemyDatas, resourcesReader.GetTextAsset("EnemyData"));
+        InitRewardDictionary(resourcesReader.GetTextAsset("EnemyRewardData"));
 
         var mergeData = resourcesReader.GetTextAsset("MergeData");
         _mergeDatas = DeserializeTextData<MergeData>(mergeData);
@@ -74,6 +89,22 @@ public class DataManager : MonoBehaviour, IEnemyDataRepository, IDataProvider, I
         {
             T data = datas[i];
             dic.Add(data.UID, data);
+        }
+    }
+
+    private void InitRewardDictionary(TextAsset text)
+    {
+        List<EnemyRewardData> rewards = DeserializeTextData<EnemyRewardData>(text);
+        for (int i = 0; i < rewards.Count; i++)
+        {
+            EnemyRewardData reward = rewards[i];
+            if (!_enemyRewardsByGroup.TryGetValue(reward.RewardGroupUID, out List<EnemyRewardData> group))
+            {
+                group = new List<EnemyRewardData>();
+                _enemyRewardsByGroup.Add(reward.RewardGroupUID, group);
+            }
+
+            group.Add(reward);
         }
     }
     private List<T> DeserializeTextData<T>(TextAsset textAsset)
@@ -116,7 +147,19 @@ public class DataManager : MonoBehaviour, IEnemyDataRepository, IDataProvider, I
         }
     }
 
+    public IReadOnlyList<EnemyRewardData> GetRewards(int rewardGroupUID)
+    {
+        return _enemyRewardsByGroup.TryGetValue(rewardGroupUID, out List<EnemyRewardData> rewards)
+            ? rewards
+            : Array.Empty<EnemyRewardData>();
+    }
+
     public HeroSaveData GetHeroSaveData(int uid)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public ItemData GetItemData(int uid)
     {
         throw new System.NotImplementedException();
     }

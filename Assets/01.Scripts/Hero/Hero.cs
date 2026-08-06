@@ -40,7 +40,7 @@ namespace WhatMerge.Heros
         public int UID => _heroData.UID;
         public ITileReadOnly OccupiedTile { get; private set; }
         public IHeroStatModifier StatModify => _stat;
-        public float BasicAttackRange => _skillController.BasicAttackRange;
+        public float BasicAttackRange => _skillController?.BasicAttackRange ?? 0f;
         public int SpawnIndex { get; private set; }
 
         public IElement Element => _element;
@@ -62,9 +62,28 @@ namespace WhatMerge.Heros
 
             SetEvolution();
         }
+
+        private void UpdateAttackSpeed(HeroStatType statType, float speed)
+        {
+            if(statType == HeroStatType.AttackPerSecond)
+            {
+                _skillController.UpdateDelayTime(StatCalculator.AS(speed));
+            }
+        }
+
         public void SetSkill(SkillController skillController)
         {
+            if (skillController == null)
+                throw new ArgumentNullException(nameof(skillController));
+
+            if (_skillController != null)
+                throw new InvalidOperationException($"Hero '{name}' already has a skill controller.");
+
             _skillController = skillController;
+            _stat.OnStatChanged += UpdateAttackSpeed;
+            UpdateAttackSpeed(
+                HeroStatType.AttackPerSecond,
+                _stat.GetStat(HeroStatType.AttackPerSecond));
         }
         public void UpgradeEvolution()
         {
@@ -108,8 +127,11 @@ namespace WhatMerge.Heros
         public void OnDespawn() 
         {
             IsActive = false;
+            _stat.OnStatChanged -= UpdateAttackSpeed;
+            OnActiveOff?.Invoke(this);
             _element.Clear();
-            _skillController.StopRunner();
+            _skillController?.StopRunner();
+            _skillController = null;
         }
     }
 }

@@ -1,16 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using WhatMerge.Combat.Effects;
 
 namespace Skill.Data
 {
     [CreateAssetMenu(fileName = "Buff", menuName = "Skill/Passive/Buff", order = 0)]
     public class PassiveSkillData : SkillBaseData
     {
-        [Header("Å½»ö")]
+        [Header("íƒìƒ‰")]
         public HeroTargetData Target;
 
-        [Header("È¿°ú")]
+        [Header("íš¨ê³¼")]
         public List<BuffData> Effects;
     }
 }

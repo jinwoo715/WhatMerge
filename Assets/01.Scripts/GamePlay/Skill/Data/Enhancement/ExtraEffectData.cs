@@ -5,13 +5,13 @@ namespace Skill.Data
     [CreateAssetMenu(fileName = "ExtraEffectData", menuName = "Skill/SkillEnhancer/ExtraEffectData", order = 0)]
     public class ExtraEffectData : SkillBaseData
     {
-        [Header("´ë»ó Skill")]
+        [Header("ëŒ€ìƒ Skill")]
         public ActiveSkillData TargetSkill;
 
-        [Header("Ãß°¡ÇÒ ÄÁÅ×ÀÌ³Ê")]
+        [Header("ì¶”ê°€í•  ì»¨í…Œì´ë„ˆ")]
         public ScriptableObject EffectContainer;
 
-        [Header("Ãß°¡ÇÒ È¿°ú")]
+        [Header("ì¶”ê°€í•  íš¨ê³¼")]
         public EffectBase Effect;
     }
 }

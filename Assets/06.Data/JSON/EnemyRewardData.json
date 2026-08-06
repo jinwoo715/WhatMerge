@@ -1,0 +1,98 @@
+[
+  {
+    "UID": 1,
+    "RewardGroupUID": 1,
+    "RewardType": 0,
+    "RewardUID": 1,
+    "Amount": 10,
+    "DropChance": 1.0
+  },
+  {
+    "UID": 2,
+    "RewardGroupUID": 2,
+    "RewardType": 0,
+    "RewardUID": 1,
+    "Amount": 10,
+    "DropChance": 1.0
+  },
+  {
+    "UID": 3,
+    "RewardGroupUID": 3,
+    "RewardType": 0,
+    "RewardUID": 1,
+    "Amount": 10,
+    "DropChance": 1.0
+  },
+  {
+    "UID": 4,
+    "RewardGroupUID": 4,
+    "RewardType": 0,
+    "RewardUID": 1,
+    "Amount": 10,
+    "DropChance": 1.0
+  },
+  {
+    "UID": 5,
+    "RewardGroupUID": 5,
+    "RewardType": 0,
+    "RewardUID": 1,
+    "Amount": 10,
+    "DropChance": 1.0
+  },
+  {
+    "UID": 6,
+    "RewardGroupUID": 6,
+    "RewardType": 0,
+    "RewardUID": 1,
+    "Amount": 10,
+    "DropChance": 1.0
+  },
+  {
+    "UID": 7,
+    "RewardGroupUID": 7,
+    "RewardType": 0,
+    "RewardUID": 1,
+    "Amount": 10,
+    "DropChance": 1.0
+  },
+  {
+    "UID": 8,
+    "RewardGroupUID": 8,
+    "RewardType": 0,
+    "RewardUID": 1,
+    "Amount": 10,
+    "DropChance": 1.0
+  },
+  {
+    "UID": 9,
+    "RewardGroupUID": 9,
+    "RewardType": 0,
+    "RewardUID": 1,
+    "Amount": 10,
+    "DropChance": 1.0
+  },
+  {
+    "UID": 10,
+    "RewardGroupUID": 10,
+    "RewardType": 0,
+    "RewardUID": 1,
+    "Amount": 10,
+    "DropChance": 1.0
+  },
+  {
+    "UID": 11,
+    "RewardGroupUID": 11,
+    "RewardType": 0,
+    "RewardUID": 1,
+    "Amount": 10,
+    "DropChance": 1.0
+  },
+  {
+    "UID": 12,
+    "RewardGroupUID": 12,
+    "RewardType": 0,
+    "RewardUID": 1,
+    "Amount": 10,
+    "DropChance": 1.0
+  }
+]

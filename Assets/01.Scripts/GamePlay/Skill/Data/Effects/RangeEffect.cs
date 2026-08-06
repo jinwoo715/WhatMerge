@@ -10,8 +10,8 @@ namespace Skill.Data
 
         protected static readonly EffectStatDefinition[] EnhanceableStats =
         {
-            new EffectStatDefinition(ChanceKey, "¹ßµ¿È®·ü"),
-            new EffectStatDefinition(RangeKey, "µ¥¹ÌÁö Àû¿ë ¹üÀ§")
+            new EffectStatDefinition(ChanceKey, "ë°œë™í™•ë¥ "),
+            new EffectStatDefinition(RangeKey, "ë°ë¯¸ì§€ ì ìš© ë²”ìœ„")
         };
 
         public float Range;

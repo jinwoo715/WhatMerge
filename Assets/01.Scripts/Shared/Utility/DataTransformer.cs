@@ -1,235 +1,250 @@
-using System.Collections.Generic;
-using UnityEditor;
-using System.IO;
-using UnityEngine;
-using System.Linq;
 using System;
-using System.Reflection;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
+using System.Reflection;
+using System.Text;
 using Newtonsoft.Json;
-using Enemies;
-using Heros;
+using UnityEditor;
+using UnityEngine;
+using WhatMerge.Enemies;
 
 public class DataTransformer : EditorWindow
 {
-    public static string[] DataNames =
-    {
-        
-    };
-
-
 #if UNITY_EDITOR
     [MenuItem("Tools/Parse/CSV To Json %#K")]
     public static void ParseCSVDataToJson()
     {
-        
-        //ParseExcelDataToListJsonData<WaveData>("WaveData");
-        //ParseExcelDataToListJsonData<StageData>("StageData");
-        //ParseExcelDataToListJsonData<EnemyData>("EnemyData");
-        //ParseExcelDataToListJsonData<ActiveSkillData>("ActiveSkillData");
-        //ParseExcelDataToListJsonData<ATKData>("ATKData");
-        ParseExcelDataToListJsonData<HeroData>("HeroData");
-        //ParseExcelDataToListJsonData<BuffData>("BuffData");
-        //ParseExcelDataToListJsonData<BuffDataBundle>("BuffDataBundle");
-        //ParseExcelDataToListJsonData<MergeData>("MergeData");
+        ParseCsvDataToJson<EnemyData>("EnemyData");
+        ParseCsvDataToJson<EnemyRewardData>("EnemyRewardData");
 
         Debug.Log("DataTransformer Completed");
     }
-
-    #region To CSV From Json Helpers
-
-    private static void ParseJsonDataToCSV(string fileName)
-    {
-        try
-        {
-            //string jsonData = File.ReadAllText($"{Application.dataPath}/01.Resources/Data/JsonData/{fileName}.json");
-
-            //var array = JArray.Parse(jsonData);
-            //string csvPath = $"{Application.dataPath}/01.Resources/Data/CSVData/{fileName}.csv";
-
-            //using (var writer = new StreamWriter(csvPath))
-            //{
-            //    var headers = ((JObject)array[0]).Properties();
-            //    writer.WriteLine(string.Join(",", headers.Select(h => h.Name)));
-
-            //    foreach (var item in array)
-            //    {
-            //        var values = ((JObject)item).Properties().Select(p => p.Value.ToString());
-            //        writer.WriteLine(string.Join(",", values));
-            //    }
-            //}
-        }
-        catch
-        {
-        }
-    }
-
-    #endregion
-
-    #region To Json From CSV Helpers
 
     public static IList ParseExcelDataToList(Type parseType, string filename)
     {
         try
         {
-            Type listType = typeof(List<>).MakeGenericType(parseType);
-            IList loaderDatas = (IList)Activator.CreateInstance(listType);
+            return ParseCsvDataToList(parseType, filename);
+        }
+        catch (Exception exception)
+        {
+            Debug.LogError(exception);
+            return null;
+        }
+    }
 
-            string path = Path.Combine(Application.dataPath, $"01.Resources/Data/CSV/{filename}.csv");
+    private static void ParseCsvDataToJson<T>(string filename) where T : new()
+    {
+        IList parsed = ParseCsvDataToList(typeof(T), filename);
+        string json = JsonConvert.SerializeObject(parsed, Formatting.Indented);
+        string directory = Path.Combine(Application.dataPath, "06.Data/JSON");
 
-            string[] lines = File.ReadAllText(path).Split("\n");
+        Directory.CreateDirectory(directory);
+        File.WriteAllText(Path.Combine(directory, $"{filename}.json"), json, new UTF8Encoding(false));
+        AssetDatabase.Refresh();
+    }
 
-            for (int l = 1; l < lines.Length; l++)
+    private static IList ParseCsvDataToList(Type parseType, string filename)
+    {
+        string path = Path.Combine(Application.dataPath, "06.Data/CSV", $"{filename}.csv");
+        List<List<string>> records = ReadCsv(path);
+
+        if (records.Count == 0)
+            throw new InvalidDataException($"CSV file has no header: {path}");
+
+        Dictionary<string, int> headerIndices = BuildHeaderIndices(records[0], path);
+        Dictionary<string, FieldInfo> fields = GetPublicFields(parseType);
+        ValidateSchema(headerIndices, fields, parseType, path);
+
+        Type listType = typeof(List<>).MakeGenericType(parseType);
+        IList results = (IList)Activator.CreateInstance(listType);
+
+        for (int rowIndex = 1; rowIndex < records.Count; rowIndex++)
+        {
+            List<string> row = records[rowIndex];
+            if (IsEmptyRow(row))
+                continue;
+
+            if (row.Count != headerIndices.Count)
             {
-                string[] row = lines[l].Replace("\r", "").Split(',');
-                if (row.Length == 0 || string.IsNullOrEmpty(row[0]))
-                    continue;
+                throw new InvalidDataException(
+                    $"{filename}.csv row {rowIndex + 1} has {row.Count} columns; expected {headerIndices.Count}.");
+            }
 
-                object parseObj = Activator.CreateInstance(parseType);
+            object instance = Activator.CreateInstance(parseType);
+            foreach (KeyValuePair<string, FieldInfo> pair in fields)
+            {
+                int columnIndex = headerIndices[pair.Key];
+                object value = ConvertCell(row[columnIndex], pair.Value.FieldType);
+                pair.Value.SetValue(instance, value);
+            }
 
-                FieldInfo[] fields =
-                    parseType.BaseType.GetFields(BindingFlags.Public | BindingFlags.Instance)
-                    .Concat(parseType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
-                    .ToArray();
+            results.Add(instance);
+        }
 
-                for (int f = 0; f < fields.Length; f++)
+        return results;
+    }
+
+    private static Dictionary<string, int> BuildHeaderIndices(IReadOnlyList<string> header, string path)
+    {
+        Dictionary<string, int> indices = new Dictionary<string, int>(StringComparer.Ordinal);
+
+        for (int i = 0; i < header.Count; i++)
+        {
+            string name = header[i].Trim().TrimStart('\uFEFF');
+            if (string.IsNullOrEmpty(name))
+                throw new InvalidDataException($"CSV header at column {i + 1} is empty: {path}");
+
+            if (!indices.TryAdd(name, i))
+                throw new InvalidDataException($"Duplicate CSV header '{name}': {path}");
+        }
+
+        return indices;
+    }
+
+    private static Dictionary<string, FieldInfo> GetPublicFields(Type parseType)
+    {
+        Dictionary<string, FieldInfo> fields = new Dictionary<string, FieldInfo>(StringComparer.Ordinal);
+        FieldInfo[] publicFields = parseType.GetFields(BindingFlags.Public | BindingFlags.Instance);
+
+        for (int i = 0; i < publicFields.Length; i++)
+            fields.Add(publicFields[i].Name, publicFields[i]);
+
+        return fields;
+    }
+
+    private static void ValidateSchema(
+        IReadOnlyDictionary<string, int> headers,
+        IReadOnlyDictionary<string, FieldInfo> fields,
+        Type parseType,
+        string path)
+    {
+        foreach (string header in headers.Keys)
+        {
+            if (!fields.ContainsKey(header))
+                throw new InvalidDataException($"CSV header '{header}' does not exist on {parseType.Name}: {path}");
+        }
+
+        foreach (string field in fields.Keys)
+        {
+            if (!headers.ContainsKey(field))
+                throw new InvalidDataException($"CSV is missing field '{field}' for {parseType.Name}: {path}");
+        }
+    }
+
+    private static object ConvertCell(string value, Type type)
+    {
+        if (type == typeof(string))
+            return value ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(value))
+            return type.IsValueType ? Activator.CreateInstance(type) : null;
+
+        string trimmedValue = value.Trim();
+        if (type.IsEnum)
+            return Enum.Parse(type, trimmedValue, true);
+
+        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+            return ConvertList(trimmedValue, type, '&');
+
+        TypeConverter converter = TypeDescriptor.GetConverter(type);
+        return converter.ConvertFromInvariantString(trimmedValue);
+    }
+
+    private static object ConvertList(string value, Type listType, char separator)
+    {
+        Type elementType = listType.GetGenericArguments()[0];
+        IList list = (IList)Activator.CreateInstance(listType);
+        string[] elements = value.Split(separator);
+
+        for (int i = 0; i < elements.Length; i++)
+            list.Add(ConvertCell(elements[i], elementType));
+
+        return list;
+    }
+
+    private static bool IsEmptyRow(IReadOnlyList<string> row)
+    {
+        for (int i = 0; i < row.Count; i++)
+        {
+            if (!string.IsNullOrWhiteSpace(row[i]))
+                return false;
+        }
+
+        return true;
+    }
+
+    private static List<List<string>> ReadCsv(string path)
+    {
+        string content = File.ReadAllText(path);
+        List<List<string>> records = new List<List<string>>();
+        List<string> row = new List<string>();
+        StringBuilder field = new StringBuilder();
+        bool insideQuotes = false;
+
+        for (int i = 0; i < content.Length; i++)
+        {
+            char current = content[i];
+
+            if (insideQuotes)
+            {
+                if (current == '"')
                 {
-                    FieldInfo field = parseType.GetField(fields[f].Name);
-                    Type type = field.FieldType;
-                    object value = null;
-
-                    if (type.IsGenericType)
+                    if (i + 1 < content.Length && content[i + 1] == '"')
                     {
-                        value = ConvertList(row[f], type, '&');
-                    }
-                    else if (type.IsEnum)
-                    {
-                        value = ConvertEnum(row[f], type);
+                        field.Append('"');
+                        i++;
                     }
                     else
                     {
-                        value = ConvertValue(row[f], type);
+                        insideQuotes = false;
                     }
-
-                    field.SetValue(parseObj, value);
-                }
-
-                loaderDatas.Add(parseObj);
-            }
-
-            return loaderDatas;
-        }
-        catch (Exception e)
-        {
-            Debug.LogError(e);
-            return null;
-        }
-    }
-
-    private static void ParseExcelDataToListJsonData<ParseClass>(string filename) where ParseClass : new()
-    {
-        List<ParseClass> convertData = ParseExcelDataToList<ParseClass>(filename);
-        string jsonStr = JsonConvert.SerializeObject(convertData, Formatting.Indented);
-
-        string path = Path.Combine(Application.dataPath, "06.Data/JSON");
-        File.WriteAllText($"{path}/{filename}.json", jsonStr);
-        AssetDatabase.Refresh();
-    }
-    private static List<ParseType> ParseExcelDataToList<ParseType>(string filename) where ParseType : new()
-    {
-        List<ParseType> loaderDatas = new List<ParseType>();
-
-        string[] lines = File.ReadAllText($"{Application.dataPath}/06.Data/CSV/{filename}.csv").Split("\n");
-
-        for (int l = 1; l < lines.Length; l++)
-        {
-            string[] row = lines[l].Replace("\r", "").Split(',');
-            if (row.Length == 0)
-                continue;
-            if (string.IsNullOrEmpty(row[0]))
-                continue;
-
-            ParseType parseType = new ParseType();
-
-            FieldInfo[] fields =
-                typeof(ParseType).BaseType.GetFields(BindingFlags.Public | BindingFlags.Instance).
-                Concat(typeof(ParseType).GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)).ToArray();
-
-            for (int f = 0; f < fields.Length; f++)
-            {
-                FieldInfo field = parseType.GetType().GetField(fields[f].Name);
-
-                Type type = field.FieldType;
-
-                object value = null;
-
-                if(row.Length-1 < f)
-                {
-                    value = default;
-                }
-                else if (type.IsGenericType)
-                {
-                    value = ConvertList(row[f], type, '&');
-                }
-                else if (type.IsEnum)
-                {
-                    value = ConvertEnum(row[f], type);
                 }
                 else
                 {
-                    value = ConvertValue(row[f], type);
+                    field.Append(current);
                 }
 
-                field.SetValue(parseType, value);
+                continue;
             }
 
-            loaderDatas.Add(parseType);
+            switch (current)
+            {
+                case '"' when field.Length == 0:
+                    insideQuotes = true;
+                    break;
+                case ',':
+                    row.Add(field.ToString());
+                    field.Clear();
+                    break;
+                case '\r':
+                case '\n':
+                    if (current == '\r' && i + 1 < content.Length && content[i + 1] == '\n')
+                        i++;
+
+                    row.Add(field.ToString());
+                    field.Clear();
+                    records.Add(row);
+                    row = new List<string>();
+                    break;
+                default:
+                    field.Append(current);
+                    break;
+            }
         }
 
-        return loaderDatas;
-    }
-    private static object ConvertList(string value, Type type, char splitChar)
-    {
-        if (string.IsNullOrEmpty(value))
-            return null;
+        if (insideQuotes)
+            throw new InvalidDataException($"CSV contains an unterminated quoted field: {path}");
 
-        Type valueType = type.GetGenericArguments()[0];
-
-        var genericList = Activator.CreateInstance(type) as IList;
-
-        // Parse Excel
-        var list = value.Split(splitChar).Select(x => ConvertValue(x, valueType)).ToList();
-
-        foreach (var item in list)
-            genericList.Add(item);
-
-        return genericList;
-    }
-    private static object ConvertEnum(string value, Type type)
-    {
-        if (string.IsNullOrEmpty(value))
-            return null;
-
-        return Enum.Parse(type, value);
-    }
-    private static object ConvertValue(string value, Type type)
-    {
-        try
+        if (field.Length > 0 || row.Count > 0)
         {
-            if (string.IsNullOrEmpty(value))
-                return null;
+            row.Add(field.ToString());
+            records.Add(row);
+        }
 
-            TypeConverter converter = TypeDescriptor.GetConverter(type);
-            return converter.ConvertFromString(value);
-        }
-        catch (Exception err)
-        {
-            Debug.LogError($"value : {value}, type : {type}, err : {err}");
-            return null;
-        }
+        return records;
     }
-    #endregion
-
 #endif
 }
