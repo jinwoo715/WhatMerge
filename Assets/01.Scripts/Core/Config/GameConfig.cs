@@ -22,6 +22,8 @@ public class GameEconomyConfig
 public class StageSettingConfig
 {
     [Header("Time")]
+    [Min(0f)]
+    public float StartCountdown;
     public int WaveTime;
     public int BossWaveTime;
 
@@ -34,8 +36,6 @@ public class StageSettingConfig
     [Header("Player")]
     public int StartMoney;
 
-    [Header("Start Wave")]
-    public int StartWaveIndex;
 }
 
 [System.Serializable]

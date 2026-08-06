@@ -567,7 +567,7 @@ namespace WhatMerge.Stage.Editor
             VisualElement fields = CreateTwoColumnContainer();
 
             IntegerField waveIndexField = new IntegerField("Wave Index");
-            waveIndexField.SetValueWithoutNotify(wave.WaveIndex);
+            waveIndexField.SetValueWithoutNotify(wave.WaveIndex + 1);
             waveIndexField.SetEnabled(false);
             fields.Add(waveIndexField);
 
@@ -916,7 +916,7 @@ namespace WhatMerge.Stage.Editor
                 _selectedStage.Waves ??= new List<WaveData>();
                 WaveData wave = template == null
                     ? CreateDefaultWave(waveNumber)
-                    : CloneWave(template, waveNumber);
+                    : CloneWave(template, waveNumber - 1);
 
                 _selectedStage.Waves.Add(wave);
                 SortWaves();
@@ -930,7 +930,7 @@ namespace WhatMerge.Stage.Editor
         {
             WaveData wave = new WaveData
             {
-                WaveIndex = waveNumber,
+                WaveIndex = waveNumber - 1,
                 WaveType = WaveType.Normal,
                 SpawnDatas = new List<EnemySpawnData>()
             };
@@ -945,7 +945,7 @@ namespace WhatMerge.Stage.Editor
         private void CopyWave(WaveData wave)
         {
             _copiedWave = CloneWave(wave, wave.WaveIndex);
-            ShowNotification(new GUIContent($"Wave {wave.WaveIndex} copied."));
+            ShowNotification(new GUIContent($"Wave {wave.WaveIndex + 1} copied."));
             RebuildMainContent();
         }
 
@@ -970,7 +970,7 @@ namespace WhatMerge.Stage.Editor
 
             if (!EditorUtility.DisplayDialog(
                     "Fill Wave Range",
-                    $"Apply wave {source.WaveIndex} settings to waves {startWave}-{endWave}? Existing settings will be overwritten.",
+                    $"Apply wave {source.WaveIndex + 1} settings to waves {startWave}-{endWave}? Existing settings will be overwritten.",
                     "Fill",
                     "Cancel"))
             {
@@ -985,7 +985,7 @@ namespace WhatMerge.Stage.Editor
                 {
                     WaveData target = FindWave(waveIndex);
                     if (target == null)
-                        _selectedStage.Waves.Add(CloneWave(sourceSnapshot, waveIndex));
+                        _selectedStage.Waves.Add(CloneWave(sourceSnapshot, waveIndex - 1));
                     else
                         CopyWaveSettings(sourceSnapshot, target);
                 }
@@ -1041,7 +1041,7 @@ namespace WhatMerge.Stage.Editor
         {
             if (!EditorUtility.DisplayDialog(
                     "Delete Wave",
-                    $"Delete wave {wave.WaveIndex}?",
+                    $"Delete wave {wave.WaveIndex + 1}?",
                     "Delete",
                     "Cancel"))
             {
@@ -1333,7 +1333,7 @@ namespace WhatMerge.Stage.Editor
             for (int i = 0; i < _selectedStage.Waves.Count; i++)
             {
                 WaveData wave = _selectedStage.Waves[i];
-                if (wave != null && wave.WaveIndex == waveNumber)
+                if (wave != null && wave.WaveIndex == waveNumber - 1)
                     return wave;
             }
 

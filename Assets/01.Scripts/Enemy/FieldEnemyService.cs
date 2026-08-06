@@ -6,11 +6,11 @@ namespace WhatMerge.Enemies
     public class FieldEnemyService : IFieldEnemyService
     {
         private readonly List<Enemy> _activeEnemies = new List<Enemy>();
-        private Enemy _activeBoss;
+        private readonly HashSet<Enemy> _activeBosses = new HashSet<Enemy>();
 
         public int GetActiveEnemyCount => _activeEnemies.Count;
         public IReadOnlyList<Enemy> GetAllFieldEnemy => _activeEnemies;
-        public bool IsAliveBoss => _activeBoss != null;
+        public int AliveBossCount => _activeBosses.Count;
 
         public event Action<int> OnChangedActiveEnemyCount;
         public event Action OnFieldCleared;
@@ -28,13 +28,10 @@ namespace WhatMerge.Enemies
                 throw new InvalidOperationException("The enemy is already registered in the field.");
             if (!enemy.IsActive)
                 throw new InvalidOperationException("Only an active enemy can be registered in the field.");
-            if (enemy.Type == EnemyType.Boss && _activeBoss != null)
-                throw new InvalidOperationException("Only one boss can be active at a time.");
-
             _activeEnemies.Add(enemy);
 
             if (enemy.Type == EnemyType.Boss)
-                _activeBoss = enemy;
+                _activeBosses.Add(enemy);
 
             OnSpawnEnemy?.Invoke(enemy);
             OnChangedActiveEnemyCount?.Invoke(GetActiveEnemyCount);
@@ -103,8 +100,7 @@ namespace WhatMerge.Enemies
             if (!_activeEnemies.Remove(enemy))
                 throw new InvalidOperationException("The enemy is not registered in the field.");
 
-            if (ReferenceEquals(_activeBoss, enemy))
-                _activeBoss = null;
+            _activeBosses.Remove(enemy);
         }
 
         private static void ValidateStatChange(EnemyStatType statType, float value)

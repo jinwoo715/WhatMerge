@@ -259,7 +259,7 @@ namespace WhatMerge.Stage.Editor
             if (stage.WaveCount <= 0)
                 return;
 
-            int[] coverage = new int[stage.WaveCount + 1];
+            int[] coverage = new int[stage.WaveCount];
             bool hasDuplicate = false;
             bool enemyTypesValid = true;
             int configuredWaveCount = 0;
@@ -281,10 +281,10 @@ namespace WhatMerge.Stage.Editor
                         continue;
                     }
 
-                    bool validWaveIndex = wave.WaveIndex > 0 && wave.WaveIndex <= stage.WaveCount;
+                    bool validWaveIndex = wave.WaveIndex >= 0 && wave.WaveIndex < stage.WaveCount;
                     if (!validWaveIndex)
                     {
-                        messages.Add(Error($"Invalid wave index {wave.WaveIndex}."));
+                        messages.Add(Error($"Invalid wave data index {wave.WaveIndex}."));
                     }
                     else
                     {
@@ -295,7 +295,7 @@ namespace WhatMerge.Stage.Editor
 
                     if (wave.SpawnDatas == null || wave.SpawnDatas.Count == 0)
                     {
-                        messages.Add(Error($"Wave {wave.WaveIndex} has no spawn entries."));
+                        messages.Add(Error($"Wave {wave.WaveIndex + 1} has no spawn entries."));
                         enemyTypesValid = false;
                         continue;
                     }
@@ -309,32 +309,32 @@ namespace WhatMerge.Stage.Editor
                         EnemySpawnData spawn = wave.SpawnDatas[spawnIndex];
                         if (spawn == null)
                         {
-                            messages.Add(Error($"Wave {wave.WaveIndex} has a null spawn entry."));
+                            messages.Add(Error($"Wave {wave.WaveIndex + 1} has a null spawn entry."));
                             enemyTypesValid = false;
                             continue;
                         }
 
                         if (spawn.SpawnCount <= 0 || spawn.StartDelay < 0f || spawn.SpawnInterval < 0f)
                         {
-                            messages.Add(Error($"Wave {wave.WaveIndex} has invalid spawn values."));
+                            messages.Add(Error($"Wave {wave.WaveIndex + 1} has invalid spawn values."));
                         }
 
                         if (!catalog.TryGetEnemy(spawn.EnemyUID, out EnemyData enemy))
                         {
-                            messages.Add(Error($"Wave {wave.WaveIndex} references missing enemy {spawn.EnemyUID}."));
+                            messages.Add(Error($"Wave {wave.WaveIndex + 1} references missing enemy {spawn.EnemyUID}."));
                             enemyTypesValid = false;
                         }
                         else if (enemy.EnemyType != expectedType)
                         {
                             messages.Add(Error(
-                                $"Wave {wave.WaveIndex} is {wave.WaveType}, but enemy {enemy.UID} is {enemy.EnemyType}."));
+                                $"Wave {wave.WaveIndex + 1} is {wave.WaveType}, but enemy {enemy.UID} is {enemy.EnemyType}."));
                             enemyTypesValid = false;
                         }
                     }
                 }
             }
 
-            for (int waveIndex = 1; waveIndex <= stage.WaveCount; waveIndex++)
+            for (int waveIndex = 0; waveIndex < stage.WaveCount; waveIndex++)
             {
                 if (coverage[waveIndex] > 0)
                     configuredWaveCount++;

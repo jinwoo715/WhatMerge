@@ -58,7 +58,7 @@ namespace WhatMerge.Stage
         }
         private void SummonMidBoss()
         {
-            _stageService.SummonMiddBoss();
+            _stageService.SummonMiddleBoss();
             CloseMidBossPopup();
         }
 

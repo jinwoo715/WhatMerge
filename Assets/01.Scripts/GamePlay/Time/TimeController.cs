@@ -10,7 +10,7 @@ public interface ITimeService
 
 public class TimeController : ITimeService
 {
-    private int[] _gameTimes = { 1, 2 };
+    private int[] _gameTimes = { 1, 2, 3 };
 
     private int _speedIndex;
     private int _gameSpeed;

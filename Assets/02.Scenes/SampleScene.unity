@@ -1985,6 +1985,7 @@ MonoBehaviour:
   _speedSprites:
   - {fileID: 21300000, guid: 2678df4d863d5b54797c3b231c97dd6c, type: 3}
   - {fileID: 21300000, guid: 5a344926d656436499c50428a245788c, type: 3}
+  - {fileID: 21300000, guid: 5a344926d656436499c50428a245788c, type: 3}
 --- !u!1 &479489228
 GameObject:
   m_ObjectHideFlags: 0
@@ -2864,12 +2865,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e31bf471a5125c44bd6ecaba038bdef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sets:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  sets: []
   _heroPrefab: {fileID: 5889065611879671908, guid: 37dc9494e2d06714398d7013306a74c0, type: 3}
   uid: 10
   evolution: 0
@@ -7343,7 +7339,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _currentStageData: {fileID: 11400000, guid: 125d2edf8de3a7d42ae6fdbb0f353be0, type: 2}
-  _startIndex: 0
+  _startIndex: 1
 --- !u!1 &1480058592
 GameObject:
   m_ObjectHideFlags: 0
@@ -7874,7 +7870,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1574645582
 RectTransform:
   m_ObjectHideFlags: 0

@@ -8,9 +8,9 @@ namespace WhatMerge.Enemies
         event Action<Enemy> OnSpawnEnemy;
         event Action<Enemy> OnDeathEnemy;
         event Action<Enemy> OnDespawnEnemy;
-        event Action OnEndWaveSpawn;
+        event Action<int> OnEndWaveSpawn;
 
-        void StartWaveEnemySpawn(EnemySpawnData data);
+        int StartWaveEnemySpawn(EnemySpawnData data);
         Enemy SpawnEnemy(int enemyUID);
         void DespawnEnemy(Enemy enemy);
         void CancelWaveSpawn();

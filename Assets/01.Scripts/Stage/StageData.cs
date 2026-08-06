@@ -83,7 +83,7 @@ namespace WhatMerge.Stage
             if (Waves == null || Waves.Count == 0)
                 throw new InvalidOperationException($"Stage {UID} has no wave data.");
 
-            bool[] coveredWaves = new bool[WaveCount + 1];
+            bool[] coveredWaves = new bool[WaveCount];
 
             for (int i = 0; i < Waves.Count; i++)
             {
@@ -98,7 +98,7 @@ namespace WhatMerge.Stage
                 coveredWaves[wave.WaveIndex] = true;
             }
 
-            for (int waveIndex = 1; waveIndex <= WaveCount; waveIndex++)
+            for (int waveIndex = 0; waveIndex < WaveCount; waveIndex++)
             {
                 if (!coveredWaves[waveIndex])
                     throw new InvalidOperationException($"Stage {UID} wave {waveIndex} has no data.");
@@ -115,7 +115,7 @@ namespace WhatMerge.Stage
 
         public void ValidateOrThrow(int stageUID, int waveCount)
         {
-            if (WaveIndex <= 0 || WaveIndex > waveCount)
+            if (WaveIndex < 0 || WaveIndex >= waveCount)
             {
                 throw new InvalidOperationException(
                     $"Stage {stageUID} has an invalid wave index: {WaveIndex}.");

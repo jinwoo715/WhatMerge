@@ -20,6 +20,13 @@ MonoBehaviour:
   MaxEnemyCount: 1000
   WaveCount: 60
   Waves:
+  - WaveIndex: 0
+    WaveType: 0
+    SpawnDatas:
+    - EnemyUID: 1
+      StartDelay: 0
+      SpawnCount: 3
+      SpawnInterval: 0.5
   - WaveIndex: 1
     WaveType: 0
     SpawnDatas:
@@ -77,18 +84,18 @@ MonoBehaviour:
       SpawnCount: 3
       SpawnInterval: 0.5
   - WaveIndex: 9
-    WaveType: 0
-    SpawnDatas:
-    - EnemyUID: 1
-      StartDelay: 0
-      SpawnCount: 3
-      SpawnInterval: 0.5
-  - WaveIndex: 10
     WaveType: 1
     SpawnDatas:
     - EnemyUID: 2
       StartDelay: 0
       SpawnCount: 1
+      SpawnInterval: 0.5
+  - WaveIndex: 10
+    WaveType: 0
+    SpawnDatas:
+    - EnemyUID: 3
+      StartDelay: 0
+      SpawnCount: 3
       SpawnInterval: 0.5
   - WaveIndex: 11
     WaveType: 0
@@ -147,18 +154,18 @@ MonoBehaviour:
       SpawnCount: 3
       SpawnInterval: 0.5
   - WaveIndex: 19
-    WaveType: 0
-    SpawnDatas:
-    - EnemyUID: 3
-      StartDelay: 0
-      SpawnCount: 3
-      SpawnInterval: 0.5
-  - WaveIndex: 20
     WaveType: 1
     SpawnDatas:
     - EnemyUID: 4
       StartDelay: 0
       SpawnCount: 1
+      SpawnInterval: 0.5
+  - WaveIndex: 20
+    WaveType: 0
+    SpawnDatas:
+    - EnemyUID: 5
+      StartDelay: 0
+      SpawnCount: 5
       SpawnInterval: 0.5
   - WaveIndex: 21
     WaveType: 0
@@ -217,18 +224,18 @@ MonoBehaviour:
       SpawnCount: 5
       SpawnInterval: 0.5
   - WaveIndex: 29
-    WaveType: 0
-    SpawnDatas:
-    - EnemyUID: 5
-      StartDelay: 0
-      SpawnCount: 5
-      SpawnInterval: 0.5
-  - WaveIndex: 30
     WaveType: 1
     SpawnDatas:
     - EnemyUID: 6
       StartDelay: 0
       SpawnCount: 1
+      SpawnInterval: 0.5
+  - WaveIndex: 30
+    WaveType: 0
+    SpawnDatas:
+    - EnemyUID: 7
+      StartDelay: 0
+      SpawnCount: 5
       SpawnInterval: 0.5
   - WaveIndex: 31
     WaveType: 0
@@ -287,18 +294,18 @@ MonoBehaviour:
       SpawnCount: 5
       SpawnInterval: 0.5
   - WaveIndex: 39
-    WaveType: 0
-    SpawnDatas:
-    - EnemyUID: 7
-      StartDelay: 0
-      SpawnCount: 5
-      SpawnInterval: 0.5
-  - WaveIndex: 40
     WaveType: 1
     SpawnDatas:
     - EnemyUID: 8
       StartDelay: 0
       SpawnCount: 1
+      SpawnInterval: 0.5
+  - WaveIndex: 40
+    WaveType: 0
+    SpawnDatas:
+    - EnemyUID: 9
+      StartDelay: 0
+      SpawnCount: 7
       SpawnInterval: 0.5
   - WaveIndex: 41
     WaveType: 0
@@ -357,18 +364,18 @@ MonoBehaviour:
       SpawnCount: 7
       SpawnInterval: 0.5
   - WaveIndex: 49
-    WaveType: 0
-    SpawnDatas:
-    - EnemyUID: 9
-      StartDelay: 0
-      SpawnCount: 7
-      SpawnInterval: 0.5
-  - WaveIndex: 50
     WaveType: 1
     SpawnDatas:
     - EnemyUID: 10
       StartDelay: 0
       SpawnCount: 1
+      SpawnInterval: 0.5
+  - WaveIndex: 50
+    WaveType: 0
+    SpawnDatas:
+    - EnemyUID: 11
+      StartDelay: 0
+      SpawnCount: 7
       SpawnInterval: 0.5
   - WaveIndex: 51
     WaveType: 0
@@ -427,13 +434,6 @@ MonoBehaviour:
       SpawnCount: 7
       SpawnInterval: 0.5
   - WaveIndex: 59
-    WaveType: 0
-    SpawnDatas:
-    - EnemyUID: 11
-      StartDelay: 0
-      SpawnCount: 7
-      SpawnInterval: 0.5
-  - WaveIndex: 60
     WaveType: 1
     SpawnDatas:
     - EnemyUID: 12

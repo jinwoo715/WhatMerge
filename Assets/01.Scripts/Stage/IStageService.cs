@@ -13,6 +13,6 @@ namespace WhatMerge.Stage
         event Action<MiddleBossEntryData, int> OnShowMiddleBossSpawnButton;
         event Action OnHideMiddleBossSpawnButton;
 
-        void SummonMiddBoss();
+        void SummonMiddleBoss();
     }
 }

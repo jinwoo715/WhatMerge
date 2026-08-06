@@ -148,8 +148,6 @@ namespace Core.BootStrapper
 
             var stageConfig = GameManager.Data.StageConfig;
             _economy.Init(economyConfig.StartMoney);
-            _stage.Init(_enemySpawner, _fieldEnemyService, _economy);
-            _enemyHealthBarManager.Init(_enemySpawner, _stage);
 
             _stageInfoPresenter.Init(
                 _stage,
@@ -158,6 +156,12 @@ namespace Core.BootStrapper
                 _midBossPopup,
                 data,
                 _enemySpriteRepository);
+            _enemyHealthBarManager.Init(_enemySpawner, _stage);
+            _stage.Init(
+                _enemySpawner,
+                _fieldEnemyService,
+                _economy,
+                stageConfig.StartCountdown);
 
             _damageViewer.Init();
 
@@ -215,9 +219,6 @@ namespace Core.BootStrapper
 
             _heroController.OnSelectHero += _heroClickInteractViewer.ShowInteractUI;
             _heroController.OnSelectHero += _heroRangeViewer.ShowHeroRange;
-
-            _stage.OnChangeCurrentWave += _stageInfoPresenter.UpdateWave;
-            _stage.OnChangeRemainTime += _stageInfoPresenter.UpdateWaveTime;
 
             _enemySpawner.OnSpawnEnemy += _fieldEnemyService.AddFieldEnemy;
             _enemySpawner.OnDeathEnemy += _fieldEnemyService.DeathEnemy;

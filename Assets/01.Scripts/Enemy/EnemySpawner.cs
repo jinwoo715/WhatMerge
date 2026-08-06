@@ -19,7 +19,7 @@ namespace WhatMerge.Enemies
     {
         [SerializeField] private Enemy _enemyPrefab;
 
-        public event Action OnEndWaveSpawn;
+        public event Action<int> OnEndWaveSpawn;
         public event Action<Enemy> OnSpawnEnemy;
         public event Action<Enemy> OnDeathEnemy;
         public event Action<Enemy> OnDespawnEnemy;
@@ -49,7 +49,7 @@ namespace WhatMerge.Enemies
             _initialized = true;
         }
 
-        public void StartWaveEnemySpawn(EnemySpawnData data)
+        public int StartWaveEnemySpawn(EnemySpawnData data)
         {
             EnsureInitialized();
             ValidateSpawnData(data);
@@ -57,6 +57,7 @@ namespace WhatMerge.Enemies
             int spawnId = ++_nextWaveSpawnId;
             Coroutine coroutine = StartCoroutine(SpawnWaveEnemy(data, spawnId));
             _activeWaveSpawns.Add(spawnId, coroutine);
+            return spawnId;
         }
 
         private IEnumerator SpawnWaveEnemy(EnemySpawnData data, int spawnId)
@@ -88,7 +89,7 @@ namespace WhatMerge.Enemies
             }
 
             if (completed)
-                OnEndWaveSpawn?.Invoke();
+                OnEndWaveSpawn?.Invoke(spawnId);
         }
 
         public Enemy SpawnEnemy(int enemyUID)

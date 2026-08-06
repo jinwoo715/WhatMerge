@@ -7,7 +7,7 @@ namespace WhatMerge.Enemies
     {
         int GetActiveEnemyCount { get; }
         IReadOnlyList<Enemy> GetAllFieldEnemy { get; }
-        bool IsAliveBoss { get; }
+        int AliveBossCount { get; }
 
         event Action<Enemy> OnEnemyDeath;
         event Action<Enemy> OnSpawnEnemy;

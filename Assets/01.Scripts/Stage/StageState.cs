@@ -3,9 +3,10 @@ namespace WhatMerge.Stage
     public enum StageState
     {
         None,
+        Countdown,
         Running,
         Failed,
-        Clear
+        Cleared
     }
     public enum WaveType
     {
