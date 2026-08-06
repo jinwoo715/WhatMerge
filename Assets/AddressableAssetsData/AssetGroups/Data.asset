@@ -47,6 +47,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - TextData
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4f1658ed29cf4aba88ba866d454d62e4
+    m_Address: EnemyRewardData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - TextData
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4534cc266bdbb624d8716591ca4ef2bf
     m_Address: BuffDataBundle
     m_ReadOnly: 0

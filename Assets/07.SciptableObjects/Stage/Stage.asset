@@ -13,13 +13,21 @@ MonoBehaviour:
   m_Name: Stage
   m_EditorClassIdentifier: 
   Name: 
-  WaveTime: 0
+  NomalWaveTime: 0
+  BossWaveTime: 0
   MaxAcceptableEnemyCount: 0
   WaveList:
-  - StartWave: 0
-    EndWave: 5
-    StartDelay: 0
-    SpawnCount: 10
-    SpawnInterval: 1
-    EnemyUID: 1
-  BossWave: []
+  - WaveIndex: 0
+    SpawnDatas: []
+  MiddleBossData:
+    CoolTime: 100
+    TimeLimit: 0
+    RewardAmount: 0
+    MidBossDatas:
+    - IconSprite: {fileID: 0}
+      MidBossUID: 0
+    - IconSprite: {fileID: 0}
+      MidBossUID: 0
+    - IconSprite: {fileID: 0}
+      MidBossUID: 0
+  BossWaves: []
