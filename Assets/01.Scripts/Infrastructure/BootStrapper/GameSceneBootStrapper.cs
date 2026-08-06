@@ -151,7 +151,13 @@ namespace Core.BootStrapper
             _stage.Init(_enemySpawner, _fieldEnemyService, _economy);
             _enemyHealthBarManager.Init(_enemySpawner, _stage);
 
-            _stageInfoPresenter.Init(_stage, _stage, _stageInfoViewer, _midBossPopup, data);
+            _stageInfoPresenter.Init(
+                _stage,
+                _stage,
+                _stageInfoViewer,
+                _midBossPopup,
+                data,
+                _enemySpriteRepository);
 
             _damageViewer.Init();
 

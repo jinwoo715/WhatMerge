@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using UnityEngine;
 using WhatMerge.Enemies;
+using WhatMerge.Infrastructure;
 
 namespace WhatMerge.Stage
 {
@@ -9,22 +12,25 @@ namespace WhatMerge.Stage
         private IStageView _view;
         private MidBossInfoPopup _popup;
         private IStageService _stageService;
-        private MidBossData _currentMidBossData;
+        private MiddleBossEntryData _currentMidBossData;
         private int _midBossRewardAmount;
         private IEnemyDataRepository _enemyDataRepository;
+        private ISpriteRepository _enemySpriteRepository;
 
         public void Init(
             IStageService stageService,
             IWaveInfoProvider waveInfoProvider,
             IStageView viewer,
             MidBossInfoPopup popup,
-            IEnemyDataRepository enemyDataRepository)
+            IEnemyDataRepository enemyDataRepository,
+            ISpriteRepository enemySpriteRepository)
         {
             _model = waveInfoProvider;
             _view = viewer;
             _popup = popup;
             _stageService = stageService;
             _enemyDataRepository = enemyDataRepository;
+            _enemySpriteRepository = enemySpriteRepository;
 
             _view.OnClickSpawnMidBoss += OpenMidBossPopup;
 
@@ -39,7 +45,7 @@ namespace WhatMerge.Stage
             _model.OnChangeAliveEnemy += UpdateActiveEnemyCount;
         }
 
-        private void ActiveOnMidBossButton(MidBossData midBossData, int rewardAmount)
+        private void ActiveOnMidBossButton(MiddleBossEntryData midBossData, int rewardAmount)
         {
             _currentMidBossData = midBossData;
             _midBossRewardAmount = rewardAmount;
@@ -58,11 +64,18 @@ namespace WhatMerge.Stage
 
         private void OpenMidBossPopup()
         {
-            var enemyData = _enemyDataRepository.GetData(_currentMidBossData.MidBossUID);
+            var enemyData = _enemyDataRepository.GetData(_currentMidBossData.EnemyUID);
+            if (enemyData == null)
+                throw new InvalidOperationException($"Middle boss enemy {_currentMidBossData.EnemyUID} does not exist.");
+
+            List<Sprite> sprites = _enemySpriteRepository.GetSprites(enemyData.SpriteKey);
+            if (sprites == null || sprites.Count == 0)
+                throw new InvalidOperationException($"Middle boss enemy {enemyData.UID} has no sprite.");
+
             string count = _midBossRewardAmount.ToString();
 
             _popup.SetData(
-                _currentMidBossData.IconSprite,
+                sprites[0],
                 enemyData.Name,
                 enemyData.Description,
                 count);

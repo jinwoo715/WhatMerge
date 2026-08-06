@@ -9,7 +9,7 @@ namespace WhatMerge.Stage
     }
     public enum WaveType
     {
-        Nomal,
+        Normal,
         Boss
     }
 }

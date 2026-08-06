@@ -38,7 +38,7 @@ namespace WhatMerge.Stage
         public event Action<int> OnChangeCurrentWave;
         public event Action<float> OnChangeRemainTime;
         public event Action<int, int> OnChangeAliveEnemy;
-        public event Action<MidBossData, int> OnShowMiddleBossSpawnButton;
+        public event Action<MiddleBossEntryData, int> OnShowMiddleBossSpawnButton;
         public event Action OnHideMiddleBossSpawnButton;
         public event Action<Enemy, float, float> OnMidBossTimeChanged;
         public event Action<Enemy> OnMidBossChallengeEnded;
@@ -52,7 +52,7 @@ namespace WhatMerge.Stage
         private bool _isBossWave = false;
         private int _remainSpawn = 0;
 
-        private MidBossData _currentMidBoss;
+        private MiddleBossEntryData _currentMidBoss;
         private int _midBossIndex = 0;
         private float _midBossCooldown;
         private float _midBossRemainTime;
@@ -68,17 +68,25 @@ namespace WhatMerge.Stage
             _fieldEnemyService = fieldEnemyService ?? throw new ArgumentNullException(nameof(fieldEnemyService));
             _gameCurrencyService = gameCurrencyService ?? throw new ArgumentNullException(nameof(gameCurrencyService));
 
+            if (_currentStageData == null)
+                throw new InvalidOperationException("Current stage data is missing.");
+
+            _currentStageData.ValidateOrThrow();
+
+            if (_startIndex < 0 || _startIndex >= _currentStageData.WaveCount)
+                throw new InvalidOperationException($"Start wave index {_startIndex} is outside the stage range.");
+
             _enemySpawnService.OnEndWaveSpawn += OnSpawnEndHandle;
             _fieldEnemyService.OnDeathMidBossEnemy += MidBossHandle;
 
             _fieldEnemyService.OnChangedActiveEnemyCount += HandleFieldEnemy;
 
             _currentWaveIndex = _startIndex;
-            _lastWaveIndex = _currentStageData.GetLastWave;
+            _lastWaveIndex = _currentStageData.WaveCount;
 
             _currentTime = 3;
 
-            _maxEnemyCount = _currentStageData.MaxAcceptableEnemyCount;
+            _maxEnemyCount = _currentStageData.MaxEnemyCount;
             _midBossState = HasRemainingMidBoss() ? MidBossState.Cooldown : MidBossState.Exhausted;
 
             OnChangeAliveEnemy?.Invoke(0, _maxEnemyCount);
@@ -135,20 +143,12 @@ namespace WhatMerge.Stage
 
         private void WaveSpawnRequest()
         {
-            if (_currentStageData.TryBossWave(_currentWaveIndex, out var data))
-            {
-                RequestBossWave(data);
-                _currentTime = _currentStageData.BossWaveTime;
-            }
-            else if (_currentStageData.TryNomalWave(_currentWaveIndex, out var waveData))
-            {
-                RequestNomalWave(waveData);
-                _currentTime = _currentStageData.NomalWaveTime;
-            }
-            else
-            {
+            if (!_currentStageData.TryGetWave(_currentWaveIndex, out WaveData waveData))
                 throw new InvalidOperationException($"Empty Wave Data {_currentWaveIndex}");
-            }
+
+            _isBossWave = waveData.WaveType == WaveType.Boss;
+            RequestWave(waveData);
+            _currentTime = _currentStageData.GetWaveDuration(waveData.WaveType);
         }
 
         private void OnSpawnEndHandle()
@@ -159,19 +159,13 @@ namespace WhatMerge.Stage
                 throw new InvalidOperationException("Invalid Spawn Count");
         }
 
-        private void RequestNomalWave(WaveData waveData)
+        private void RequestWave(WaveData waveData)
         {
             foreach (var wave in waveData.SpawnDatas)
             {
                 _enemySpawnService.StartWaveEnemySpawn(wave);
                 _remainSpawn++;
             }
-        }
-
-        private void RequestBossWave(BossWaveData bossWaveData)
-        {
-            _enemySpawnService.StartWaveEnemySpawn(new EnemySpawnData(bossWaveData.BossUID, 1, 0, 0));
-            _remainSpawn++;
         }
 
         private void ClearStage()
@@ -205,13 +199,13 @@ namespace WhatMerge.Stage
             if (_midBossState != MidBossState.Available || _currentMidBoss == null)
                 throw new InvalidOperationException("A middle boss is not available for summoning.");
 
-            MiddleBossData middleBossData = _currentStageData.MiddleBossData
+            MiddleBossChallengeData middleBossData = _currentStageData.MiddleBossChallenge
                 ?? throw new InvalidOperationException("Middle boss data is missing.");
 
             if (middleBossData.TimeLimit <= 0f)
                 throw new InvalidOperationException("The middle boss time limit must be greater than zero.");
 
-            Enemy enemy = _enemySpawnService.SpawnEnemy(_currentMidBoss.MidBossUID);
+            Enemy enemy = _enemySpawnService.SpawnEnemy(_currentMidBoss.EnemyUID);
 
             if (enemy.Type != EnemyType.MiddleBoss)
             {
@@ -233,7 +227,10 @@ namespace WhatMerge.Stage
             if (_midBossState != MidBossState.Active || !ReferenceEquals(enemy, _activeMidBoss))
                 return;
 
-            _gameCurrencyService.GainMoney(_currentStageData.MiddleBossData.RewardAmount);
+            int bonusBattleCurrency = _currentStageData.MiddleBossChallenge.BonusBattleCurrency;
+            if (bonusBattleCurrency > 0)
+                _gameCurrencyService.GainMoney(bonusBattleCurrency);
+
             FinishMidBossChallenge(enemy);
         }
 
@@ -253,7 +250,7 @@ namespace WhatMerge.Stage
         {
             _midBossCooldown += Time.deltaTime;
 
-            if (_midBossCooldown < _currentStageData.MiddleBossData.CoolTime)
+            if (_midBossCooldown < _currentStageData.MiddleBossChallenge.Cooldown)
                 return;
 
             if (!HasRemainingMidBoss())
@@ -262,12 +259,12 @@ namespace WhatMerge.Stage
                 return;
             }
 
-            _currentMidBoss = _currentStageData.MiddleBossData.MidBossDatas[_midBossIndex]
+            _currentMidBoss = _currentStageData.MiddleBossChallenge.Entries[_midBossIndex]
                 ?? throw new InvalidOperationException($"Middle boss data at index {_midBossIndex} is null.");
             _midBossState = MidBossState.Available;
             OnShowMiddleBossSpawnButton?.Invoke(
                 _currentMidBoss,
-                _currentStageData.MiddleBossData.RewardAmount);
+                _currentStageData.MiddleBossChallenge.BonusBattleCurrency);
         }
 
         private void UpdateMidBossChallenge()
@@ -276,7 +273,7 @@ namespace WhatMerge.Stage
             OnMidBossTimeChanged?.Invoke(
                 _activeMidBoss,
                 _midBossRemainTime,
-                _currentStageData.MiddleBossData.TimeLimit);
+                _currentStageData.MiddleBossChallenge.TimeLimit);
 
             if (_midBossRemainTime > 0f)
                 return;
@@ -302,9 +299,9 @@ namespace WhatMerge.Stage
 
         private bool HasRemainingMidBoss()
         {
-            return _currentStageData.MiddleBossData != null
-                && _currentStageData.MiddleBossData.MidBossDatas != null
-                && _midBossIndex < _currentStageData.MiddleBossData.MidBossDatas.Count;
+            return _currentStageData.MiddleBossChallenge != null
+                && _currentStageData.MiddleBossChallenge.Entries != null
+                && _midBossIndex < _currentStageData.MiddleBossChallenge.Entries.Count;
         }
 
         //중간 보스 소환 가능

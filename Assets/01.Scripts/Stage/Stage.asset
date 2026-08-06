@@ -12,20 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 664d920e10a2eaa42ae5545113a68bb1, type: 3}
   m_Name: Stage
   m_EditorClassIdentifier: 
+  UID: 0
   Name: 
-  NomalWaveTime: 0
-  MidBossTime: 0
-  BossWaveTime: 0
-  MaxAcceptableEnemyCount: 0
-  WaveList:
-  - WaveIndex: 0
-    SpawnDatas:
-    - EnemyUID: 0
-      StartDelay: 0
-      SpawnCount: 0
-      SpawnInterval: 0
-  MiddleBossDatas:
-    StartUnlock: 0
-    CoolTime: 0
-    MidBossDatas: []
-  BossWaves: []
+  Description:
+  NormalWaveDuration: 0
+  BossWaveDuration: 0
+  MaxEnemyCount: 0
+  WaveCount: 0
+  Waves: []
+  MiddleBossChallenge:
+    Cooldown: 0
+    TimeLimit: 0
+    BonusBattleCurrency: 0
+    Entries: []

@@ -1,4 +1,4 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,103 +7,145 @@ namespace WhatMerge.Stage
     [CreateAssetMenu(fileName = "Stage", menuName = "Stage/Stage", order = 0)]
     public class StageData : ScriptableObject
     {
+        public int UID;
         public string Name;
 
-        [Tooltip("웨이브 시간")]
-        public float NomalWaveTime;
-        public float BossWaveTime;
+        [TextArea]
+        public string Description;
 
-        [Tooltip("게임 종료 적 숫자")]
-        public int MaxAcceptableEnemyCount;
+        [Min(0f)]
+        public float NormalWaveDuration;
 
-        public List<WaveData> WaveList = new();
-        public MiddleBossData MiddleBossData = new();
-        public List<BossWaveData> BossWaves = new();
+        [Min(0f)]
+        public float BossWaveDuration;
 
-        public int GetLastWave
+        [Min(1)]
+        public int MaxEnemyCount;
+
+        [Min(1)]
+        public int WaveCount;
+
+        public List<WaveData> Waves = new();
+        public MiddleBossChallengeData MiddleBossChallenge = new();
+
+        public bool TryGetWave(int waveIndex, out WaveData waveData)
         {
-            get
+            for (int i = 0; i < Waves.Count; i++)
             {
-                return WaveList.Count > GetLastBossWave ? WaveList.Count : GetLastBossWave;
-            }
-        }
-        public int GetLastBossWave
-        {
-            get
-            {
-                int lastWave = 0;
-
-                for (int i = 0; i < BossWaves.Count; i++)
+                WaveData candidate = Waves[i];
+                if (candidate != null && candidate.WaveIndex == waveIndex)
                 {
-                    if (BossWaves[i].WaveIndex > lastWave)
-                        lastWave = BossWaves[i].WaveIndex;
-                }
-
-                return lastWave;
-            }
-        }
-        public WaveData GetWave(int index)
-        {
-            return WaveList[index - 1];
-        }
-        public bool TryBossWave(int index, out BossWaveData bossData)
-        {
-            foreach (var bossWave in BossWaves)
-            {
-                if (bossWave.WaveIndex == index)
-                {
-                    bossData = bossWave;
+                    waveData = candidate;
                     return true;
                 }
             }
 
-            bossData = default;
+            waveData = null;
             return false;
         }
-        public bool TryNomalWave(int index, out WaveData waveData)
+
+        public float GetWaveDuration(WaveType waveType)
         {
-            foreach (var wave in WaveList)
+            return waveType switch
             {
-                if (wave.WaveIndex == index)
-                {
-                    waveData = wave;
-                    return true;
-                }
+                WaveType.Normal => NormalWaveDuration,
+                WaveType.Boss => BossWaveDuration,
+                _ => throw new ArgumentOutOfRangeException(nameof(waveType), waveType, null)
+            };
+        }
+
+        public void ValidateOrThrow()
+        {
+            if (UID <= 0)
+                throw new InvalidOperationException("Stage UID must be greater than zero.");
+
+            if (string.IsNullOrWhiteSpace(Name))
+                throw new InvalidOperationException($"Stage {UID} has no display name.");
+
+            if (NormalWaveDuration <= 0f)
+                throw new InvalidOperationException($"Stage {UID} normal wave duration must be greater than zero.");
+
+            if (BossWaveDuration <= 0f)
+                throw new InvalidOperationException($"Stage {UID} boss wave duration must be greater than zero.");
+
+            if (MaxEnemyCount <= 0)
+                throw new InvalidOperationException($"Stage {UID} max enemy count must be greater than zero.");
+
+            if (WaveCount <= 0)
+                throw new InvalidOperationException($"Stage {UID} wave count must be greater than zero.");
+
+            ValidateWaves();
+            MiddleBossChallenge?.ValidateOrThrow(UID);
+        }
+
+        private void ValidateWaves()
+        {
+            if (Waves == null || Waves.Count == 0)
+                throw new InvalidOperationException($"Stage {UID} has no wave data.");
+
+            bool[] coveredWaves = new bool[WaveCount + 1];
+
+            for (int i = 0; i < Waves.Count; i++)
+            {
+                WaveData wave = Waves[i]
+                    ?? throw new InvalidOperationException($"Stage {UID} wave data at index {i} is null.");
+
+                wave.ValidateOrThrow(UID, WaveCount);
+
+                if (coveredWaves[wave.WaveIndex])
+                    throw new InvalidOperationException($"Stage {UID} wave {wave.WaveIndex} is configured more than once.");
+
+                coveredWaves[wave.WaveIndex] = true;
             }
 
-            waveData = default;
-            return false;
-        }
-        public bool TryMidBoss(int index, out MidBossData midBossData)
-        {
-            //foreach (var data in MiddleBossDatas)
-            //{
-            //    if (data.UnlockWave == index)
-            //    {
-            //        midBossData = data;
-            //        return true;
-            //    }
-            //}
-
-            midBossData = default;
-            return false;
+            for (int waveIndex = 1; waveIndex <= WaveCount; waveIndex++)
+            {
+                if (!coveredWaves[waveIndex])
+                    throw new InvalidOperationException($"Stage {UID} wave {waveIndex} has no data.");
+            }
         }
     }
 
-    [System.Serializable]
+    [Serializable]
     public class WaveData
     {
         public int WaveIndex;
-        public List<EnemySpawnData> SpawnDatas;
+        public WaveType WaveType;
+        public List<EnemySpawnData> SpawnDatas = new();
+
+        public void ValidateOrThrow(int stageUID, int waveCount)
+        {
+            if (WaveIndex <= 0 || WaveIndex > waveCount)
+            {
+                throw new InvalidOperationException(
+                    $"Stage {stageUID} has an invalid wave index: {WaveIndex}.");
+            }
+
+            if (SpawnDatas == null || SpawnDatas.Count == 0)
+                throw new InvalidOperationException($"Stage {stageUID} wave {WaveIndex} has no spawn data.");
+
+            for (int i = 0; i < SpawnDatas.Count; i++)
+            {
+                EnemySpawnData spawnData = SpawnDatas[i]
+                    ?? throw new InvalidOperationException(
+                        $"Stage {stageUID} wave {WaveIndex} spawn data at index {i} is null.");
+
+                spawnData.ValidateOrThrow(stageUID, WaveIndex);
+            }
+        }
     }
 
-    [System.Serializable]
+    [Serializable]
     public class EnemySpawnData
     {
         public int EnemyUID;
         public float StartDelay;
         public int SpawnCount;
         public float SpawnInterval;
+
+        public EnemySpawnData()
+        {
+        }
 
         public EnemySpawnData(int uid, int count, float delay, float interval)
         {
@@ -112,36 +154,76 @@ namespace WhatMerge.Stage
             SpawnCount = count;
             SpawnInterval = interval;
         }
+
+        public void ValidateOrThrow(int stageUID, int waveIndex)
+        {
+            if (EnemyUID <= 0)
+                throw new InvalidOperationException($"Stage {stageUID} wave {waveIndex} has an invalid enemy UID.");
+
+            if (StartDelay < 0f)
+                throw new InvalidOperationException($"Stage {stageUID} wave {waveIndex} has a negative start delay.");
+
+            if (SpawnCount <= 0)
+                throw new InvalidOperationException($"Stage {stageUID} wave {waveIndex} spawn count must be greater than zero.");
+
+            if (SpawnInterval < 0f)
+                throw new InvalidOperationException($"Stage {stageUID} wave {waveIndex} has a negative spawn interval.");
+        }
     }
 
-    public enum EEnemyType
+    [Serializable]
+    public class MiddleBossChallengeData
     {
-        Nomal,
-        MiddleBoss,
-        Boss
-    }
+        [Min(0f)]
+        public float Cooldown;
 
-    [System.Serializable]
-    public class MiddleBossData
-    {
-        public float CoolTime;
+        [Min(0f)]
         public float TimeLimit;
-        public int RewardAmount;
 
-        public List<MidBossData> MidBossDatas;
+        [Min(0)]
+        public int BonusBattleCurrency;
+
+        public List<MiddleBossEntryData> Entries = new();
+
+        public bool IsEnabled => Entries != null && Entries.Count > 0;
+
+        public void ValidateOrThrow(int stageUID)
+        {
+            if (!IsEnabled)
+                return;
+
+            if (Cooldown <= 0f)
+                throw new InvalidOperationException($"Stage {stageUID} middle boss cooldown must be greater than zero.");
+
+            if (TimeLimit <= 0f)
+                throw new InvalidOperationException($"Stage {stageUID} middle boss time limit must be greater than zero.");
+
+            if (BonusBattleCurrency < 0)
+                throw new InvalidOperationException($"Stage {stageUID} middle boss bonus currency cannot be negative.");
+
+            for (int i = 0; i < Entries.Count; i++)
+            {
+                MiddleBossEntryData entry = Entries[i]
+                    ?? throw new InvalidOperationException($"Stage {stageUID} middle boss entry at index {i} is null.");
+
+                if (entry.EnemyUID <= 0)
+                    throw new InvalidOperationException($"Stage {stageUID} middle boss entry at index {i} has an invalid enemy UID.");
+            }
+        }
     }
 
-    [System.Serializable]
-    public class MidBossData 
+    [Serializable]
+    public class MiddleBossEntryData
     {
-        public Sprite IconSprite;
-        public int MidBossUID;
-    }
+        public int EnemyUID;
 
-    [System.Serializable]
-    public class BossWaveData
-    {
-        public int WaveIndex;
-        public int BossUID;
+        public MiddleBossEntryData()
+        {
+        }
+
+        public MiddleBossEntryData(int enemyUID)
+        {
+            EnemyUID = enemyUID;
+        }
     }
 }

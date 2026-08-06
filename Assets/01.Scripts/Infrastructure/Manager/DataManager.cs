@@ -26,12 +26,6 @@ public interface IItemRepository
 public class DataManager : MonoBehaviour, IEnemyDataRepository, IEnemyRewardRepository, IDataProvider, IHeroInfoRepository, IItemRepository
 {
     [Header("TextData")]
-    public TextAsset _StageDataText;
-    public TextAsset _waveDataText;
-    public TextAsset _projectileDataText;
-    public TextAsset _summonDataText;
-    public TextAsset _buffDataBundleText;
-    public TextAsset _buffDataText;
     public TextAsset _mergeDataText;
 
     [Header("Config")]
