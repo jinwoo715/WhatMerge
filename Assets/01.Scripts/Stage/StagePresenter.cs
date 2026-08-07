@@ -50,6 +50,7 @@ namespace WhatMerge.Stage
             _currentMidBossData = midBossData;
             _midBossRewardAmount = rewardAmount;
             _view.ShowMiddBossButton();
+            Debug.Log("ActiveOnMidBossButton");
         }
         private void DeactiveMidBossButton()
         {

@@ -1,4 +1,3 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,9 +7,6 @@ namespace WhatMerge.Enemies
     {
         private RectTransform _rectTransform;
         private Image _healthFill;
-        private GameObject _timerRoot;
-        private Image _timerBackground;
-        private TMP_Text _timerText;
         private Enemy _enemy;
         private int _lifeCycleVersion;
 
@@ -40,7 +36,6 @@ namespace WhatMerge.Enemies
 
             _healthFill.color = GetFillColor(enemy.Type);
             SetHealth(enemy.CurrentHP, enemy.MaxHP);
-            HideTimer();
             gameObject.SetActive(true);
         }
 
@@ -51,7 +46,6 @@ namespace WhatMerge.Enemies
 
             _enemy = null;
             _lifeCycleVersion = 0;
-            HideTimer();
             gameObject.SetActive(false);
         }
 
@@ -70,23 +64,6 @@ namespace WhatMerge.Enemies
         {
             if (gameObject.activeSelf != visible)
                 gameObject.SetActive(visible);
-        }
-
-        public void SetTimer(float remainTime, float totalTime)
-        {
-            _timerRoot.SetActive(true);
-            _timerText.text = Mathf.CeilToInt(Mathf.Max(0f, remainTime)).ToString();
-
-            float ratio = totalTime > 0f ? remainTime / totalTime : 0f;
-            _timerBackground.color = ratio <= 0.2f
-                ? new Color(0.68f, 0.12f, 0.12f, 0.95f)
-                : new Color(0.08f, 0.08f, 0.08f, 0.9f);
-        }
-
-        public void HideTimer()
-        {
-            if (_timerRoot != null)
-                _timerRoot.SetActive(false);
         }
 
         private void SetHealth(int currentHealth, int maxHealth)
@@ -119,34 +96,6 @@ namespace WhatMerge.Enemies
             _healthFill.type = Image.Type.Filled;
             _healthFill.fillMethod = Image.FillMethod.Horizontal;
             _healthFill.fillOrigin = (int)Image.OriginHorizontal.Left;
-
-            _timerBackground = CreateImage(
-                "MidBossTimer",
-                transform,
-                new Color(0.08f, 0.08f, 0.08f, 0.9f));
-            _timerRoot = _timerBackground.gameObject;
-            SetRect(_timerBackground.rectTransform, new Vector2(24f, 12f), new Vector2(0f, -6f));
-
-            GameObject textObject = new GameObject(
-                "TimeText",
-                typeof(RectTransform),
-                typeof(CanvasRenderer),
-                typeof(TextMeshProUGUI));
-            textObject.layer = gameObject.layer;
-            textObject.transform.SetParent(_timerRoot.transform, false);
-
-            _timerText = textObject.GetComponent<TextMeshProUGUI>();
-            _timerText.raycastTarget = false;
-            _timerText.alignment = TextAlignmentOptions.Center;
-            _timerText.fontSize = 9f;
-            _timerText.color = Color.white;
-            _timerText.font = TMP_Settings.defaultFontAsset;
-
-            RectTransform textRect = _timerText.rectTransform;
-            textRect.anchorMin = Vector2.zero;
-            textRect.anchorMax = Vector2.one;
-            textRect.offsetMin = Vector2.zero;
-            textRect.offsetMax = Vector2.zero;
         }
 
         private static Image CreateImage(string name, Transform parent, Color color)

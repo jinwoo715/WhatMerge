@@ -1,6 +1,5 @@
 [
   {
-    "UID": 1,
     "Name": "슬라임",
     "Description": "",
     "SpriteKey": "Slime",
@@ -10,10 +9,10 @@
     "MoveSpeed": 1.0,
     "Attribute": 0,
     "SkillSetUID": 0,
-    "RewardGroupUID": 1
+    "RewardGroupUID": 1,
+    "UID": 1
   },
   {
-    "UID": 2,
     "Name": "슬라임 킹",
     "Description": "",
     "SpriteKey": "SlimeKing",
@@ -23,10 +22,10 @@
     "MoveSpeed": 1.0,
     "Attribute": 0,
     "SkillSetUID": 0,
-    "RewardGroupUID": 2
+    "RewardGroupUID": 2,
+    "UID": 2
   },
   {
-    "UID": 3,
     "Name": "버섯",
     "Description": "",
     "SpriteKey": "Mushroom",
@@ -36,10 +35,10 @@
     "MoveSpeed": 1.0,
     "Attribute": 0,
     "SkillSetUID": 0,
-    "RewardGroupUID": 3
+    "RewardGroupUID": 3,
+    "UID": 3
   },
   {
-    "UID": 4,
     "Name": "위그드라실",
     "Description": "",
     "SpriteKey": "Yggdrasil",
@@ -49,10 +48,10 @@
     "MoveSpeed": 1.0,
     "Attribute": 0,
     "SkillSetUID": 0,
-    "RewardGroupUID": 4
+    "RewardGroupUID": 4,
+    "UID": 4
   },
   {
-    "UID": 5,
     "Name": "리자드맨",
     "Description": "",
     "SpriteKey": "Lizardman",
@@ -62,10 +61,10 @@
     "MoveSpeed": 1.0,
     "Attribute": 0,
     "SkillSetUID": 0,
-    "RewardGroupUID": 5
+    "RewardGroupUID": 5,
+    "UID": 5
   },
   {
-    "UID": 6,
     "Name": "미노타우로스",
     "Description": "",
     "SpriteKey": "Minotaur",
@@ -75,10 +74,10 @@
     "MoveSpeed": 1.0,
     "Attribute": 0,
     "SkillSetUID": 0,
-    "RewardGroupUID": 6
+    "RewardGroupUID": 6,
+    "UID": 6
   },
   {
-    "UID": 7,
     "Name": "웨어울프",
     "Description": "",
     "SpriteKey": "Werewolf",
@@ -88,10 +87,10 @@
     "MoveSpeed": 1.0,
     "Attribute": 0,
     "SkillSetUID": 0,
-    "RewardGroupUID": 7
+    "RewardGroupUID": 7,
+    "UID": 7
   },
   {
-    "UID": 8,
     "Name": "라이칸스로프",
     "Description": "",
     "SpriteKey": "Lycanthrope",
@@ -101,10 +100,10 @@
     "MoveSpeed": 1.0,
     "Attribute": 0,
     "SkillSetUID": 0,
-    "RewardGroupUID": 8
+    "RewardGroupUID": 8,
+    "UID": 8
   },
   {
-    "UID": 9,
     "Name": "골렘",
     "Description": "",
     "SpriteKey": "Golem",
@@ -114,10 +113,10 @@
     "MoveSpeed": 1.0,
     "Attribute": 0,
     "SkillSetUID": 0,
-    "RewardGroupUID": 9
+    "RewardGroupUID": 9,
+    "UID": 9
   },
   {
-    "UID": 10,
     "Name": "타이탄",
     "Description": "",
     "SpriteKey": "Titan",
@@ -127,10 +126,10 @@
     "MoveSpeed": 1.0,
     "Attribute": 0,
     "SkillSetUID": 0,
-    "RewardGroupUID": 10
+    "RewardGroupUID": 10,
+    "UID": 10
   },
   {
-    "UID": 11,
     "Name": "엘리멘탈",
     "Description": "",
     "SpriteKey": "Elemental",
@@ -140,10 +139,10 @@
     "MoveSpeed": 1.0,
     "Attribute": 0,
     "SkillSetUID": 0,
-    "RewardGroupUID": 11
+    "RewardGroupUID": 11,
+    "UID": 11
   },
   {
-    "UID": 12,
     "Name": "가디언",
     "Description": "",
     "SpriteKey": "Guardian",
@@ -153,6 +152,20 @@
     "MoveSpeed": 1.0,
     "Attribute": 0,
     "SkillSetUID": 0,
-    "RewardGroupUID": 12
+    "RewardGroupUID": 12,
+    "UID": 12
+  },
+  {
+    "Name": "가디언",
+    "Description": "",
+    "SpriteKey": "Guardian",
+    "EnemyType": 1,
+    "MaxHP": 10.0,
+    "Armor": 0.0,
+    "MoveSpeed": 1.0,
+    "Attribute": 0,
+    "SkillSetUID": 0,
+    "RewardGroupUID": 12,
+    "UID": 13
   }
 ]

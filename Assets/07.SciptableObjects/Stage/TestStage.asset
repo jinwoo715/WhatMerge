@@ -441,7 +441,8 @@ MonoBehaviour:
       SpawnCount: 1
       SpawnInterval: 0.5
   MiddleBossChallenge:
-    Cooldown: 0
-    TimeLimit: 0
+    Cooldown: 30
+    TimeLimit: 60
     BonusBattleCurrency: 0
-    Entries: []
+    Entries:
+    - EnemyUID: 13

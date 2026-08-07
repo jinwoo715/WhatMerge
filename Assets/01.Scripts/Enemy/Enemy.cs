@@ -12,6 +12,7 @@ namespace WhatMerge.Enemies
         private MoveController _move;
         [SerializeField] private EnemySpriteController _spriteController;
         [SerializeField] private Transform _healthBarAnchor;
+        [SerializeField, Min(0f)] private float _healthBarPadding = 0;
 
         private readonly CombatantElement _element = new CombatantElement();
         private readonly StatusContainer _status = new StatusContainer();
@@ -52,6 +53,8 @@ namespace WhatMerge.Enemies
                 throw new ArgumentNullException(nameof(pathProvider));
             if (_spriteController == null)
                 throw new InvalidOperationException($"{nameof(EnemySpriteController)} is not assigned.");
+            if (float.IsNaN(_healthBarPadding) || float.IsInfinity(_healthBarPadding) || _healthBarPadding < 0f)
+                throw new InvalidOperationException("Health bar padding must be finite and non-negative.");
             if (_move != null)
                 throw new InvalidOperationException($"{nameof(Enemy)} is already initialized.");
 
@@ -85,12 +88,22 @@ namespace WhatMerge.Enemies
             _move.Init(_stats.GetStat(EnemyStatType.MoveSpeed));
             
             _spriteController.Init(sprites, 0.25f);
+            UpdateHealthBarAnchor();
 
             LifeCycleVersion++;
             IsActive = true;
             _move.ActiveOn();
             OnHealthChanged?.Invoke(CurrentHP, MaxHP);
         }
+
+        private void UpdateHealthBarAnchor()
+        {
+            if (_healthBarAnchor == null)
+                return;
+
+            _healthBarAnchor.position = _spriteController.GetAnimationTopPosition(_healthBarPadding);
+        }
+
         public void TakeDamage(AttackResultPayload resultPayload)
         {
             if (!IsActive)

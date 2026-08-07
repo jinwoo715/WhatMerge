@@ -16,6 +16,7 @@ namespace WhatMerge.Enemies
 
         private RectTransform _root;
         private Canvas _canvas;
+        private MiddleBossTimerView _middleBossTimerView;
         private IEnemySpawnService _enemySpawnService;
         private IMidBossChallengeInfo _midBossChallengeInfo;
         private bool _initialized;
@@ -40,6 +41,8 @@ namespace WhatMerge.Enemies
 
             if (_worldCamera == null)
                 throw new InvalidOperationException("A world camera is required for enemy health bars.");
+
+            _middleBossTimerView = MiddleBossTimerView.Create(_root);
 
             for (int i = 0; i < _prewarmCount; i++)
                 _viewPool.Push(CreateView());
@@ -119,22 +122,32 @@ namespace WhatMerge.Enemies
 
         private void HandleMidBossTimeChanged(Enemy enemy, float remainTime, float totalTime)
         {
+            if (enemy == null)
+                throw new ArgumentNullException(nameof(enemy));
             if (!_activeViews.TryGetValue(enemy, out EnemyHealthBarView view))
                 throw new InvalidOperationException("The active middle boss has no health bar.");
 
-            view.SetTimer(remainTime, totalTime);
+            if (!_middleBossTimerView.IsBound)
+                _middleBossTimerView.Bind(enemy, view.transform);
+            else if (!_middleBossTimerView.Matches(enemy))
+                throw new InvalidOperationException("The middle boss timer is bound to another enemy.");
+
+            _middleBossTimerView.SetTime(remainTime, totalTime);
         }
 
         private void HandleMidBossChallengeEnded(Enemy enemy)
         {
-            if (_activeViews.TryGetValue(enemy, out EnemyHealthBarView view))
-                view.HideTimer();
+            if (_middleBossTimerView.Matches(enemy))
+                _middleBossTimerView.Unbind();
         }
 
         private void Release(Enemy enemy)
         {
             if (!_activeViews.TryGetValue(enemy, out EnemyHealthBarView view))
                 return;
+
+            if (_middleBossTimerView.Matches(enemy))
+                _middleBossTimerView.Unbind();
 
             _activeViews.Remove(enemy);
             view.Unbind();
