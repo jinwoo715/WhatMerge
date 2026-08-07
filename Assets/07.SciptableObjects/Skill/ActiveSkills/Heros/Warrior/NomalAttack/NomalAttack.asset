@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2e081a4569ff6834785aa3208bde2218, type: 3}
-  m_Name: Active Skill
+  m_Name: NomalAttack
   m_EditorClassIdentifier: 
   UID: 0
-  Name: 
-  Description: 
+  Name: "\uAE30\uBCF8 \uACF5\uACA9"
+  Description: "\uAE30\uBCF8 \uACF5\uACA9"
   AnimationData:
-    MotionName: 
+    MotionName: Attack
     ReadyMotionTime: 0.2
     ExecutionMotionTime: 0.2
-  Execution: {fileID: 0}
-  Finder: {fileID: 0}
-  Trigger: {fileID: 0}
+  Execution: {fileID: 11400000, guid: 94282f428aa2b5246bd81338b334503a, type: 2}
+  Finder: {fileID: 11400000, guid: 6ab1e3ebb356d514389a881af8d3da6d, type: 2}
+  Trigger: {fileID: 11400000, guid: af68cc2d4b4e4a94991a246ba3de0f65, type: 2}

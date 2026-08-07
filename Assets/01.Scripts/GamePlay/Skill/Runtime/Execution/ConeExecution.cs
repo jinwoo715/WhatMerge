@@ -20,18 +20,20 @@ namespace Skill
 
         public override IEnumerator Execute(IReadOnlyList<ICombatant> targets)
         {
-            ICombatant pivotTarget = NearestTarget(targets);
+            ICombatant pivotTarget = SelectPrimaryTarget(targets);
+
             Vector3 direction = pivotTarget != null ? (pivotTarget.Position - _owner.Position).normalized : _owner.transform.right;
+
             List<ICombatant> coneTargetList = SearchUtility.GetConeTargets<ICombatant>(targets, _owner.Position, direction, _angle);
+
+            yield return SetReadyMotion();
 
             foreach (var combatant in coneTargetList)
             {
-                yield return SetReadyMotion();
-
                 ApplyEffectsToTarget(combatant);
-
-                yield return SetExecutionMotion();
             }
+
+            yield return SetExecutionMotion();
 
             SetIdleMotion();
         }

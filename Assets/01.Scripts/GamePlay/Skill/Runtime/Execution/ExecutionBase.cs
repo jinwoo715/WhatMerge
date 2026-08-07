@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using WhatMerge.Combat;
+using WhatMerge.Enemies;
 using WhatMerge.Heros;
 
 namespace Skill
@@ -24,6 +25,8 @@ namespace Skill
         private readonly int SkillUid;
         private readonly int OwnerSpawnIndex;
         private readonly IRuntimeEffectLifetime _effectLifetime;
+        private Enemy _previousEnemy;
+        private int _previousEnemyLifeCycleVersion;
 
         protected ExecutionBase(SkillExecutionContext executionContext, SkillRuntimeContext runtimeContext)
         {
@@ -81,14 +84,24 @@ namespace Skill
         }
         protected ICombatant NearestTarget(IReadOnlyList<ICombatant> targets)
         {
+            if (targets == null)
+            {
+                return null;
+            }
+
             float distance = Mathf.Infinity;
             ICombatant nearCombatant = null;
 
             foreach (var combatant in targets)
             {
+                if (combatant == null || !combatant.IsActive)
+                {
+                    continue;
+                }
+
                 float dis = Vector3.SqrMagnitude(combatant.Position - _owner.Position);
 
-                if(dis < distance)
+                if (dis < distance)
                 {
                     distance = dis;
                     nearCombatant = combatant;
@@ -96,6 +109,52 @@ namespace Skill
             }
 
             return nearCombatant;
+        }
+
+        protected ICombatant SelectPrimaryTarget(IReadOnlyList<ICombatant> targets)
+        {
+            if (IsPreviousEnemyAvailable(targets))
+            {
+                return _previousEnemy;
+            }
+
+            ICombatant target = NearestTarget(targets);
+            RememberPrimaryTarget(target);
+            return target;
+        }
+
+        private bool IsPreviousEnemyAvailable(IReadOnlyList<ICombatant> targets)
+        {
+            if (_previousEnemy == null
+                || !_previousEnemy.IsActive
+                || _previousEnemy.LifeCycleVersion != _previousEnemyLifeCycleVersion
+                || targets == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < targets.Count; i++)
+            {
+                if (ReferenceEquals(targets[i], _previousEnemy))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void RememberPrimaryTarget(ICombatant target)
+        {
+            if (target is Enemy enemy)
+            {
+                _previousEnemy = enemy;
+                _previousEnemyLifeCycleVersion = enemy.LifeCycleVersion;
+                return;
+            }
+
+            _previousEnemy = null;
+            _previousEnemyLifeCycleVersion = 0;
         }
     }
 }

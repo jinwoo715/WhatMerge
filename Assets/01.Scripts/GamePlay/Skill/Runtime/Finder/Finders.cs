@@ -1,4 +1,5 @@
 using Skill.Data;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using WhatMerge.Combat;
@@ -10,215 +11,106 @@ namespace Skill
     public interface IFinder
     {
         float Range { get; }
-        bool HasTargetInRange(Vector3 pivot);
-        IReadOnlyList<ICombatant> GetTargets(Vector3 pivot);
+        bool TryGetTargets(Vector3 pivot, out IReadOnlyList<ICombatant> targets);
     }
+
     public class SelfTargetFinder : IFinder
     {
-        private ICombatant _owner;
+        private readonly ICombatant _owner;
+        private readonly IReadOnlyList<ICombatant> _ownerTarget;
+
         public float Range => 0;
 
         public SelfTargetFinder(ICombatant owner)
         {
             _owner = owner;
+            _ownerTarget = new[] { owner };
         }
 
-
-        public IReadOnlyList<ICombatant> GetTargets(Vector3 pivot)
+        public bool TryGetTargets(Vector3 pivot, out IReadOnlyList<ICombatant> targets)
         {
-            return new List<ICombatant> { _owner };
-        }
-
-        public bool HasTargetInRange(Vector3 pivot)
-        {
-            if (_owner.IsActive)
-                return true;
-
-            return false;
-        }
-    }
-    public class NearHeroFinder : IFinder
-    {
-        private int _range;
-        private Hero _owner;
-        private IFieldHeroService _fieldHero;
-        public float Range => _range;
-
-        public NearHeroFinder(IFieldHeroService fieldHero, Hero owner, int range)
-        {
-            _fieldHero = fieldHero;
-            _owner = owner;
-            _range = range;
-        }
-
-        public IReadOnlyList<ICombatant> GetTargets(Vector3 pivot)
-        {
-            var heros = _fieldHero.GetNearHeros(_owner.OccupiedTile, (HeroSearchType)_range);
-
-            List<ICombatant> results = new List<ICombatant>();
-
-            foreach (var hero in heros)
+            if (!_owner.IsActive)
             {
-                results.Add(hero);
+                targets = Array.Empty<ICombatant>();
+                return false;
             }
 
-            return results;
-        }
-
-        public bool HasTargetInRange(Vector3 pivot)
-        {
-            return _fieldHero.GetNearHeros(_owner.OccupiedTile, (HeroSearchType)_range).Count > 0;
-        }
-    }
-    public class AllHeroFinder : IFinder
-    {
-        public float Range => 0;
-        private IFieldHeroService _fieldHeroService;
-        public AllHeroFinder(IFieldHeroService fieldHeroService)
-        {
-            _fieldHeroService = fieldHeroService;
-        }
-        public IReadOnlyList<ICombatant> GetTargets(Vector3 pivot)
-        {
-            return _fieldHeroService.GetAllFieldHero;
-        }
-
-        public bool HasTargetInRange(Vector3 pivot)
-        {
+            targets = _ownerTarget;
             return true;
         }
     }
 
-    public abstract class NearEnemyFinder : IFinder
+    public class NearHeroFinder : IFinder
     {
-        public Transform _owner;
-        public float _radius;
-        protected Enemy _latestEnemy;
+        private readonly int _range;
+        private readonly Hero _owner;
+        private readonly IFieldHeroService _fieldHeroService;
+
+        public float Range => _range;
+
+        public NearHeroFinder(IFieldHeroService fieldHeroService, Hero owner, int range)
+        {
+            _fieldHeroService = fieldHeroService;
+            _owner = owner;
+            _range = range;
+        }
+
+        public bool TryGetTargets(Vector3 pivot, out IReadOnlyList<ICombatant> targets)
+        {
+            if (_owner.OccupiedTile == null)
+            {
+                targets = Array.Empty<ICombatant>();
+                return false;
+            }
+
+            IReadOnlyList<Hero> heroes = _fieldHeroService.GetNearHeros(
+                _owner.OccupiedTile,
+                (HeroSearchType)_range);
+
+            return FinderResult.TryCopyActiveTargets(heroes, out targets);
+        }
+    }
+
+    public class AllHeroFinder : IFinder
+    {
+        private readonly IFieldHeroService _fieldHeroService;
+
+        public float Range => 0;
+
+        public AllHeroFinder(IFieldHeroService fieldHeroService)
+        {
+            _fieldHeroService = fieldHeroService;
+        }
+
+        public bool TryGetTargets(Vector3 pivot, out IReadOnlyList<ICombatant> targets)
+        {
+            return FinderResult.TryCopyActiveTargets(
+                _fieldHeroService.GetAllFieldHero,
+                out targets);
+        }
+    }
+
+    public class NearEnemyFinder : IFinder
+    {
+        private readonly float _radius;
+
         public float Range => _radius;
 
-        public abstract IReadOnlyList<ICombatant> GetTargets(Vector3 pivot);
-        public bool HasTargetInRange(Vector3 pivot)
+        public NearEnemyFinder(float radius)
         {
-            if(_latestEnemy == null)
-            {
-                return SearchUtility.IsExistEnemyInRange(_owner.position, _radius);
-            }
-            else
-            {
-                if (IsTargetInRadius())
-                {
-                    return true;
-                }
-                else
-                {
-                    return SearchUtility.IsExistEnemyInRange(_owner.position, _radius);
-                }
-            }
-        }
-        public bool IsTargetInRadius()
-        {
-            if (_latestEnemy == null || !_latestEnemy.IsActive)
-                TrySetLatestByNearestEnemy();
-
-            if (_latestEnemy == null)
-                return false;
-
-            return Vector2.Distance(_owner.position, _latestEnemy.Position) <= _radius;
-        }
-        public bool TrySetLatestByNearestEnemy()
-        {
-            _latestEnemy = SearchUtility.GetNearestEnemy(_owner.position, _radius);
-
-            return _latestEnemy != null;
-        }
-    }
-
-    public class SingleEnemyFinder : NearEnemyFinder
-    {
-        public SingleEnemyFinder(Transform owner, float radius)
-        {
-            _owner = owner;
             _radius = radius;
         }
-        public override IReadOnlyList<ICombatant> GetTargets(Vector3 pivot)
+
+        public bool TryGetTargets(Vector3 pivot, out IReadOnlyList<ICombatant> targets)
         {
-            List<ICombatant> results = new List<ICombatant>();
-
-            if (_latestEnemy != null)
-            {
-                if(TrySetLatestByNearestEnemy())
-                    results.Add(_latestEnemy);
-            }
-            else
-            {
-                if (IsTargetInRadius())
-                {
-                    results.Add(_latestEnemy);
-                }
-                else
-                {
-                    if (TrySetLatestByNearestEnemy())
-                        results.Add(_latestEnemy);
-                }
-            }
-            return results;
-        }
-    }
-
-    public class ConeEnemyFinder : NearEnemyFinder
-    {
-        public float _angle;
-        public ConeEnemyFinder(Transform owner, float radius, float angle)
-        {
-            _owner = owner;
-            _radius = radius;
-            _angle = angle;
-        }
-
-        public override IReadOnlyList<ICombatant> GetTargets(Vector3 pivot)
-        {
-            List<ICombatant> results = new List<ICombatant>();
-
-            Enemy pivotEnemy = null;
-
-            if (_latestEnemy != null)
-            {
-                if(TrySetLatestByNearestEnemy())
-                    pivotEnemy = _latestEnemy;
-            }
-            else
-            {
-                if (IsTargetInRadius())
-                {
-                    pivotEnemy = _latestEnemy;
-                }
-                else
-                {
-                    if (TrySetLatestByNearestEnemy())
-                        pivotEnemy = _latestEnemy;
-                }
-            }
-
-            if(pivotEnemy == null)
-            {
-                return results;
-            }
-
-            Vector3 dir = (pivotEnemy.Position - pivot).normalized;
-            var enemies = SearchUtility.GetConeEnemies(pivot, dir, _radius, _angle);
-
-            foreach (var enemy in enemies)
-            {
-                results.Add(enemy);
-            }
-
-            return results;
+            IReadOnlyList<Enemy> enemies = SearchUtility.GetNearEnemies(pivot, _radius);
+            return FinderResult.TryCopyActiveTargets(enemies, out targets);
         }
     }
 
     public class AllEnemyFinder : IFinder
     {
-        private IFieldEnemyService _fieldEnemyService;
+        private readonly IFieldEnemyService _fieldEnemyService;
 
         public float Range => 0;
 
@@ -227,14 +119,40 @@ namespace Skill
             _fieldEnemyService = fieldEnemyService;
         }
 
-        public IReadOnlyList<ICombatant> GetTargets(Vector3 pivot)
+        public bool TryGetTargets(Vector3 pivot, out IReadOnlyList<ICombatant> targets)
         {
-            return _fieldEnemyService.GetAllFieldEnemy;
+            return FinderResult.TryCopyActiveTargets(
+                _fieldEnemyService.GetAllFieldEnemy,
+                out targets);
         }
+    }
 
-        public bool HasTargetInRange(Vector3 pivot)
+    internal static class FinderResult
+    {
+        public static bool TryCopyActiveTargets<T>(
+            IReadOnlyList<T> candidates,
+            out IReadOnlyList<ICombatant> targets)
+            where T : class, ICombatant
         {
-            return _fieldEnemyService.GetAllFieldEnemy.Count > 0;
+            if (candidates == null || candidates.Count == 0)
+            {
+                targets = Array.Empty<ICombatant>();
+                return false;
+            }
+
+            List<ICombatant> activeTargets = new List<ICombatant>(candidates.Count);
+
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                T candidate = candidates[i];
+                if (candidate != null && candidate.IsActive)
+                {
+                    activeTargets.Add(candidate);
+                }
+            }
+
+            targets = activeTargets;
+            return activeTargets.Count > 0;
         }
     }
 }

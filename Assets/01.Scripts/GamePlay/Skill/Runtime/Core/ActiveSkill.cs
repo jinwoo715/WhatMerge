@@ -10,6 +10,8 @@ namespace Skill
     public class ActiveSkill : IActiveSkill
     {
         private Hero _owner;
+        private IReadOnlyList<ICombatant> _cachedTargets = Array.Empty<ICombatant>();
+
         public ITrigger Trigger { get; private set; }
         public IFinder Target { get; private set; }
         public IExecute Execution { get; private set; }
@@ -30,16 +32,26 @@ namespace Skill
         }
         public bool IsUsable(SkillTriggerContext context)
         {
-            return Trigger.IsMeetTrigger(context) && Target.HasTargetInRange(_owner.Position);
+            _cachedTargets = Array.Empty<ICombatant>();
+
+            if (!Trigger.IsMeetTrigger(context))
+            {
+                return false;
+            }
+
+            return Target.TryGetTargets(_owner.Position, out _cachedTargets);
         }
+
         public IEnumerator Execute()
         {
-            IReadOnlyList<ICombatant> Targets = Target.GetTargets(_owner.Position);
-            yield return Execution.Execute(Targets);
+            IReadOnlyList<ICombatant> targets = _cachedTargets;
+            _cachedTargets = Array.Empty<ICombatant>();
+            yield return Execution.Execute(targets);
         }
 
         public void Dispose()
         {
+            _cachedTargets = Array.Empty<ICombatant>();
             OnDispose?.Invoke();
         }
     }

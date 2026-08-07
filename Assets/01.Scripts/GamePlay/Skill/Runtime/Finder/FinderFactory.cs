@@ -13,7 +13,7 @@ namespace Skill
                 SelfTargetData => new SelfTargetFinder(owner),
                 NearHeroTargetData near => new NearHeroFinder(runtimeContext.FieldHero, owner, (int)near.TargetRange),
                 AllHeroTargetData => new AllHeroFinder(runtimeContext.FieldHero),
-                NearEnemyTargetData near => new SingleEnemyFinder(owner.transform, near.Radius),
+                NearEnemyTargetData near => new NearEnemyFinder(near.Radius),
                 AllEnemyTargetData => new AllEnemyFinder(runtimeContext.FieldEnemy),
                 _ => throw new InvalidOperationException($"Unsupported TargetData: {data?.name ?? "null"}")
             };

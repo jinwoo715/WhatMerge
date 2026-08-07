@@ -31,7 +31,7 @@ namespace Skill
 
         public override IEnumerator Execute(IReadOnlyList<ICombatant> targets)
         {
-            ICombatant combatant = NearestTarget(targets);
+            ICombatant combatant = SelectPrimaryTarget(targets);
 
             for (int i = 0; i < _sequenceCount; i++)
             {

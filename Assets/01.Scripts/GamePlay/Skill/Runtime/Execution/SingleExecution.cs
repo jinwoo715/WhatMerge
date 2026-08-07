@@ -13,7 +13,7 @@ namespace Skill
         {
             yield return SetReadyMotion();
 
-            ICombatant combatant = NearestTarget(targets);
+            ICombatant combatant = SelectPrimaryTarget(targets);
             ApplyEffectsToTarget(combatant);
 
             yield return SetExecutionMotion();

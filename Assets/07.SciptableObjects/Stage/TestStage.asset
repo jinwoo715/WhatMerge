@@ -25,15 +25,15 @@ MonoBehaviour:
     SpawnDatas:
     - EnemyUID: 1
       StartDelay: 0
-      SpawnCount: 3
-      SpawnInterval: 0.5
+      SpawnCount: 50
+      SpawnInterval: 0.3
   - WaveIndex: 1
     WaveType: 0
     SpawnDatas:
     - EnemyUID: 1
       StartDelay: 0
-      SpawnCount: 3
-      SpawnInterval: 0.5
+      SpawnCount: 30
+      SpawnInterval: 0.3
   - WaveIndex: 2
     WaveType: 0
     SpawnDatas:
