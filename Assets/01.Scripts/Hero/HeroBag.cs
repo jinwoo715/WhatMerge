@@ -35,7 +35,7 @@ namespace WhatMerge.Heros
 
         public void PutInTheBag(Hero hero)
         {
-            _bagValue[_currentIndex].Init(hero.UID, hero.EvolutionLevel, hero.Name);
+            _bagValue[_currentIndex].Init(hero.UID, hero.EvolutionLevel, hero.Name, hero.SpriteName);
 
             _currentUsedBagSpace++;
             OnChangedUseableSpace?.Invoke(TotalBagSpace, CurrentUsedBagItem);

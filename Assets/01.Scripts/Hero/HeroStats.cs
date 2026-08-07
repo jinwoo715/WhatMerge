@@ -23,6 +23,12 @@ namespace WhatMerge.Heros
             OnStatChanged?.Invoke(type, GetStat(type));
         }
 
+        public void Reset()
+        {
+            foreach (StatValue stat in _stats.Values)
+                stat.SetBaseValue(0f);
+        }
+
         public void AddFixedValue(HeroStatType type, float value)
         {
             _stats[type].AddFixedValue(value);

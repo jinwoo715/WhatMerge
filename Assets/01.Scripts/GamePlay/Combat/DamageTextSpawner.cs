@@ -16,6 +16,7 @@ public class DamageTextSpawner : MonoBehaviour
     internal void Init()
     {
         _damageItemPool.OnCreateEvent += (value) => value.Init(_showTimer, _moveVelocity);
+        _damageItemPool.OnCreateEvent += (value) =>  value.OnReturn += ReturnNumViewer;
         _damageItemPool.Init(_itemParent, _damageItem, _initPoolCount);
     }
 
@@ -24,5 +25,9 @@ public class DamageTextSpawner : MonoBehaviour
         Vector2 screenPosition = Camera.main.WorldToScreenPoint(position);
         DamageValueTextItem item = _damageItemPool.GetItem(screenPosition);
         item.SetData(value);
+    }
+    private void ReturnNumViewer(DamageValueTextItem item)
+    {
+        _damageItemPool.ReturnItem(item);
     }
 }

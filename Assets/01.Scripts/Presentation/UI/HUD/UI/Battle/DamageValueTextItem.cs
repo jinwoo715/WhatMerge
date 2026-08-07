@@ -18,6 +18,7 @@ public class DamageValueTextItem : MonoBehaviour, IPooledItem<DamageValueTextIte
 
     public void Init(float returnTime, float moveVelocity)
     {
+        _currentTime = 0;
         _returnTime = returnTime;
         _moveVelocity = moveVelocity;
     }

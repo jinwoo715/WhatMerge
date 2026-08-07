@@ -30,8 +30,8 @@ public class HeroClickInteractPresenter : MonoBehaviour
     }
     private void ClickInsertButton()
     {
-        _fieldHeroService.ClearHero(_selectHero);
         _heroBagService.PutInTheBag(_selectHero);
+        _fieldHeroService.ClearHero(_selectHero);
     }
 
     public void ShowInteractUI(Hero hero)

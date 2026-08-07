@@ -66,9 +66,23 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
 
         _heroPool.Init(this.transform, _heroPrefab, 10);
     }
+
+    public bool IsSelectHeroSpawn;
+    public int selectUID;
+    public int evolution;
+    public int level;
     public bool TrySpawnRandomHero()
     {
-        int heroUid = _heroDeck.RanHeroUID();
+        int heroUid = 0;
+
+        if (IsSelectHeroSpawn)
+        {
+            heroUid = selectUID;
+        }
+        else
+        {
+            heroUid = _heroDeck.RanHeroUID();
+        }
 
         bool isSpawned = SpawnHero(heroUid, 0);
 
@@ -78,14 +92,6 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
         return isSpawned;
     }
 
-    public int uid;
-    public int evolution;
-    public int level;
-    [ContextMenu("Spawn")]
-    public void SpawnHeroTest()
-    {
-        SpawnHero(uid, evolution);
-    }
     public bool SpawnHero(int uid, int evolution)
     {
         if (_heroMapService.TryGetNextFieldTile(out Tile tile))
@@ -128,12 +134,12 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
 
         HeroData data = _heroDataRepo.GetHeroData(heroUid);
         ATKData atkData = _heroDataRepo.GetATKData(data.ATKUID);
-        SpriteAtlas heroAtlas = _spriteAtlasRepository.GetAtlas(data.Name);
+        SpriteAtlas heroAtlas = _spriteAtlasRepository.GetAtlas(data.SpriteKey);
 
         HeroSpriteController heroSpriteController = hero.GetComponent<HeroSpriteController>();
+        heroSpriteController.Init(heroAtlas, data.SpriteKey, saveData.Level);
 
         hero.SetData(data, atkData, heroSpriteController, saveData.Level, evolutionLevel, _spawnIndex++);
-        heroSpriteController.Init(heroAtlas, data.Name, saveData.Level);
 
         if (!dictionary.TryGetValue(hero.UID, out SkillSetContainer skillSetContainer))
             throw new InvalidOperationException($"Skill set for hero UID {hero.UID} is not registered.");
@@ -144,7 +150,7 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
             skillSet.ActiveSkills,
             skillSet.PassiveSkills,
             hero,
-            StatCalculator.AS(data.AS));
+            StatCalculator.AS(data.AttackSpeed));
 
         hero.SetSkill(controller);
         return hero;

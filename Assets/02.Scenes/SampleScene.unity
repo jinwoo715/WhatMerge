@@ -2865,9 +2865,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e31bf471a5125c44bd6ecaba038bdef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sets: []
+  sets:
+  - {fileID: 11400000, guid: 0e1e10d05c340084a94b59fb64e9db39, type: 2}
   _heroPrefab: {fileID: 5889065611879671908, guid: 37dc9494e2d06714398d7013306a74c0, type: 3}
-  uid: 10
+  IsSelectHeroSpawn: 1
+  selectUID: 1
   evolution: 0
   level: 11
 --- !u!1 &619394800

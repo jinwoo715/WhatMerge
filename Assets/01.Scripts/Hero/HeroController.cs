@@ -110,7 +110,7 @@ namespace WhatMerge.Heros
                 return EHeroOverlapResult.None;
 
             //게임 내에서 진화 레벨은 같다.
-            if (first.UID == second.UID)
+            if (first.UID == second.UID && first.EvolutionLevel < 2)
                 return EHeroOverlapResult.Evolution;
 
             if(_mergeRepository.IsCanMerge(first.UID, second.UID))
@@ -157,8 +157,6 @@ namespace WhatMerge.Heros
             _heroMapService = heroMapService;
             _overlapProcessor = heroOverlapProcessor;
             _markerPresenter = markerPresenter;
-
-            OnDestroyHero += _heroSpawnService.ReturnHero;
         }
         public void ReturnHero(Hero hero)
         {
@@ -182,7 +180,15 @@ namespace WhatMerge.Heros
             _fieldHero.Remove((tile.X, tile.Y));
             _heroMapService.FreeFieldTile(tile);
             OnChangedHeroPosition?.Invoke();
-            OnDestroyHero?.Invoke(hero);
+
+            try
+            {
+                OnDestroyHero?.Invoke(hero);
+            }
+            finally
+            {
+                _heroSpawnService.ReturnHero(hero);
+            }
         }
 
         public void SetHeroPosition(ITileReadOnly tile, Hero hero)
@@ -276,12 +282,12 @@ namespace WhatMerge.Heros
 
                             break;
                         case EHeroOverlapResult.Merge:
+                            int uid = _overlapProcessor.GetMergeHeroUID(_clickedHero.UID, hero.UID);
+                            int evolution = _clickedHero.EvolutionLevel;
 
                             ReturnHero(_clickedHero);
                             ReturnHero(hero);
 
-                            int uid = _overlapProcessor.GetMergeHeroUID(_clickedHero.UID, hero.UID);
-                            int evolution = _clickedHero.EvolutionLevel;
                             _heroSpawnService.SpawnHeroAtTile(uid, evolution, tile);
 
                             Debug.Log("합췌!!");

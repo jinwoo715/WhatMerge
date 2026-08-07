@@ -35,7 +35,8 @@ namespace WhatMerge.Heros
 
         public bool IsActive { get; private set; }
         public string Name => _heroData.Name;
-        public int EvolutionLevel { get; private set; }
+        public string SpriteName => _heroData.SpriteKey;
+        public int EvolutionLevel { get; private set; } = 0;
         public Vector3 Position => this.transform.position;
         public int UID => _heroData.UID;
         public ITileReadOnly OccupiedTile { get; private set; }
@@ -47,14 +48,16 @@ namespace WhatMerge.Heros
 
         public void SetData(HeroData data, ATKData atkData, IHeroVisual heroVisual, int upgradeLevel, int evolutionLevel, int spawnIndex)
         {
+            _stat.Reset();
+
             SpawnIndex = spawnIndex;
             _heroData = data;
             _atkData = atkData;
             _upgradeLevel = upgradeLevel;
 
-            _stat.SetBaseValue(HeroStatType.AttackPerSecond, data.AS);
+            _stat.SetBaseValue(HeroStatType.AttackPerSecond, data.AttackSpeed);
             _stat.SetBaseValue(HeroStatType.CriticalChance, data.CriticalChance);
-            _stat.SetBaseValue(HeroStatType.CriticalMultiplier, data.CriticalMultiple);
+            _stat.SetBaseValue(HeroStatType.CriticalMultiplier, data.CriticalMultiplier);
             _stat.SetBaseValue(HeroStatType.FlatPenetration, data.Penetration);
 
             EvolutionLevel = evolutionLevel;
@@ -87,6 +90,9 @@ namespace WhatMerge.Heros
         }
         public void UpgradeEvolution()
         {
+            if (EvolutionLevel >= 2)
+                throw new InvalidOperationException($"InValide Evolution Level {EvolutionLevel}");
+
             EvolutionLevel++;
             SetEvolution();
         }
@@ -122,16 +128,41 @@ namespace WhatMerge.Heros
         }
         public void OnSpawn() 
         {
+            if (IsActive)
+                return;
+
             IsActive = true;
         }
         public void OnDespawn() 
         {
+            Deactivate();
+        }
+
+        private bool Deactivate()
+        {
+            if (!IsActive)
+                return false;
+
             IsActive = false;
             _stat.OnStatChanged -= UpdateAttackSpeed;
-            OnActiveOff?.Invoke(this);
-            _element.Clear();
             _skillController?.StopRunner();
             _skillController = null;
+            _element.Clear();
+            OnActiveOff?.Invoke(this);
+
+            ClearRuntimeState();
+            return true;
+        }
+
+        private void ClearRuntimeState()
+        {
+            _heroData = null;
+            _atkData = null;
+            _heroVisual = null;
+            OccupiedTile = null;
+            _upgradeLevel = 1;
+            EvolutionLevel = 0;
+            SpawnIndex = 0;
         }
     }
 }

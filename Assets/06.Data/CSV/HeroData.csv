@@ -1,23 +1,23 @@
-UID,Name,Description,ATKUID,AS,Range,BasicSkill,FirstSkill,SecondSkill,SpecialSkill
-1,Warrior,Warrior,1,2,2,1001,1002,1003,0
-2,ShieldSoldier,ShieldSoldier,2,1,2,0,10,6,0
-3,Spearman,Spearman,3,1,2,1011,1012,1013,0
-4,Thief,Thief,4,1,2,10,11,12,0
-5,Archer,Archer,5,1,2,13,14,15,0
-6,Crossbowman,Crossbowman,6,1,2,16,17,18,0
-7,Musketeer,Musketeer,7,1,2,19,20,21,0
-8,Bomber,Bomber,8,1,2,1041,1042,1043,0
-9,Wizard,Wizard,9,1,2,1021,1022,1023,0
-10,Priest,Priest,10,1,2,1031,1032,1033,0
-101,MagicSwords,¸¶°Ë»ç,1,1,2,1001,1002,1003,0
-102,Alchemist,¿¬±İ¼ú»ç,1,1,2,1001,1002,1003,0
-103,Onmyoji,À½¾ç¼ú»ç,1,1,2,1001,1002,1003,0
-104,Defender,µğÆæ´õ,1,1,2,1001,1002,1003,0
-105,Blaster,ºí·¡½ºÅÍ,1,1,2,1001,1002,1003,0
-106,TaegeukMaster,ÅÂ±Ø¼ú»ç,1,1,2,1001,1002,1003,0
-107,Paladin,¼º±â»ç,1,1,2,1001,1002,1003,0
-108,Hunter,ÇåÅÍ,1,1,2,1001,1002,1003,0
-109,Ranger,·¹ÀÎÀú,1,1,2,1001,1002,1003,0
-110,RoyalGuard,·Î¿­°¡µå,1,1,2,1001,1002,1003,0
-111,Assassin,¾î½Ø½Å,1,1,2,1001,1002,1003,0
-112,Dragoon,µå·¡±º,1,1,2,1001,1002,1003,0
+ï»¿UID,Name,Description,SpriteKey,ATKUID,AttackSpeed,Penetration,CriticalChance,CriticalMultiplier
+1,ì „ì‚¬,Warrior,Warrior,1,2,0,0,1
+2,ë°©íŒ¨ë³‘,ShieldSoldier,ShieldSoldier,2,1,0,0,1
+3,ì°½ë³‘,Spearman,Spearman,3,1,0,0,1
+4,ë„ì ,Thief,Thief,4,1,0,0,1
+5,ê¶ìˆ˜,Archer,Archer,5,1,0,0,1
+6,ì„ê¶ë³‘,Crossbowman,Crossbowman,6,1,0,0,1
+7,ì¡°ì´ë³‘,Musketeer,Musketeer,7,1,0,0,1
+8,í­íƒ„ë³‘,Bomber,Bomber,8,1,0,0,1
+9,ë§ˆë²•ì‚¬,Wizard,Wizard,9,1,0,0,1
+10,ì„±ì§ì,Priest,Priest,10,1,0,0,1
+101,ë§ˆê²€ì‚¬,MagicSwords,MagicSwords,1,1,0,0,1
+102,ì—°ê¸ˆìˆ ì‚¬,Alchemist,Alchemist,1,1,0,0,1
+103,ìŒì–‘ìˆ ì‚¬,Onmyoji,Onmyoji,1,1,0,0,1
+104,ë””íœë”,Defender,Defender,1,1,0,0,1
+105,ë¸”ë˜ìŠ¤í„°,Blaster,Blaster,1,1,0,0,1
+106,íƒœê·¹ìˆ ì‚¬,TaegeukMaster,TaegeukMaster,1,1,0,0,1
+107,ì„±ê¸°ì‚¬,Paladin,Paladin,1,1,0,0,1
+108,í—Œí„°,Hunter,Hunter,1,1,0,0,1
+109,ë ˆì¸ì €,Ranger,Ranger,1,1,0,0,1
+110,ë¡œì—´ê°€ë“œ,RoyalGuard,RoyalGuard,1,1,0,0,1
+111,ì–´ìŒ”ì‹ ,Assassin,Assassin,1,1,0,0,1
+112,ë“œë˜êµ°,Dragoon,Dragoon,1,1,0,0,1

@@ -6,9 +6,9 @@ public class ATKData : BaseData
     public float GrowthRatio;
     public float TierMultiplier;
 
-    //First Evolution
+    //First Evolution -> Hero Evolution 2
     public float FirstMuliplier;
 
-    //Second Evolution
+    //Second Evolution -> Hero Evolution 3
     public float SecondMultiplier;
 }

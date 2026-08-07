@@ -26,8 +26,8 @@ namespace WhatMerge.Heros
 
         public void SetBag(int index, HeroBagSlotData data)
         {
-            SpriteAtlas heroAtlas = _heroAtlasReader.GetAtlas(data.Name);
-            string spriteName = $"{data.Name}_{data.Evolution + 1}_Idle";
+            SpriteAtlas heroAtlas = _heroAtlasReader.GetAtlas(data.SpriteName);
+            string spriteName = $"{data.SpriteName}_{data.Evolution + 1}_Idle";
             Sprite image = heroAtlas.GetSprite(spriteName);
 
             _bagViewer.SetHero(index, image);

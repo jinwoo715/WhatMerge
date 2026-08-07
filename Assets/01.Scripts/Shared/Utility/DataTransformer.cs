@@ -16,8 +16,9 @@ public class DataTransformer : EditorWindow
     [MenuItem("Tools/Parse/CSV To Json %#K")]
     public static void ParseCSVDataToJson()
     {
-        ParseCsvDataToJson<EnemyData>("EnemyData");
-        ParseCsvDataToJson<EnemyRewardData>("EnemyRewardData");
+        //ParseCsvDataToJson<EnemyData>("EnemyData");
+        //ParseCsvDataToJson<EnemyRewardData>("EnemyRewardData");
+        ParseCsvDataToJson<HeroData>("HeroData");
 
         Debug.Log("DataTransformer Completed");
     }
