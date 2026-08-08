@@ -54,6 +54,7 @@ namespace WhatMerge.Projectiles
 
             ValidatePositiveFinite(data.Speed, nameof(data.Speed), data.name);
             ValidatePositiveFinite(data.LifeTime, nameof(data.LifeTime), data.name);
+            ValidateFinite(data.RotationOffset, nameof(data.RotationOffset), data.name);
 
             ProjectileItem obj = _projectileItemPool.GetItem(attacker.Position);
 
@@ -80,7 +81,7 @@ namespace WhatMerge.Projectiles
                 case StraightProjectileData straightProjectileData:
                     return new LinearMove(straightProjectileData, item, target);
                 case HomingProjectileData homingProjectileData:
-                    return new HomingMove(item, target, data.Speed);
+                    return new HomingMove(homingProjectileData, item, target);
                 case ParabolaProjectileData parabolaProjectileData:
                     return new Parabola(parabolaProjectileData, item, target);
                 default:
@@ -102,6 +103,17 @@ namespace WhatMerge.Projectiles
                     fieldName,
                     value,
                     $"Projectile '{dataName}' {fieldName} must be a finite number greater than zero.");
+            }
+        }
+
+        private static void ValidateFinite(float value, string fieldName, string dataName)
+        {
+            if (float.IsNaN(value) || float.IsInfinity(value))
+            {
+                throw new ArgumentOutOfRangeException(
+                    fieldName,
+                    value,
+                    $"Projectile '{dataName}' {fieldName} must be a finite number.");
             }
         }
     

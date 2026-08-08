@@ -25,7 +25,7 @@ public class HeroSpriteController : MonoBehaviour, ISpriteChanger, IHeroVisual
 
     string idle = "Idle";
 
-    public void Init(SpriteAtlas spriteAtlas, string heroName, int level)
+    public void Init(SpriteAtlas spriteAtlas, string heroName)
     {
         _spriteAtlas = spriteAtlas;
         _heroName = heroName;

@@ -4,6 +4,7 @@ using System.IO;
 using Skill.Data;
 using UnityEditor;
 using UnityEngine;
+using WhatMerge.Projectiles.Data;
 using WhatMerge.Summons.Data;
 
 public static class SkillGraphAssetUtility
@@ -194,7 +195,26 @@ public static class SkillGraphAssetUtility
 
             if (entry is ProjectileSpawnEffect projectileSpawnEffect && projectileSpawnEffect.Projectile != null)
             {
-                yield return projectileSpawnEffect.Projectile;
+                ProjectileDataBase projectileData = projectileSpawnEffect.Projectile;
+                yield return projectileData;
+
+                if (projectileData.Effects != null)
+                {
+                    for (int j = 0; j < projectileData.Effects.Count; j++)
+                    {
+                        EffectBase projectileEffect = projectileData.Effects[j];
+                        if (projectileEffect == null)
+                        {
+                            continue;
+                        }
+
+                        yield return projectileEffect;
+                        if (projectileEffect.VFX != null)
+                        {
+                            yield return projectileEffect.VFX;
+                        }
+                    }
+                }
             }
 
             if (entry is DurationEffect durationEffect && durationEffect.Effects != null)

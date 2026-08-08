@@ -340,8 +340,26 @@ namespace WhatMerge.Combat.Effects
                 damageable,
                 damageContext.AttackPayload,
                 damageEffect.DamageRatio,
-                damageEffect.Attribute);
+                damageEffect.Attribute,
+                RollArmorIgnore(damageEffect));
             _damageApplier.TryApply(damageable, appliedDamage);
+        }
+
+        private static bool RollArmorIgnore(DamageEffect damageEffect)
+        {
+            float chance = damageEffect.ArmorIgnoreChance;
+            if (float.IsNaN(chance)
+                || float.IsInfinity(chance)
+                || chance < 0f
+                || chance > 1f)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(DamageEffect)} '{damageEffect.name}' armor ignore chance must be between 0 and 1. " +
+                    $"Current value: {chance}.");
+            }
+
+            return chance >= 1f
+                || chance > 0f && UnityEngine.Random.value < chance;
         }
 
     }

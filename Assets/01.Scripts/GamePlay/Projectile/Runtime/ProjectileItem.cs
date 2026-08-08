@@ -19,6 +19,7 @@ namespace WhatMerge.Projectiles
 
         private DamageContext _damageContext;
         private IDisposable _effectLifetimeLease;
+        private bool _isReturning;
 
         public bool IsActive { get; private set; }
         public event Action<ProjectileItem> OnReturn;
@@ -47,10 +48,14 @@ namespace WhatMerge.Projectiles
 
         private void Update()
         {
-            if (IsActive == false) return;
+            if (!IsActive || _stretagy == null)
+                return;
 
             _currentTime += Time.deltaTime;
             _stretagy.Tick(Time.deltaTime);
+
+            if (!IsActive || _isReturning || _soData == null)
+                return;
 
             if (_currentTime >= _soData.LifeTime)
             {
@@ -60,11 +65,18 @@ namespace WhatMerge.Projectiles
 
         private void Expired()
         {
+            if (!IsActive || _isReturning)
+                return;
+
+            _isReturning = true;
             OnReturn?.Invoke(this);
         }
 
         private void Execute(ProjectileImpact impact)
         {
+            if (!IsActive || _isReturning)
+                return;
+
             DamageContext context = impact.Target != null
                 ? _damageContext.WithTarget(impact.Target)
                 : _damageContext.WithImpactPosition(impact.Position);
@@ -76,16 +88,31 @@ namespace WhatMerge.Projectiles
         {
             IsActive = false;
             _currentTime = 0;
+
+            if (_stretagy != null)
+            {
+                _stretagy.OnExecute -= Execute;
+                _stretagy.OnExpired -= Expired;
+                _stretagy = null;
+            }
+
             _effectLifetimeLease?.Dispose();
             _effectLifetimeLease = null;
+            _damageContext = null;
+            _soData = null;
         }
         public void OnSpawn()
         {
             IsActive = true;
+            _isReturning = false;
+            transform.rotation = Quaternion.identity;
         }
 
         private void OnTriggerEnter2D(Collider2D collision)
         {
+            if (!IsActive || _isReturning || _stretagy == null)
+                return;
+
             if (collision.CompareTag("Enemy"))
             {
                 if(collision.TryGetComponent<IDamageable>(out IDamageable target))

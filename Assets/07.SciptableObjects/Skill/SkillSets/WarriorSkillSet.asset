@@ -16,7 +16,13 @@ MonoBehaviour:
   Sets:
   - Level: 0
     Skill: {fileID: 11400000, guid: 2c20e00bfb200d847ac7f1dc38b1cff5, type: 2}
-  - Level: 0
+  - Level: 1
     Skill: {fileID: 11400000, guid: 329ce729e7135dc4da32c8c9b437be49, type: 2}
-  - Level: 0
+  - Level: 10
+    Skill: {fileID: 11400000, guid: 61cdfa43ca860a74d8c99fb96650bd55, type: 2}
+  - Level: 20
     Skill: {fileID: 11400000, guid: 6c706c78ea0071f498da69c50c4a63dc, type: 2}
+  - Level: 30
+    Skill: {fileID: 11400000, guid: 398667de4079757479644d73bdd8179a, type: 2}
+  - Level: 40
+    Skill: {fileID: 11400000, guid: 458623d7fb2f3e841817127f4cb4d6b8, type: 2}

@@ -14,13 +14,15 @@ namespace Skill
         public List<EffectBase> Effects { get; }
         public int SkillUid { get; }
         public IRuntimeEffectLifetime EffectLifetime { get; }
+        public IFinder Finder { get; }
 
         public SkillExecutionContext(
             Hero hero,
             SkillAnimationData animationData,
             ExecutionData executionData,
             int skillUid,
-            IRuntimeEffectLifetime effectLifetime)
+            IRuntimeEffectLifetime effectLifetime,
+            IFinder finder)
         {
             Hero = hero;
             AnimationData = animationData;
@@ -29,6 +31,7 @@ namespace Skill
             SpriteChanger = hero.GetComponent<ISpriteChanger>();
             SkillUid = skillUid;
             EffectLifetime = effectLifetime;
+            Finder = finder;
         }
     }
 }

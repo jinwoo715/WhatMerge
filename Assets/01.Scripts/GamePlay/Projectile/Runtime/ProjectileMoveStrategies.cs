@@ -8,10 +8,11 @@ namespace WhatMerge.Projectiles
 {
     public class LinearMove : IProjectile
     {
-        private Transform _owner;
-        private Vector3 _dir;
-        private float _speed;
-        private bool _isPiercing = false;
+        private readonly Transform _owner;
+        private readonly Vector3 _dir;
+        private readonly float _speed;
+        private readonly bool _isPiercing;
+        private bool _isCompleted;
 
         public event Action<ProjectileImpact> OnExecute;
         public event Action OnExpired;
@@ -22,45 +23,62 @@ namespace WhatMerge.Projectiles
             _speed = data.Speed;
             _owner = owner;
             _isPiercing = data.IsPiercing;
+
+            ProjectileRotation.Apply(_owner, _dir, data.RotationOffset);
         }
 
         public void Tick(float tick)
         {
+            if (_isCompleted)
+                return;
+
             _owner.position += _dir * tick * _speed;
         }
 
         public void HitEnemy(IDamageable enemy)
         {
+            if (_isCompleted || enemy == null || !enemy.IsActive)
+                return;
+
+            if (!_isPiercing)
+                _isCompleted = true;
+
             OnExecute?.Invoke(new ProjectileImpact(enemy, enemy.Position));
 
             if (!_isPiercing)
                 OnExpired?.Invoke();
         }
     }
+
     public class HomingMove : IProjectile
     {
         private const float ArrivalSqrDistance = 0.001f;
 
-        private Transform _owner;
-        private ICombatant _target;
-        private float _speed;
+        private readonly Transform _owner;
+        private readonly ICombatant _target;
+        private readonly float _speed;
+        private readonly float _rotationOffset;
         private bool _isCompleted;
 
         public event Action<ProjectileImpact> OnExecute;
         public event Action OnExpired;
 
-        public HomingMove(Transform owner, ICombatant target, float speed)
+        public HomingMove(HomingProjectileData data, Transform owner, ICombatant target)
         {
             _owner = owner;
             _target = target;
-            _speed = speed;
+            _speed = data.Speed;
+            _rotationOffset = data.RotationOffset;
+
+            ProjectileRotation.Apply(_owner, target.Position - owner.position, _rotationOffset);
         }
+
         public void Tick(float tick)
         {
             if (_isCompleted)
                 return;
 
-            if(_target == null || !_target.IsActive)
+            if (_target == null || !_target.IsActive)
             {
                 Expire();
                 return;
@@ -83,14 +101,13 @@ namespace WhatMerge.Projectiles
             if (moveDistance >= distance)
             {
                 _owner.position = _target.Position;
-                RotationToTarget(dir);
+                ProjectileRotation.Apply(_owner, dir, _rotationOffset);
                 Complete(_target as IDamageable, _target.Position);
                 return;
             }
 
             _owner.position += dir * moveDistance;
-
-            RotationToTarget(dir);
+            ProjectileRotation.Apply(_owner, dir, _rotationOffset);
         }
 
         private void Complete(IDamageable target, Vector3 position)
@@ -112,16 +129,6 @@ namespace WhatMerge.Projectiles
             OnExpired?.Invoke();
         }
 
-        private void RotationToTarget(Vector3 dir)
-        {
-            float angleRad = Mathf.Atan2(dir.y, dir.x);
-            float angleDeg = angleRad * Mathf.Rad2Deg - 90f;
-
-            Quaternion targetRotation = Quaternion.Euler(0, 0, angleDeg);
-
-            _owner.rotation = targetRotation;
-        }
-
         public void HitEnemy(IDamageable enemy)
         {
             if (_isCompleted || !ReferenceEquals(enemy, _target))
@@ -130,17 +137,20 @@ namespace WhatMerge.Projectiles
             Complete(enemy, enemy.Position);
         }
     }
+
     public class Parabola : IProjectile
     {
-        private Transform _owner;
-        private Vector3 _startPosition;
-        private Vector3 _destination;
+        private const float ArcHeight = 0.9f;
+
+        private readonly Transform _owner;
+        private readonly Vector3 _startPosition;
+        private readonly Vector3 _destination;
+        private readonly float _speed;
+        private readonly float _rotationOffset;
         private float _progress;
-        private float _speed;
-
-        private bool IsArrived = false;
-
-        private float _delayTime = 0;
+        private bool _isArrived;
+        private bool _isCompleted;
+        private float _delayTime;
 
         public event Action OnArrived;
         public event Action<ProjectileImpact> OnExecute;
@@ -152,43 +162,62 @@ namespace WhatMerge.Projectiles
             _startPosition = owner.position;
             _destination = target.Position;
             _speed = data.Speed;
-            IsArrived = false;
-            _progress = 0;
+            _rotationOffset = data.RotationOffset;
+            _progress = 0f;
             _delayTime = data.EffectDelayTime;
+
+            Vector3 initialDirection = _destination - _startPosition;
+            initialDirection.y += Mathf.PI * ArcHeight;
+            ProjectileRotation.Apply(_owner, initialDirection, _rotationOffset);
         }
 
         public void Tick(float tick)
         {
+            if (_isCompleted)
+                return;
+
             _progress += tick * _speed;
             float t = Mathf.Clamp01(_progress);
+            Vector3 previousPosition = _owner.position;
+            Vector3 position = Vector3.Lerp(_startPosition, _destination, t);
+            position.y += Mathf.Sin(t * Mathf.PI) * ArcHeight;
 
-            // 1. 기본 직선 보간
-            Vector3 pos = Vector3.Lerp(_startPosition, _destination, t);
+            _owner.position = position;
+            ProjectileRotation.Apply(_owner, position - previousPosition, _rotationOffset);
 
-            // 2. 포물선(y) 추가 (sin 기반 아크)
-            float height = Mathf.Sin(t * Mathf.PI) * 0.9f;
-            pos.y += height;
-
-            _owner.position = pos;
-
-            float distance = Vector3.SqrMagnitude(_owner.position - _destination);
-            if (distance <= 0.001f)
+            if (!_isArrived && t >= 1f)
             {
-                IsArrived = true;
+                _isArrived = true;
+                OnArrived?.Invoke();
             }
 
-            if (IsArrived)
-            {
-                _delayTime -= tick;
+            if (!_isArrived)
+                return;
 
-                if(_delayTime <= 0)
-                {
-                    OnExecute?.Invoke(new ProjectileImpact(null, _destination));
-                    OnExpired?.Invoke();
-                }
-            }
+            _delayTime -= tick;
+            if (_delayTime > 0f)
+                return;
+
+            _isCompleted = true;
+            OnExecute?.Invoke(new ProjectileImpact(null, _destination));
+            OnExpired?.Invoke();
         }
 
         public void HitEnemy(IDamageable enemy) { }
+    }
+
+    internal static class ProjectileRotation
+    {
+        private const float DirectionSqrEpsilon = 0.000001f;
+
+        public static void Apply(Transform projectile, Vector3 direction, float rotationOffset)
+        {
+            Vector2 direction2D = direction;
+            if (direction2D.sqrMagnitude <= DirectionSqrEpsilon)
+                return;
+
+            float angle = Mathf.Atan2(direction2D.y, direction2D.x) * Mathf.Rad2Deg;
+            projectile.rotation = Quaternion.Euler(0f, 0f, angle + rotationOffset);
+        }
     }
 }

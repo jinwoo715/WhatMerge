@@ -14,9 +14,6 @@ using Heros;
 
 public class HeroSpawner : MonoBehaviour, IHeroSummonService
 {
-    [Header("Mock")]
-    public List<SkillSetContainer> sets;
-
     private Dictionary<int, SkillSetContainer> dictionary = new Dictionary<int, SkillSetContainer>();
 
     public SkillFactory factory;
@@ -67,17 +64,19 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
         _heroPool.Init(this.transform, _heroPrefab, 10);
     }
 
+    [Header("Mock")]
+    public List<SkillSetContainer> sets;
     public bool IsSelectHeroSpawn;
-    public int selectUID;
-    public int evolution;
-    public int level;
+    public int SpawnHeroUID;
+    [Min(1)] public int HeroLevel;
+
     public bool TrySpawnRandomHero()
     {
         int heroUid = 0;
 
         if (IsSelectHeroSpawn)
         {
-            heroUid = selectUID;
+            heroUid = SpawnHeroUID;
         }
         else
         {
@@ -130,21 +129,29 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
 
         hero.SetTile(tile, spawnPos);
 
+        int heroLevel = 0;
+
         HeroSaveData saveData = GameManager.Data.GetSaveHeroData(heroUid);
+
+        if (IsSelectHeroSpawn)
+            heroLevel = HeroLevel;
+        else
+            heroLevel = saveData.Level;
+
 
         HeroData data = _heroDataRepo.GetHeroData(heroUid);
         ATKData atkData = _heroDataRepo.GetATKData(data.ATKUID);
         SpriteAtlas heroAtlas = _spriteAtlasRepository.GetAtlas(data.SpriteKey);
 
         HeroSpriteController heroSpriteController = hero.GetComponent<HeroSpriteController>();
-        heroSpriteController.Init(heroAtlas, data.SpriteKey, saveData.Level);
+        heroSpriteController.Init(heroAtlas, data.SpriteKey);
 
-        hero.SetData(data, atkData, heroSpriteController, saveData.Level, evolutionLevel, _spawnIndex++);
+        hero.SetData(data, atkData, heroSpriteController, heroLevel, evolutionLevel, _spawnIndex++);
 
         if (!dictionary.TryGetValue(hero.UID, out SkillSetContainer skillSetContainer))
             throw new InvalidOperationException($"Skill set for hero UID {hero.UID} is not registered.");
 
-        var skillSet = factory.CreateSkill(hero, saveData.Level, skillSetContainer);
+        var skillSet = factory.CreateSkill(hero, heroLevel, skillSetContainer);
 
         SkillController controller = new SkillController(
             skillSet.ActiveSkills,

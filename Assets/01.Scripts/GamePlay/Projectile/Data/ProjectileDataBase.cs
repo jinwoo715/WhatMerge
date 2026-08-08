@@ -9,6 +9,7 @@ namespace WhatMerge.Projectiles.Data
         public string Sprite;
         public float Speed;
         public float LifeTime;
+        public float RotationOffset = -90f;
 
         public List<EffectBase> Effects;
         public List<EffectBase> GetEffects { get => Effects; set => Effects = value; }

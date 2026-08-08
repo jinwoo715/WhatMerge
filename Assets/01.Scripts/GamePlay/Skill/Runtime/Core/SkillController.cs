@@ -34,7 +34,10 @@ namespace Skill
             _passiveSkills = passiveSkills;
             _coroutineRunner = coroutineRunner;
             _executionTime = delay;
-            
+
+            Debug.Log(_activeSkills.Count);
+            Debug.Log(_passiveSkills.Count);
+
             ApplyPassive();
         }
 

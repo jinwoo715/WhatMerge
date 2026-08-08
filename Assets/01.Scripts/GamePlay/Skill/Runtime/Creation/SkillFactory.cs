@@ -24,6 +24,8 @@ namespace Skill
         {
             List<HeroSkillSet> sets = set.GetSets(level);
 
+            Debug.Log(sets.Count);
+
             SkillSet returnSkillSet = new SkillSet();
 
             Dictionary<ActiveSkillData, RuntimeExecution> runtimeActiveSkills = new();
@@ -55,6 +57,8 @@ namespace Skill
 
                         break;
                     case PassiveSkillData passiveSkill:
+
+                        Debug.Log("Passive");
 
                         PassiveSkill passive = CreatePassiveSkill(passiveSkill, owner);
                         passive.SetUID(passiveSkill.UID);
@@ -89,15 +93,17 @@ namespace Skill
         }
         public ActiveSkill CreateActiveSkill(ActiveSkillData skillSO, Hero owner, RuntimeExecution runtimeExecution)
         {
+            ITrigger trigger = TriggerFactory.CreateTrigger(skillSO.Trigger);
+            IFinder target = FinderFactory.CreateTarget(skillSO.Finder, owner, _runtimeContext);
+
             SkillExecutionContext executionContext = new SkillExecutionContext(
                 owner,
                 skillSO.AnimationData,
                 runtimeExecution.RuntimeExecutionData,
                 skillSO.UID,
-                runtimeExecution);
+                runtimeExecution,
+                target);
 
-            ITrigger trigger = TriggerFactory.CreateTrigger(skillSO.Trigger);
-            IFinder target = FinderFactory.CreateTarget(skillSO.Finder, owner, _runtimeContext);
             IExecute execution = ExecutionFactory.CreateExecution(executionContext, _runtimeContext);
 
             ActiveSkill activeSkill = new ActiveSkill(skillSO.UID, owner, trigger, target, execution);

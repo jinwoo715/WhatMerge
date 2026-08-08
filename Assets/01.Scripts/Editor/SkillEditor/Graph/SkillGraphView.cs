@@ -21,6 +21,7 @@ public sealed class SkillGraphView : GraphView
     private const string DurationEffectEffectKeyMarker = "::duration-effect";
     private const string SummonExecutionEffectKeyMarker = "::summon-execution-effect::";
     private const string ProjectileSpawnEffectProjectileKeyMarker = "::projectile-spawn-projectile";
+    private const string ProjectileEffectKeyMarker = "::projectile-effect::";
     private readonly SkillEditorWindow _window;
     private readonly Dictionary<string, Rect> _nodePositions = new Dictionary<string, Rect>();
     private readonly Dictionary<string, Rect> _assetPositions = new Dictionary<string, Rect>();
@@ -109,7 +110,9 @@ public sealed class SkillGraphView : GraphView
         for (int i = _looseAssets.Count - 1; i >= 0; i--)
         {
             ScriptableObject looseAsset = _looseAssets[i];
-            if (looseAsset == null || IsReferencedBySkill(looseAsset))
+            if (looseAsset == null
+                || IsReferencedBySkill(looseAsset)
+                || IsReferencedByLooseProjectile(looseAsset))
             {
                 _looseAssets.RemoveAt(i);
                 continue;
@@ -662,6 +665,19 @@ public sealed class SkillGraphView : GraphView
                 return GetProjectileSpawnEffectProjectileNodeKey(GetExecutionEffectNodeKey(executionNodeKey, i));
             }
 
+            if (entry is ProjectileSpawnEffect projectileEffectOwner)
+            {
+                string projectileNodeKey = GetProjectileSpawnEffectProjectileNodeKey(GetExecutionEffectNodeKey(executionNodeKey, i));
+                if (TryGetProjectileEffectNodeKey(
+                        projectileNodeKey,
+                        projectileEffectOwner.Projectile,
+                        asset,
+                        out string projectileEffectNodeKey))
+                {
+                    return projectileEffectNodeKey;
+                }
+            }
+
             string durationEffectNodeKey = GetExecutionEffectNodeKey(executionNodeKey, i);
             if (entry is DurationEffect durationEffect
                 && TryGetDurationEffectChildNodeKey(durationEffectNodeKey, durationEffect, asset, out string durationChildNodeKey))
@@ -751,6 +767,21 @@ public sealed class SkillGraphView : GraphView
             {
                 nodeKey = GetProjectileSpawnEffectProjectileNodeKey(effectNodeKey);
                 return true;
+            }
+
+
+            if (effect is ProjectileSpawnEffect projectileEffectOwner)
+            {
+                string projectileNodeKey = GetProjectileSpawnEffectProjectileNodeKey(effectNodeKey);
+                if (TryGetProjectileEffectNodeKey(
+                        projectileNodeKey,
+                        projectileEffectOwner.Projectile,
+                        asset,
+                        out string projectileEffectNodeKey))
+                {
+                    nodeKey = projectileEffectNodeKey;
+                    return true;
+                }
             }
         }
 
@@ -853,7 +884,12 @@ public sealed class SkillGraphView : GraphView
 
         if (TryGetNodeInfo(projectileSpawnEffect.Projectile, out SkillNodeKind kind, out string title, out Color color))
         {
-            AddNode(kind, GetProjectileSpawnEffectProjectileNodeKey(effectNodeKey), title, projectileSpawnEffect.Projectile, -1, defaultPosition, color);
+            string projectileNodeKey = GetProjectileSpawnEffectProjectileNodeKey(effectNodeKey);
+            AddNode(kind, projectileNodeKey, title, projectileSpawnEffect.Projectile, -1, defaultPosition, color);
+            AddProjectileEffectReferenceNodes(
+                projectileNodeKey,
+                projectileSpawnEffect.Projectile,
+                new Rect(defaultPosition.x + 320f, defaultPosition.y, 270f, 260f));
         }
     }
 
@@ -866,7 +902,58 @@ public sealed class SkillGraphView : GraphView
             return;
         }
 
-        AddCachedReferenceEdge(GetProjectileSpawnEffectProjectileNodeKey(effectNodeKey), "Projectile", effectNodeKey, "Projectile");
+        string projectileNodeKey = GetProjectileSpawnEffectProjectileNodeKey(effectNodeKey);
+        AddCachedReferenceEdge(projectileNodeKey, "Projectile", effectNodeKey, "Projectile");
+        AddProjectileEffectReferenceEdges(projectileNodeKey, projectileSpawnEffect.Projectile);
+    }
+
+    private void AddProjectileEffectReferenceNodes(
+        string projectileNodeKey,
+        ProjectileDataBase projectileData,
+        Rect defaultPosition)
+    {
+        if (string.IsNullOrEmpty(projectileNodeKey) || projectileData?.Effects == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < projectileData.Effects.Count; i++)
+        {
+            EffectBase effect = projectileData.Effects[i];
+            if (effect == null || !TryGetNodeInfo(effect, out SkillNodeKind kind, out string title, out Color color))
+            {
+                continue;
+            }
+
+            Rect position = new Rect(
+                defaultPosition.x,
+                defaultPosition.y + i * 290f,
+                defaultPosition.width,
+                defaultPosition.height);
+            AddNode(kind, GetProjectileEffectNodeKey(projectileNodeKey, i), title, effect, i, position, color);
+        }
+    }
+
+    private void AddProjectileEffectReferenceEdges(string projectileNodeKey, ProjectileDataBase projectileData)
+    {
+        if (string.IsNullOrEmpty(projectileNodeKey) || projectileData?.Effects == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < projectileData.Effects.Count; i++)
+        {
+            if (projectileData.Effects[i] == null)
+            {
+                continue;
+            }
+
+            AddCachedReferenceEdge(
+                GetProjectileEffectNodeKey(projectileNodeKey, i),
+                "Effect",
+                projectileNodeKey,
+                SkillNodeView.GetEffectSlotName(i));
+        }
     }
 
     private void AddDurationEffectReferenceNodes(string effectNodeKey, EffectBase effect, Rect defaultPosition)
@@ -1043,6 +1130,34 @@ public sealed class SkillGraphView : GraphView
         return false;
     }
 
+    private static bool TryGetProjectileEffectNodeKey(
+        string projectileNodeKey,
+        ProjectileDataBase projectileData,
+        UnityEngine.Object asset,
+        out string nodeKey)
+    {
+        nodeKey = string.Empty;
+        if (string.IsNullOrEmpty(projectileNodeKey)
+            || projectileData?.Effects == null
+            || asset == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < projectileData.Effects.Count; i++)
+        {
+            if (projectileData.Effects[i] != asset)
+            {
+                continue;
+            }
+
+            nodeKey = GetProjectileEffectNodeKey(projectileNodeKey, i);
+            return true;
+        }
+
+        return false;
+    }
+
     private static DurationEffectItem GetDurationEffectAt(DurationEffect durationEffect, int index)
     {
         if (durationEffect?.Effects == null || index < 0 || index >= durationEffect.Effects.Count)
@@ -1193,6 +1308,15 @@ public sealed class SkillGraphView : GraphView
         string key = GetLooseKey(asset);
         Rect defaultPosition = new Rect(420f + index * 35f, 90f + index * 35f, 280f, 260f);
         AddNode(kind, key, title, asset, -1, defaultPosition, color, 0, true);
+
+        if (asset is ProjectileDataBase projectileData)
+        {
+            AddProjectileEffectReferenceNodes(
+                key,
+                projectileData,
+                new Rect(defaultPosition.x + 320f, defaultPosition.y, 270f, 260f));
+            AddProjectileEffectReferenceEdges(key, projectileData);
+        }
     }
 
     private static bool TryGetNodeInfo(ScriptableObject asset, out SkillNodeKind kind, out string title, out Color color)
@@ -1407,6 +1531,19 @@ public sealed class SkillGraphView : GraphView
             }
         }
 
+        if (nodeView.Kind == SkillNodeKind.ProjectileData && nodeView.Asset is ProjectileDataBase projectileData)
+        {
+            Undo.RecordObject(projectileData, "Assign Projectile Effect");
+            if (TryGetEffectSlotIndex(slotName, out int effectIndex)
+                && (newAsset == null || newAsset is EffectBase))
+            {
+                SetProjectileEffectAt(projectileData, effectIndex, newAsset as EffectBase);
+                SkillGraphAssetUtility.MarkDirty(projectileData);
+            }
+
+            return;
+        }
+
         if (nodeView.Kind == SkillNodeKind.Effect && nodeView.Asset is EffectBase effectAsset)
         {
             Undo.RecordObject(effectAsset, "Assign Effect Slot");
@@ -1522,6 +1659,22 @@ public sealed class SkillGraphView : GraphView
             }
         }
 
+        if (nodeView.Kind == SkillNodeKind.ProjectileData && nodeView.Asset is ProjectileDataBase projectileData)
+        {
+            Undo.RecordObject(projectileData, "Clear Projectile Effect");
+            if (TryGetEffectSlotIndex(slotName, out int effectIndex)
+                && projectileData.Effects != null
+                && effectIndex >= 0
+                && effectIndex < projectileData.Effects.Count
+                && projectileData.Effects[effectIndex] == oldAsset)
+            {
+                projectileData.Effects[effectIndex] = null;
+                SkillGraphAssetUtility.MarkDirty(projectileData);
+            }
+
+            return;
+        }
+
         if (nodeView.Kind == SkillNodeKind.Effect && nodeView.Asset is EffectBase effectAsset)
         {
             Undo.RecordObject(effectAsset, "Clear Effect Slot");
@@ -1586,6 +1739,22 @@ public sealed class SkillGraphView : GraphView
         execution.Effects[index] = effect;
     }
 
+    private static void SetProjectileEffectAt(ProjectileDataBase projectileData, int index, EffectBase effect)
+    {
+        if (projectileData == null || index < 0)
+        {
+            return;
+        }
+
+        projectileData.Effects ??= new List<EffectBase>();
+        while (projectileData.Effects.Count <= index)
+        {
+            projectileData.Effects.Add(null);
+        }
+
+        projectileData.Effects[index] = effect;
+    }
+
     private void CacheAssignedNodePosition(SkillNodeView inputNode, string slotName, SkillNodeView outputNode)
     {
         if (outputNode == null)
@@ -1636,6 +1805,13 @@ public sealed class SkillGraphView : GraphView
         if (inputNode != null && inputNode.Kind == SkillNodeKind.SummonExecution && TryGetEffectSlotIndex(slotName, out int summonExecutionEffectIndex))
         {
             return GetSummonExecutionEffectNodeKey(inputNode.Key, summonExecutionEffectIndex);
+        }
+
+        if (inputNode != null
+            && inputNode.Kind == SkillNodeKind.ProjectileData
+            && TryGetEffectSlotIndex(slotName, out int projectileEffectIndex))
+        {
+            return GetProjectileEffectNodeKey(inputNode.Key, projectileEffectIndex);
         }
 
         if (inputNode != null && inputNode.Kind == SkillNodeKind.Execution && TryGetEffectSlotIndex(slotName, out int effectIndex))
@@ -1689,6 +1865,11 @@ public sealed class SkillGraphView : GraphView
     private static string GetProjectileSpawnEffectProjectileNodeKey(string effectNodeKey)
     {
         return effectNodeKey + ProjectileSpawnEffectProjectileKeyMarker;
+    }
+
+    private static string GetProjectileEffectNodeKey(string projectileNodeKey, int effectIndex)
+    {
+        return projectileNodeKey + ProjectileEffectKeyMarker + effectIndex;
     }
 
     private static bool TryGetExecutionEffectNodeInfo(SkillNodeView nodeView, out string ownerExecutionNodeKey, out int effectIndex)
@@ -1847,6 +2028,35 @@ public sealed class SkillGraphView : GraphView
         return !string.IsNullOrEmpty(effectNodeKey);
     }
 
+    private static bool TryGetProjectileEffectNodeInfo(
+        SkillNodeView nodeView,
+        out string projectileNodeKey,
+        out int effectIndex)
+    {
+        projectileNodeKey = string.Empty;
+        effectIndex = -1;
+        if (nodeView == null || string.IsNullOrEmpty(nodeView.Key))
+        {
+            return false;
+        }
+
+        int markerIndex = nodeView.Key.LastIndexOf(ProjectileEffectKeyMarker, StringComparison.Ordinal);
+        if (markerIndex < 0)
+        {
+            return false;
+        }
+
+        string indexText = nodeView.Key.Substring(markerIndex + ProjectileEffectKeyMarker.Length);
+        if (!int.TryParse(indexText, out effectIndex) || effectIndex < 0)
+        {
+            effectIndex = -1;
+            return false;
+        }
+
+        projectileNodeKey = nodeView.Key.Substring(0, markerIndex);
+        return !string.IsNullOrEmpty(projectileNodeKey);
+    }
+
     private static bool TryGetSummonSpawnEffectFieldNodeInfo(SkillNodeView nodeView, string marker, out string effectNodeKey)
     {
         effectNodeKey = string.Empty;
@@ -1912,6 +2122,19 @@ public sealed class SkillGraphView : GraphView
             if (TryGetEffectSlotIndex(slotName, out int effectIndex))
             {
                 return GetSummonExecutionEffectAt(summonExecution, effectIndex) == asset;
+            }
+
+            return false;
+        }
+
+        if (nodeView.Kind == SkillNodeKind.ProjectileData && nodeView.Asset is ProjectileDataBase projectileData)
+        {
+            if (TryGetEffectSlotIndex(slotName, out int effectIndex))
+            {
+                return projectileData.Effects != null
+                    && effectIndex >= 0
+                    && effectIndex < projectileData.Effects.Count
+                    && projectileData.Effects[effectIndex] == asset;
             }
 
             return false;
@@ -2001,6 +2224,12 @@ public sealed class SkillGraphView : GraphView
                 return true;
             }
 
+            if (entry is ProjectileSpawnEffect projectileEffectOwner
+                && IsReferencedByProjectile(projectileEffectOwner.Projectile, asset))
+            {
+                return true;
+            }
+
             if (asset is DurationEffectItem durationAsset
                 && entry is DurationEffect durationEffect
                 && durationEffect.Effects != null
@@ -2049,6 +2278,12 @@ public sealed class SkillGraphView : GraphView
                 return true;
             }
 
+            if (effect is ProjectileSpawnEffect projectileEffectOwner
+                && IsReferencedByProjectile(projectileEffectOwner.Projectile, asset))
+            {
+                return true;
+            }
+
             if (effect is SummonSpawnEffect summonSpawnEffect)
             {
                 if (summonSpawnEffect.Move == asset || summonSpawnEffect.Execution == asset)
@@ -2060,6 +2295,44 @@ public sealed class SkillGraphView : GraphView
                 {
                     return true;
                 }
+            }
+        }
+
+        return false;
+    }
+
+    private bool IsReferencedByLooseProjectile(UnityEngine.Object asset)
+    {
+        if (asset == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < _looseAssets.Count; i++)
+        {
+            if (_looseAssets[i] is ProjectileDataBase projectileData
+                && !ReferenceEquals(projectileData, asset)
+                && IsReferencedByProjectile(projectileData, asset))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsReferencedByProjectile(ProjectileDataBase projectileData, UnityEngine.Object asset)
+    {
+        if (projectileData?.Effects == null || asset == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < projectileData.Effects.Count; i++)
+        {
+            if (projectileData.Effects[i] == asset)
+            {
+                return true;
             }
         }
 
@@ -2181,7 +2454,22 @@ public sealed class SkillGraphView : GraphView
                 }
                 break;
             case SkillNodeKind.Effect:
-                if (TryGetSummonExecutionEffectNodeInfo(nodeView, out string summonExecutionOwnerNodeKey, out int summonExecutionEffectIndex)
+                if (TryGetProjectileEffectNodeInfo(
+                        nodeView,
+                        out string projectileOwnerNodeKey,
+                        out int projectileEffectIndex)
+                    && _nodes.TryGetValue(projectileOwnerNodeKey, out SkillNodeView projectileOwnerNode)
+                    && projectileOwnerNode.Asset is ProjectileDataBase projectileData
+                    && projectileData.Effects != null
+                    && projectileEffectIndex >= 0
+                    && projectileEffectIndex < projectileData.Effects.Count
+                    && projectileData.Effects[projectileEffectIndex] == nodeView.Asset)
+                {
+                    Undo.RecordObject(projectileData, "Remove Projectile Effect");
+                    projectileData.Effects.RemoveAt(projectileEffectIndex);
+                    SkillGraphAssetUtility.MarkDirty(projectileData);
+                }
+                else if (TryGetSummonExecutionEffectNodeInfo(nodeView, out string summonExecutionOwnerNodeKey, out int summonExecutionEffectIndex)
                     && _nodes.TryGetValue(summonExecutionOwnerNodeKey, out SkillNodeView summonExecutionOwnerNode)
                     && summonExecutionOwnerNode.Asset is SummonExecutionData summonExecution
                     && GetSummonExecutionEffectAt(summonExecution, summonExecutionEffectIndex) == nodeView.Asset)

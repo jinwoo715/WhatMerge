@@ -183,10 +183,16 @@ namespace WhatMerge.Combat
             IDamageable target,
             AttackPayload payload,
             float multipleValue,
-            ElementType attackAttribute = ElementType.None)
+            ElementType attackAttribute = ElementType.None,
+            bool ignoreArmor = false)
         {
             int armor = target.Armor;
-            float reduceRatio = 1 - StatCalculator.GetDamageReductionRate(armor, payload.PercentPenetration, payload.FlatPenetration);
+            float reduceRatio = ignoreArmor
+                ? 1f
+                : 1 - StatCalculator.GetDamageReductionRate(
+                    armor,
+                    payload.PercentPenetration,
+                    payload.FlatPenetration);
             float attributeMultiplier = _attributeDamageRule.GetMultiplier(
                 attackAttribute,
                 target.BaseAttribute,

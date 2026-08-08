@@ -11,14 +11,8 @@ public static class SearchUtility
         List<Collider2D> detectedEnemy = new List<Collider2D>();
         foreach (var enemy in enemyList)
         {
-            Vector3 directionToEnemy = (enemy.transform.position - pivot).normalized;
-
-            float dotProduct = Vector3.Dot(toDir, directionToEnemy);
-            float angleToEnemy = Mathf.Acos(dotProduct) * Mathf.Rad2Deg;
-
-            if(angleToEnemy < detectionAngle)
+            if (enemy != null && IsInsideCone(pivot, toDir, enemy.transform.position, detectionAngle))
             {
-                Debug.Log($"Detect Enemy : {enemy.name}");
                 detectedEnemy.Add(enemy);
             }
         }
@@ -30,14 +24,8 @@ public static class SearchUtility
         List<Collider2D> detectedEnemy = new List<Collider2D>();
         foreach (var enemy in searchTotalEnemy)
         {
-            Vector3 directionToEnemy = (enemy.transform.position - pivotPoint).normalized;
-
-            float dotProduct = Vector3.Dot(toDir, directionToEnemy);
-            float angleToEnemy = Mathf.Acos(dotProduct) * Mathf.Rad2Deg;
-
-            if (angleToEnemy < detectionAngle)
+            if (enemy != null && IsInsideCone(pivotPoint, toDir, enemy.transform.position, detectionAngle))
             {
-                Debug.Log($"Detect Enemy : {enemy.name}");
                 detectedEnemy.Add(enemy);
             }
         }
@@ -48,19 +36,13 @@ public static class SearchUtility
         Collider2D[] searchTotalEnemy = Physics2D.OverlapCircleAll(pivotPoint, range, LayerMask.GetMask("Enemy"));
         List<Enemy> detectedEnemy = new List<Enemy>();
 
-        float angle = detectionAngle * 0.5f;
-
         foreach (var enemy in searchTotalEnemy)
         {
-            Vector3 directionToEnemy = (enemy.transform.position - pivotPoint).normalized;
-
-            float dotProduct = Vector3.Dot(toDir, directionToEnemy);
-            float angleToEnemy = Mathf.Acos(dotProduct) * Mathf.Rad2Deg;
-
-            if (angleToEnemy < angle)
+            if (enemy != null && IsInsideCone(pivotPoint, toDir, enemy.transform.position, detectionAngle))
             {
-                Debug.Log($"Detect Enemy : {enemy.name}");
-                detectedEnemy.Add(enemy.GetComponent<Enemy>());
+                Enemy target = enemy.GetComponent<Enemy>();
+                if (target != null)
+                    detectedEnemy.Add(target);
             }
         }
         return detectedEnemy;
@@ -131,7 +113,7 @@ public static class SearchUtility
         if (except != null)
             targets.Remove(except as T);
 
-        // °Å¸® ±âÁØÀ¸·Î Á¤·Ä
+        // ê±°ë¦¬ ê¸°ì¤€ìœ¼ë¡œ ì •ë ¬
         targets.Sort((a, b) =>
         {
             float distA = Vector2.SqrMagnitude((Vector2)a.transform.position - (Vector2)position);
@@ -139,7 +121,7 @@ public static class SearchUtility
             return distA.CompareTo(distB);
         });
 
-        // °¡±î¿î °ÍºÎÅÍ count °³¼ö¸¸ ¸®ÅÏ
+        // ê°€ê¹Œìš´ ê²ƒë¶€í„° count ê°œìˆ˜ë§Œ ë¦¬í„´
         if (targets.Count > count)
         {
             targets = targets.GetRange(0, count);
@@ -220,24 +202,44 @@ public static class SearchUtility
     {
         List<T> results = new List<T>();
 
+        if (list == null)
+            return results;
+
         foreach (var target in list)
         {
-            Vector3 directionToEnemy = (target.Position - pivot).normalized;
+            if (target == null || !target.IsActive)
+                continue;
 
-            float dotProduct = Vector3.Dot(dir, directionToEnemy);
-            float angleToEnemy = Mathf.Acos(dotProduct) * Mathf.Rad2Deg;
-
-            if (angleToEnemy < angle)
+            if (target is T result && IsInsideCone(pivot, dir, target.Position, angle))
             {
-                Debug.Log($"Detect Enemy : {target}");
-
-                if(target is T result)
-                {
-                    results.Add(result);
-                }
+                results.Add(result);
             }
         }
 
         return results;
+    }
+
+    private static bool IsInsideCone(
+        Vector3 pivot,
+        Vector3 direction,
+        Vector3 targetPosition,
+        float fullAngle)
+    {
+        if (float.IsNaN(fullAngle) || float.IsInfinity(fullAngle) || fullAngle <= 0f)
+            return false;
+
+        Vector2 toTarget = targetPosition - pivot;
+        if (toTarget.sqrMagnitude <= 0.000001f)
+            return true;
+
+        Vector2 forward = direction;
+        if (forward.sqrMagnitude <= 0.000001f)
+            return false;
+
+        float halfAngle = Mathf.Clamp(fullAngle * 0.5f, 0f, 180f);
+        float minimumDot = Mathf.Cos(halfAngle * Mathf.Deg2Rad);
+        float dot = Vector2.Dot(forward.normalized, toTarget.normalized);
+
+        return dot + 0.00001f >= minimumDot;
     }
 }

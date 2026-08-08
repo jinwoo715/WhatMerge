@@ -29,9 +29,9 @@ MonoBehaviour:
     - Heros: 010000000300000008000000090000000a000000
     HaveHeros:
     - HeroUID: 1
-      Level: 1
+      Level: 30
     - HeroUID: 3
-      Level: 1
+      Level: 30
     - HeroUID: 8
       Level: 1
     - HeroUID: 9

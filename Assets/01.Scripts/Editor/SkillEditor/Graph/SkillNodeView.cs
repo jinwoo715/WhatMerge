@@ -389,6 +389,7 @@ public sealed class SkillNodeView : Node
 
     private void CreateProjectileDataBodyFields()
     {
+        CreateEffectsFoldout();
     }
 
     private void CreateEffectBodyFields()
@@ -599,6 +600,8 @@ public sealed class SkillNodeView : Node
                 DrawSerializedObject(Asset);
                 break;
             case SkillNodeKind.ProjectileData:
+                DrawSerializedObject(Asset, "Effects");
+                break;
             case SkillNodeKind.SummonMove:
                 DrawSerializedObject(Asset);
                 break;
@@ -752,7 +755,10 @@ public sealed class SkillNodeView : Node
 
     private UnityEngine.Object GetEffectSlotOwner()
     {
-        if (Asset is ExecutionData || Asset is SummonExecutionData || Asset is DurationEffect)
+        if (Asset is ExecutionData
+            || Asset is SummonExecutionData
+            || Asset is DurationEffect
+            || Asset is ProjectileDataBase)
         {
             return Asset;
         }
@@ -780,6 +786,11 @@ public sealed class SkillNodeView : Node
         if (Asset is DurationEffect durationEffect)
         {
             return durationEffect.Effects;
+        }
+
+        if (Asset is ProjectileDataBase projectileData)
+        {
+            return projectileData.Effects;
         }
 
         return null;
@@ -825,6 +836,16 @@ public sealed class SkillNodeView : Node
             }
 
             return durationEffect.Effects;
+        }
+
+        if (Asset is ProjectileDataBase projectileData)
+        {
+            if (projectileData.Effects == null)
+            {
+                projectileData.Effects = new List<EffectBase>();
+            }
+
+            return projectileData.Effects;
         }
 
         return null;

@@ -55,22 +55,17 @@ public class DataManager : MonoBehaviour, IEnemyDataRepository, IEnemyRewardRepo
         else return new HeroSaveData();
     }
 
-    public void Init()
-    {
-        _mergeDatas = DeserializeTextData<MergeData>(_mergeDataText);
-
-        foreach (var item in PlayerConfig.HaveHeros)
-        {
-            _saveHeroData.Add(item.HeroUID, item);
-        }
-    }
-
     public void Init(IResourcesReader resourcesReader)
     {
         InitDictionary(_heroDatas, resourcesReader.GetTextAsset("HeroData"));
         InitDictionary(_atkDatas, resourcesReader.GetTextAsset("ATKData"));
         InitDictionary(_enemyDatas, resourcesReader.GetTextAsset("EnemyData"));
         InitRewardDictionary(resourcesReader.GetTextAsset("EnemyRewardData"));
+
+        foreach (var item in PlayerConfig.HaveHeros)
+        {
+            _saveHeroData.Add(item.HeroUID, item);
+        }
 
         var mergeData = resourcesReader.GetTextAsset("MergeData");
         _mergeDatas = DeserializeTextData<MergeData>(mergeData);
