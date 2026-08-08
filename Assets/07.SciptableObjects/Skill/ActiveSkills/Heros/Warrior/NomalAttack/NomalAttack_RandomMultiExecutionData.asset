@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0573a7a9871ae0349851f0e4b44c1858, type: 3}
-  m_Name: WizardSkillSet
+  m_Script: {fileID: 11500000, guid: 6066733ec5c35414eba1edbf8b4f4554, type: 3}
+  m_Name: NomalAttack_RandomMultiExecutionData
   m_EditorClassIdentifier: 
-  UID: 9
-  Sets: []
+  Effects: []
+  MultiCount: 5

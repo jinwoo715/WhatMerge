@@ -5,7 +5,7 @@ public static class StatCalculator
 {
     public static int BaseATK(int evolution, ATKData atkData)
     {
-        float[] multiple = { atkData.FirstMuliplier, atkData.SecondMultiplier};
+        float[] multiple = { atkData.FirstEvolution, atkData.SecondEvolution};
 
         float finalBaseATK = atkData.BaseATK;
 

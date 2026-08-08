@@ -1,7 +1,7 @@
 ﻿UID,Name,Description,SpriteKey,EnemyType,MaxHP,Armor,MoveSpeed,Attribute,SkillSetUID,RewardGroupUID
 1,슬라임,,Slime,Normal,5,0,1,None,0,1
 2,슬라임 킹,,SlimeKing,Boss,10,0,1,None,0,2
-3,버섯,,Mushroom,Normal,5,0,1,None,0,3
+3,버섯,,Mushroom,Normal,2000,0,1,None,0,3
 4,위그드라실,,Yggdrasil,Boss,10,0,1,None,0,4
 5,리자드맨,,Lizardman,Normal,10,0,1,None,0,5
 6,미노타우로스,,Minotaur,Boss,10,0,1,None,0,6

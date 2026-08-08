@@ -99,7 +99,7 @@ namespace WhatMerge.Heros
         private void SetEvolution()
         {
             int baseATK = StatCalculator.BaseATK(EvolutionLevel, _atkData);
-            float setAtk = StatCalculator.ATK(_upgradeLevel, baseATK, _atkData.GrowthRatio, _atkData.TierMultiplier);
+            float setAtk = StatCalculator.ATK(_upgradeLevel, baseATK, _atkData.GrowthRatio, _atkData.TierBonus);
             _stat.SetBaseValue(HeroStatType.Damage, setAtk);
 
             _heroVisual.SetEvolutionLevel(EvolutionLevel);

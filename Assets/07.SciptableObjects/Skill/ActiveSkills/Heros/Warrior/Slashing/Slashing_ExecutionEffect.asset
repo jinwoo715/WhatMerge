@@ -9,8 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0573a7a9871ae0349851f0e4b44c1858, type: 3}
-  m_Name: WizardSkillSet
+  m_Script: {fileID: 11500000, guid: a481cc1badf29f34b858c6a267bb14a5, type: 3}
+  m_Name: Slashing_ExecutionEffect
   m_EditorClassIdentifier: 
-  UID: 9
-  Sets: []
+  Chance: 1
+  VFX: {fileID: 0}
+  ExecuteThreshold: 0.025

@@ -16,3 +16,4 @@ MonoBehaviour:
   VFX: {fileID: 0}
   DamageRatio: 1
   Attribute: 0
+  ArmorIgnoreChance: 0

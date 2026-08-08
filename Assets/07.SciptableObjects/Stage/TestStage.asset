@@ -25,35 +25,35 @@ MonoBehaviour:
     SpawnDatas:
     - EnemyUID: 1
       StartDelay: 0
-      SpawnCount: 50
-      SpawnInterval: 0.3
+      SpawnCount: 1
+      SpawnInterval: 0.5
   - WaveIndex: 1
     WaveType: 0
     SpawnDatas:
     - EnemyUID: 1
       StartDelay: 0
-      SpawnCount: 30
-      SpawnInterval: 0.3
+      SpawnCount: 1
+      SpawnInterval: 0.5
   - WaveIndex: 2
     WaveType: 0
     SpawnDatas:
     - EnemyUID: 1
       StartDelay: 0
-      SpawnCount: 3
+      SpawnCount: 1
       SpawnInterval: 0.5
   - WaveIndex: 3
     WaveType: 0
     SpawnDatas:
     - EnemyUID: 1
       StartDelay: 0
-      SpawnCount: 3
+      SpawnCount: 1
       SpawnInterval: 0.5
   - WaveIndex: 4
     WaveType: 0
     SpawnDatas:
     - EnemyUID: 1
       StartDelay: 0
-      SpawnCount: 3
+      SpawnCount: 1
       SpawnInterval: 0.5
   - WaveIndex: 5
     WaveType: 0
@@ -445,4 +445,6 @@ MonoBehaviour:
     TimeLimit: 60
     BonusBattleCurrency: 0
     Entries:
+    - EnemyUID: 13
+    - EnemyUID: 13
     - EnemyUID: 13

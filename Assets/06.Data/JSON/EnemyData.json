@@ -30,7 +30,7 @@
     "Description": "",
     "SpriteKey": "Mushroom",
     "EnemyType": 0,
-    "MaxHP": 5.0,
+    "MaxHP": 2000.0,
     "Armor": 0.0,
     "MoveSpeed": 1.0,
     "Attribute": 0,

@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0573a7a9871ae0349851f0e4b44c1858, type: 3}
   m_Name: PristSkillSet
   m_EditorClassIdentifier: 
-  UID: 0
+  UID: 8
   Sets: []

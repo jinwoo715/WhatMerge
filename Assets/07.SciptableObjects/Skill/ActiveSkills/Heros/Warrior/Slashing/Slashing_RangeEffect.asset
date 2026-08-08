@@ -9,8 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0573a7a9871ae0349851f0e4b44c1858, type: 3}
-  m_Name: WizardSkillSet
+  m_Script: {fileID: 11500000, guid: 95bd6b0065f82224a83c327c67a4e3dd, type: 3}
+  m_Name: Slashing_RangeEffect
   m_EditorClassIdentifier: 
-  UID: 9
-  Sets: []
+  Chance: 1
+  VFX: {fileID: 0}
+  Range: 1
+  Effects:
+  - {fileID: 0}
