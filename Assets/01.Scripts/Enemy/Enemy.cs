@@ -175,6 +175,10 @@ namespace WhatMerge.Enemies
                 throw new ArgumentOutOfRangeException(nameof(data), data.MoveSpeed, "Enemy MoveSpeed must be greater than zero.");
             if (!Enum.IsDefined(typeof(ElementType), data.Attribute))
                 throw new ArgumentOutOfRangeException(nameof(data), data.Attribute, "Enemy Attribute must be a single defined value.");
+            if (data.KillGold < 0)
+                throw new ArgumentOutOfRangeException(nameof(data), data.KillGold, "Enemy KillGold cannot be negative.");
+            if (data.RewardGroupUID < 0)
+                throw new ArgumentOutOfRangeException(nameof(data), data.RewardGroupUID, "Enemy RewardGroupUID cannot be negative.");
             if (sprites == null)
                 throw new ArgumentNullException(nameof(sprites));
             if (sprites.Count < 3)
@@ -187,6 +191,7 @@ namespace WhatMerge.Enemies
             }
         }
 
+        public int KillGold => _data.KillGold;
         public int RewardGroupUID => _data.RewardGroupUID;
         public void AddFixedValue(EnemyStatType type, float value)
         {

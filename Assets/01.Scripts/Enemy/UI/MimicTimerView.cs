@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace WhatMerge.Enemies
 {
-    public sealed class MiddleBossTimerView : MonoBehaviour
+    public sealed class MimicTimerView : MonoBehaviour
     {
         private static readonly Vector2 TimerSize = new Vector2(24f, 12f);
         private static readonly Vector2 TimerPosition = new Vector2(0f, -6f);
@@ -21,7 +21,7 @@ namespace WhatMerge.Enemies
 
         public bool IsBound => _enemy != null;
 
-        public static MiddleBossTimerView Create(Transform parent)
+        public static MimicTimerView Create(Transform parent)
         {
             if (parent == null)
                 throw new ArgumentNullException(nameof(parent));
@@ -31,11 +31,11 @@ namespace WhatMerge.Enemies
                 typeof(RectTransform),
                 typeof(CanvasRenderer),
                 typeof(Image),
-                typeof(MiddleBossTimerView));
+                typeof(MimicTimerView));
             root.layer = parent.gameObject.layer;
             root.transform.SetParent(parent, false);
 
-            var view = root.GetComponent<MiddleBossTimerView>();
+            var view = root.GetComponent<MimicTimerView>();
             view._inactiveParent = parent;
             view.BuildVisuals();
             root.SetActive(false);
@@ -49,7 +49,7 @@ namespace WhatMerge.Enemies
             if (healthBar == null)
                 throw new ArgumentNullException(nameof(healthBar));
             if (IsBound)
-                throw new InvalidOperationException("The middle boss timer is already bound.");
+                throw new InvalidOperationException("The mimic timer is already bound.");
 
             _enemy = enemy;
             _lifeCycleVersion = enemy.LifeCycleVersion;
@@ -81,7 +81,7 @@ namespace WhatMerge.Enemies
         public void SetTime(float remainTime, float totalTime)
         {
             if (!IsBound)
-                throw new InvalidOperationException("The middle boss timer is not bound.");
+                throw new InvalidOperationException("The mimic timer is not bound.");
 
             _timerText.text = Mathf.CeilToInt(Mathf.Max(0f, remainTime)).ToString();
 

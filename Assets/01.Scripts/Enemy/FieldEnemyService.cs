@@ -84,7 +84,7 @@ namespace WhatMerge.Enemies
             {
                 OnDeathBossEnemy?.Invoke(enemy);
             }
-            else if (enemy.Type == EnemyType.MiddleBoss)
+            else if (enemy.Type == EnemyType.Mimic)
             {
                 OnDeathMidBossEnemy?.Invoke(enemy);
             }

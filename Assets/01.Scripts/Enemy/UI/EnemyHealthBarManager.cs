@@ -16,7 +16,7 @@ namespace WhatMerge.Enemies
 
         private RectTransform _root;
         private Canvas _canvas;
-        private MiddleBossTimerView _middleBossTimerView;
+        private MimicTimerView _mimicTimerView;
         private IEnemySpawnService _enemySpawnService;
         private IMidBossChallengeInfo _midBossChallengeInfo;
         private bool _initialized;
@@ -42,7 +42,7 @@ namespace WhatMerge.Enemies
             if (_worldCamera == null)
                 throw new InvalidOperationException("A world camera is required for enemy health bars.");
 
-            _middleBossTimerView = MiddleBossTimerView.Create(_root);
+            _mimicTimerView = MimicTimerView.Create(_root);
 
             for (int i = 0; i < _prewarmCount; i++)
                 _viewPool.Push(CreateView());
@@ -50,8 +50,8 @@ namespace WhatMerge.Enemies
             _enemySpawnService.OnSpawnEnemy += HandleEnemySpawn;
             _enemySpawnService.OnDeathEnemy += HandleEnemyRemoved;
             _enemySpawnService.OnDespawnEnemy += HandleEnemyRemoved;
-            _midBossChallengeInfo.OnMidBossTimeChanged += HandleMidBossTimeChanged;
-            _midBossChallengeInfo.OnMidBossChallengeEnded += HandleMidBossChallengeEnded;
+            _midBossChallengeInfo.OnMimicTimeChanged += HandleMidBossTimeChanged;
+            _midBossChallengeInfo.OnMimicChallengeEnded += HandleMidBossChallengeEnded;
             _initialized = true;
         }
 
@@ -125,20 +125,20 @@ namespace WhatMerge.Enemies
             if (enemy == null)
                 throw new ArgumentNullException(nameof(enemy));
             if (!_activeViews.TryGetValue(enemy, out EnemyHealthBarView view))
-                throw new InvalidOperationException("The active middle boss has no health bar.");
+                throw new InvalidOperationException("The active mimic has no health bar.");
 
-            if (!_middleBossTimerView.IsBound)
-                _middleBossTimerView.Bind(enemy, view.transform);
-            else if (!_middleBossTimerView.Matches(enemy))
-                throw new InvalidOperationException("The middle boss timer is bound to another enemy.");
+            if (!_mimicTimerView.IsBound)
+                _mimicTimerView.Bind(enemy, view.transform);
+            else if (!_mimicTimerView.Matches(enemy))
+                throw new InvalidOperationException("The mimic timer is bound to another enemy.");
 
-            _middleBossTimerView.SetTime(remainTime, totalTime);
+            _mimicTimerView.SetTime(remainTime, totalTime);
         }
 
         private void HandleMidBossChallengeEnded(Enemy enemy)
         {
-            if (_middleBossTimerView.Matches(enemy))
-                _middleBossTimerView.Unbind();
+            if (_mimicTimerView.Matches(enemy))
+                _mimicTimerView.Unbind();
         }
 
         private void Release(Enemy enemy)
@@ -146,8 +146,8 @@ namespace WhatMerge.Enemies
             if (!_activeViews.TryGetValue(enemy, out EnemyHealthBarView view))
                 return;
 
-            if (_middleBossTimerView.Matches(enemy))
-                _middleBossTimerView.Unbind();
+            if (_mimicTimerView.Matches(enemy))
+                _mimicTimerView.Unbind();
 
             _activeViews.Remove(enemy);
             view.Unbind();
@@ -167,8 +167,8 @@ namespace WhatMerge.Enemies
             _enemySpawnService.OnSpawnEnemy -= HandleEnemySpawn;
             _enemySpawnService.OnDeathEnemy -= HandleEnemyRemoved;
             _enemySpawnService.OnDespawnEnemy -= HandleEnemyRemoved;
-            _midBossChallengeInfo.OnMidBossTimeChanged -= HandleMidBossTimeChanged;
-            _midBossChallengeInfo.OnMidBossChallengeEnded -= HandleMidBossChallengeEnded;
+            _midBossChallengeInfo.OnMimicTimeChanged -= HandleMidBossTimeChanged;
+            _midBossChallengeInfo.OnMimicChallengeEnded -= HandleMidBossChallengeEnded;
 
             _staleEnemies.Clear();
             foreach (Enemy enemy in new List<Enemy>(_activeViews.Keys))

@@ -14,6 +14,7 @@ namespace WhatMerge.Enemies
         public float MoveSpeed;
         public ElementType Attribute;
         public int SkillSetUID;
+        public int KillGold;
         public int RewardGroupUID;
     }
 }

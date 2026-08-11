@@ -127,7 +127,7 @@ namespace WhatMerge.Enemies
         {
             return enemyType switch
             {
-                EnemyType.MiddleBoss => new Color(0.95f, 0.56f, 0.12f, 1f),
+                EnemyType.Mimic => new Color(0.95f, 0.56f, 0.12f, 1f),
                 EnemyType.Boss => new Color(0.82f, 0.16f, 0.16f, 1f),
                 _ => new Color(0.22f, 0.78f, 0.32f, 1f)
             };

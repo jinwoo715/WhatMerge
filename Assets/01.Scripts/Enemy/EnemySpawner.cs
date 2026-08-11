@@ -11,7 +11,7 @@ namespace WhatMerge.Enemies
     public enum EnemyType
     {
         Normal,
-        MiddleBoss,
+        Mimic,
         Boss
     }
 

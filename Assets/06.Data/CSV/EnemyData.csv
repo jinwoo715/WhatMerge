@@ -1,14 +1,14 @@
-﻿UID,Name,Description,SpriteKey,EnemyType,MaxHP,Armor,MoveSpeed,Attribute,SkillSetUID,RewardGroupUID
-1,슬라임,,Slime,Normal,5,0,1,None,0,1
-2,슬라임 킹,,SlimeKing,Boss,10,0,1,None,0,2
-3,버섯,,Mushroom,Normal,2000,0,1,None,0,3
-4,위그드라실,,Yggdrasil,Boss,10,0,1,None,0,4
-5,리자드맨,,Lizardman,Normal,10,0,1,None,0,5
-6,미노타우로스,,Minotaur,Boss,10,0,1,None,0,6
-7,웨어울프,,Werewolf,Normal,10,0,1,None,0,7
-8,라이칸스로프,,Lycanthrope,Boss,10,0,1,None,0,8
-9,골렘,,Golem,Normal,10,0,1,None,0,9
-10,타이탄,,Titan,Boss,10,0,1,None,0,10
-11,엘리멘탈,,Elemental,Normal,10,0,1,None,0,11
-12,가디언,,Guardian,Boss,10,0,1,None,0,12
-13,가디언,,Guardian,MiddleBoss,10,0,1,None,0,12
+﻿UID,Name,Description,SpriteKey,EnemyType,MaxHP,Armor,MoveSpeed,Attribute,SkillSetUID,KillGold,RewardGroupUID
+1,슬라임,,Slime,Normal,5,0,1,None,0,10,0
+2,슬라임 킹,,SlimeKing,Boss,10,0,1,None,0,10,0
+3,버섯,,Mushroom,Normal,2000,0,1,None,0,10,0
+4,위그드라실,,Yggdrasil,Boss,10,0,1,None,0,10,0
+5,리자드맨,,Lizardman,Normal,10,0,1,None,0,10,0
+6,미노타우로스,,Minotaur,Boss,10,0,1,None,0,10,0
+7,웨어울프,,Werewolf,Normal,10,0,1,None,0,10,0
+8,라이칸스로프,,Lycanthrope,Boss,10,0,1,None,0,10,0
+9,골렘,,Golem,Normal,10,0,1,None,0,10,0
+10,타이탄,,Titan,Boss,10,0,1,None,0,10,0
+11,엘리멘탈,,Elemental,Normal,10,0,1,None,0,10,0
+12,가디언,,Guardian,Boss,10,0,1,None,0,10,0
+13,가디언,,Guardian,Mimic,10,0,1,None,0,10,0

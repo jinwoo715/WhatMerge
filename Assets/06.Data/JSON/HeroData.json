@@ -4,7 +4,7 @@
     "Description": "Warrior",
     "SpriteKey": "Warrior",
     "ATKUID": 1,
-    "AttackSpeed": 2.0,
+    "AttackSpeed": 4,
     "Penetration": 0,
     "CriticalChance": 0.0,
     "CriticalMultiplier": 1.0,
