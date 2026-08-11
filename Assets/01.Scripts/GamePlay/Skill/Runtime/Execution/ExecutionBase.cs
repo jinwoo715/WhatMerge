@@ -10,7 +10,8 @@ namespace Skill
 {
     public interface IExecute
     {
-        IEnumerator Execute(IReadOnlyList<ICombatant> targets);
+        float BaseAnimationDuration { get; }
+        IEnumerator Execute(IReadOnlyList<ICombatant> targets, float animationTimeScale);
     }
 
     public abstract class ExecutionBase : IExecute
@@ -28,6 +29,10 @@ namespace Skill
         private Enemy _previousEnemy;
         private int _previousEnemyLifeCycleVersion;
 
+        public virtual float BaseAnimationDuration => _animaData == null
+            ? 0f
+            : _animaData.ReadyMotionTime + _animaData.ExecutionMotionTime;
+
         protected ExecutionBase(SkillExecutionContext executionContext, SkillRuntimeContext runtimeContext)
         {
             _animaData = executionContext.AnimationData;
@@ -40,24 +45,31 @@ namespace Skill
             SkillUid = executionContext.SkillUid;
             OwnerSpawnIndex = executionContext.Hero.SpawnIndex;
             _effectLifetime = executionContext.EffectLifetime;
-        }
-        public abstract IEnumerator Execute(IReadOnlyList<ICombatant> targets);
 
-        protected IEnumerator SetReadyMotion()
+            ValidateAnimationData(_animaData);
+        }
+        public abstract IEnumerator Execute(IReadOnlyList<ICombatant> targets, float animationTimeScale);
+
+        protected IEnumerator SetReadyMotion(float animationTimeScale)
         {
             if (_spriteChanger != null && _animaData != null)
             {
                 _spriteChanger.SetSprite(_animaData.MotionReadyName);
-                yield return new WaitForSeconds(_animaData.ReadyMotionTime);
+
+                float duration = _animaData.ReadyMotionTime * animationTimeScale;
+                if (duration > 0f)
+                    yield return new WaitForSeconds(duration);
             }
         }
-        protected IEnumerator SetExecutionMotion()
+        protected IEnumerator SetExecutionMotion(float animationTimeScale)
         {
             if (_spriteChanger != null && _animaData != null)
             {
                 _spriteChanger.SetSprite(_animaData.MotionName);
-                Debug.Log(_animaData.MotionName);
-                yield return new WaitForSeconds(_animaData.ExecutionMotionTime);
+
+                float duration = _animaData.ExecutionMotionTime * animationTimeScale;
+                if (duration > 0f)
+                    yield return new WaitForSeconds(duration);
             }
         }
         public void SetIdleMotion()
@@ -155,6 +167,26 @@ namespace Skill
 
             _previousEnemy = null;
             _previousEnemyLifeCycleVersion = 0;
+        }
+
+        private static void ValidateAnimationData(SkillAnimationData animationData)
+        {
+            if (animationData == null)
+                return;
+
+            ValidateAnimationTime(animationData.ReadyMotionTime, nameof(animationData.ReadyMotionTime));
+            ValidateAnimationTime(animationData.ExecutionMotionTime, nameof(animationData.ExecutionMotionTime));
+        }
+
+        private static void ValidateAnimationTime(float value, string fieldName)
+        {
+            if (float.IsNaN(value) || float.IsInfinity(value) || value < 0f)
+            {
+                throw new System.ArgumentOutOfRangeException(
+                    fieldName,
+                    value,
+                    "Animation time must be a finite number greater than or equal to zero.");
+            }
         }
     }
 }

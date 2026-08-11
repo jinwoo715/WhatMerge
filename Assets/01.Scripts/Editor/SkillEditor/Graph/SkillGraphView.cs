@@ -19,6 +19,7 @@ public sealed class SkillGraphView : GraphView
     private const string SummonSpawnEffectMoveKeyMarker = "::summon-spawn-move";
     private const string SummonSpawnEffectExecutionKeyMarker = "::summon-spawn-execution";
     private const string DurationEffectEffectKeyMarker = "::duration-effect";
+    private const string RangeEffectEffectKeyMarker = "::range-effect::";
     private const string SummonExecutionEffectKeyMarker = "::summon-execution-effect::";
     private const string ProjectileSpawnEffectProjectileKeyMarker = "::projectile-spawn-projectile";
     private const string ProjectileEffectKeyMarker = "::projectile-effect::";
@@ -112,7 +113,8 @@ public sealed class SkillGraphView : GraphView
             ScriptableObject looseAsset = _looseAssets[i];
             if (looseAsset == null
                 || IsReferencedBySkill(looseAsset)
-                || IsReferencedByLooseProjectile(looseAsset))
+                || IsReferencedByLooseProjectile(looseAsset)
+                || IsReferencedByLooseRangeEffect(looseAsset))
             {
                 _looseAssets.RemoveAt(i);
                 continue;
@@ -685,6 +687,12 @@ public sealed class SkillGraphView : GraphView
                 return durationChildNodeKey;
             }
 
+            if (entry is RangeEffect rangeEffect
+                && TryGetRangeEffectChildNodeKey(durationEffectNodeKey, rangeEffect, asset, out string rangeChildNodeKey))
+            {
+                return rangeChildNodeKey;
+            }
+
             if (entry is SummonSpawnEffect summonSpawnEffect)
             {
                 string effectNodeKey = GetExecutionEffectNodeKey(executionNodeKey, i);
@@ -738,6 +746,13 @@ public sealed class SkillGraphView : GraphView
                 && TryGetDurationEffectChildNodeKey(effectNodeKey, durationEffect, asset, out string durationChildNodeKey))
             {
                 nodeKey = durationChildNodeKey;
+                return true;
+            }
+
+            if (effect is RangeEffect rangeEffect
+                && TryGetRangeEffectChildNodeKey(effectNodeKey, rangeEffect, asset, out string rangeChildNodeKey))
+            {
+                nodeKey = rangeChildNodeKey;
                 return true;
             }
 
@@ -838,6 +853,7 @@ public sealed class SkillGraphView : GraphView
             AddProjectileSpawnEffectReferenceNodes(effectNodeKey, entry, new Rect(executionPosition.x + 1010f, executionPosition.y + 220f + i * 290f, 270f, 260f));
             AddSummonSpawnEffectReferenceNodes(effectNodeKey, entry, new Rect(executionPosition.x + 1010f, executionPosition.y + 220f + i * 290f, 270f, 260f));
             AddDurationEffectReferenceNodes(effectNodeKey, entry, new Rect(executionPosition.x + 1010f, executionPosition.y + 220f + i * 290f, 270f, 260f));
+            AddRangeEffectReferenceNodes(effectNodeKey, entry, new Rect(executionPosition.x + 1010f, executionPosition.y + 220f + i * 290f, 270f, 260f));
         }
     }
 
@@ -870,6 +886,7 @@ public sealed class SkillGraphView : GraphView
             AddProjectileSpawnEffectReferenceEdges(effectNodeKey, execution.Effects[i]);
             AddSummonSpawnEffectReferenceEdges(effectNodeKey, execution.Effects[i]);
             AddDurationEffectReferenceEdges(effectNodeKey, execution.Effects[i]);
+            AddRangeEffectReferenceEdges(effectNodeKey, execution.Effects[i]);
         }
     }
 
@@ -1007,6 +1024,57 @@ public sealed class SkillGraphView : GraphView
         }
     }
 
+    private void AddRangeEffectReferenceNodes(string effectNodeKey, EffectBase effect, Rect defaultPosition)
+    {
+        if (string.IsNullOrEmpty(effectNodeKey)
+            || effect is not RangeEffect rangeEffect
+            || rangeEffect.Effects == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < rangeEffect.Effects.Count; i++)
+        {
+            EffectBase childEffect = rangeEffect.Effects[i];
+            if (childEffect == null
+                || !TryGetNodeInfo(childEffect, out SkillNodeKind kind, out string title, out Color color))
+            {
+                continue;
+            }
+
+            Rect position = new Rect(
+                defaultPosition.x,
+                defaultPosition.y + i * 290f,
+                defaultPosition.width,
+                defaultPosition.height);
+            AddNode(kind, GetRangeEffectEffectNodeKey(effectNodeKey, i), title, childEffect, i, position, color);
+        }
+    }
+
+    private void AddRangeEffectReferenceEdges(string effectNodeKey, EffectBase effect)
+    {
+        if (string.IsNullOrEmpty(effectNodeKey)
+            || effect is not RangeEffect rangeEffect
+            || rangeEffect.Effects == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < rangeEffect.Effects.Count; i++)
+        {
+            if (rangeEffect.Effects[i] == null)
+            {
+                continue;
+            }
+
+            AddCachedReferenceEdge(
+                GetRangeEffectEffectNodeKey(effectNodeKey, i),
+                "Effect",
+                effectNodeKey,
+                SkillNodeView.GetEffectSlotName(i));
+        }
+    }
+
     private void AddSummonSpawnEffectReferenceNodes(string effectNodeKey, EffectBase effect, Rect defaultPosition)
     {
         if (string.IsNullOrEmpty(effectNodeKey) || effect is not SummonSpawnEffect summonSpawnEffect)
@@ -1074,6 +1142,7 @@ public sealed class SkillGraphView : GraphView
                 AddProjectileSpawnEffectReferenceNodes(effectNodeKey, effect, new Rect(position.x + 320f, position.y, 270f, 260f));
                 AddSummonSpawnEffectReferenceNodes(effectNodeKey, effect, new Rect(position.x + 320f, position.y, 270f, 260f));
                 AddDurationEffectReferenceNodes(effectNodeKey, effect, new Rect(position.x + 320f, position.y, 270f, 260f));
+                AddRangeEffectReferenceNodes(effectNodeKey, effect, new Rect(position.x + 320f, position.y, 270f, 260f));
             }
         }
     }
@@ -1099,6 +1168,7 @@ public sealed class SkillGraphView : GraphView
             AddProjectileSpawnEffectReferenceEdges(effectNodeKey, effect);
             AddSummonSpawnEffectReferenceEdges(effectNodeKey, effect);
             AddDurationEffectReferenceEdges(effectNodeKey, effect);
+            AddRangeEffectReferenceEdges(effectNodeKey, effect);
         }
     }
 
@@ -1124,6 +1194,34 @@ public sealed class SkillGraphView : GraphView
             }
 
             nodeKey = GetDurationEffectEffectNodeKey(effectNodeKey, i);
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryGetRangeEffectChildNodeKey(
+        string effectNodeKey,
+        RangeEffect rangeEffect,
+        UnityEngine.Object asset,
+        out string nodeKey)
+    {
+        nodeKey = string.Empty;
+        if (string.IsNullOrEmpty(effectNodeKey)
+            || rangeEffect?.Effects == null
+            || asset == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < rangeEffect.Effects.Count; i++)
+        {
+            if (rangeEffect.Effects[i] != asset)
+            {
+                continue;
+            }
+
+            nodeKey = GetRangeEffectEffectNodeKey(effectNodeKey, i);
             return true;
         }
 
@@ -1192,6 +1290,42 @@ public sealed class SkillGraphView : GraphView
         }
 
         durationEffect.Effects.RemoveAt(index);
+    }
+
+    private static EffectBase GetRangeEffectAt(RangeEffect rangeEffect, int index)
+    {
+        if (rangeEffect?.Effects == null || index < 0 || index >= rangeEffect.Effects.Count)
+        {
+            return null;
+        }
+
+        return rangeEffect.Effects[index];
+    }
+
+    private static void SetRangeEffectAt(RangeEffect rangeEffect, int index, EffectBase effect)
+    {
+        if (rangeEffect == null || index < 0)
+        {
+            return;
+        }
+
+        rangeEffect.Effects ??= new List<EffectBase>();
+        while (rangeEffect.Effects.Count <= index)
+        {
+            rangeEffect.Effects.Add(null);
+        }
+
+        rangeEffect.Effects[index] = effect;
+    }
+
+    private static void RemoveRangeEffectAt(RangeEffect rangeEffect, int index)
+    {
+        if (rangeEffect?.Effects == null || index < 0 || index >= rangeEffect.Effects.Count)
+        {
+            return;
+        }
+
+        rangeEffect.Effects.RemoveAt(index);
     }
 
     private static int GetSummonExecutionEffectCount(SummonExecutionData execution)
@@ -1316,6 +1450,15 @@ public sealed class SkillGraphView : GraphView
                 projectileData,
                 new Rect(defaultPosition.x + 320f, defaultPosition.y, 270f, 260f));
             AddProjectileEffectReferenceEdges(key, projectileData);
+        }
+
+        if (asset is RangeEffect rangeEffect)
+        {
+            AddRangeEffectReferenceNodes(
+                key,
+                rangeEffect,
+                new Rect(defaultPosition.x + 320f, defaultPosition.y, 270f, 260f));
+            AddRangeEffectReferenceEdges(key, rangeEffect);
         }
     }
 
@@ -1559,6 +1702,18 @@ public sealed class SkillGraphView : GraphView
                 return;
             }
 
+            if (effectAsset is RangeEffect indexedRangeEffect
+                && TryGetEffectSlotIndex(slotName, out int rangeEffectIndex))
+            {
+                if (newAsset == null || newAsset is EffectBase)
+                {
+                    SetRangeEffectAt(indexedRangeEffect, rangeEffectIndex, newAsset as EffectBase);
+                }
+
+                SkillGraphAssetUtility.MarkDirty(effectAsset);
+                return;
+            }
+
             switch (slotName)
             {
                 case "VFX":
@@ -1690,6 +1845,18 @@ public sealed class SkillGraphView : GraphView
                 return;
             }
 
+            if (effectAsset is RangeEffect indexedRangeEffect
+                && TryGetEffectSlotIndex(slotName, out int rangeEffectIndex))
+            {
+                if (GetRangeEffectAt(indexedRangeEffect, rangeEffectIndex) == oldAsset)
+                {
+                    SetRangeEffectAt(indexedRangeEffect, rangeEffectIndex, null);
+                }
+
+                SkillGraphAssetUtility.MarkDirty(effectAsset);
+                return;
+            }
+
             switch (slotName)
             {
                 case "VFX":
@@ -1797,6 +1964,14 @@ public sealed class SkillGraphView : GraphView
             return GetDurationEffectEffectNodeKey(inputNode.Key, durationEffectIndex);
         }
 
+        if (inputNode != null
+            && inputNode.Kind == SkillNodeKind.Effect
+            && inputNode.Asset is RangeEffect
+            && TryGetEffectSlotIndex(slotName, out int rangeEffectIndex))
+        {
+            return GetRangeEffectEffectNodeKey(inputNode.Key, rangeEffectIndex);
+        }
+
         if (inputNode != null && inputNode.Kind == SkillNodeKind.Effect && slotName == "Projectile")
         {
             return GetProjectileSpawnEffectProjectileNodeKey(inputNode.Key);
@@ -1855,6 +2030,11 @@ public sealed class SkillGraphView : GraphView
     private static string GetDurationEffectEffectNodeKey(string effectNodeKey, int effectIndex)
     {
         return effectNodeKey + DurationEffectEffectKeyMarker + effectIndex;
+    }
+
+    private static string GetRangeEffectEffectNodeKey(string effectNodeKey, int effectIndex)
+    {
+        return effectNodeKey + RangeEffectEffectKeyMarker + effectIndex;
     }
 
     private static string GetSummonExecutionEffectNodeKey(string executionNodeKey, int effectIndex)
@@ -1974,6 +2154,35 @@ public sealed class SkillGraphView : GraphView
         }
 
         string indexText = nodeView.Key.Substring(markerIndex + DurationEffectEffectKeyMarker.Length);
+        if (!int.TryParse(indexText, out effectIndex) || effectIndex < 0)
+        {
+            effectIndex = -1;
+            return false;
+        }
+
+        effectNodeKey = nodeView.Key.Substring(0, markerIndex);
+        return !string.IsNullOrEmpty(effectNodeKey);
+    }
+
+    private static bool TryGetRangeEffectEffectNodeInfo(
+        SkillNodeView nodeView,
+        out string effectNodeKey,
+        out int effectIndex)
+    {
+        effectNodeKey = string.Empty;
+        effectIndex = -1;
+        if (nodeView == null || string.IsNullOrEmpty(nodeView.Key))
+        {
+            return false;
+        }
+
+        int markerIndex = nodeView.Key.LastIndexOf(RangeEffectEffectKeyMarker, StringComparison.Ordinal);
+        if (markerIndex < 0)
+        {
+            return false;
+        }
+
+        string indexText = nodeView.Key.Substring(markerIndex + RangeEffectEffectKeyMarker.Length);
         if (!int.TryParse(indexText, out effectIndex) || effectIndex < 0)
         {
             effectIndex = -1;
@@ -2148,6 +2357,12 @@ public sealed class SkillGraphView : GraphView
                 return GetDurationEffectAt(indexedDurationEffect, durationEffectIndex) == asset;
             }
 
+            if (effectAsset is RangeEffect indexedRangeEffect
+                && TryGetEffectSlotIndex(slotName, out int rangeEffectIndex))
+            {
+                return GetRangeEffectAt(indexedRangeEffect, rangeEffectIndex) == asset;
+            }
+
             switch (slotName)
             {
                 case "VFX":
@@ -2238,6 +2453,12 @@ public sealed class SkillGraphView : GraphView
                 return true;
             }
 
+            if (entry is RangeEffect rangeEffect
+                && IsReferencedByRangeEffect(rangeEffect, asset))
+            {
+                return true;
+            }
+
             if (entry is SummonSpawnEffect summonSpawnEffect
                 && (summonSpawnEffect.Move == asset || summonSpawnEffect.Execution == asset))
             {
@@ -2269,6 +2490,12 @@ public sealed class SkillGraphView : GraphView
                 && effect is DurationEffect durationEffect
                 && durationEffect.Effects != null
                 && durationEffect.Effects.Contains(durationAsset))
+            {
+                return true;
+            }
+
+            if (effect is RangeEffect rangeEffect
+                && IsReferencedByRangeEffect(rangeEffect, asset))
             {
                 return true;
             }
@@ -2313,6 +2540,44 @@ public sealed class SkillGraphView : GraphView
             if (_looseAssets[i] is ProjectileDataBase projectileData
                 && !ReferenceEquals(projectileData, asset)
                 && IsReferencedByProjectile(projectileData, asset))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private bool IsReferencedByLooseRangeEffect(UnityEngine.Object asset)
+    {
+        if (asset == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < _looseAssets.Count; i++)
+        {
+            if (_looseAssets[i] is RangeEffect rangeEffect
+                && !ReferenceEquals(rangeEffect, asset)
+                && IsReferencedByRangeEffect(rangeEffect, asset))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsReferencedByRangeEffect(RangeEffect rangeEffect, UnityEngine.Object asset)
+    {
+        if (rangeEffect?.Effects == null || asset == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < rangeEffect.Effects.Count; i++)
+        {
+            if (rangeEffect.Effects[i] == asset)
             {
                 return true;
             }
@@ -2489,6 +2754,18 @@ public sealed class SkillGraphView : GraphView
                     Undo.RecordObject(durationEffect, "Remove Duration Effect");
                     RemoveDurationEffectAt(durationEffect, durationEffectIndex);
                     SkillGraphAssetUtility.MarkDirty(durationEffect);
+                }
+                else if (TryGetRangeEffectEffectNodeInfo(
+                        nodeView,
+                        out string rangeEffectOwnerNodeKey,
+                        out int rangeEffectIndex)
+                    && _nodes.TryGetValue(rangeEffectOwnerNodeKey, out SkillNodeView rangeEffectOwnerNode)
+                    && rangeEffectOwnerNode.Asset is RangeEffect rangeEffect
+                    && GetRangeEffectAt(rangeEffect, rangeEffectIndex) == nodeView.Asset)
+                {
+                    Undo.RecordObject(rangeEffect, "Remove Range Effect");
+                    RemoveRangeEffectAt(rangeEffect, rangeEffectIndex);
+                    SkillGraphAssetUtility.MarkDirty(rangeEffect);
                 }
                 else if (TryGetExecutionEffectNodeInfo(nodeView, out string effectOwnerNodeKey, out int executionEffectIndex)
                     && _nodes.TryGetValue(effectOwnerNodeKey, out SkillNodeView effectOwnerNode)

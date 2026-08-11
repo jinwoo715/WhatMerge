@@ -217,6 +217,8 @@ namespace Core.BootStrapper
             _heroClicker.OnDragTile += _heroController.DragTile;
             _heroClicker.OnPointDownTile += _=> _heroRangeViewer.HideHeroRange();
 
+            _heroBag.OnInputHero += (_, _) => _heroRangeViewer.HideHeroRange();
+
             _heroController.OnSelectHero += _heroClickInteractViewer.ShowInteractUI;
             _heroController.OnSelectHero += _heroRangeViewer.ShowHeroRange;
 

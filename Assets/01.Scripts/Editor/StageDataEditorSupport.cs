@@ -119,20 +119,21 @@ namespace WhatMerge.Stage.Editor
             if (!TryGetEnemy(enemyUID, out EnemyData enemy))
                 return "Reward unavailable";
 
-            if (!_rewardsByGroup.TryGetValue(enemy.RewardGroupUID, out List<EnemyRewardData> rewards)
-                || rewards.Count == 0)
-            {
-                return "No base reward";
-            }
-
             List<string> parts = new List<string>();
-            for (int i = 0; i < rewards.Count; i++)
+            if (enemy.KillGold > 0)
+                parts.Add($"Gold {enemy.KillGold}");
+
+            if (enemy.RewardGroupUID > 0
+                && _rewardsByGroup.TryGetValue(enemy.RewardGroupUID, out List<EnemyRewardData> rewards))
             {
-                EnemyRewardData reward = rewards[i];
-                parts.Add($"{reward.RewardType} {reward.Amount} ({reward.DropChance:P0})");
+                for (int i = 0; i < rewards.Count; i++)
+                {
+                    EnemyRewardData reward = rewards[i];
+                    parts.Add($"{reward.RewardType} {reward.Amount} ({reward.DropChance:P0})");
+                }
             }
 
-            return string.Join(", ", parts);
+            return parts.Count > 0 ? string.Join(", ", parts) : "No reward";
         }
     }
 
@@ -358,7 +359,7 @@ namespace WhatMerge.Stage.Editor
             StageEditorCatalog catalog,
             ICollection<StageValidationMessage> messages)
         {
-            MiddleBossChallengeData challenge = stage.MiddleBossChallenge;
+            MimicChallengeData challenge = stage.MimicChallenge;
             if (challenge == null || !challenge.IsEnabled)
             {
                 messages.Add(Info("Middle boss not configured"));
@@ -386,13 +387,13 @@ namespace WhatMerge.Stage.Editor
 
             for (int i = 0; i < challenge.Entries.Count; i++)
             {
-                MiddleBossEntryData entry = challenge.Entries[i];
+                MimicEntryData entry = challenge.Entries[i];
                 if (entry == null || !catalog.TryGetEnemy(entry.EnemyUID, out EnemyData enemy))
                 {
                     messages.Add(Error($"Middle boss entry {i + 1} references a missing enemy."));
                     valid = false;
                 }
-                else if (enemy.EnemyType != EnemyType.MiddleBoss)
+                else if (enemy.EnemyType != EnemyType.Mimic)
                 {
                     messages.Add(Error($"Enemy {enemy.UID} is {enemy.EnemyType}, not MiddleBoss."));
                     valid = false;

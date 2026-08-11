@@ -12,7 +12,7 @@ namespace WhatMerge.Stage
         private IStageView _view;
         private MidBossInfoPopup _popup;
         private IStageService _stageService;
-        private MiddleBossEntryData _currentMidBossData;
+        private MimicEntryData _currentMidBossData;
         private int _midBossRewardAmount;
         private IEnemyDataRepository _enemyDataRepository;
         private ISpriteRepository _enemySpriteRepository;
@@ -37,15 +37,15 @@ namespace WhatMerge.Stage
             _popup.OnCloseButton += CloseMidBossPopup;
             _popup.OnClickTryButton += SummonMidBoss;
 
-            _stageService.OnShowMiddleBossSpawnButton += ActiveOnMidBossButton;
-            _stageService.OnHideMiddleBossSpawnButton += DeactiveMidBossButton;
+            _stageService.OnShowMimicSpawnButton += ActiveOnMidBossButton;
+            _stageService.OnHideMimicSpawnButton += DeactiveMidBossButton;
 
             _model.OnChangeCurrentWave += UpdateWave;
             _model.OnChangeRemainTime += UpdateWaveTime;
             _model.OnChangeAliveEnemy += UpdateActiveEnemyCount;
         }
 
-        private void ActiveOnMidBossButton(MiddleBossEntryData midBossData, int rewardAmount)
+        private void ActiveOnMidBossButton(MimicEntryData midBossData, int rewardAmount)
         {
             _currentMidBossData = midBossData;
             _midBossRewardAmount = rewardAmount;
@@ -59,7 +59,7 @@ namespace WhatMerge.Stage
         }
         private void SummonMidBoss()
         {
-            _stageService.SummonMiddleBoss();
+            _stageService.SpawnMimic();
             CloseMidBossPopup();
         }
 
@@ -67,11 +67,11 @@ namespace WhatMerge.Stage
         {
             var enemyData = _enemyDataRepository.GetData(_currentMidBossData.EnemyUID);
             if (enemyData == null)
-                throw new InvalidOperationException($"Middle boss enemy {_currentMidBossData.EnemyUID} does not exist.");
+                throw new InvalidOperationException($"Mimic enemy {_currentMidBossData.EnemyUID} does not exist.");
 
             List<Sprite> sprites = _enemySpriteRepository.GetSprites(enemyData.SpriteKey);
             if (sprites == null || sprites.Count == 0)
-                throw new InvalidOperationException($"Middle boss enemy {enemyData.UID} has no sprite.");
+                throw new InvalidOperationException($"Mimic enemy {enemyData.UID} has no sprite.");
 
             string count = _midBossRewardAmount.ToString();
 

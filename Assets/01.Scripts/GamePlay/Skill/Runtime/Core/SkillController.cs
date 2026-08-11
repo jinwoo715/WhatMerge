@@ -17,8 +17,10 @@ namespace Skill
         private MonoBehaviour _coroutineRunner;
         private Coroutine _currentSkill;
 
-        private float _executionTime;
-        private float _time;
+        private float _attackInterval;
+        private float _elapsedTime;
+        private float _lastAttackStartTime;
+        private float _nextAttackTime;
         private float _mana;
         private int _hitCount;
 
@@ -27,16 +29,19 @@ namespace Skill
         private float _manaChargeMultiple = 1;
 
         public float BasicAttackRange => _activeSkills.Count > 0 ? _activeSkills[0].Target.Range : 0f;
+        public float CurrentMana => _mana;
+        public float MaxMana { get; }
+        public float AttackInterval => _attackInterval;
+        public float NextAttackTime => _nextAttackTime;
 
         public SkillController(List<IActiveSkill> activeSkills, List<IPassiveSkill> passiveSkills, MonoBehaviour coroutineRunner, float delay)
         {
             _activeSkills = activeSkills;
             _passiveSkills = passiveSkills;
             _coroutineRunner = coroutineRunner;
-            _executionTime = delay;
-
-            Debug.Log(_activeSkills.Count);
-            Debug.Log(_passiveSkills.Count);
+            _attackInterval = ValidateAttackInterval(delay);
+            _nextAttackTime = _attackInterval;
+            MaxMana = CalculateMaxMana(_activeSkills);
 
             ApplyPassive();
         }
@@ -58,27 +63,30 @@ namespace Skill
 
         public void UpdateDelayTime(float delay)
         {
-            _executionTime = delay;
+            _attackInterval = ValidateAttackInterval(delay);
+            _nextAttackTime = _lastAttackStartTime + _attackInterval;
         }
 
         public void Tick(float tickValue)
         {
-            if (_isUsingSkill == true) return;
-
-            _time += tickValue;
+            _elapsedTime += tickValue;
             ChargeMana(tickValue);
 
-            if (_time >= _executionTime)
+            if (_isUsingSkill || _elapsedTime < _nextAttackTime)
+                return;
+
+            IActiveSkill executeSkill = GetUsableSkill();
+            if (executeSkill == null)
             {
-                IActiveSkill executeSkill = GetUsableSkill();
-
-                if (executeSkill != null)
-                {
-                    _currentSkill = _coroutineRunner.StartCoroutine(CoExecuteSkill(executeSkill));
-                }
-
-                _time = 0;
+                return;
             }
+
+            _lastAttackStartTime = _elapsedTime;
+            _nextAttackTime = _lastAttackStartTime + _attackInterval;
+
+            float animationTimeScale = CalculateAnimationTimeScale(executeSkill);
+            _currentSkill = _coroutineRunner.StartCoroutine(
+                CoExecuteSkill(executeSkill, animationTimeScale));
         }
         private IActiveSkill GetUsableSkill()
         {
@@ -100,12 +108,12 @@ namespace Skill
             return usableSkill;
         }
 
-        private IEnumerator CoExecuteSkill(IActiveSkill skill)
+        private IEnumerator CoExecuteSkill(IActiveSkill skill, float animationTimeScale)
         {
             _isUsingSkill = true;
 
             skill.Trigger.UseTriggerResource(this);
-            yield return skill.Execute();
+            yield return skill.Execute(animationTimeScale);
 
             _isUsingSkill = false;
 
@@ -114,7 +122,7 @@ namespace Skill
 
         private void ChargeMana(float manaAmount)
         {
-            _mana += manaAmount * 10 * _manaChargeMultiple;
+            AddMana(manaAmount * 10 * _manaChargeMultiple);
         }
 
         public void ConsumeHitCount(int count)
@@ -126,7 +134,7 @@ namespace Skill
         public void ConsumeMana(float amount)
         {
             Debug.Log("Concume Mana");
-            _mana = Mathf.Max(0, _mana-amount);
+            _mana = Mathf.Clamp(_mana - amount, 0f, MaxMana);
         }
 
         public void AddHitCount(int count)
@@ -136,12 +144,53 @@ namespace Skill
 
         public void AddMana(float amount)
         {
-            _mana += amount;
+            _mana = Mathf.Clamp(_mana + amount, 0f, MaxMana);
         }
 
         public void IncreaseManaAmoutRaio(float ratio)
         {
             _manaChargeMultiple += ratio;
+        }
+
+        private static float CalculateMaxMana(IReadOnlyList<IActiveSkill> activeSkills)
+        {
+            float maxMana = 0f;
+
+            for (int i = 0; i < activeSkills.Count; i++)
+            {
+                if (activeSkills[i]?.Trigger is ManaTrigger manaTrigger)
+                {
+                    maxMana = Mathf.Max(maxMana, manaTrigger.RequiredMana);
+                }
+            }
+
+            return maxMana;
+        }
+
+        private float CalculateAnimationTimeScale(IActiveSkill skill)
+        {
+            float animationDuration = skill.BaseAnimationDuration;
+            if (animationDuration <= 0f || animationDuration <= _attackInterval)
+            {
+                return 1f;
+            }
+
+            return _attackInterval / animationDuration;
+        }
+
+        private static float ValidateAttackInterval(float attackInterval)
+        {
+            if (float.IsNaN(attackInterval)
+                || float.IsInfinity(attackInterval)
+                || attackInterval <= 0f)
+            {
+                throw new System.ArgumentOutOfRangeException(
+                    nameof(attackInterval),
+                    attackInterval,
+                    "Attack interval must be a finite number greater than zero.");
+            }
+
+            return attackInterval;
         }
 
         public void StopRunner()
@@ -150,6 +199,7 @@ namespace Skill
                 _coroutineRunner.StopCoroutine(_currentSkill);
 
             _currentSkill = null;
+            _isUsingSkill = false;
             ReleasePassive();
 
             foreach (var activeSkill in _activeSkills)

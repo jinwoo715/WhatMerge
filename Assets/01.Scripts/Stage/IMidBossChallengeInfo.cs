@@ -5,7 +5,7 @@ namespace WhatMerge.Stage
 {
     public interface IMidBossChallengeInfo
     {
-        event Action<Enemy, float, float> OnMidBossTimeChanged;
-        event Action<Enemy> OnMidBossChallengeEnded;
+        event Action<Enemy, float, float> OnMimicTimeChanged;
+        event Action<Enemy> OnMimicChallengeEnded;
     }
 }

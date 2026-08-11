@@ -213,6 +213,14 @@ public static class SkillGraphAssetUtility
                         {
                             yield return projectileEffect.VFX;
                         }
+
+                        if (projectileEffect is RangeEffect projectileRangeEffect)
+                        {
+                            foreach (Object rangeReference in GetRangeEffectReferences(projectileRangeEffect))
+                            {
+                                yield return rangeReference;
+                            }
+                        }
                     }
                 }
             }
@@ -225,6 +233,14 @@ public static class SkillGraphAssetUtility
                     {
                         yield return durationEffect.Effects[j];
                     }
+                }
+            }
+
+            if (entry is RangeEffect rangeEffect)
+            {
+                foreach (Object rangeReference in GetRangeEffectReferences(rangeEffect))
+                {
+                    yield return rangeReference;
                 }
             }
 
@@ -247,7 +263,16 @@ public static class SkillGraphAssetUtility
                     {
                         if (onceExecution.Effects[j] != null)
                         {
-                            yield return onceExecution.Effects[j];
+                            NormalEffect summonEffect = onceExecution.Effects[j];
+                            yield return summonEffect;
+
+                            if (summonEffect is RangeEffect summonRangeEffect)
+                            {
+                                foreach (Object rangeReference in GetRangeEffectReferences(summonRangeEffect))
+                                {
+                                    yield return rangeReference;
+                                }
+                            }
                         }
                     }
                 }
@@ -262,6 +287,49 @@ public static class SkillGraphAssetUtility
                             yield return stayExecution.Effects[j];
                         }
                     }
+                }
+            }
+        }
+    }
+
+    private static IEnumerable<Object> GetRangeEffectReferences(RangeEffect rangeEffect)
+    {
+        var visited = new HashSet<RangeEffect>();
+        foreach (Object reference in GetRangeEffectReferences(rangeEffect, visited))
+        {
+            yield return reference;
+        }
+    }
+
+    private static IEnumerable<Object> GetRangeEffectReferences(
+        RangeEffect rangeEffect,
+        HashSet<RangeEffect> visited)
+    {
+        if (rangeEffect?.Effects == null || !visited.Add(rangeEffect))
+        {
+            yield break;
+        }
+
+        for (int i = 0; i < rangeEffect.Effects.Count; i++)
+        {
+            EffectBase effect = rangeEffect.Effects[i];
+            if (effect == null)
+            {
+                continue;
+            }
+
+            yield return effect;
+
+            if (effect.VFX != null)
+            {
+                yield return effect.VFX;
+            }
+
+            if (effect is RangeEffect nestedRangeEffect)
+            {
+                foreach (Object nestedReference in GetRangeEffectReferences(nestedRangeEffect, visited))
+                {
+                    yield return nestedReference;
                 }
             }
         }

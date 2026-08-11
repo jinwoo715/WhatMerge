@@ -10,9 +10,9 @@ namespace WhatMerge.Stage
     {
         event Action OnStageClear;
         event Action OnStageFail;
-        event Action<MiddleBossEntryData, int> OnShowMiddleBossSpawnButton;
-        event Action OnHideMiddleBossSpawnButton;
+        event Action<MimicEntryData, int> OnShowMimicSpawnButton;
+        event Action OnHideMimicSpawnButton;
 
-        void SummonMiddleBoss();
+        void SpawnMimic();
     }
 }

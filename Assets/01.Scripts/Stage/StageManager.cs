@@ -36,7 +36,7 @@ namespace WhatMerge.Stage
         private int _maxEnemyCount;
         private bool _initialized;
 
-        private MiddleBossEntryData _currentMidBoss;
+        private MimicEntryData _currentMimic;
         private int _midBossIndex;
         private float _midBossCooldown;
         private float _midBossRemainTime;
@@ -48,10 +48,10 @@ namespace WhatMerge.Stage
         public event Action<int> OnChangeCurrentWave;
         public event Action<float> OnChangeRemainTime;
         public event Action<int, int> OnChangeAliveEnemy;
-        public event Action<MiddleBossEntryData, int> OnShowMiddleBossSpawnButton;
-        public event Action OnHideMiddleBossSpawnButton;
-        public event Action<Enemy, float, float> OnMidBossTimeChanged;
-        public event Action<Enemy> OnMidBossChallengeEnded;
+        public event Action<MimicEntryData, int> OnShowMimicSpawnButton;
+        public event Action OnHideMimicSpawnButton;
+        public event Action<Enemy, float, float> OnMimicTimeChanged;
+        public event Action<Enemy> OnMimicChallengeEnded;
 
         public void Init(
             IEnemySpawnService enemySpawnService,
@@ -250,20 +250,20 @@ namespace WhatMerge.Stage
             _enemySpawnService.CancelWaveSpawn();
             _activeSpawnRequests.Clear();
             _currentWaveSpawnRequests.Clear();
-            StopMiddleBossForStageEnd();
+            StopMimicForStageEnd();
             return true;
         }
 
-        public void SummonMiddleBoss()
+        public void SpawnMimic()
         {
             if (_stageState != StageState.Running)
-                throw new InvalidOperationException("A middle boss can only be summoned while the stage is running.");
-            if (_midBossState != MidBossState.Available || _currentMidBoss == null)
-                throw new InvalidOperationException("A middle boss is not available for summoning.");
+                throw new InvalidOperationException("A mimic can only be summoned while the stage is running.");
+            if (_midBossState != MidBossState.Available || _currentMimic == null)
+                throw new InvalidOperationException("A mimic is not available for summoning.");
 
-            MiddleBossChallengeData middleBossData = _currentStageData.MiddleBossChallenge
-                ?? throw new InvalidOperationException("Middle boss data is missing.");
-            Enemy enemy = _enemySpawnService.SpawnEnemy(_currentMidBoss.EnemyUID);
+            MimicChallengeData mimicData = _currentStageData.MimicChallenge
+                ?? throw new InvalidOperationException("Mimic data is missing.");
+            Enemy enemy = _enemySpawnService.SpawnEnemy(_currentMimic.EnemyUID);
 
             if (_stageState != StageState.Running)
             {
@@ -272,19 +272,19 @@ namespace WhatMerge.Stage
                 return;
             }
 
-            if (enemy.Type != EnemyType.MiddleBoss)
+            if (enemy.Type != EnemyType.Mimic)
             {
                 _enemySpawnService.DespawnEnemy(enemy);
                 throw new InvalidOperationException(
-                    $"Enemy {enemy.UID} is configured as {enemy.Type}, not {EnemyType.MiddleBoss}.");
+                    $"Enemy {enemy.UID} is configured as {enemy.Type}, not {EnemyType.Mimic}.");
             }
 
             _activeMidBoss = enemy;
-            _midBossRemainTime = middleBossData.TimeLimit;
+            _midBossRemainTime = mimicData.TimeLimit;
             _midBossState = MidBossState.Active;
 
-            OnHideMiddleBossSpawnButton?.Invoke();
-            OnMidBossTimeChanged?.Invoke(enemy, _midBossRemainTime, middleBossData.TimeLimit);
+            OnHideMimicSpawnButton?.Invoke();
+            OnMimicTimeChanged?.Invoke(enemy, _midBossRemainTime, mimicData.TimeLimit);
         }
 
         private void HandleMidBossDeath(Enemy enemy)
@@ -296,7 +296,7 @@ namespace WhatMerge.Stage
                 return;
             }
 
-            int bonusBattleCurrency = _currentStageData.MiddleBossChallenge.BonusBattleCurrency;
+            int bonusBattleCurrency = _currentStageData.MimicChallenge.BonusBattleCurrency;
             if (bonusBattleCurrency > 0)
                 _gameCurrencyService.GainMoney(bonusBattleCurrency);
 
@@ -319,7 +319,7 @@ namespace WhatMerge.Stage
         private void UpdateMidBossCooldown()
         {
             _midBossCooldown += Time.deltaTime;
-            if (_midBossCooldown < _currentStageData.MiddleBossChallenge.Cooldown)
+            if (_midBossCooldown < _currentStageData.MimicChallenge.Cooldown)
                 return;
 
             if (!HasRemainingMidBoss())
@@ -328,21 +328,21 @@ namespace WhatMerge.Stage
                 return;
             }
 
-            _currentMidBoss = _currentStageData.MiddleBossChallenge.Entries[_midBossIndex]
-                ?? throw new InvalidOperationException($"Middle boss data at index {_midBossIndex} is null.");
+            _currentMimic = _currentStageData.MimicChallenge.Entries[_midBossIndex]
+                ?? throw new InvalidOperationException($"Mimic data at index {_midBossIndex} is null.");
             _midBossState = MidBossState.Available;
-            OnShowMiddleBossSpawnButton?.Invoke(
-                _currentMidBoss,
-                _currentStageData.MiddleBossChallenge.BonusBattleCurrency);
+            OnShowMimicSpawnButton?.Invoke(
+                _currentMimic,
+                _currentStageData.MimicChallenge.BonusBattleCurrency);
         }
 
         private void UpdateMidBossChallenge()
         {
             _midBossRemainTime = Mathf.Max(0f, _midBossRemainTime - Time.deltaTime);
-            OnMidBossTimeChanged?.Invoke(
+            OnMimicTimeChanged?.Invoke(
                 _activeMidBoss,
                 _midBossRemainTime,
-                _currentStageData.MiddleBossChallenge.TimeLimit);
+                _currentStageData.MimicChallenge.TimeLimit);
 
             if (_midBossRemainTime > 0f)
                 return;
@@ -356,10 +356,10 @@ namespace WhatMerge.Stage
 
         private void FinishMidBossChallenge(Enemy enemy)
         {
-            OnMidBossChallengeEnded?.Invoke(enemy);
+            OnMimicChallengeEnded?.Invoke(enemy);
 
             _activeMidBoss = null;
-            _currentMidBoss = null;
+            _currentMimic = null;
             _midBossRemainTime = 0f;
             _midBossCooldown = 0f;
             _midBossIndex++;
@@ -368,16 +368,16 @@ namespace WhatMerge.Stage
                 : MidBossState.Exhausted;
         }
 
-        private void StopMiddleBossForStageEnd()
+        private void StopMimicForStageEnd()
         {
-            OnHideMiddleBossSpawnButton?.Invoke();
+            OnHideMimicSpawnButton?.Invoke();
 
             Enemy activeMidBoss = _activeMidBoss;
             if (activeMidBoss != null)
-                OnMidBossChallengeEnded?.Invoke(activeMidBoss);
+                OnMimicChallengeEnded?.Invoke(activeMidBoss);
 
             _activeMidBoss = null;
-            _currentMidBoss = null;
+            _currentMimic = null;
             _midBossRemainTime = 0f;
             _midBossCooldown = 0f;
             _midBossState = MidBossState.Exhausted;
@@ -388,9 +388,9 @@ namespace WhatMerge.Stage
 
         private bool HasRemainingMidBoss()
         {
-            return _currentStageData.MiddleBossChallenge != null
-                && _currentStageData.MiddleBossChallenge.Entries != null
-                && _midBossIndex < _currentStageData.MiddleBossChallenge.Entries.Count;
+            return _currentStageData.MimicChallenge != null
+                && _currentStageData.MimicChallenge.Entries != null
+                && _midBossIndex < _currentStageData.MimicChallenge.Entries.Count;
         }
 
         private int GetStartWaveIndex()

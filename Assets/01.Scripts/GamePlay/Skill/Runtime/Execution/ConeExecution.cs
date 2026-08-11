@@ -36,12 +36,12 @@ namespace Skill
                 ?? throw new ArgumentNullException(nameof(executionContext.Finder));
         }
 
-        public override IEnumerator Execute(IReadOnlyList<ICombatant> targets)
+        public override IEnumerator Execute(IReadOnlyList<ICombatant> targets, float animationTimeScale)
         {
             ICombatant pivotTarget = SelectPrimaryTarget(targets);
             Vector3 direction = ResolveCastDirection(pivotTarget);
 
-            yield return SetReadyMotion();
+            yield return SetReadyMotion(animationTimeScale);
 
             if (_finder.TryGetTargets(_owner.Position, out IReadOnlyList<ICombatant> impactTargets))
             {
@@ -57,7 +57,7 @@ namespace Skill
                 }
             }
 
-            yield return SetExecutionMotion();
+            yield return SetExecutionMotion(animationTimeScale);
             SetIdleMotion();
         }
 

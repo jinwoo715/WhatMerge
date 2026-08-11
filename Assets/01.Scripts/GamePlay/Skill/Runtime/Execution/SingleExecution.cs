@@ -9,14 +9,14 @@ namespace Skill
     {
         public SingleExecution(SkillExecutionContext executionContext, SkillRuntimeContext runtimeContext) : base(executionContext, runtimeContext) { }
 
-        public override IEnumerator Execute(IReadOnlyList<ICombatant> targets)
+        public override IEnumerator Execute(IReadOnlyList<ICombatant> targets, float animationTimeScale)
         {
-            yield return SetReadyMotion();
+            yield return SetReadyMotion(animationTimeScale);
 
             ICombatant combatant = SelectPrimaryTarget(targets);
             ApplyEffectsToTarget(combatant);
 
-            yield return SetExecutionMotion();
+            yield return SetExecutionMotion(animationTimeScale);
 
             SetIdleMotion();
         }

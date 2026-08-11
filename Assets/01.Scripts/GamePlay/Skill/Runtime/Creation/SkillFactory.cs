@@ -24,8 +24,6 @@ namespace Skill
         {
             List<HeroSkillSet> sets = set.GetSets(level);
 
-            Debug.Log(sets.Count);
-
             SkillSet returnSkillSet = new SkillSet();
 
             Dictionary<ActiveSkillData, RuntimeExecution> runtimeActiveSkills = new();

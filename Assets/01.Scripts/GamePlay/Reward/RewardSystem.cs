@@ -4,7 +4,6 @@ using UnityEngine;
 
 public enum EnemyRewardType
 {
-    BattleCurrency,
     PermanentCurrency,
     Item,
 }
@@ -26,6 +25,7 @@ public interface IEnemyRewardRepository
 
 public interface IRewardProvider
 {
+    int KillGold { get; }
     int RewardGroupUID { get; }
 }
 
@@ -45,6 +45,12 @@ public class RewardSystem
         if (rewardProvider == null)
             throw new ArgumentNullException(nameof(rewardProvider));
 
+        if (rewardProvider.KillGold > 0)
+            _gameGoldService.GainMoney(rewardProvider.KillGold);
+
+        if (rewardProvider.RewardGroupUID <= 0)
+            return;
+
         IReadOnlyList<EnemyRewardData> rewards = _rewardRepository.GetRewards(rewardProvider.RewardGroupUID);
         for (int i = 0; i < rewards.Count; i++)
         {
@@ -54,9 +60,6 @@ public class RewardSystem
 
             switch (reward.RewardType)
             {
-                case EnemyRewardType.BattleCurrency:
-                    _gameGoldService.GainMoney(reward.Amount);
-                    break;
                 case EnemyRewardType.PermanentCurrency:
                 case EnemyRewardType.Item:
                     Debug.LogWarning($"Reward type {reward.RewardType} is not connected to permanent storage yet.");

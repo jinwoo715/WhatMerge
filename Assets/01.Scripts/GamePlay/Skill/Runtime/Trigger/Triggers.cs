@@ -16,7 +16,10 @@ namespace Skill
     }
     public class ManaTrigger : ITrigger
     {
-        private float _requiredValue;
+        private readonly float _requiredValue;
+
+        public float RequiredMana => _requiredValue;
+
         public ManaTrigger(float requiredValue)
         {
             if (float.IsNaN(requiredValue)

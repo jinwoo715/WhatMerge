@@ -426,7 +426,7 @@ namespace WhatMerge.Stage.Editor
             metrics.Add(CreateMetric("Boss Waves", CountWaves(WaveType.Boss).ToString()));
             metrics.Add(CreateMetric(
                 "Middle Boss",
-                _selectedStage.MiddleBossChallenge != null && _selectedStage.MiddleBossChallenge.IsEnabled
+                _selectedStage.MimicChallenge != null && _selectedStage.MimicChallenge.IsEnabled
                     ? "Configured"
                     : "Not configured"));
             summary.Add(metrics);
@@ -619,7 +619,7 @@ namespace WhatMerge.Stage.Editor
         private void BuildMiddleBossTab()
         {
             EnsureMiddleBossData();
-            MiddleBossChallengeData challenge = _selectedStage.MiddleBossChallenge;
+            MimicChallengeData challenge = _selectedStage.MimicChallenge;
 
             VisualElement settings = CreateSection("Challenge Settings");
             Label state = new Label(challenge.IsEnabled ? "Status: Configured" : "Status: Not configured");
@@ -645,7 +645,7 @@ namespace WhatMerge.Stage.Editor
             settings.Add(fields);
 
             Label rewardNote = new Label(
-                "Base kill rewards come from EnemyRewardData. Bonus Currency is granted in addition to them.");
+                "Base Kill Gold comes from EnemyData. Bonus Currency is granted in addition to it.");
             rewardNote.style.whiteSpace = WhiteSpace.Normal;
             rewardNote.style.color = (Color)new Color32(170, 170, 170, 255);
             rewardNote.style.marginTop = 8f;
@@ -653,7 +653,7 @@ namespace WhatMerge.Stage.Editor
             _mainContent.Add(settings);
 
             VisualElement entries = CreateSection("Summon Order");
-            IReadOnlyList<EnemyData> middleBossEnemies = _catalog.GetEnemies(EnemyType.MiddleBoss);
+            IReadOnlyList<EnemyData> middleBossEnemies = _catalog.GetEnemies(EnemyType.Mimic);
             if (middleBossEnemies.Count == 0)
             {
                 entries.Add(CreateNotice(
@@ -705,8 +705,8 @@ namespace WhatMerge.Stage.Editor
 
         private IMGUIContainer CreateMiddleBossList()
         {
-            SerializedProperty challengeProperty = _serializedStage.FindProperty(nameof(StageData.MiddleBossChallenge));
-            SerializedProperty entriesProperty = challengeProperty.FindPropertyRelative(nameof(MiddleBossChallengeData.Entries));
+            SerializedProperty challengeProperty = _serializedStage.FindProperty(nameof(StageData.MimicChallenge));
+            SerializedProperty entriesProperty = challengeProperty.FindPropertyRelative(nameof(MimicChallengeData.Entries));
 
             ReorderableList list = new ReorderableList(_serializedStage, entriesProperty, true, true, true, true)
             {
@@ -715,7 +715,7 @@ namespace WhatMerge.Stage.Editor
             list.drawHeaderCallback = rect => EditorGUI.LabelField(rect, "Order     Enemy / Preview / Base Reward");
             list.drawElementCallback = (rect, index, active, focused) =>
                 DrawMiddleBossElement(rect, entriesProperty, index);
-            list.onCanAddCallback = _ => _catalog.GetEnemies(EnemyType.MiddleBoss).Count > 0;
+            list.onCanAddCallback = _ => _catalog.GetEnemies(EnemyType.Mimic).Count > 0;
             list.onAddCallback = _ => AddMiddleBossEntry(entriesProperty);
             list.onRemoveCallback = target =>
             {
@@ -783,7 +783,7 @@ namespace WhatMerge.Stage.Editor
         private void DrawMiddleBossElement(Rect rect, SerializedProperty entries, int index)
         {
             SerializedProperty entry = entries.GetArrayElementAtIndex(index);
-            SerializedProperty enemyUID = entry.FindPropertyRelative(nameof(MiddleBossEntryData.EnemyUID));
+            SerializedProperty enemyUID = entry.FindPropertyRelative(nameof(MimicEntryData.EnemyUID));
 
             Rect orderRect = new Rect(rect.x, rect.y + 17f, 24f, EditorGUIUtility.singleLineHeight);
             EditorGUI.LabelField(orderRect, (index + 1).ToString());
@@ -793,7 +793,7 @@ namespace WhatMerge.Stage.Editor
 
             float contentX = previewRect.xMax + 8f;
             Rect popupRect = new Rect(contentX, rect.y + 4f, rect.xMax - contentX, EditorGUIUtility.singleLineHeight);
-            enemyUID.intValue = DrawEnemyPopup(popupRect, enemyUID.intValue, EnemyType.MiddleBoss);
+            enemyUID.intValue = DrawEnemyPopup(popupRect, enemyUID.intValue, EnemyType.Mimic);
 
             Rect rewardRect = new Rect(
                 contentX,
@@ -878,7 +878,7 @@ namespace WhatMerge.Stage.Editor
 
         private void AddMiddleBossEntry(SerializedProperty entries)
         {
-            IReadOnlyList<EnemyData> candidates = _catalog.GetEnemies(EnemyType.MiddleBoss);
+            IReadOnlyList<EnemyData> candidates = _catalog.GetEnemies(EnemyType.Mimic);
             if (candidates.Count == 0)
                 return;
 
@@ -886,7 +886,7 @@ namespace WhatMerge.Stage.Editor
             int index = entries.arraySize;
             entries.InsertArrayElementAtIndex(index);
             SerializedProperty entry = entries.GetArrayElementAtIndex(index);
-            entry.FindPropertyRelative(nameof(MiddleBossEntryData.EnemyUID)).intValue = candidates[0].UID;
+            entry.FindPropertyRelative(nameof(MimicEntryData.EnemyUID)).intValue = candidates[0].UID;
             ApplySerializedChanges(true);
         }
 
@@ -1053,11 +1053,11 @@ namespace WhatMerge.Stage.Editor
 
         private void EnsureMiddleBossData()
         {
-            if (_selectedStage.MiddleBossChallenge != null)
+            if (_selectedStage.MimicChallenge != null)
                 return;
 
             Undo.RecordObject(_selectedStage, "Initialize Middle Boss Data");
-            _selectedStage.MiddleBossChallenge = new MiddleBossChallengeData();
+            _selectedStage.MimicChallenge = new MimicChallengeData();
             EditorUtility.SetDirty(_selectedStage);
             _hasUnsavedChanges = true;
             _serializedStage = new SerializedObject(_selectedStage);
@@ -1232,7 +1232,7 @@ namespace WhatMerge.Stage.Editor
             stage.MaxEnemyCount = 100;
             stage.WaveCount = 60;
             stage.Waves = new List<WaveData>();
-            stage.MiddleBossChallenge = new MiddleBossChallengeData();
+            stage.MimicChallenge = new MimicChallengeData();
 
             AssetDatabase.CreateAsset(stage, path);
             AssetDatabase.SaveAssets();

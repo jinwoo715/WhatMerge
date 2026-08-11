@@ -18,18 +18,18 @@ namespace Skill
             }
         }
 
-        public override IEnumerator Execute(IReadOnlyList<ICombatant> targets)
+        public override IEnumerator Execute(IReadOnlyList<ICombatant> targets, float animationTimeScale)
         {
             HashSet<int> randomIndex = GetRandomCombatantIndex(targets);
 
-            yield return SetReadyMotion();
+            yield return SetReadyMotion(animationTimeScale);
 
             foreach (int index in randomIndex)
             {
                 ApplyEffectsToTarget(targets[index]);
             }
 
-            yield return SetExecutionMotion();
+            yield return SetExecutionMotion(animationTimeScale);
 
             SetIdleMotion();
         }

@@ -26,7 +26,7 @@ namespace WhatMerge.Stage
         public int WaveCount;
 
         public List<WaveData> Waves = new();
-        public MiddleBossChallengeData MiddleBossChallenge = new();
+        public MimicChallengeData MimicChallenge = new();
 
         public bool TryGetWave(int waveIndex, out WaveData waveData)
         {
@@ -75,7 +75,7 @@ namespace WhatMerge.Stage
                 throw new InvalidOperationException($"Stage {UID} wave count must be greater than zero.");
 
             ValidateWaves();
-            MiddleBossChallenge?.ValidateOrThrow(UID);
+            MimicChallenge?.ValidateOrThrow(UID);
         }
 
         private void ValidateWaves()
@@ -172,7 +172,7 @@ namespace WhatMerge.Stage
     }
 
     [Serializable]
-    public class MiddleBossChallengeData
+    public class MimicChallengeData
     {
         [Min(0f)]
         public float Cooldown;
@@ -183,7 +183,7 @@ namespace WhatMerge.Stage
         [Min(0)]
         public int BonusBattleCurrency;
 
-        public List<MiddleBossEntryData> Entries = new();
+        public List<MimicEntryData> Entries = new();
 
         public bool IsEnabled => Entries != null && Entries.Count > 0;
 
@@ -193,35 +193,35 @@ namespace WhatMerge.Stage
                 return;
 
             if (Cooldown <= 0f)
-                throw new InvalidOperationException($"Stage {stageUID} middle boss cooldown must be greater than zero.");
+                throw new InvalidOperationException($"Stage {stageUID} mimic cooldown must be greater than zero.");
 
             if (TimeLimit <= 0f)
-                throw new InvalidOperationException($"Stage {stageUID} middle boss time limit must be greater than zero.");
+                throw new InvalidOperationException($"Stage {stageUID} mimic time limit must be greater than zero.");
 
             if (BonusBattleCurrency < 0)
-                throw new InvalidOperationException($"Stage {stageUID} middle boss bonus currency cannot be negative.");
+                throw new InvalidOperationException($"Stage {stageUID} mimic bonus currency cannot be negative.");
 
             for (int i = 0; i < Entries.Count; i++)
             {
-                MiddleBossEntryData entry = Entries[i]
-                    ?? throw new InvalidOperationException($"Stage {stageUID} middle boss entry at index {i} is null.");
+                MimicEntryData entry = Entries[i]
+                    ?? throw new InvalidOperationException($"Stage {stageUID} mimic entry at index {i} is null.");
 
                 if (entry.EnemyUID <= 0)
-                    throw new InvalidOperationException($"Stage {stageUID} middle boss entry at index {i} has an invalid enemy UID.");
+                    throw new InvalidOperationException($"Stage {stageUID} mimic entry at index {i} has an invalid enemy UID.");
             }
         }
     }
 
     [Serializable]
-    public class MiddleBossEntryData
+    public class MimicEntryData
     {
         public int EnemyUID;
 
-        public MiddleBossEntryData()
+        public MimicEntryData()
         {
         }
 
-        public MiddleBossEntryData(int enemyUID)
+        public MimicEntryData(int enemyUID)
         {
             EnemyUID = enemyUID;
         }

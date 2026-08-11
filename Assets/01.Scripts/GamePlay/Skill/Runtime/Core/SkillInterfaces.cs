@@ -12,8 +12,9 @@ namespace Skill
         public ITrigger Trigger { get; }
         public IFinder Target { get; }
         public IExecute Execution { get; }
+        float BaseAnimationDuration { get; }
         bool IsUsable(SkillTriggerContext context);
-        IEnumerator Execute();
+        IEnumerator Execute(float animationTimeScale);
         void Dispose();
     }
     public interface IPassiveSkill : ISkill

@@ -15,6 +15,7 @@ namespace Skill
         public ITrigger Trigger { get; private set; }
         public IFinder Target { get; private set; }
         public IExecute Execution { get; private set; }
+        public float BaseAnimationDuration => Execution.BaseAnimationDuration;
 
         public int SkillUID { get; }
         public int SpawnIndex { get; }
@@ -42,11 +43,11 @@ namespace Skill
             return Target.TryGetTargets(_owner.Position, out _cachedTargets);
         }
 
-        public IEnumerator Execute()
+        public IEnumerator Execute(float animationTimeScale)
         {
             IReadOnlyList<ICombatant> targets = _cachedTargets;
             _cachedTargets = Array.Empty<ICombatant>();
-            yield return Execution.Execute(targets);
+            yield return Execution.Execute(targets, animationTimeScale);
         }
 
         public void Dispose()

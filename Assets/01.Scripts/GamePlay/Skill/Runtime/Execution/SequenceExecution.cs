@@ -10,6 +10,8 @@ namespace Skill
     {
         private readonly int _sequenceCount;
 
+        public override float BaseAnimationDuration => base.BaseAnimationDuration * _sequenceCount;
+
         public SequenceExecution(SkillExecutionContext executionContext, SkillRuntimeContext runtimeContext) : base(executionContext, runtimeContext)
         {
             if (executionContext.ExecutionData is not SequenceHitExecutionData sequenceExecution)
@@ -29,17 +31,17 @@ namespace Skill
             _sequenceCount = sequenceExecution.SequenceCount;
         }
 
-        public override IEnumerator Execute(IReadOnlyList<ICombatant> targets)
+        public override IEnumerator Execute(IReadOnlyList<ICombatant> targets, float animationTimeScale)
         {
             ICombatant combatant = SelectPrimaryTarget(targets);
 
             for (int i = 0; i < _sequenceCount; i++)
             {
-                yield return SetReadyMotion();
+                yield return SetReadyMotion(animationTimeScale);
 
                 ApplyEffectsToTarget(combatant);
 
-                yield return SetExecutionMotion();
+                yield return SetExecutionMotion(animationTimeScale);
             }
 
             SetIdleMotion();

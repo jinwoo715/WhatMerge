@@ -406,7 +406,7 @@ public sealed class SkillNodeView : Node
             AddBodyFieldSlot("Execution", "Execution", typeof(SummonExecutionData), summonSpawnEffect.Execution);
         }
 
-        if (Asset is DurationEffect)
+        if (Asset is DurationEffect || Asset is RangeEffect)
         {
             CreateEffectsFoldout();
         }
@@ -654,25 +654,38 @@ public sealed class SkillNodeView : Node
 
     private void DrawEffectInspectorFields(EffectBase effect)
     {
+        if (effect == null)
+        {
+            return;
+        }
+
+        DrawSerializedProperty(effect, "Chance", false);
+
         if (effect is SummonSpawnEffect)
         {
-            DrawSerializedObject(effect, "VFX", "Move", "Execution");
+            DrawSerializedObject(effect, "Chance", "VFX", "Move", "Execution");
             return;
         }
 
         if (effect is ProjectileSpawnEffect)
         {
-            DrawSerializedObject(effect, "VFX", "Projectile");
+            DrawSerializedObject(effect, "Chance", "VFX", "Projectile");
             return;
         }
 
         if (effect is DurationEffect)
         {
-            DrawSerializedObject(effect, "VFX", "Effects");
+            DrawSerializedObject(effect, "Chance", "VFX", "Effects");
             return;
         }
 
-        DrawSerializedObject(effect, "VFX");
+        if (effect is RangeEffect)
+        {
+            DrawSerializedObject(effect, "Chance", "VFX", "Effects");
+            return;
+        }
+
+        DrawSerializedObject(effect, "Chance", "VFX");
     }
 
     private void DrawSummonExecutionInspectorFields()
@@ -758,6 +771,7 @@ public sealed class SkillNodeView : Node
         if (Asset is ExecutionData
             || Asset is SummonExecutionData
             || Asset is DurationEffect
+            || Asset is RangeEffect
             || Asset is ProjectileDataBase)
         {
             return Asset;
@@ -786,6 +800,11 @@ public sealed class SkillNodeView : Node
         if (Asset is DurationEffect durationEffect)
         {
             return durationEffect.Effects;
+        }
+
+        if (Asset is RangeEffect rangeEffect)
+        {
+            return rangeEffect.Effects;
         }
 
         if (Asset is ProjectileDataBase projectileData)
@@ -836,6 +855,16 @@ public sealed class SkillNodeView : Node
             }
 
             return durationEffect.Effects;
+        }
+
+        if (Asset is RangeEffect rangeEffect)
+        {
+            if (rangeEffect.Effects == null)
+            {
+                rangeEffect.Effects = new List<EffectBase>();
+            }
+
+            return rangeEffect.Effects;
         }
 
         if (Asset is ProjectileDataBase projectileData)
