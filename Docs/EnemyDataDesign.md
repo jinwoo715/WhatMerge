@@ -4,16 +4,18 @@
 
 - 장르는 랜덤 디펜스입니다.
 - 적은 목적지를 향해 이동하며 영웅을 공격하지 않습니다.
-- `Normal`, `MiddleBoss`, `Boss` 모두 처치 시 게임 진행용 재화를 즉시 지급할 수 있습니다.
+- `Normal`, `Mimic`, `Boss` 모두 처치 시 게임 진행용 재화를 즉시 지급할 수 있습니다.
 - `Boss`는 추후 로비 재화, 영구 강화 재료 또는 아이템을 추가로 지급할 수 있습니다.
 - 보스는 개별 스킬을 가질 수 있지만 별도의 `BossData`는 만들지 않습니다.
 
 ## 2. 데이터 관리 방식
 
-`EnemyData.csv`를 원본으로 사용하고 변환된 `EnemyData.json`을 런타임에서 읽습니다.
+`EnemyData.xlsx`를 원본으로 사용하고 CSV와 JSON을 생성해 런타임에서 읽습니다.
 
 ```text
-EnemyData.csv
+EnemyData.xlsx
+  -> Data Converter
+  -> EnemyData.csv
   -> DataTransformer
   -> EnemyData.json
   -> Addressable TextAsset
@@ -25,7 +27,7 @@ EnemyData.csv
 ## 3. 확정 스키마
 
 ```csv
-UID,Name,Description,SpriteKey,EnemyType,MaxHP,Armor,MoveSpeed,Attribute,SkillSetUID,RewardGroupUID
+UID,Name,Description,SpriteKey,EnemyType,MaxHP,Armor,MoveSpeed,Attribute,SkillSetUID,KillGold,RewardGroupUID
 ```
 
 | 필드 | 형식 | 설명 |
@@ -34,13 +36,14 @@ UID,Name,Description,SpriteKey,EnemyType,MaxHP,Armor,MoveSpeed,Attribute,SkillSe
 | `Name` | `string` | UI에 표시할 한글 이름 |
 | `Description` | `string` | UI에 표시할 설명 |
 | `SpriteKey` | `string` | 스프라이트 이름의 고정 접두사 |
-| `EnemyType` | `EnemyType` | `Normal`, `MiddleBoss`, `Boss` |
+| `EnemyType` | `EnemyType` | `Normal`, `Mimic`, `Boss` |
 | `MaxHP` | `float` | 기본 최대 체력 |
 | `Armor` | `float` | 기본 방어력 |
 | `MoveSpeed` | `float` | 기본 이동속도 |
 | `Attribute` | `ElementType` | 기본 속성 |
 | `SkillSetUID` | `int` | `SkillSetContainer` UID. 스킬이 없으면 `0` |
-| `RewardGroupUID` | `int` | `EnemyRewardData`의 보상 그룹 UID |
+| `KillGold` | `int` | 처치 즉시 확정 지급하는 인게임 Gold. 없으면 `0` |
+| `RewardGroupUID` | `int` | Coin/Item 추가 보상 그룹 UID. 없으면 `0` |
 
 적이 영웅을 공격하지 않으므로 `AttackPower`, 관통력, 치명타 등의 공격 필드는 포함하지 않습니다.
 
@@ -51,7 +54,7 @@ UID,Name,Description,SpriteKey,EnemyType,MaxHP,Armor,MoveSpeed,Attribute,SkillSe
 | `HP` | `MaxHP`로 변경 |
 | `Amour` | `Armor`로 변경 |
 | `Nomal` | `Normal`로 변경 |
-| `Coin` | 제거하고 `RewardGroupUID`로 대체 |
+| `Coin` | 인게임 Gold는 `KillGold`, 영구 재화와 아이템은 `RewardGroupUID`로 분리 |
 | `SkillUID` | 제거하고 `SkillSetUID`로 대체 |
 | `IsBoss` | 제거하고 `EnemyType`으로 통일 |
 
@@ -98,21 +101,31 @@ EnemyData.SkillSetUID
 
 ## 7. 보상 연결
 
-`EnemyData`에는 보상 수량을 직접 넣지 않고 `RewardGroupUID`만 둡니다.
+대부분의 적이 확정 지급하는 인게임 Gold는 `EnemyData.KillGold`에 둡니다.
+
+```text
+EnemyData.KillGold
+  -> 적 처치
+  -> GameEconomySystem에 즉시 지급
+```
+
+Coin과 Item처럼 확률, 종류, 수량이 개별적으로 필요한 추가 보상만 `RewardGroupUID`로 연결합니다.
 
 ```csv
 UID,RewardGroupUID,RewardType,RewardUID,Amount,DropChance
 ```
 
-현재 데이터는 기존 `Coin = 10` 동작을 다음과 같이 옮겼습니다.
+추가 보상이 확정되면 다음과 같이 같은 그룹에 여러 행을 추가할 수 있습니다.
 
 ```csv
 UID,RewardGroupUID,RewardType,RewardUID,Amount,DropChance
-1,1,BattleCurrency,1,10,1
+1,100,PermanentCurrency,1,2,1
+2,100,Item,1001,1,0.1
 ```
 
-- `Normal`, `MiddleBoss`, `Boss`의 `BattleCurrency`는 처치 즉시 `GameEconomySystem`에 지급합니다.
-- 보스의 영구 재화와 아이템은 종류가 확정된 뒤 같은 `RewardGroupUID`에 추가합니다.
+- `Normal`, `Mimic`, `Boss` 모두 `KillGold`를 처치 즉시 지급합니다.
+- 현재 Coin과 Item이 확정되지 않았으므로 모든 적의 `RewardGroupUID`는 `0`입니다.
+- 보스의 영구 재화와 아이템은 종류가 확정된 뒤 보상 그룹에 추가합니다.
 - 영구 보상은 전투 재화와 다른 저장소로 전달해야 합니다.
 
 ## 8. CSV 변환 규칙
@@ -129,7 +142,7 @@ UID,RewardGroupUID,RewardType,RewardUID,Amount,DropChance
 예를 들어 쉼표가 포함된 설명은 다음처럼 작성할 수 있습니다.
 
 ```csv
-1,슬라임,"느리지만, 꾸준히 이동한다",Slime,Normal,5,0,1,None,0,1
+1,슬라임,"느리지만, 꾸준히 이동한다",Slime,Normal,5,0,1,None,0,10,0
 ```
 
 Unity 메뉴의 `Tools/Parse/CSV To Json`을 실행하면 다음 파일을 갱신합니다.
@@ -147,14 +160,15 @@ JSON은 생성 결과물이므로 직접 수정하지 않습니다.
 - 스프라이트와 스테이지 참조가 없는 기존 `MergeKeeper(1001)` 행은 제거했습니다.
 - 기존 `IsBoss = true`인 적은 `Boss`로 변경했습니다.
 - 기존 `IsBoss = false`인 적은 `Normal`로 변경했습니다.
-- 현재 중간 보스로 확정된 UID가 없어 `MiddleBoss` 행은 추가하지 않았습니다.
+- UID 13 가디언을 버튼으로 소환하는 `Mimic` 타입으로 사용합니다.
 - 기존 CSV의 체력 값을 원본으로 사용했습니다.
 - 현재 모든 적의 `SkillSetUID`는 기존 데이터와 동일하게 `0`입니다.
-- 현재 모든 적은 기존과 동일하게 전투 재화 10을 확정적으로 지급합니다.
+- 현재 모든 적은 `KillGold = 10`으로 전투 재화 10을 확정 지급합니다.
+- Coin과 Item이 확정되지 않아 현재 `EnemyRewardData`에는 추가 보상 행이 없습니다.
 
 ## 10. 다음 작업
 
-1. 실제 중간 보스 UID와 능력치 입력
+1. `Mimic`의 실제 능력치와 추가 보상 확정
 2. 보스별 `SkillSetContainer` 제작 및 `SkillSetUID` 입력
 3. 적 스킬 실행을 위한 공용 스킬 소유자 구조 설계
 4. 행동별 적 스프라이트 조회 구조 확장
