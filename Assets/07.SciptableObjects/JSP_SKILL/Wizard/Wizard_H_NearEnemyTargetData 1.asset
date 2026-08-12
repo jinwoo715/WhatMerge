@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d626e6ebbe6fd14ab734ab627b2dda3, type: 3}
-  m_Name: MegaHit_ManaTriggerData
+  m_Script: {fileID: 11500000, guid: 6e7e6c3f04992904aa85d37c18061ffc, type: 3}
+  m_Name: Wizard_H_NearEnemyTargetData 1
   m_EditorClassIdentifier: 
-  Mana: 30
+  Radius: 3

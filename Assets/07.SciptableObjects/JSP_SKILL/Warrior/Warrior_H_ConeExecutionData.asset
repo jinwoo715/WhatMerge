@@ -9,7 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d626e6ebbe6fd14ab734ab627b2dda3, type: 3}
-  m_Name: MegaHit_ManaTriggerData
+  m_Script: {fileID: 11500000, guid: a48e10ed3f5bca94cb7e2b4a1f3d327d, type: 3}
+  m_Name: Warrior_H_ConeExecutionData
   m_EditorClassIdentifier: 
-  Mana: 30
+  Effects:
+  - {fileID: 11400000, guid: 7096c950782e843479887bde651ba117, type: 2}
+  Angle: 60

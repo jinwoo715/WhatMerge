@@ -9,7 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d626e6ebbe6fd14ab734ab627b2dda3, type: 3}
-  m_Name: MegaHit_ManaTriggerData
+  m_Script: {fileID: 11500000, guid: 89455f5bdd1266e4aa3d5fbc8d81aa88, type: 3}
+  m_Name: Honor
   m_EditorClassIdentifier: 
-  Mana: 30
+  Chance: 0.1
+  VFX: {fileID: 0}
+  Radius: 3
+  Count: 2
+  TransitionRatio: 0.2

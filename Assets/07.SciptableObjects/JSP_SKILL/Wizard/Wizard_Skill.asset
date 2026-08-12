@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0573a7a9871ae0349851f0e4b44c1858, type: 3}
+  m_Name: Wizard_Skill
+  m_EditorClassIdentifier: 
+  UID: 0
+  Sets:
+  - Level: 0
+    Skill: {fileID: 11400000, guid: 41687d21d30d12e4bbe27898beea7f4a, type: 2}
+  - Level: 0
+    Skill: {fileID: 11400000, guid: 4cd2af924389fee40a32f082ef9da6cb, type: 2}
+  - Level: 0
+    Skill: {fileID: 11400000, guid: e612fab7770ed3d4986dddcf315a235b, type: 2}
+  - Level: 0
+    Skill: {fileID: 11400000, guid: 625455b7332655043a0234f10b21eca4, type: 2}
+  - Level: 0
+    Skill: {fileID: 11400000, guid: 34af9b83549b36d45a4353aa0772115b, type: 2}

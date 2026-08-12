@@ -25,8 +25,8 @@ MonoBehaviour:
     SpawnDatas:
     - EnemyUID: 1
       StartDelay: 0
-      SpawnCount: 1
-      SpawnInterval: 0.5
+      SpawnCount: 100
+      SpawnInterval: 0.1
   - WaveIndex: 1
     WaveType: 0
     SpawnDatas:
@@ -440,11 +440,8 @@ MonoBehaviour:
       StartDelay: 0
       SpawnCount: 1
       SpawnInterval: 0.5
-  MiddleBossChallenge:
-    Cooldown: 30
-    TimeLimit: 60
+  MimicChallenge:
+    Cooldown: 0
+    TimeLimit: 0
     BonusBattleCurrency: 0
-    Entries:
-    - EnemyUID: 13
-    - EnemyUID: 13
-    - EnemyUID: 13
+    Entries: []

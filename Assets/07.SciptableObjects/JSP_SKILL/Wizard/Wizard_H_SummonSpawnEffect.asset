@@ -9,11 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d9d7858b2c150ac4599c4ae4e304bfef, type: 3}
-  m_Name: MegaHit_DamageEffect
+  m_Script: {fileID: 11500000, guid: 00ebccf6796749146aa6709bd4446898, type: 3}
+  m_Name: Wizard_H_SummonSpawnEffect
   m_EditorClassIdentifier: 
   Chance: 1
   VFX: {fileID: 0}
-  DamageRatio: 5
-  Attribute: 0
-  ArmorIgnoreChance: 0
+  DurationTime: 1
+  Move: {fileID: 11400000, guid: 52e416913ac78ca46a0116e38f2b292c, type: 2}
+  Execution: {fileID: 11400000, guid: 395832016e1ea774d81f5790f97e996c, type: 2}
+  SpawnPosition: 0

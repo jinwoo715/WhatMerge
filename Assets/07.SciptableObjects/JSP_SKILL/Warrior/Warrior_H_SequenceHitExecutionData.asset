@@ -9,7 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d626e6ebbe6fd14ab734ab627b2dda3, type: 3}
-  m_Name: MegaHit_ManaTriggerData
+  m_Script: {fileID: 11500000, guid: 3eaf985ff8757fe4393cc518d99fe00b, type: 3}
+  m_Name: Warrior_H_SequenceHitExecutionData
   m_EditorClassIdentifier: 
-  Mana: 30
+  Effects: []
+  SequenceCount: 0
