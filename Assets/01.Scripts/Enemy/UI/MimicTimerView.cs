@@ -27,7 +27,7 @@ namespace WhatMerge.Enemies
                 throw new ArgumentNullException(nameof(parent));
 
             var root = new GameObject(
-                "MiddleBossTimer",
+                "MimicTimer",
                 typeof(RectTransform),
                 typeof(CanvasRenderer),
                 typeof(Image),
