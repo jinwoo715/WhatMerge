@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6f02a6d83a120d4fb18b17555cdc8e1, type: 3}
+  m_Name: Paladin_NomalAttack_SingleExecutionData
+  m_EditorClassIdentifier: 
+  ExecutionVFX: {fileID: 0}
+  Effects:
+  - {fileID: 11400000, guid: bb08f16d49f8cfa48a73fc7bc4699362, type: 2}

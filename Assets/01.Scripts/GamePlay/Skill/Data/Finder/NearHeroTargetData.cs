@@ -14,5 +14,6 @@ namespace Skill.Data
     public class NearHeroTargetData : HeroTargetData
     {
         public HeroSearchType TargetRange;
+        public bool IncludeSelf = true;
     }
 }

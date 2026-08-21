@@ -1,0 +1,237 @@
+{
+    "NodePositions": [
+        {
+            "Key": "active",
+            "Position": {
+                "serializedVersion": "2",
+                "x": 40.0,
+                "y": 160.0,
+                "width": 266.0,
+                "height": 423.0
+            }
+        },
+        {
+            "Key": "loose-ef715cba577dbfe4f84a0cd829ddebb1",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -426.0,
+                "y": 281.0,
+                "width": 410.0,
+                "height": 207.0
+            }
+        },
+        {
+            "Key": "execution",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -442.0,
+                "y": 160.0,
+                "width": 412.0,
+                "height": 287.0
+            }
+        },
+        {
+            "Key": "loose-20e1170429eaec449a86360ff0a054e3",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -407.0,
+                "y": 639.0,
+                "width": 375.0,
+                "height": 156.0
+            }
+        },
+        {
+            "Key": "trigger",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -407.0,
+                "y": 639.0,
+                "width": 376.0,
+                "height": 156.0
+            }
+        },
+        {
+            "Key": "loose-1fe0c493935955d4f82f10cddffe09cf",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -396.0,
+                "y": 447.0,
+                "width": 364.0,
+                "height": 136.0
+            }
+        },
+        {
+            "Key": "target",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -396.0,
+                "y": 447.0,
+                "width": 365.0,
+                "height": 156.0
+            }
+        },
+        {
+            "Key": "loose-862385e622db94a4293eaa0a9b740129",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -893.0,
+                "y": 160.0,
+                "width": 382.0,
+                "height": 212.0
+            }
+        },
+        {
+            "Key": "effect-0",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -988.0,
+                "y": 160.0,
+                "width": 507.0,
+                "height": 212.0
+            }
+        },
+        {
+            "Key": "loose-65d66d2e34e1ca74db5143e0427bbc39",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -1339.0,
+                "y": 160.0,
+                "width": 385.0,
+                "height": 169.0
+            }
+        },
+        {
+            "Key": "effect-0::projectile-spawn-projectile",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -1393.0,
+                "y": 160.0,
+                "width": 381.0,
+                "height": 359.0
+            }
+        },
+        {
+            "Key": "loose-f3aa1267028792949a0fac6bcdc4abbc",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -1404.0,
+                "y": 160.0,
+                "width": 380.0,
+                "height": 327.0
+            }
+        },
+        {
+            "Key": "loose-3d525ab107ac40342a27164642aa5a51",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -1826.0,
+                "y": 168.0,
+                "width": 376.0,
+                "height": 204.0
+            }
+        },
+        {
+            "Key": "effect-0::projectile-spawn-projectile::projectile-effect::0",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -1826.0,
+                "y": 168.0,
+                "width": 376.0,
+                "height": 204.0
+            }
+        }
+    ],
+    "AssetPositions": [
+        {
+            "Key": "asset-e6f8c2412b93bd44d81752ce76f4d4bb",
+            "Position": {
+                "serializedVersion": "2",
+                "x": 40.0,
+                "y": 160.0,
+                "width": 266.0,
+                "height": 423.0
+            }
+        },
+        {
+            "Key": "asset-ef715cba577dbfe4f84a0cd829ddebb1",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -442.0,
+                "y": 160.0,
+                "width": 412.0,
+                "height": 287.0
+            }
+        },
+        {
+            "Key": "asset-20e1170429eaec449a86360ff0a054e3",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -407.0,
+                "y": 639.0,
+                "width": 376.0,
+                "height": 156.0
+            }
+        },
+        {
+            "Key": "asset-1fe0c493935955d4f82f10cddffe09cf",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -396.0,
+                "y": 447.0,
+                "width": 365.0,
+                "height": 156.0
+            }
+        },
+        {
+            "Key": "asset-862385e622db94a4293eaa0a9b740129",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -988.0,
+                "y": 160.0,
+                "width": 507.0,
+                "height": 212.0
+            }
+        },
+        {
+            "Key": "asset-65d66d2e34e1ca74db5143e0427bbc39",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -1339.0,
+                "y": 160.0,
+                "width": 385.0,
+                "height": 307.0
+            }
+        },
+        {
+            "Key": "asset-f3aa1267028792949a0fac6bcdc4abbc",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -1393.0,
+                "y": 160.0,
+                "width": 381.0,
+                "height": 359.0
+            }
+        },
+        {
+            "Key": "asset-3d525ab107ac40342a27164642aa5a51",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -1826.0,
+                "y": 168.0,
+                "width": 376.0,
+                "height": 204.0
+            }
+        }
+    ],
+    "LooseAssetGuids": [],
+    "ViewPosition": {
+        "x": 1943.0,
+        "y": 74.0,
+        "z": 0.0
+    },
+    "ViewScale": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+    }
+}

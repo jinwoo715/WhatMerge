@@ -13,6 +13,10 @@ namespace Skill
         {
             resourceModifier.AddHitCount(1);
         }
+
+        public void UseTriggerResourceOnFailure(ISkillResourceModifier resourceModifier)
+        {
+        }
     }
     public class ManaTrigger : ITrigger
     {
@@ -44,6 +48,11 @@ namespace Skill
         {
             resourceModifier.ConsumeMana(_requiredValue);
         }
+
+        public void UseTriggerResourceOnFailure(ISkillResourceModifier resourceModifier)
+        {
+            resourceModifier.ConsumeMana(_requiredValue);
+        }
     }
     public class HitCountTrigger : ITrigger
     {
@@ -66,6 +75,11 @@ namespace Skill
         }
 
         public void UseTriggerResource(ISkillResourceModifier resourceModifier)
+        {
+            resourceModifier.ConsumeHitCount(_requireHitCount);
+        }
+
+        public void UseTriggerResourceOnFailure(ISkillResourceModifier resourceModifier)
         {
             resourceModifier.ConsumeHitCount(_requireHitCount);
         }

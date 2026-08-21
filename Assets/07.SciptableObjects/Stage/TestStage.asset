@@ -26,7 +26,7 @@ MonoBehaviour:
     - EnemyUID: 1
       StartDelay: 0
       SpawnCount: 100
-      SpawnInterval: 0.1
+      SpawnInterval: 0.5
   - WaveIndex: 1
     WaveType: 0
     SpawnDatas:

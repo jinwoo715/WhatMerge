@@ -22,6 +22,7 @@ SpriteAtlasAsset:
     - {fileID: 2800000, guid: 7a1c7ff73ad6e1f45b215128c1eabd2a, type: 3}
     - {fileID: 2800000, guid: f7913480c73906c4597bb0250b2a2b35, type: 3}
     - {fileID: 2800000, guid: 3e9f567a5aa25f74391341ca601851ea, type: 3}
+    - {fileID: 2800000, guid: 8578c2bc982522e4684e6ea8b081c2be, type: 3}
     - {fileID: 2800000, guid: d936390359d220e478f28d8d18c518ba, type: 3}
     - {fileID: 2800000, guid: 58eb92f78565e6e42b8a3f83c251a3de, type: 3}
     - {fileID: 2800000, guid: 3e483fb196a2888458e901dbdca30644, type: 3}
@@ -32,4 +33,21 @@ SpriteAtlasAsset:
     - {fileID: 2800000, guid: 033ee547bcaebd74d8a7871b3c2c10ce, type: 3}
     - {fileID: 2800000, guid: 8914db87789dffc4fb4344a89f94afb5, type: 3}
     - {fileID: 2800000, guid: 3364884b6ade4c64eb91a2fe2f28077b, type: 3}
+    - {fileID: 2800000, guid: 4b5f806f1eb776544b69ada42bb28a6b, type: 3}
+    - {fileID: 2800000, guid: b795e715f8e9d7b42b013537d11f5217, type: 3}
+    - {fileID: 2800000, guid: 6b7b3c002a2a11544b18c1107d585725, type: 3}
+    - {fileID: 2800000, guid: 593023e0b3c263140962b89ae3f609d8, type: 3}
+    - {fileID: 2800000, guid: 9c1613d7c217818419a58bc79c099fab, type: 3}
+    - {fileID: 2800000, guid: e586760ed307fcb42b32891b8ddb88ff, type: 3}
+    - {fileID: 2800000, guid: 4ba55c9f04cc34546b1ff9b31ae1f487, type: 3}
+    - {fileID: 2800000, guid: c524dfb41a5dd6c4f9de9a47c7abfdf8, type: 3}
+    - {fileID: 2800000, guid: 0df5b154b6686284296d54de325b0bd5, type: 3}
+    - {fileID: 2800000, guid: 7bec9cffb6d66864db55a6bc360e0337, type: 3}
+    - {fileID: 2800000, guid: 5bfdae8e4f6f5cd40b5a614e73bce04a, type: 3}
+    - {fileID: 2800000, guid: 8df2ffec8eae9b04ab6a56bb380da978, type: 3}
+    - {fileID: 2800000, guid: c6ed74d238d310a45a5c67a027646dae, type: 3}
+    - {fileID: 2800000, guid: 91281c35be2ac6b49869b35d6175dfeb, type: 3}
+    - {fileID: 2800000, guid: 15de27a66b7dcad4faba254fcfad5808, type: 3}
+    - {fileID: 2800000, guid: 9e26331b768f2184fb0ab26aaa39d965, type: 3}
+    - {fileID: 2800000, guid: 7766194d8b434444ba06c0c0aee69688, type: 3}
   m_IsVariant: 0

@@ -20,7 +20,7 @@ namespace WhatMerge.Heros
         float BasicAttackRange { get; }
     }
 
-    public class Hero : MonoBehaviour, ITileObject, IHeroInfoProvider, IAttacker, IPooledItem<Hero>, IAttackRangeProvider
+    public class Hero : MonoBehaviour, ITileObject, IHeroInfoProvider, IAttacker, IPooledItem<Hero>, IAttackRangeProvider, IManaReceiver
     {
         private CombatantElement _element = new CombatantElement();
         private SkillController _skillController;
@@ -125,6 +125,13 @@ namespace WhatMerge.Heros
             AttackPayload payload = new AttackPayload(damage, flatPenetration, percentPenetration, criticalChance, criticalMultiplier);
 
             return payload;
+        }
+        public void RestoreMana(float amount)
+        {
+            if (!IsActive || _skillController == null)
+                return;
+
+            _skillController.AddMana(amount);
         }
         public void OnSpawn() 
         {

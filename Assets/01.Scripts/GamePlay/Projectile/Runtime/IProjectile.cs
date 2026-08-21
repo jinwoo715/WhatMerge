@@ -8,10 +8,10 @@ namespace WhatMerge.Projectiles
 {
     public readonly struct ProjectileImpact
     {
-        public IDamageable Target { get; }
+        public ICombatant Target { get; }
         public Vector3 Position { get; }
 
-        public ProjectileImpact(IDamageable target, Vector3 position)
+        public ProjectileImpact(ICombatant target, Vector3 position)
         {
             Target = target;
             Position = position;
@@ -23,6 +23,6 @@ namespace WhatMerge.Projectiles
         event Action<ProjectileImpact> OnExecute;
         event Action OnExpired;
         void Tick(float tick);
-        void HitEnemy(IDamageable enemy);
+        void HitTarget(ICombatant target);
     }
 }

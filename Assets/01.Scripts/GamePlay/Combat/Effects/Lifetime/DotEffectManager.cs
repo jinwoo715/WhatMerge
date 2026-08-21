@@ -59,25 +59,41 @@ namespace WhatMerge.Combat.Effects
         public readonly int EffectInstanceId;
         public readonly float Value;
         public readonly DotDamageType DotDamageType;
+        public readonly bool IgnoreArmor;
         public readonly float Interval;
         public readonly DamageContext Context;
 
         public (int SkillUid, int OwnerSpawnIndex, int EffectInstanceId) Key =>
             (SkillUid, OwnerSpawnIndex, EffectInstanceId);
 
-        public DotData(DotEffect dotEffect, DamageContext context)
+        public DotData(DotEffect dotEffect, float duration, DamageContext context)
         {
             if (dotEffect == null)
                 throw new ArgumentNullException(nameof(dotEffect));
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
+            if (dotEffect.DotCount <= 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(dotEffect),
+                    dotEffect.DotCount,
+                    "DOT count must be greater than zero.");
+            }
+            if (float.IsNaN(duration) || float.IsInfinity(duration) || duration <= 0f)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(duration),
+                    duration,
+                    "DOT duration must be a finite number greater than zero.");
+            }
 
             SkillUid = context.SkillUid;
             OwnerSpawnIndex = context.OwnerSpawnIndex;
             EffectInstanceId = dotEffect.GetInstanceID();
             Value = dotEffect.Value;
             DotDamageType = dotEffect.ApplyType;
-            Interval = dotEffect.IntervalTime;
+            IgnoreArmor = dotEffect.IgnoreArmor;
+            Interval = duration / dotEffect.DotCount;
             Context = context;
         }
     }
@@ -86,10 +102,14 @@ namespace WhatMerge.Combat.Effects
     {
         private readonly Dictionary<ICombatant, DotProcessBundle> _dots = new();
         private IDamageApplier _damageApplier;
+        private DamageCalculator _damageCalculator;
 
-        public void Init(IDamageApplier damageApplier)
+        public void Init(IDamageApplier damageApplier, DamageCalculator damageCalculator)
         {
-            _damageApplier = damageApplier;
+            _damageApplier = damageApplier
+                ?? throw new ArgumentNullException(nameof(damageApplier));
+            _damageCalculator = damageCalculator
+                ?? throw new ArgumentNullException(nameof(damageCalculator));
         }
 
         public IRuntimeEffectHandle ApplyDotEffect(DotData dotData)
@@ -146,13 +166,7 @@ namespace WhatMerge.Combat.Effects
 
                 while (timer >= dotData.Interval)
                 {
-                    ApplyDot(
-                        dotData.Context.Target,
-                        GetDotDamage(
-                            dotData.DotDamageType,
-                            dotData.Context.Target,
-                            dotData.Value,
-                            dotData.Context.AttackPayload.AttackDamage));
+                    ApplyDot(dotData);
 
                     timer -= dotData.Interval;
                 }
@@ -188,10 +202,23 @@ namespace WhatMerge.Combat.Effects
             }
         }
 
-        private void ApplyDot(ICombatant target, int damage)
+        private void ApplyDot(DotData dotData)
         {
-            if (target is IDamageable damageable)
-                _damageApplier.TryApply(damageable, damage);
+            if (dotData.Context.Target is not IDamageable damageable)
+                return;
+
+            int calculatedDamage = GetDotDamage(
+                dotData.DotDamageType,
+                damageable,
+                dotData.Value,
+                dotData.Context.AttackPayload.AttackDamage);
+            int appliedDamage = _damageCalculator.CalculateDotDamage(
+                damageable,
+                calculatedDamage,
+                dotData.Context.AttackPayload,
+                dotData.IgnoreArmor);
+
+            _damageApplier.TryApply(damageable, appliedDamage);
         }
 
         private void ReleaseCombatAllDot(ICombatant target)

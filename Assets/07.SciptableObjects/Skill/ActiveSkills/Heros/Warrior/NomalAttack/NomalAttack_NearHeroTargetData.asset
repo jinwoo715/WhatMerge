@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: NomalAttack_NearHeroTargetData
   m_EditorClassIdentifier: 
   TargetRange: 0
+  IncludeSelf: 1

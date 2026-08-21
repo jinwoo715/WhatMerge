@@ -54,6 +54,8 @@ namespace WhatMerge.Heros
 
                 var key = SortUID(data.First, data.Second);
 
+                Debug.Log($"{key}");
+
                 _mergeData.Add(key, data.Result);
             }
         }
@@ -73,6 +75,8 @@ namespace WhatMerge.Heros
         public bool IsCanMerge(int first, int second)
         {
             var key = SortUID(first, second);
+
+            Debug.Log($"{key}");
             return _mergeData.ContainsKey(key);
         }
 
@@ -106,14 +110,18 @@ namespace WhatMerge.Heros
         }
         public EHeroOverlapResult OverlapHero(IHeroInfoProvider first, IHeroInfoProvider second)
         {
+            Debug.Log($"{first.EvolutionLevel} / {second.EvolutionLevel}");
             if (first.EvolutionLevel != second.EvolutionLevel)
                 return EHeroOverlapResult.None;
 
+
+            Debug.Log($"{first.UID == second.UID && first.EvolutionLevel < 2}");
             //게임 내에서 진화 레벨은 같다.
             if (first.UID == second.UID && first.EvolutionLevel < 2)
                 return EHeroOverlapResult.Evolution;
 
-            if(_mergeRepository.IsCanMerge(first.UID, second.UID))
+            
+            if (_mergeRepository.IsCanMerge(first.UID, second.UID))
             {
                 return EHeroOverlapResult.Merge;
             }

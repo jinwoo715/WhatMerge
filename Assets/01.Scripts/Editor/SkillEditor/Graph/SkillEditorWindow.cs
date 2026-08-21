@@ -37,6 +37,8 @@ public class SkillEditorWindow : EditorWindow
 
     private void OnDisable()
     {
+        SaveGraph();
+
         if (_graphView != null)
         {
             _graphView.Dispose();
@@ -106,6 +108,7 @@ public class SkillEditorWindow : EditorWindow
             return;
         }
 
+        SaveGraph();
         _skill = skill;
         if (_skillField != null)
         {
@@ -170,7 +173,7 @@ public class SkillEditorWindow : EditorWindow
         AddPaletteHeader(palette, "Nodes");
         AddPaletteHeader(palette, "실행 흐름");
         AddPaletteButton<SingleExecutionData>(palette, "Single");
-        AddPaletteButton<RandomMultiExecutionData>(palette, "RanMulti");
+        AddPaletteButton<MultiExecutionData>(palette, "Multi");
         AddPaletteButton<SequenceHitExecutionData>(palette, "Sequence");
         AddPaletteButton<ConeExecutionData>(palette, "Cone");
 
@@ -195,6 +198,7 @@ public class SkillEditorWindow : EditorWindow
         AddPaletteButton<ProjectileSpawnEffect>(palette, "Projectile Spawn Effect");
         AddPaletteButton<RangeEffect>(palette, "Range Effect");
         AddPaletteButton<GoldEffect>(palette, "Gold");
+        AddPaletteButton<ManaRestoreEffect>(palette, "Mana Restore");
         AddPaletteButton<KnockBackEffect>(palette, "KnockBack");
         AddPaletteButton<DurationEffect>(palette, "Duration Effect");
 
@@ -221,6 +225,7 @@ public class SkillEditorWindow : EditorWindow
         AddPaletteButton<OnExpireExecutionSummon>(palette, "OnExpire Execution");
         AddPaletteButton<SummonOnStayExecution>(palette, "OnStay Execution");
         AddPaletteButton<OnEnterExecutionSummon>(palette, "OnEnter Execution");
+        AddPaletteButton<OnTimeOnceExecutionSummon>(palette, "OnOnce Execution");
         AddPaletteButton<OnTickExecutionSummon>(palette, "Tick Execution");
 
         AddPaletteHeader(palette, "VFX");

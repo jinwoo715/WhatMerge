@@ -32,6 +32,33 @@ namespace WhatMerge.Summons
         public virtual void Dispose() { }
     }
 
+    public class OnTimeOncewExecution : SummonExecution
+    {
+        private bool _hasExecuted = false;
+        private float _executionTiming;
+        private float _currentTime;
+        public OnTimeOncewExecution(DamageContext damageContext, float duration, float executionTiming)
+        {
+            _hasExecuted = false;
+            _damageContext = damageContext;
+            _executionTiming = duration * executionTiming;
+        }
+
+        public override void OnTick(float tick)
+        {
+            if (_hasExecuted)
+                return;
+
+            _currentTime += tick;
+
+            if(_currentTime >= _executionTiming)
+            {
+                ExecuteEffect(_damageContext);
+                _hasExecuted = true;
+            }
+        }
+
+    }
     public class OnExpireExecution : SummonExecution
     {
         public OnExpireExecution(DamageContext damageContext)

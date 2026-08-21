@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecefe5ff7488a0d4e96a61f932418c8f, type: 3}
+  m_Name: Boomber_FlameBullet_ProjectileSpawnEffect
+  m_EditorClassIdentifier: 
+  Chance: 1
+  VFX: {fileID: 0}
+  Projectile: {fileID: 11400000, guid: e8025f04554f7f047969a60e30d1a099, type: 2}

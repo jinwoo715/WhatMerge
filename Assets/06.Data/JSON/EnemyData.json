@@ -5,7 +5,7 @@
     "Description": "",
     "SpriteKey": "Slime",
     "EnemyType": "Normal",
-    "MaxHP": "5",
+    "MaxHP": "500",
     "Armor": "0",
     "MoveSpeed": "1",
     "Attribute": "None",

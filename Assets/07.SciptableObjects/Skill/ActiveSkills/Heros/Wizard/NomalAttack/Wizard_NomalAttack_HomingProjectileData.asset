@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ff449ce3dcda334e95177b609900eb3, type: 3}
+  m_Name: Wizard_NomalAttack_HomingProjectileData
+  m_EditorClassIdentifier: 
+  Sprite: MagicBall
+  Speed: 5
+  LifeTime: 5
+  RotationOffset: -90
+  RotateData:
+    RotateType: 0
+    RotateSpeed: 0
+  Effects:
+  - {fileID: 11400000, guid: 8c8c7cb9ad04c194ea6130d42dfb5784, type: 2}

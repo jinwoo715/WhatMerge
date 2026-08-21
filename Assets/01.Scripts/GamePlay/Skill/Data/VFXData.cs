@@ -6,7 +6,7 @@ namespace Skill.Data
     public class VFXData : ScriptableObject
     {
         public string VFXName;
-        public float LifeTime;
+        public bool IsApplyDir = false;
         public VFXSpawnPositionTpye PositionType;
     }
 

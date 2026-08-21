@@ -24,15 +24,31 @@ namespace Skill
                 effect.AddStat(enhancer.TargetStatKey, enhancer.AddValue);
             }
         }
-        public static void ApplyChanceEnhance(Dictionary<ActiveSkillData, RuntimeExecution> activeSkillDatas, Queue<EffectChanceEnhanceData> enhancers)
+
+        public static void ApplyActivationChanceEnhance(
+            Dictionary<ActiveSkillData, ActiveSkill> activeSkills,
+            Queue<ActivationChanceEnhanceData> enhancers)
         {
-            foreach (var enhancer in enhancers)
+            foreach (ActivationChanceEnhanceData enhancer in enhancers)
             {
-                var value = GetRuntimeExecution(activeSkillDatas, enhancer.TargetSkill, enhancer);
-                var effect = value.GetRuntimeEffect(enhancer.TargetEffect);
-                effect.AddChance(enhancer.AddChance);
+                if (enhancer.TargetSkill == null)
+                {
+                    throw new InvalidOperationException(
+                        $"Enhancer '{GetDataName(enhancer)}' has no target skill.");
+                }
+
+                if (!activeSkills.TryGetValue(enhancer.TargetSkill, out ActiveSkill activeSkill))
+                {
+                    throw new InvalidOperationException(
+                        $"Enhancer '{GetDataName(enhancer)}' targets missing active skill " +
+                        $"'{GetDataName(enhancer.TargetSkill)}'. " +
+                        "The target skill is not included in this skill set or level.");
+                }
+
+                activeSkill.AddActivationChance(enhancer.AddChance);
             }
         }
+
         public static RuntimeExecution GetRuntimeExecution(
           Dictionary<ActiveSkillData, RuntimeExecution> activeSkillDatas,
           ActiveSkillData targetSkill,

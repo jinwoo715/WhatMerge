@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c6be54cfeb3d5c409419bc47a48a9b1, type: 3}
   m_Name: Slashing_HitCountTriggerData
   m_EditorClassIdentifier: 
-  HitCount: 3
+  HitCount: 5

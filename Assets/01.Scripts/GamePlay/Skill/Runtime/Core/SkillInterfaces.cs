@@ -13,7 +13,10 @@ namespace Skill
         public IFinder Target { get; }
         public IExecute Execution { get; }
         float BaseAnimationDuration { get; }
+        float ChargeTime { get; }
+        float ActivationChance { get; }
         bool IsUsable(SkillTriggerContext context);
+        bool RollActivation();
         IEnumerator Execute(float animationTimeScale);
         void Dispose();
     }

@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a780f0439648b04194cbd815fc1b73d, type: 3}
+  m_Name: ExtraEffectData_ElectricEffect
+  m_EditorClassIdentifier: 
+  UID: 0
+  Name: 
+  Description: 
+  TargetSkill: {fileID: 11400000, guid: cf2d76fd436b3ff4687e972293454bd5, type: 2}
+  EffectContainer: {fileID: 11400000, guid: 8a56d274d23b6b24aa779a0ee91fca4c, type: 2}
+  Effect: {fileID: 11400000, guid: 287f2b0a34619904d953a952f3e1dcd7, type: 2}

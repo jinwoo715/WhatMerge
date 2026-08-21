@@ -10,7 +10,7 @@ namespace Skill
     {
         private readonly int _sequenceCount;
 
-        public override float BaseAnimationDuration => base.BaseAnimationDuration * _sequenceCount;
+        public override float BaseAnimationDuration => base.BaseAnimationDuration;
 
         public SequenceExecution(SkillExecutionContext executionContext, SkillRuntimeContext runtimeContext) : base(executionContext, runtimeContext)
         {
@@ -35,13 +35,18 @@ namespace Skill
         {
             ICombatant combatant = SelectPrimaryTarget(targets);
 
+            float perTimeScale = animationTimeScale / _sequenceCount;
+
             for (int i = 0; i < _sequenceCount; i++)
             {
-                yield return SetReadyMotion(animationTimeScale);
+                yield return SetReadyMotion(perTimeScale);
+
+                if (i == 0)
+                    yield return WaitForCharge();
 
                 ApplyEffectsToTarget(combatant);
 
-                yield return SetExecutionMotion(animationTimeScale);
+                yield return SetExecutionMotion(perTimeScale, combatant);
             }
 
             SetIdleMotion();

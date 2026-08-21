@@ -9,7 +9,7 @@ namespace Skill
         {
             return executionContext.ExecutionData switch
             {
-                RandomMultiExecutionData => new RandomMultiExecution(executionContext, runtimeContext),
+                MultiExecutionData => new RandomMultiExecution(executionContext, runtimeContext),
                 SequenceHitExecutionData => new SequenceExecution(executionContext, runtimeContext),
                 ConeExecutionData => new ConeExecution(executionContext, runtimeContext),
                 SingleExecutionData => new SingleExecution(executionContext, runtimeContext),

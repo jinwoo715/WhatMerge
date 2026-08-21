@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e081a4569ff6834785aa3208bde2218, type: 3}
+  m_Name: Priest_Varius
+  m_EditorClassIdentifier: 
+  UID: 0
+  Name: 
+  Description: 
+  AnimationData:
+    MotionName: Varius
+    ReadyMotionTime: 0.2
+    ExecutionMotionTime: 0.2
+  ChargeTime: 0
+  ActivationChance: 1
+  Execution: {fileID: 11400000, guid: d6c308434b0c9a64581f1a308f27be8e, type: 2}
+  Finder: {fileID: 11400000, guid: 23d6f06ea96a7c24fa8c8d7c8127e01c, type: 2}
+  Trigger: {fileID: 11400000, guid: d6a7563c2329bc541b34cc021ec4601f, type: 2}

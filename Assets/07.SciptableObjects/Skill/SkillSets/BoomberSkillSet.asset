@@ -12,5 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0573a7a9871ae0349851f0e4b44c1858, type: 3}
   m_Name: BoomberSkillSet
   m_EditorClassIdentifier: 
-  UID: 7
-  Sets: []
+  UID: 9
+  Sets:
+  - Level: 0
+    Skill: {fileID: 11400000, guid: addc3d25fd7d80040a5504a11d4c5756, type: 2}
+  - Level: 0
+    Skill: {fileID: 11400000, guid: 9e92661c50272af4e81daa650d1ab76f, type: 2}
+  - Level: 0
+    Skill: {fileID: 11400000, guid: 91d332beb5fe78c4ca216b80c2f7e75d, type: 2}

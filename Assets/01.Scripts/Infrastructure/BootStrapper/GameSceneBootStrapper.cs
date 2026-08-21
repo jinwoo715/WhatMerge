@@ -112,7 +112,11 @@ namespace Core.BootStrapper
 
             //TODO
             #region Test
-            _skillRuntimeContext = new SkillRuntimeContext(_combatService, _heroController, _fieldEnemyService);
+            _skillRuntimeContext = new SkillRuntimeContext(
+                _combatService,
+                _heroController,
+                _fieldEnemyService,
+                _vfxSpawner);
             _skillFactory.Init(_skillRuntimeContext);
             _heroSpawner.factory = _skillFactory;
 
@@ -174,6 +178,7 @@ namespace Core.BootStrapper
                 new SummonSpawnEffectHandler(_summonSpawner),
                 new ProjectileSpawnEffectHandler(_projectileSpawner),
                 new GoldEffectHandler(_economy),
+                new ManaRestoreEffectHandler(),
             };
 
             List<IDurationEffectHandler> durationEffectHandlers = new List<IDurationEffectHandler>
@@ -189,7 +194,7 @@ namespace Core.BootStrapper
 
             var durationEffectApplier = new DurationEffectApplier(durationEffectHandlers);
 
-            _dotEffectManager.Init(_damageApplier);
+            _dotEffectManager.Init(_damageApplier, _damageCalculator);
             _effectProcessor.Init(
                 _damageCalculator,
                 _vfxSpawner,

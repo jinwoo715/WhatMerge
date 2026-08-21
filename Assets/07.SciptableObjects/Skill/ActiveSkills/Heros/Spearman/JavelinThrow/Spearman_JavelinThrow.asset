@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e081a4569ff6834785aa3208bde2218, type: 3}
+  m_Name: Spearman_JavelinThrow
+  m_EditorClassIdentifier: 
+  UID: 0
+  Name: "\uD22C\uCC3D"
+  Description: "\uCC3D \uB358\uC9C0\uAE30"
+  AnimationData:
+    MotionName: JavelinThrow
+    ReadyMotionTime: 0.2
+    ExecutionMotionTime: 0.2
+  ChargeTime: 0
+  ActivationChance: 1
+  Execution: {fileID: 11400000, guid: b36e1b33449e12e45af0a001f6447b85, type: 2}
+  Finder: {fileID: 11400000, guid: d28be908ffa981343b2199db9ad32547, type: 2}
+  Trigger: {fileID: 11400000, guid: af78df2aa10ff5247926f5ce0719d276, type: 2}

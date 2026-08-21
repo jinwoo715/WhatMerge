@@ -7,16 +7,18 @@ namespace Skill.Data
     public class DotEffect : DurationEffectItem
     {
         public const string ValueStat = "Value";
-        public const string IntervalTimeStat = "IntervalTime";
+        public const string DotCountStat = "DotCount";
 
         private static readonly EffectStatDefinition[] EnhanceableStats =
         {
             new EffectStatDefinition(ValueStat, "적용 수치"),
-            new EffectStatDefinition(IntervalTimeStat, "도트 Tick 시간"),
+            new EffectStatDefinition(DotCountStat, "도트 적용 횟수"),
         };
 
-        public float IntervalTime;
+        [Min(1)]
+        public int DotCount = 1;
         public DotDamageType ApplyType;
+        public bool IgnoreArmor;
 
         public float Value;
 
@@ -29,8 +31,8 @@ namespace Skill.Data
                 case ValueStat:
                     Value += value;
                     break;
-                case IntervalTimeStat:
-                    IntervalTime += value;
+                case DotCountStat:
+                    DotCount = Mathf.Max(1, DotCount + Mathf.RoundToInt(value));
                     break;
             }
         }

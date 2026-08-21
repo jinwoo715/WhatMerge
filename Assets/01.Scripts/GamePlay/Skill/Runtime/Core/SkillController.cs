@@ -12,14 +12,28 @@ namespace Skill
 
     public class SkillController : ISkillResourceModifier, ISkillRunner
     {
+        private readonly struct SkillSelection
+        {
+            public IActiveSkill ExecuteSkill { get; }
+            public IActiveSkill FailedSkill { get; }
+            public bool IsValid => ExecuteSkill != null || FailedSkill != null;
+
+            public SkillSelection(IActiveSkill executeSkill, IActiveSkill failedSkill)
+            {
+                ExecuteSkill = executeSkill;
+                FailedSkill = failedSkill;
+            }
+        }
+
         private List<IActiveSkill> _activeSkills;
         private List<IPassiveSkill> _passiveSkills;
+        private readonly Dictionary<IActiveSkill, bool> _activationRolls = new();
         private MonoBehaviour _coroutineRunner;
         private Coroutine _currentSkill;
 
         private float _attackInterval;
         private float _elapsedTime;
-        private float _lastAttackStartTime;
+        private float _lastAttackCycleEndTime;
         private float _nextAttackTime;
         private float _mana;
         private int _hitCount;
@@ -64,7 +78,7 @@ namespace Skill
         public void UpdateDelayTime(float delay)
         {
             _attackInterval = ValidateAttackInterval(delay);
-            _nextAttackTime = _lastAttackStartTime + _attackInterval;
+            _nextAttackTime = _lastAttackCycleEndTime + _attackInterval;
         }
 
         public void Tick(float tickValue)
@@ -72,48 +86,95 @@ namespace Skill
             _elapsedTime += tickValue;
             ChargeMana(tickValue);
 
-            if (_isUsingSkill || _elapsedTime < _nextAttackTime)
+            if (_isUsingSkill)
                 return;
 
-            IActiveSkill executeSkill = GetUsableSkill();
-            if (executeSkill == null)
-            {
+            float earliestSkillStartTime = _nextAttackTime - CalculateMaxScaledAnimationDuration();
+            if (_elapsedTime < earliestSkillStartTime)
                 return;
-            }
 
-            _lastAttackStartTime = _elapsedTime;
-            _nextAttackTime = _lastAttackStartTime + _attackInterval;
+            SkillSelection selection = GetSkillSelection();
+            if (!selection.IsValid)
+                return;
 
-            float animationTimeScale = CalculateAnimationTimeScale(executeSkill);
+            IActiveSkill executeSkill = selection.ExecuteSkill;
+            float animationTimeScale = executeSkill != null
+                ? CalculateAnimationTimeScale(executeSkill)
+                : 1f;
+            float scaledAnimationDuration = executeSkill != null
+                ? executeSkill.BaseAnimationDuration * animationTimeScale
+                : 0f;
+            float skillStartTime = _nextAttackTime - scaledAnimationDuration;
+            if (_elapsedTime < skillStartTime)
+                return;
+
+            float scheduleDelay = Mathf.Max(0f, _elapsedTime - skillStartTime);
+            float chargeTime = executeSkill?.ChargeTime ?? 0f;
+            _lastAttackCycleEndTime = _nextAttackTime + scheduleDelay + chargeTime;
+            _nextAttackTime = _lastAttackCycleEndTime + _attackInterval;
+            _activationRolls.Clear();
+
             _currentSkill = _coroutineRunner.StartCoroutine(
-                CoExecuteSkill(executeSkill, animationTimeScale));
+                CoExecuteSkill(selection, animationTimeScale));
         }
-        private IActiveSkill GetUsableSkill()
-        {
-            IActiveSkill usableSkill = null;
 
+        private SkillSelection GetSkillSelection()
+        {
             SkillTriggerContext context = new SkillTriggerContext(_hitCount, _mana);
+            IActiveSkill basicAttack = _activeSkills.Count > 0 ? _activeSkills[0] : null;
 
             int skillCount = _activeSkills.Count;
             for (int i = skillCount - 1; i >= 0; i--)
             {
                 IActiveSkill skill = _activeSkills[i];
 
-                if (skill.IsUsable(context))
+                if (!skill.IsUsable(context))
                 {
-                    usableSkill = skill;
-                    break;
+                    continue;
                 }
+
+                if (GetOrRollActivation(skill))
+                {
+                    return new SkillSelection(skill, null);
+                }
+
+                IActiveSkill fallback = null;
+                if (!ReferenceEquals(skill, basicAttack)
+                    && basicAttack != null
+                    && basicAttack.IsUsable(context))
+                {
+                    fallback = basicAttack;
+                }
+
+                return new SkillSelection(fallback, skill);
             }
-            return usableSkill;
+
+            return default;
         }
 
-        private IEnumerator CoExecuteSkill(IActiveSkill skill, float animationTimeScale)
+        private bool GetOrRollActivation(IActiveSkill skill)
+        {
+            if (_activationRolls.TryGetValue(skill, out bool result))
+            {
+                return result;
+            }
+
+            result = skill.RollActivation();
+            _activationRolls.Add(skill, result);
+            return result;
+        }
+
+        private IEnumerator CoExecuteSkill(SkillSelection selection, float animationTimeScale)
         {
             _isUsingSkill = true;
 
-            skill.Trigger.UseTriggerResource(this);
-            yield return skill.Execute(animationTimeScale);
+            selection.FailedSkill?.Trigger.UseTriggerResourceOnFailure(this);
+
+            if (selection.ExecuteSkill != null)
+            {
+                selection.ExecuteSkill.Trigger.UseTriggerResource(this);
+                yield return selection.ExecuteSkill.Execute(animationTimeScale);
+            }
 
             _isUsingSkill = false;
 
@@ -127,13 +188,11 @@ namespace Skill
 
         public void ConsumeHitCount(int count)
         {
-            Debug.Log("Concume HitCount");
             _hitCount = Mathf.Max(0, _hitCount - count);
         }
 
         public void ConsumeMana(float amount)
         {
-            Debug.Log("Concume Mana");
             _mana = Mathf.Clamp(_mana - amount, 0f, MaxMana);
         }
 
@@ -178,6 +237,20 @@ namespace Skill
             return _attackInterval / animationDuration;
         }
 
+        private float CalculateMaxScaledAnimationDuration()
+        {
+            float maxDuration = 0f;
+
+            for (int i = 0; i < _activeSkills.Count; i++)
+            {
+                IActiveSkill skill = _activeSkills[i];
+                float scaledDuration = skill.BaseAnimationDuration * CalculateAnimationTimeScale(skill);
+                maxDuration = Mathf.Max(maxDuration, scaledDuration);
+            }
+
+            return maxDuration;
+        }
+
         private static float ValidateAttackInterval(float attackInterval)
         {
             if (float.IsNaN(attackInterval)
@@ -200,6 +273,7 @@ namespace Skill
 
             _currentSkill = null;
             _isUsingSkill = false;
+            _activationRolls.Clear();
             ReleasePassive();
 
             foreach (var activeSkill in _activeSkills)

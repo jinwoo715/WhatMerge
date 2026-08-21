@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d298975ade2cd449b9328108805099f, type: 3}
+  m_Name: Priest_Blessing_DurationEffect
+  m_EditorClassIdentifier: 
+  Chance: 1
+  VFX: {fileID: 0}
+  Duration: 7
+  Effects:
+  - {fileID: 11400000, guid: 9815b341e246e5e4082fec8a0158300b, type: 2}
+  - {fileID: 11400000, guid: 2b7d94897ee27e9488957c8e320b0a62, type: 2}

@@ -232,16 +232,26 @@ namespace WhatMerge.Combat
             return chance >= ran;
         }
 
-        public int CalculateDotDamage(IDamageable damageable, DotEffect dot)
+        public int CalculateDotDamage(
+            IDamageable damageable,
+            int calculatedDamage,
+            AttackPayload payload,
+            bool ignoreArmor)
         {
-            float damage = dot.ApplyType switch
-            {
-                DotDamageType.CurrentHPRatio => damageable.CurrentHP * dot.Value,
-                DotDamageType.MaxHPRatio => damageable.MaxHP * dot.Value,
-                _ => dot.Value
-            };
+            if (damageable == null)
+                throw new ArgumentNullException(nameof(damageable));
 
-            return StatCalculator.RoundInt(damage);
+            if (calculatedDamage <= 0)
+                return 0;
+
+            float armorMultiplier = ignoreArmor
+                ? 1f
+                : 1f - StatCalculator.GetDamageReductionRate(
+                    damageable.Armor,
+                    payload.PercentPenetration,
+                    payload.FlatPenetration);
+
+            return StatCalculator.RoundInt(calculatedDamage * armorMultiplier);
         }
     }
 }

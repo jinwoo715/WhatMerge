@@ -38,7 +38,6 @@ namespace WhatMerge.Combat.Effects
                 throw new ArgumentNullException(nameof(damageContext));
 
             var effects = EffectRoller.GetConfirmEffects(damageContext.Effects);
-
             ProcessEffects(effects, damageContext);
         }
 
@@ -48,7 +47,7 @@ namespace WhatMerge.Combat.Effects
                 throw new ArgumentNullException(nameof(damageContext));
 
             List<EffectBase> confirmedEffects = EffectRoller.GetConfirmEffects(damageContext.Effects);
-            return ApplyDurationEffects(confirmedEffects, damageContext);
+            return ApplyDurationEffects(confirmedEffects, damageContext, null);
         }
         private void ProcessEffects(List<EffectBase> effects, DamageContext damageContext)
         {
@@ -66,7 +65,7 @@ namespace WhatMerge.Combat.Effects
                 if (TryHandleEffect(effect, damageContext))
                     continue;
 
-                if(effect is DurationEffect durationEffect)
+                if (effect is DurationEffect durationEffect)
                 {
                     ProcessDurationEffect(durationEffect, damageContext);
                 }
@@ -130,10 +129,7 @@ namespace WhatMerge.Combat.Effects
             if (target.CurrentHP > target.MaxHP * threshold)
                 return;
 
-            _damageApplier.TryApply(
-                target,
-                target.CurrentHP,
-                DamageResultType.ExecutionDamage);
+            _damageApplier.TryApply(target, target.CurrentHP, DamageResultType.ExecutionDamage);
         }
 
         private void ProcessKnockbackEffect(KnockBackEffect knockBackEffect, DamageContext damageContext)
@@ -170,7 +166,10 @@ namespace WhatMerge.Combat.Effects
                 effects.Add(effect);
 
             List<EffectBase> confirmedEffects = EffectRoller.GetConfirmEffects(effects);
-            IRuntimeEffectHandle handle = ApplyDurationEffects(confirmedEffects, damageContext);
+            IRuntimeEffectHandle handle = ApplyDurationEffects(
+                confirmedEffects,
+                damageContext,
+                duration.Duration);
 
             if (!handle.IsDisposed)
                 _timeEffectService.TrackDuration(handle, duration.Duration, damageContext.Target);
@@ -178,7 +177,8 @@ namespace WhatMerge.Combat.Effects
 
         private IRuntimeEffectHandle ApplyDurationEffects(
             IReadOnlyList<EffectBase> effects,
-            DamageContext damageContext)
+            DamageContext damageContext,
+            float? duration)
         {
             CompositeRuntimeEffectHandle compositeHandle = new CompositeRuntimeEffectHandle();
 
@@ -194,7 +194,8 @@ namespace WhatMerge.Combat.Effects
                     }
 
                     ShowEffectVFX(durationEffect, damageContext);
-                    compositeHandle.Add(_durationEffectApplier.Apply(durationEffect, damageContext));
+                    compositeHandle.Add(
+                        _durationEffectApplier.Apply(durationEffect, damageContext, duration));
                 }
             }
             catch
@@ -217,7 +218,10 @@ namespace WhatMerge.Combat.Effects
             foreach (var handler in _handlers)
             {
                 if (!handler.CanHandle(effect))
+                {
+                    Debug.Log("Continue");
                     continue;
+                }
 
                 handler.Handle(effect, damageContext);
                 return true;
@@ -237,7 +241,8 @@ namespace WhatMerge.Combat.Effects
         {
             if (damageContext.Target != null
                 || effect is RangeEffect
-                || effect is GoldEffect)
+                || effect is GoldEffect
+                || effect is SummonSpawnEffect)
             {
                 return;
             }

@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
 using WhatMerge.Combat;
+using WhatMerge.Enemies;
+using WhatMerge.Heros;
 using WhatMerge.Projectiles.Data;
 
 namespace WhatMerge.Projectiles
@@ -24,11 +26,7 @@ namespace WhatMerge.Projectiles
         public bool IsActive { get; private set; }
         public event Action<ProjectileItem> OnReturn;
 
-        public void Init(
-            DamageContext damageContext,
-            IProjectile stretagy,
-            ProjectileDataBase soData,
-            Sprite sprite,
+        public void Init(DamageContext damageContext, IProjectile stretagy, ProjectileDataBase soData, Sprite sprite,
             ICombatService combatService,
             IDisposable effectLifetimeLease)
         {
@@ -77,9 +75,7 @@ namespace WhatMerge.Projectiles
             if (!IsActive || _isReturning)
                 return;
 
-            DamageContext context = impact.Target != null
-                ? _damageContext.WithTarget(impact.Target)
-                : _damageContext.WithImpactPosition(impact.Position);
+            DamageContext context = impact.Target != null ? _damageContext.WithTarget(impact.Target) : _damageContext.WithImpactPosition(impact.Position);
 
             _combatService.RegisterAttack(context);
         }
@@ -113,14 +109,24 @@ namespace WhatMerge.Projectiles
             if (!IsActive || _isReturning || _stretagy == null)
                 return;
 
-            if (collision.CompareTag("Enemy"))
+            if (collision.TryGetComponent(out ICombatant target)
+                && IsCompatibleTarget(target))
             {
-                if(collision.TryGetComponent<IDamageable>(out IDamageable target))
-                {
-                    if (target.IsActive)
-                        _stretagy.HitEnemy(target);
-                }
+                if (target.IsActive)
+                    _stretagy.HitTarget(target);
             }
+        }
+
+        private bool IsCompatibleTarget(ICombatant target)
+        {
+            ICombatant intendedTarget = _damageContext?.Target;
+
+            return intendedTarget switch
+            {
+                Hero => target is Hero,
+                Enemy => target is Enemy,
+                _ => ReferenceEquals(target, intendedTarget),
+            };
         }
     }
 }

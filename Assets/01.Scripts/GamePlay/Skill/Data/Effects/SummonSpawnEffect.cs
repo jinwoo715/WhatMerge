@@ -6,6 +6,7 @@ namespace Skill.Data
     public class SummonSpawnEffect : NormalEffect
     {
         public float DurationTime;
+        public string SummonSpriteName;
         public SummonMove Move;
         public SummonExecutionData Execution;
         public ESpawnPosition SpawnPosition;

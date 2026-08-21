@@ -384,6 +384,11 @@ public sealed class SkillNodeView : Node
 
     private void CreateExecutionBodyFields()
     {
+        AddBodyFieldSlot(
+            "Execution VFX",
+            "ExecutionVFX",
+            typeof(SkillVfxSystem),
+            Asset is ExecutionData execution ? execution.ExecutionVFX : null);
         CreateEffectsFoldout();
     }
 
@@ -609,7 +614,7 @@ public sealed class SkillNodeView : Node
                 DrawSummonExecutionInspectorFields();
                 break;
             case SkillNodeKind.Execution:
-                DrawSerializedObject(Asset, "Effects");
+                DrawSerializedObject(Asset, "ExecutionVFX", "Effects");
                 break;
             case SkillNodeKind.Effect:
                 if (IsExecutionEffectSlotNode())

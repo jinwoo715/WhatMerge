@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Slashing_ConeExecutionData
   m_EditorClassIdentifier: 
   Effects:
-  - {fileID: 11400000, guid: 6b47fd40501efbf49959e21407665e63, type: 2}
+  - {fileID: 11400000, guid: c7b38b4e08151c04aa3eeb67bfea0e68, type: 2}
   Angle: 60

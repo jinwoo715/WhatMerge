@@ -14,8 +14,11 @@ namespace WhatMerge.Projectiles
         private readonly bool _isPiercing;
         private bool _isCompleted;
 
+        private readonly ProjectileRotate _rotateData;
+
         public event Action<ProjectileImpact> OnExecute;
         public event Action OnExpired;
+
 
         public LinearMove(StraightProjectileData data, Transform owner, ICombatant target)
         {
@@ -23,6 +26,8 @@ namespace WhatMerge.Projectiles
             _speed = data.Speed;
             _owner = owner;
             _isPiercing = data.IsPiercing;
+
+            _rotateData = data.RotateData;
 
             ProjectileRotation.Apply(_owner, _dir, data.RotationOffset);
         }
@@ -33,17 +38,19 @@ namespace WhatMerge.Projectiles
                 return;
 
             _owner.position += _dir * tick * _speed;
+
+            ProjectileRotation.TryApplySpin(_owner, _rotateData, tick);
         }
 
-        public void HitEnemy(IDamageable enemy)
+        public void HitTarget(ICombatant target)
         {
-            if (_isCompleted || enemy == null || !enemy.IsActive)
+            if (_isCompleted || target == null || !target.IsActive)
                 return;
 
             if (!_isPiercing)
                 _isCompleted = true;
 
-            OnExecute?.Invoke(new ProjectileImpact(enemy, enemy.Position));
+            OnExecute?.Invoke(new ProjectileImpact(target, target.Position));
 
             if (!_isPiercing)
                 OnExpired?.Invoke();
@@ -60,6 +67,8 @@ namespace WhatMerge.Projectiles
         private readonly float _rotationOffset;
         private bool _isCompleted;
 
+        private readonly ProjectileRotate _rotateData;
+
         public event Action<ProjectileImpact> OnExecute;
         public event Action OnExpired;
 
@@ -69,6 +78,8 @@ namespace WhatMerge.Projectiles
             _target = target;
             _speed = data.Speed;
             _rotationOffset = data.RotationOffset;
+
+            _rotateData = data.RotateData;
 
             ProjectileRotation.Apply(_owner, target.Position - owner.position, _rotationOffset);
         }
@@ -90,7 +101,7 @@ namespace WhatMerge.Projectiles
             if (sqrDistance <= ArrivalSqrDistance)
             {
                 _owner.position = _target.Position;
-                Complete(_target as IDamageable, _target.Position);
+                Complete(_target, _target.Position);
                 return;
             }
 
@@ -101,16 +112,20 @@ namespace WhatMerge.Projectiles
             if (moveDistance >= distance)
             {
                 _owner.position = _target.Position;
-                ProjectileRotation.Apply(_owner, dir, _rotationOffset);
-                Complete(_target as IDamageable, _target.Position);
+                if (!ProjectileRotation.TryApplySpin(_owner, _rotateData, tick))
+                    ProjectileRotation.Apply(_owner, dir, _rotationOffset);
+
+                Complete(_target, _target.Position);
                 return;
             }
 
             _owner.position += dir * moveDistance;
-            ProjectileRotation.Apply(_owner, dir, _rotationOffset);
+
+            if (!ProjectileRotation.TryApplySpin(_owner, _rotateData, tick))
+                ProjectileRotation.Apply(_owner, dir, _rotationOffset);
         }
 
-        private void Complete(IDamageable target, Vector3 position)
+        private void Complete(ICombatant target, Vector3 position)
         {
             if (_isCompleted)
                 return;
@@ -129,12 +144,12 @@ namespace WhatMerge.Projectiles
             OnExpired?.Invoke();
         }
 
-        public void HitEnemy(IDamageable enemy)
+        public void HitTarget(ICombatant target)
         {
-            if (_isCompleted || !ReferenceEquals(enemy, _target))
+            if (_isCompleted || !ReferenceEquals(target, _target))
                 return;
 
-            Complete(enemy, enemy.Position);
+            Complete(target, target.Position);
         }
     }
 
@@ -150,7 +165,8 @@ namespace WhatMerge.Projectiles
         private float _progress;
         private bool _isArrived;
         private bool _isCompleted;
-        private float _delayTime;
+
+        private readonly ProjectileRotate _rotateData;
 
         public event Action OnArrived;
         public event Action<ProjectileImpact> OnExecute;
@@ -164,7 +180,8 @@ namespace WhatMerge.Projectiles
             _speed = data.Speed;
             _rotationOffset = data.RotationOffset;
             _progress = 0f;
-            _delayTime = data.EffectDelayTime;
+
+            _rotateData = data.RotateData;
 
             Vector3 initialDirection = _destination - _startPosition;
             initialDirection.y += Mathf.PI * ArcHeight;
@@ -183,7 +200,8 @@ namespace WhatMerge.Projectiles
             position.y += Mathf.Sin(t * Mathf.PI) * ArcHeight;
 
             _owner.position = position;
-            ProjectileRotation.Apply(_owner, position - previousPosition, _rotationOffset);
+            if (!ProjectileRotation.TryApplySpin(_owner, _rotateData, tick))
+                ProjectileRotation.Apply(_owner, position - previousPosition, _rotationOffset);
 
             if (!_isArrived && t >= 1f)
             {
@@ -194,21 +212,26 @@ namespace WhatMerge.Projectiles
             if (!_isArrived)
                 return;
 
-            _delayTime -= tick;
-            if (_delayTime > 0f)
-                return;
-
             _isCompleted = true;
             OnExecute?.Invoke(new ProjectileImpact(null, _destination));
             OnExpired?.Invoke();
         }
 
-        public void HitEnemy(IDamageable enemy) { }
+        public void HitTarget(ICombatant target) { }
     }
 
     internal static class ProjectileRotation
     {
         private const float DirectionSqrEpsilon = 0.000001f;
+
+        public static bool TryApplySpin(Transform projectile, ProjectileRotate rotateData, float deltaTime)
+        {
+            if (rotateData == null || rotateData.RotateType != ProjectileRotateType.Rotate)
+                return false;
+
+            projectile.Rotate(0f, 0f, rotateData.RotateSpeed * deltaTime, Space.Self);
+            return true;
+        }
 
         public static void Apply(Transform projectile, Vector3 direction, float rotationOffset)
         {

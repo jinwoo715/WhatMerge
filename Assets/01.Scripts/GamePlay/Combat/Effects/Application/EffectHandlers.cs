@@ -105,12 +105,18 @@ namespace WhatMerge.Combat.Effects
     public interface IDurationEffectHandler
     {
         bool CanHandle(DurationEffectItem effect);
-        IRuntimeEffectHandle Apply(DurationEffectItem effect, DamageContext damageContext);
+        IRuntimeEffectHandle Apply(
+            DurationEffectItem effect,
+            DamageContext damageContext,
+            float? duration);
     }
 
     public interface IDurationEffectApplier
     {
-        IRuntimeEffectHandle Apply(DurationEffectItem effect, DamageContext damageContext);
+        IRuntimeEffectHandle Apply(
+            DurationEffectItem effect,
+            DamageContext damageContext,
+            float? duration);
     }
 
     public sealed class DurationEffectApplier : IDurationEffectApplier
@@ -122,7 +128,10 @@ namespace WhatMerge.Combat.Effects
             _handlers = handlers ?? throw new ArgumentNullException(nameof(handlers));
         }
 
-        public IRuntimeEffectHandle Apply(DurationEffectItem effect, DamageContext damageContext)
+        public IRuntimeEffectHandle Apply(
+            DurationEffectItem effect,
+            DamageContext damageContext,
+            float? duration)
         {
             if (effect == null)
                 throw new ArgumentNullException(nameof(effect));
@@ -151,7 +160,7 @@ namespace WhatMerge.Combat.Effects
                     $"No duration effect handler is registered for {effect.GetType().Name}.");
             }
 
-            return matchedHandler.Apply(effect, damageContext)
+            return matchedHandler.Apply(effect, damageContext, duration)
                 ?? throw new InvalidOperationException(
                     $"{matchedHandler.GetType().Name} returned a null runtime effect handle.");
         }
@@ -168,9 +177,19 @@ namespace WhatMerge.Combat.Effects
 
         public bool CanHandle(DurationEffectItem effect) => effect is DotEffect;
 
-        public IRuntimeEffectHandle Apply(DurationEffectItem effect, DamageContext damageContext)
+        public IRuntimeEffectHandle Apply(
+            DurationEffectItem effect,
+            DamageContext damageContext,
+            float? duration)
         {
-            return _dotService.ApplyDotEffect(new DotData((DotEffect)effect, damageContext));
+            if (!duration.HasValue)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(DotEffect)} must be contained in a {nameof(DurationEffect)}.");
+            }
+
+            return _dotService.ApplyDotEffect(
+                new DotData((DotEffect)effect, duration.Value, damageContext));
         }
     }
 
@@ -185,7 +204,10 @@ namespace WhatMerge.Combat.Effects
 
         public bool CanHandle(DurationEffectItem effect) => effect is SlowEffect;
 
-        public IRuntimeEffectHandle Apply(DurationEffectItem effect, DamageContext damageContext)
+        public IRuntimeEffectHandle Apply(
+            DurationEffectItem effect,
+            DamageContext damageContext,
+            float? duration)
         {
             return _timeEffectService.ApplySlow(((SlowEffect)effect).SlowRatio, damageContext.Target);
         }
@@ -202,7 +224,10 @@ namespace WhatMerge.Combat.Effects
 
         public bool CanHandle(DurationEffectItem effect) => effect is StunEffect;
 
-        public IRuntimeEffectHandle Apply(DurationEffectItem effect, DamageContext damageContext)
+        public IRuntimeEffectHandle Apply(
+            DurationEffectItem effect,
+            DamageContext damageContext,
+            float? duration)
         {
             return _timeEffectService.ApplyStun(damageContext.Target);
         }
@@ -219,7 +244,10 @@ namespace WhatMerge.Combat.Effects
 
         public bool CanHandle(DurationEffectItem effect) => effect is ElementEffect;
 
-        public IRuntimeEffectHandle Apply(DurationEffectItem effect, DamageContext damageContext)
+        public IRuntimeEffectHandle Apply(
+            DurationEffectItem effect,
+            DamageContext damageContext,
+            float? duration)
         {
             return _timeEffectService.ApplyElement(damageContext.Target, ((ElementEffect)effect).Element);
         }
@@ -236,7 +264,10 @@ namespace WhatMerge.Combat.Effects
 
         public bool CanHandle(DurationEffectItem effect) => effect is ArmorReductionEffect;
 
-        public IRuntimeEffectHandle Apply(DurationEffectItem effect, DamageContext damageContext)
+        public IRuntimeEffectHandle Apply(
+            DurationEffectItem effect,
+            DamageContext damageContext,
+            float? duration)
         {
             return _timeEffectService.ApplyArmorReduction(
                 ((ArmorReductionEffect)effect).ReductionValue,
@@ -259,7 +290,10 @@ namespace WhatMerge.Combat.Effects
 
         public bool CanHandle(DurationEffectItem effect) => effect is DamageTransferEffect;
 
-        public IRuntimeEffectHandle Apply(DurationEffectItem effect, DamageContext damageContext)
+        public IRuntimeEffectHandle Apply(
+            DurationEffectItem effect,
+            DamageContext damageContext,
+            float? duration)
         {
             return _timeEffectService.ApplyDamageTransfer(
                 _damageApplier,
@@ -279,7 +313,10 @@ namespace WhatMerge.Combat.Effects
 
         public bool CanHandle(DurationEffectItem effect) => effect is BuffEffect;
 
-        public IRuntimeEffectHandle Apply(DurationEffectItem effect, DamageContext damageContext)
+        public IRuntimeEffectHandle Apply(
+            DurationEffectItem effect,
+            DamageContext damageContext,
+            float? duration)
         {
             if (damageContext.Target is not Hero hero)
             {
@@ -362,6 +399,40 @@ namespace WhatMerge.Combat.Effects
                 || chance > 0f && UnityEngine.Random.value < chance;
         }
 
+    }
+    public sealed class ManaRestoreEffectHandler : IEffectHandler
+    {
+        public bool CanHandle(EffectBase effect)
+        {
+            return effect is ManaRestoreEffect;
+        }
+
+        public void Handle(EffectBase effect, DamageContext damageContext)
+        {
+            if (effect is not ManaRestoreEffect manaRestoreEffect)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(ManaRestoreEffectHandler)} cannot handle {effect?.GetType().Name ?? "null"}.");
+            }
+
+            if (damageContext.Target is not IManaReceiver manaReceiver)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(ManaRestoreEffect)} requires an {nameof(IManaReceiver)} target. " +
+                    $"Received: {damageContext.Target?.GetType().Name ?? "null"}.");
+            }
+
+            float manaAmount = manaRestoreEffect.ManaAmount;
+            if (float.IsNaN(manaAmount) || float.IsInfinity(manaAmount) || manaAmount < 0f)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(ManaRestoreEffect)} '{manaRestoreEffect.name}' mana amount must be " +
+                    $"a finite number greater than or equal to zero. Current value: {manaAmount}.");
+            }
+
+            if (damageContext.Target.IsActive && manaAmount > 0f)
+                manaReceiver.RestoreMana(manaAmount);
+        }
     }
     public class SummonSpawnEffectHandler : IEffectHandler
     {

@@ -9,6 +9,14 @@ namespace Skill.Data
         [Header("모션")]
         public SkillAnimationData AnimationData;
 
+        [Header("차징")]
+        [Min(0f)]
+        public float ChargeTime;
+
+        [Header("발동 확률")]
+        [Range(0f, 1f)]
+        public float ActivationChance = 1f;
+
         [Header("방식")]
         public ExecutionData Execution;
 

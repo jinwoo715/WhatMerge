@@ -36,12 +36,6 @@ namespace WhatMerge.Projectiles
                 throw new ArgumentNullException(nameof(context));
             if (context.Target == null)
                 throw new InvalidOperationException("Projectile requires a target.");
-            if (context.Target is not IDamageable)
-            {
-                throw new InvalidOperationException(
-                    $"Projectile requires an {nameof(IDamageable)} target. " +
-                    $"Received: {context.Target.GetType().Name}.");
-            }
             if (!context.Target.IsActive)
                 return;
 

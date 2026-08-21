@@ -12,5 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0573a7a9871ae0349851f0e4b44c1858, type: 3}
   m_Name: WizardSkillSet
   m_EditorClassIdentifier: 
-  UID: 9
-  Sets: []
+  UID: 10
+  Sets:
+  - Level: 0
+    Skill: {fileID: 11400000, guid: cf2d76fd436b3ff4687e972293454bd5, type: 2}
+  - Level: 0
+    Skill: {fileID: 11400000, guid: eb61ef205d76bed4aa25adebc07b9476, type: 2}
+  - Level: 0
+    Skill: {fileID: 11400000, guid: cbc2a53faa7abcd4aaca1b567f56ec42, type: 2}

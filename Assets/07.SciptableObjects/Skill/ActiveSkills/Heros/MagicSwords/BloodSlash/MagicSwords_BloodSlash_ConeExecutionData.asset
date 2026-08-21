@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a48e10ed3f5bca94cb7e2b4a1f3d327d, type: 3}
+  m_Name: MagicSwords_BloodSlash_ConeExecutionData
+  m_EditorClassIdentifier: 
+  Effects:
+  - {fileID: 11400000, guid: a1a4d6c34badf66499ad8ed31e8638df, type: 2}
+  Angle: 50

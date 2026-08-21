@@ -20,15 +20,12 @@ namespace WhatMerge.Summons
         private float _currentTimer;
         private float _duration;
 
-        internal void Init(
-            ISummonMoveStrategy move,
-            ISummonExecutionStrategy execution,
-            float duration,
-            IDisposable effectLifetimeLease)
+        internal void Init(ISummonMoveStrategy move, ISummonExecutionStrategy execution, float duration, IDisposable effectLifetimeLease, Sprite sprite)
         {
             if (_effectLifetimeLease != null)
                 throw new InvalidOperationException("Summon effect lifetime is already assigned.");
 
+            _renderer.sprite = sprite;
             _currentTimer = 0;
             _execution = execution;
             _duration = duration;

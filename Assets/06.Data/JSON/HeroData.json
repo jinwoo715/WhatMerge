@@ -1,6 +1,6 @@
 [
   {
-    "UID": "1",
+    "UID": "2",
     "Name": "전사",
     "Description": "Warrior",
     "SpriteKey": "Warrior",
@@ -11,7 +11,7 @@
     "CriticalMultiplier": "1"
   },
   {
-    "UID": "2",
+    "UID": "3",
     "Name": "방패병",
     "Description": "ShieldSoldier",
     "SpriteKey": "ShieldSoldier",
@@ -22,7 +22,7 @@
     "CriticalMultiplier": "1"
   },
   {
-    "UID": "3",
+    "UID": "4",
     "Name": "창병",
     "Description": "Spearman",
     "SpriteKey": "Spearman",
@@ -33,7 +33,7 @@
     "CriticalMultiplier": "1"
   },
   {
-    "UID": "4",
+    "UID": "5",
     "Name": "도적",
     "Description": "Thief",
     "SpriteKey": "Thief",
@@ -44,7 +44,7 @@
     "CriticalMultiplier": "1"
   },
   {
-    "UID": "5",
+    "UID": "6",
     "Name": "궁수",
     "Description": "Archer",
     "SpriteKey": "Archer",
@@ -55,7 +55,7 @@
     "CriticalMultiplier": "1"
   },
   {
-    "UID": "6",
+    "UID": "7",
     "Name": "석궁병",
     "Description": "Crossbowman",
     "SpriteKey": "Crossbowman",
@@ -66,7 +66,7 @@
     "CriticalMultiplier": "1"
   },
   {
-    "UID": "7",
+    "UID": "8",
     "Name": "조총병",
     "Description": "Musketeer",
     "SpriteKey": "Musketeer",
@@ -77,7 +77,7 @@
     "CriticalMultiplier": "1"
   },
   {
-    "UID": "8",
+    "UID": "9",
     "Name": "폭탄병",
     "Description": "Bomber",
     "SpriteKey": "Bomber",
@@ -88,7 +88,7 @@
     "CriticalMultiplier": "1"
   },
   {
-    "UID": "9",
+    "UID": "10",
     "Name": "마법사",
     "Description": "Wizard",
     "SpriteKey": "Wizard",
@@ -99,7 +99,7 @@
     "CriticalMultiplier": "1"
   },
   {
-    "UID": "10",
+    "UID": "11",
     "Name": "성직자",
     "Description": "Priest",
     "SpriteKey": "Priest",

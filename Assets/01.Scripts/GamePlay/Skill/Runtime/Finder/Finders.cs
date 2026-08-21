@@ -45,14 +45,20 @@ namespace Skill
         private readonly int _range;
         private readonly Hero _owner;
         private readonly IFieldHeroService _fieldHeroService;
+        private readonly bool _includeSelf;
 
         public float Range => _range;
 
-        public NearHeroFinder(IFieldHeroService fieldHeroService, Hero owner, int range)
+        public NearHeroFinder(
+            IFieldHeroService fieldHeroService,
+            Hero owner,
+            int range,
+            bool includeSelf)
         {
             _fieldHeroService = fieldHeroService;
             _owner = owner;
             _range = range;
+            _includeSelf = includeSelf;
         }
 
         public bool TryGetTargets(Vector3 pivot, out IReadOnlyList<ICombatant> targets)
@@ -67,25 +73,38 @@ namespace Skill
                 _owner.OccupiedTile,
                 (HeroSearchType)_range);
 
-            return FinderResult.TryCopyActiveTargets(heroes, out targets);
+            return FinderResult.TryCopyActiveHeroTargets(
+                heroes,
+                _owner,
+                _includeSelf,
+                out targets);
         }
     }
 
     public class AllHeroFinder : IFinder
     {
         private readonly IFieldHeroService _fieldHeroService;
+        private readonly Hero _owner;
+        private readonly bool _includeSelf;
 
         public float Range => 0;
 
-        public AllHeroFinder(IFieldHeroService fieldHeroService)
+        public AllHeroFinder(
+            IFieldHeroService fieldHeroService,
+            Hero owner,
+            bool includeSelf)
         {
             _fieldHeroService = fieldHeroService;
+            _owner = owner;
+            _includeSelf = includeSelf;
         }
 
         public bool TryGetTargets(Vector3 pivot, out IReadOnlyList<ICombatant> targets)
         {
-            return FinderResult.TryCopyActiveTargets(
+            return FinderResult.TryCopyActiveHeroTargets(
                 _fieldHeroService.GetAllFieldHero,
+                _owner,
+                _includeSelf,
                 out targets);
         }
     }
@@ -121,14 +140,48 @@ namespace Skill
 
         public bool TryGetTargets(Vector3 pivot, out IReadOnlyList<ICombatant> targets)
         {
-            return FinderResult.TryCopyActiveTargets(
-                _fieldEnemyService.GetAllFieldEnemy,
-                out targets);
+            return FinderResult.TryCopyActiveTargets(_fieldEnemyService.GetAllFieldEnemy, out targets);
         }
     }
 
     internal static class FinderResult
     {
+        public static bool TryCopyActiveHeroTargets(
+            IReadOnlyList<Hero> candidates,
+            Hero owner,
+            bool includeSelf,
+            out IReadOnlyList<ICombatant> targets)
+        {
+            List<ICombatant> activeTargets = new List<ICombatant>(candidates?.Count ?? 0);
+
+            if (candidates != null)
+            {
+                for (int i = 0; i < candidates.Count; i++)
+                {
+                    Hero candidate = candidates[i];
+                    if (candidate == null
+                        || !candidate.IsActive
+                        || (!includeSelf && ReferenceEquals(candidate, owner)))
+                    {
+                        continue;
+                    }
+
+                    activeTargets.Add(candidate);
+                }
+            }
+
+            if (includeSelf
+                && owner != null
+                && owner.IsActive
+                && !activeTargets.Contains(owner))
+            {
+                activeTargets.Add(owner);
+            }
+
+            targets = activeTargets;
+            return activeTargets.Count > 0;
+        }
+
         public static bool TryCopyActiveTargets<T>(
             IReadOnlyList<T> candidates,
             out IReadOnlyList<ICombatant> targets)

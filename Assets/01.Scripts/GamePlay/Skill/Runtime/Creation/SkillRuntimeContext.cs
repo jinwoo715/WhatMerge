@@ -8,11 +8,18 @@ namespace Skill
         public ICombatService Combat { get; }
         public IFieldHeroService FieldHero { get; }
         public IFieldEnemyService FieldEnemy { get; }
-        public SkillRuntimeContext(ICombatService combatService, IFieldHeroService fieldHeroService, IFieldEnemyService fieldEnemyService)
+        public IVFXService VFX { get; }
+
+        public SkillRuntimeContext(
+            ICombatService combatService,
+            IFieldHeroService fieldHeroService,
+            IFieldEnemyService fieldEnemyService,
+            IVFXService vfxService)
         {
             Combat = combatService;
             FieldEnemy = fieldEnemyService;
             FieldHero = fieldHeroService;
+            VFX = vfxService;
         }
     }
 }

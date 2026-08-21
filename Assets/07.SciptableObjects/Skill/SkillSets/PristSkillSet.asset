@@ -12,5 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0573a7a9871ae0349851f0e4b44c1858, type: 3}
   m_Name: PristSkillSet
   m_EditorClassIdentifier: 
-  UID: 8
-  Sets: []
+  UID: 11
+  Sets:
+  - Level: 0
+    Skill: {fileID: 11400000, guid: 32b3e310ad9809144a51d34abe03d6d8, type: 2}
+  - Level: 0
+    Skill: {fileID: 11400000, guid: e4ff2b5de513bc841a376cf60f309914, type: 2}
+  - Level: 0
+    Skill: {fileID: 11400000, guid: f4d561577cab02c4dbf9af7204fa2728, type: 2}

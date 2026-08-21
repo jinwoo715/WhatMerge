@@ -11,8 +11,15 @@ namespace Skill
             return data switch
             {
                 SelfTargetData => new SelfTargetFinder(owner),
-                NearHeroTargetData near => new NearHeroFinder(runtimeContext.FieldHero, owner, (int)near.TargetRange),
-                AllHeroTargetData => new AllHeroFinder(runtimeContext.FieldHero),
+                NearHeroTargetData near => new NearHeroFinder(
+                    runtimeContext.FieldHero,
+                    owner,
+                    (int)near.TargetRange,
+                    near.IncludeSelf),
+                AllHeroTargetData all => new AllHeroFinder(
+                    runtimeContext.FieldHero,
+                    owner,
+                    all.IncludeSelf),
                 NearEnemyTargetData near => new NearEnemyFinder(near.Radius),
                 AllEnemyTargetData => new AllEnemyFinder(runtimeContext.FieldEnemy),
                 _ => throw new InvalidOperationException($"Unsupported TargetData: {data?.name ?? "null"}")

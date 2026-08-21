@@ -15,11 +15,13 @@ namespace WhatMerge.Summons
         private ObjectPool<SummonItem> _summonItemPool = new ObjectPool<SummonItem>();
 
         private ICombatService _combatService;
+        private ISpriteRepository _spriteRepository;
 
         public void Init(ISpriteRepository spriteRepository, ICombatService combatService)
         {
             _combatService = combatService;
 
+            _spriteRepository = spriteRepository;
             _summonItemPool.OnCreateEvent += (item) => { item.OnReturn += ReturnToPool; }; 
             _summonItemPool.Init(this.transform, _originSummonItem, 5);
         }
@@ -30,28 +32,35 @@ namespace WhatMerge.Summons
                 throw new ArgumentNullException(nameof(dataSO));
             if (damageContext == null)
                 throw new ArgumentNullException(nameof(damageContext));
-            if (damageContext.Target == null)
-                throw new InvalidOperationException("Summon effect requires a target.");
-            if (!damageContext.Target.IsActive)
-                return;
+
+            ICombatant target = damageContext.Target;
+            if (SummonMoveFactory.RequiresTarget(dataSO.Move))
+            {
+                if (target == null)
+                {
+                    throw new InvalidOperationException(
+                        $"Summon move '{dataSO.Move.GetType().Name}' requires a target.");
+                }
+
+                if (!target.IsActive)
+                    return;
+            }
 
             ValidatePositiveFinite(dataSO.DurationTime, nameof(dataSO.DurationTime), dataSO.name);
 
-            Vector3 spawnPosition = GetSpawnPosition(damageContext.Target.Position, dataSO.SpawnPosition);
+            Vector3 spawnPosition = GetSpawnPosition(damageContext.ImpactPosition, dataSO.SpawnPosition);
             SummonItem summonObj = _summonItemPool.GetItem(spawnPosition);
 
-            ISummonMoveStrategy move = SummonMoveFactory.GetMoveStrategy(dataSO.Move, summonObj.transform, damageContext.Target, dataSO.DurationTime);
-            ISummonExecutionStrategy execution = SummonExecutionFactory.GetExecutionStrategy(
-                dataSO.Execution,
-                damageContext,
-                _combatService);
+            ISummonMoveStrategy move = SummonMoveFactory.GetMoveStrategy(dataSO.Move, summonObj.transform, target, dataSO.DurationTime);
+            ISummonExecutionStrategy execution = SummonExecutionFactory.GetExecutionStrategy(dataSO.Execution, damageContext, _combatService, dataSO.DurationTime);
             execution.OnExecuteEffect += ProcessSummonExecuteEffect;
 
             IDisposable effectLifetimeLease = damageContext.RetainEffectLifetime();
 
             try
             {
-                summonObj.Init(move, execution, dataSO.DurationTime, effectLifetimeLease);
+                Sprite summonSprite = _spriteRepository.GetSprite(dataSO.SummonSpriteName);
+                summonObj.Init(move, execution, dataSO.DurationTime, effectLifetimeLease, summonSprite);
                 effectLifetimeLease = null;
             }
             finally
@@ -64,18 +73,18 @@ namespace WhatMerge.Summons
         {
             switch (spawnType)
             {
-                case ESpawnPosition.TargetPivot:
+                case ESpawnPosition.Pivot:
                     break;
-                case ESpawnPosition.TargetUpper:
+                case ESpawnPosition.Upper:
                     pivot += Vector3.up;
                     break;
-                case ESpawnPosition.TargetLower:
+                case ESpawnPosition.Lower:
                     pivot += Vector3.down;
                     break;
-                case ESpawnPosition.TargetRight:
+                case ESpawnPosition.Right:
                     pivot += Vector3.right;
                     break;
-                case ESpawnPosition.TargetLeft:
+                case ESpawnPosition.Left:
                     pivot += Vector3.left;
                     break;
             }
@@ -103,10 +112,7 @@ namespace WhatMerge.Summons
     }
     public class SummonExecutionFactory
     {
-        public static ISummonExecutionStrategy GetExecutionStrategy(
-            SummonExecutionData execution,
-            DamageContext damageContext,
-            ICombatService combatService)
+        public static ISummonExecutionStrategy GetExecutionStrategy(SummonExecutionData execution, DamageContext damageContext, ICombatService combatService, float duration)
         {
             return execution switch
             {
@@ -114,6 +120,7 @@ namespace WhatMerge.Summons
                 OnTickExecutionSummon tickExecution => new OnTickExecution(damageContext, tickExecution.TickTime),
                 SummonOnStayExecution => new OnStayExecution(damageContext, combatService),
                 OnExpireExecutionSummon => new OnExpireExecution(damageContext),
+                OnTimeOnceExecutionSummon onceExecution => new OnTimeOncewExecution(damageContext, duration, onceExecution.ExecutionTiming),
                 _ => throw new System.InvalidOperationException(
                     $"Unsupported summon execution type: {execution?.GetType().Name ?? "null"}.")
             };
@@ -122,6 +129,11 @@ namespace WhatMerge.Summons
 
     public class SummonMoveFactory
     {
+        public static bool RequiresTarget(SummonMove summonMove)
+        {
+            return summonMove is SummonAttachMove or SummonApproachMove;
+        }
+
         public static ISummonMoveStrategy GetMoveStrategy(SummonMove summonMove, Transform owner, ICombatant target, float duration)
         {
             var eventType = TargetLostEventType.Disappear;

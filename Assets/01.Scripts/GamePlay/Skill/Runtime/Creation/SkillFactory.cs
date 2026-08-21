@@ -26,10 +26,11 @@ namespace Skill
 
             SkillSet returnSkillSet = new SkillSet();
 
-            Dictionary<ActiveSkillData, RuntimeExecution> runtimeActiveSkills = new();
+            Dictionary<ActiveSkillData, RuntimeExecution> runtimeExecutions = new();
+            Dictionary<ActiveSkillData, ActiveSkill> runtimeActiveSkills = new();
 
             Queue<EffectValueEnhanceData> statEnhancerDatas = new Queue<EffectValueEnhanceData>();
-            Queue<EffectChanceEnhanceData> chanceEnhancers = new Queue<EffectChanceEnhanceData>();
+            Queue<ActivationChanceEnhanceData> activationChanceEnhancers = new Queue<ActivationChanceEnhanceData>();
             Queue<ExtraEffectData> extraEffects = new Queue<ExtraEffectData>();
 
             foreach (var data in sets)
@@ -48,15 +49,14 @@ namespace Skill
 
                         RuntimeExecution runtimeSkillEffect = new RuntimeExecution(activeSkill.Execution);
     
-                        runtimeActiveSkills.Add(activeSkill, runtimeSkillEffect);
+                        runtimeExecutions.Add(activeSkill, runtimeSkillEffect);
 
                         ActiveSkill skill = CreateActiveSkill(activeSkill, owner, runtimeSkillEffect);
+                        runtimeActiveSkills.Add(activeSkill, skill);
                         returnSkillSet.ActiveSkills.Add(skill);
 
                         break;
                     case PassiveSkillData passiveSkill:
-
-                        Debug.Log("Passive");
 
                         PassiveSkill passive = CreatePassiveSkill(passiveSkill, owner);
                         passive.SetUID(passiveSkill.UID);
@@ -68,8 +68,8 @@ namespace Skill
                         statEnhancerDatas.Enqueue(enhanceValueData);
                         break;
 
-                    case EffectChanceEnhanceData enhanceChanceData:
-                        chanceEnhancers.Enqueue(enhanceChanceData);
+                    case ActivationChanceEnhanceData activationChanceEnhanceData:
+                        activationChanceEnhancers.Enqueue(activationChanceEnhanceData);
                         break;
 
                     case ExtraEffectData extraEffectData:
@@ -83,9 +83,9 @@ namespace Skill
 
             //스킬 추가에 대한 처리가 가장먼저 되어야 함
 
-            SkillEnhancementApplier.ApplyExtraEffect(runtimeActiveSkills, extraEffects);
-            SkillEnhancementApplier.ApplyStatEnhance(runtimeActiveSkills, statEnhancerDatas);
-            SkillEnhancementApplier.ApplyChanceEnhance(runtimeActiveSkills, chanceEnhancers);
+            SkillEnhancementApplier.ApplyExtraEffect(runtimeExecutions, extraEffects);
+            SkillEnhancementApplier.ApplyStatEnhance(runtimeExecutions, statEnhancerDatas);
+            SkillEnhancementApplier.ApplyActivationChanceEnhance(runtimeActiveSkills, activationChanceEnhancers);
 
             return returnSkillSet;
         }
@@ -99,12 +99,19 @@ namespace Skill
                 skillSO.AnimationData,
                 runtimeExecution.RuntimeExecutionData,
                 skillSO.UID,
+                skillSO.ChargeTime,
                 runtimeExecution,
                 target);
 
             IExecute execution = ExecutionFactory.CreateExecution(executionContext, _runtimeContext);
 
-            ActiveSkill activeSkill = new ActiveSkill(skillSO.UID, owner, trigger, target, execution);
+            ActiveSkill activeSkill = new ActiveSkill(
+                skillSO.UID,
+                owner,
+                trigger,
+                target,
+                execution,
+                skillSO.ActivationChance);
             activeSkill.OnDispose += () => { runtimeExecution.Dispose(); };
 
             return activeSkill;

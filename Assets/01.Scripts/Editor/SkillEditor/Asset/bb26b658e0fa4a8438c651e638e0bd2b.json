@@ -1,0 +1,157 @@
+{
+    "NodePositions": [
+        {
+            "Key": "active",
+            "Position": {
+                "serializedVersion": "2",
+                "x": 40.0,
+                "y": 160.0,
+                "width": 266.0,
+                "height": 423.0
+            }
+        },
+        {
+            "Key": "loose-14dfe3a155b450a448b378e600743748",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -372.0,
+                "y": 260.0,
+                "width": 368.0,
+                "height": 187.0
+            }
+        },
+        {
+            "Key": "execution",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -372.0,
+                "y": 160.0,
+                "width": 368.0,
+                "height": 247.0
+            }
+        },
+        {
+            "Key": "loose-7fa99430a19ba7141b61f61c613174ec",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -355.0,
+                "y": 482.0,
+                "width": 351.0,
+                "height": 136.0
+            }
+        },
+        {
+            "Key": "trigger",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -372.0,
+                "y": 583.0,
+                "width": 351.0,
+                "height": 136.0
+            }
+        },
+        {
+            "Key": "loose-9191b2089a18f92468d8bcdd4ebcfe8e",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -384.0,
+                "y": 381.0,
+                "width": 380.0,
+                "height": 156.0
+            }
+        },
+        {
+            "Key": "target",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -384.0,
+                "y": 397.0,
+                "width": 380.0,
+                "height": 156.0
+            }
+        },
+        {
+            "Key": "loose-bb08f16d49f8cfa48a73fc7bc4699362",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -798.0,
+                "y": 153.0,
+                "width": 335.0,
+                "height": 244.0
+            }
+        },
+        {
+            "Key": "effect-0",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -798.0,
+                "y": 153.0,
+                "width": 335.0,
+                "height": 244.0
+            }
+        }
+    ],
+    "AssetPositions": [
+        {
+            "Key": "asset-bb26b658e0fa4a8438c651e638e0bd2b",
+            "Position": {
+                "serializedVersion": "2",
+                "x": 40.0,
+                "y": 160.0,
+                "width": 266.0,
+                "height": 423.0
+            }
+        },
+        {
+            "Key": "asset-14dfe3a155b450a448b378e600743748",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -372.0,
+                "y": 160.0,
+                "width": 368.0,
+                "height": 247.0
+            }
+        },
+        {
+            "Key": "asset-7fa99430a19ba7141b61f61c613174ec",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -372.0,
+                "y": 583.0,
+                "width": 351.0,
+                "height": 136.0
+            }
+        },
+        {
+            "Key": "asset-9191b2089a18f92468d8bcdd4ebcfe8e",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -384.0,
+                "y": 397.0,
+                "width": 380.0,
+                "height": 156.0
+            }
+        },
+        {
+            "Key": "asset-bb08f16d49f8cfa48a73fc7bc4699362",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -798.0,
+                "y": 153.0,
+                "width": 335.0,
+                "height": 244.0
+            }
+        }
+    ],
+    "LooseAssetGuids": [],
+    "ViewPosition": {
+        "x": 658.0,
+        "y": -193.0,
+        "z": 0.0
+    },
+    "ViewScale": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+    }
+}

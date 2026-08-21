@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e081a4569ff6834785aa3208bde2218, type: 3}
+  m_Name: Boomber_TimeBomb
+  m_EditorClassIdentifier: 
+  UID: 0
+  Name: 
+  Description: 
+  AnimationData:
+    MotionName: TimeBomb
+    ReadyMotionTime: 0.2
+    ExecutionMotionTime: 0.2
+  ChargeTime: 0
+  ActivationChance: 1
+  Execution: {fileID: 11400000, guid: e91e1175eb60f594d92e1ec883430a08, type: 2}
+  Finder: {fileID: 11400000, guid: 8694f31e4e553a54b82141815cadee30, type: 2}
+  Trigger: {fileID: 11400000, guid: e5416127c564e8e4ea27b26bd4248c28, type: 2}

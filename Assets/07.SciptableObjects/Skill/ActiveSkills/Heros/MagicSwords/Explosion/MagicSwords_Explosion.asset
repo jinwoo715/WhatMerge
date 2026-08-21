@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e081a4569ff6834785aa3208bde2218, type: 3}
+  m_Name: MagicSwords_Explosion
+  m_EditorClassIdentifier: 
+  UID: 0
+  Name: 
+  Description: 
+  AnimationData:
+    MotionName: Explosion
+    ReadyMotionTime: 0.2
+    ExecutionMotionTime: 0.2
+  ChargeTime: 0
+  Execution: {fileID: 11400000, guid: c842565655087d24b9016efa1e3bda23, type: 2}
+  Finder: {fileID: 11400000, guid: 7093fe8c701ab1b4e80b3fb56276d112, type: 2}
+  Trigger: {fileID: 11400000, guid: f28977a9a6904c64195f7f08e5a5e316, type: 2}

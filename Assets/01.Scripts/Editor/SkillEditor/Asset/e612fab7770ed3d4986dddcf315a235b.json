@@ -57,7 +57,7 @@
                 "x": 848.0,
                 "y": 173.0,
                 "width": 508.0,
-                "height": 280.0
+                "height": 300.0
             }
         },
         {
@@ -114,8 +114,8 @@
             "Key": "effect-0::summon-spawn-execution::summon-execution-effect::0",
             "Position": {
                 "serializedVersion": "2",
-                "x": 122.0,
-                "y": 442.0,
+                "x": 106.0,
+                "y": 453.0,
                 "width": 275.0,
                 "height": 244.0
             }
@@ -209,7 +209,7 @@
                 "x": 848.0,
                 "y": 173.0,
                 "width": 508.0,
-                "height": 280.0
+                "height": 300.0
             }
         },
         {
@@ -236,8 +236,8 @@
             "Key": "asset-1b0a1005e8ac4144babaf981c3f6a636",
             "Position": {
                 "serializedVersion": "2",
-                "x": 122.0,
-                "y": 442.0,
+                "x": 106.0,
+                "y": 453.0,
                 "width": 275.0,
                 "height": 244.0
             }
@@ -275,13 +275,13 @@
     ],
     "LooseAssetGuids": [],
     "ViewPosition": {
-        "x": 0.0,
-        "y": 0.0,
+        "x": -582.0,
+        "y": -92.0,
         "z": 0.0
     },
     "ViewScale": {
-        "x": 1.0,
-        "y": 1.0,
+        "x": 0.8695651888847351,
+        "y": 0.8695651888847351,
         "z": 1.0
     }
 }

@@ -148,191 +148,7 @@ public static class SkillGraphAssetUtility
 
     public static IEnumerable<Object> GetReferencedObjects(ActiveSkillData skill)
     {
-        if (skill == null)
-        {
-            yield break;
-        }
-
-        yield return skill;
-
-        if (skill.Trigger != null)
-        {
-            yield return skill.Trigger;
-        }
-
-        if (skill.Finder != null)
-        {
-            yield return skill.Finder;
-        }
-
-        if (skill.Execution == null)
-        {
-            yield break;
-        }
-
-        yield return skill.Execution;
-
-        ExecutionData execution = skill.Execution;
-        if (execution.Effects == null)
-        {
-            yield break;
-        }
-
-        for (int i = 0; i < execution.Effects.Count; i++)
-        {
-            EffectBase entry = execution.Effects[i];
-            if (entry == null)
-            {
-                continue;
-            }
-
-            yield return entry;
-
-            if (entry.VFX != null)
-            {
-                yield return entry.VFX;
-            }
-
-            if (entry is ProjectileSpawnEffect projectileSpawnEffect && projectileSpawnEffect.Projectile != null)
-            {
-                ProjectileDataBase projectileData = projectileSpawnEffect.Projectile;
-                yield return projectileData;
-
-                if (projectileData.Effects != null)
-                {
-                    for (int j = 0; j < projectileData.Effects.Count; j++)
-                    {
-                        EffectBase projectileEffect = projectileData.Effects[j];
-                        if (projectileEffect == null)
-                        {
-                            continue;
-                        }
-
-                        yield return projectileEffect;
-                        if (projectileEffect.VFX != null)
-                        {
-                            yield return projectileEffect.VFX;
-                        }
-
-                        if (projectileEffect is RangeEffect projectileRangeEffect)
-                        {
-                            foreach (Object rangeReference in GetRangeEffectReferences(projectileRangeEffect))
-                            {
-                                yield return rangeReference;
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (entry is DurationEffect durationEffect && durationEffect.Effects != null)
-            {
-                for (int j = 0; j < durationEffect.Effects.Count; j++)
-                {
-                    if (durationEffect.Effects[j] != null)
-                    {
-                        yield return durationEffect.Effects[j];
-                    }
-                }
-            }
-
-            if (entry is RangeEffect rangeEffect)
-            {
-                foreach (Object rangeReference in GetRangeEffectReferences(rangeEffect))
-                {
-                    yield return rangeReference;
-                }
-            }
-
-            if (entry is SummonSpawnEffect summonSpawnEffect)
-            {
-                if (summonSpawnEffect.Move != null)
-                {
-                    yield return summonSpawnEffect.Move;
-                }
-
-                if (summonSpawnEffect.Execution != null)
-                {
-                    yield return summonSpawnEffect.Execution;
-                }
-
-                if (summonSpawnEffect.Execution is SummonOnceExecution onceExecution
-                    && onceExecution.Effects != null)
-                {
-                    for (int j = 0; j < onceExecution.Effects.Count; j++)
-                    {
-                        if (onceExecution.Effects[j] != null)
-                        {
-                            NormalEffect summonEffect = onceExecution.Effects[j];
-                            yield return summonEffect;
-
-                            if (summonEffect is RangeEffect summonRangeEffect)
-                            {
-                                foreach (Object rangeReference in GetRangeEffectReferences(summonRangeEffect))
-                                {
-                                    yield return rangeReference;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (summonSpawnEffect.Execution is SummonOnStayExecution stayExecution
-                    && stayExecution.Effects != null)
-                {
-                    for (int j = 0; j < stayExecution.Effects.Count; j++)
-                    {
-                        if (stayExecution.Effects[j] != null)
-                        {
-                            yield return stayExecution.Effects[j];
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private static IEnumerable<Object> GetRangeEffectReferences(RangeEffect rangeEffect)
-    {
-        var visited = new HashSet<RangeEffect>();
-        foreach (Object reference in GetRangeEffectReferences(rangeEffect, visited))
-        {
-            yield return reference;
-        }
-    }
-
-    private static IEnumerable<Object> GetRangeEffectReferences(
-        RangeEffect rangeEffect,
-        HashSet<RangeEffect> visited)
-    {
-        if (rangeEffect?.Effects == null || !visited.Add(rangeEffect))
-        {
-            yield break;
-        }
-
-        for (int i = 0; i < rangeEffect.Effects.Count; i++)
-        {
-            EffectBase effect = rangeEffect.Effects[i];
-            if (effect == null)
-            {
-                continue;
-            }
-
-            yield return effect;
-
-            if (effect.VFX != null)
-            {
-                yield return effect.VFX;
-            }
-
-            if (effect is RangeEffect nestedRangeEffect)
-            {
-                foreach (Object nestedReference in GetRangeEffectReferences(nestedRangeEffect, visited))
-                {
-                    yield return nestedReference;
-                }
-            }
-        }
+        return SkillGraphReferenceWalker.EnumerateReachableObjects(skill);
     }
 
     public static void MarkDirty(Object target)
@@ -436,6 +252,185 @@ public static class SkillGraphAssetUtility
         }
 
         return sanitized.Trim();
+    }
+}
+
+public readonly struct SkillGraphReference
+{
+    public Object Child { get; }
+
+    public SkillGraphReference(Object child)
+    {
+        Child = child;
+    }
+}
+
+public static class SkillGraphReferenceWalker
+{
+    public static IEnumerable<Object> EnumerateReachableObjects(Object root)
+    {
+        var visited = new HashSet<int>();
+        foreach (Object referencedObject in EnumerateReachableObjects(root, visited))
+        {
+            yield return referencedObject;
+        }
+    }
+
+    public static bool Contains(Object root, Object target)
+    {
+        if (root == null || target == null)
+        {
+            return false;
+        }
+
+        return Contains(root, target, new HashSet<int>());
+    }
+
+    public static bool WouldCreateCycle(Object owner, Object child)
+    {
+        return owner != null && child != null && Contains(child, owner);
+    }
+
+    public static IEnumerable<SkillGraphReference> GetDirectReferences(Object owner)
+    {
+        if (owner is ActiveSkillData skill)
+        {
+            yield return new SkillGraphReference(skill.Execution);
+            yield return new SkillGraphReference(skill.Finder);
+            yield return new SkillGraphReference(skill.Trigger);
+            yield break;
+        }
+
+        if (owner is ExecutionData execution)
+        {
+            yield return new SkillGraphReference(execution.ExecutionVFX);
+            foreach (SkillGraphReference reference in GetEffectReferences(execution.Effects))
+            {
+                yield return reference;
+            }
+
+            yield break;
+        }
+
+        if (owner is ProjectileDataBase projectile)
+        {
+            foreach (SkillGraphReference reference in GetEffectReferences(projectile.Effects))
+            {
+                yield return reference;
+            }
+
+            yield break;
+        }
+
+        if (owner is EffectBase effect)
+        {
+            yield return new SkillGraphReference(effect.VFX);
+
+            if (effect is ProjectileSpawnEffect projectileSpawn)
+            {
+                yield return new SkillGraphReference(projectileSpawn.Projectile);
+            }
+
+            if (effect is SummonSpawnEffect summonSpawn)
+            {
+                yield return new SkillGraphReference(summonSpawn.Move);
+                yield return new SkillGraphReference(summonSpawn.Execution);
+            }
+
+            if (effect is DurationEffect duration)
+            {
+                foreach (SkillGraphReference reference in GetEffectReferences(duration.Effects))
+                {
+                    yield return reference;
+                }
+            }
+
+            if (effect is RangeEffect range)
+            {
+                foreach (SkillGraphReference reference in GetEffectReferences(range.Effects))
+                {
+                    yield return reference;
+                }
+            }
+
+            yield break;
+        }
+
+        if (owner is SummonOnceExecution onceExecution)
+        {
+            foreach (SkillGraphReference reference in GetEffectReferences(onceExecution.Effects))
+            {
+                yield return reference;
+            }
+
+            yield break;
+        }
+
+        if (owner is SummonOnStayExecution stayExecution)
+        {
+            foreach (SkillGraphReference reference in GetEffectReferences(stayExecution.Effects))
+            {
+                yield return reference;
+            }
+        }
+    }
+
+    private static IEnumerable<SkillGraphReference> GetEffectReferences<T>(IList<T> effects)
+        where T : EffectBase
+    {
+        if (effects == null)
+        {
+            yield break;
+        }
+
+        for (int i = 0; i < effects.Count; i++)
+        {
+            yield return new SkillGraphReference(effects[i]);
+        }
+    }
+
+    private static IEnumerable<Object> EnumerateReachableObjects(Object current, HashSet<int> visited)
+    {
+        if (current == null || !visited.Add(current.GetInstanceID()))
+        {
+            yield break;
+        }
+
+        yield return current;
+
+        foreach (SkillGraphReference reference in GetDirectReferences(current))
+        {
+            foreach (Object referencedObject in EnumerateReachableObjects(reference.Child, visited))
+            {
+                yield return referencedObject;
+            }
+        }
+    }
+
+    private static bool Contains(Object current, Object target, HashSet<int> path)
+    {
+        if (current == target)
+        {
+            return true;
+        }
+
+        int instanceId = current.GetInstanceID();
+        if (!path.Add(instanceId))
+        {
+            return false;
+        }
+
+        foreach (SkillGraphReference reference in GetDirectReferences(current))
+        {
+            if (reference.Child != null && Contains(reference.Child, target, path))
+            {
+                path.Remove(instanceId);
+                return true;
+            }
+        }
+
+        path.Remove(instanceId);
+        return false;
     }
 }
 

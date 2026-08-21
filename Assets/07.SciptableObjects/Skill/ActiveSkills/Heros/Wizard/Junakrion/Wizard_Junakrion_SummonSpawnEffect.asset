@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00ebccf6796749146aa6709bd4446898, type: 3}
+  m_Name: Wizard_Junakrion_SummonSpawnEffect
+  m_EditorClassIdentifier: 
+  Chance: 1
+  VFX: {fileID: 0}
+  DurationTime: 0.5
+  SummonSpriteName: Junakrion
+  Move: {fileID: 11400000, guid: 9dbe0c45c2cbd564a90010a3c62cd7d8, type: 2}
+  Execution: {fileID: 11400000, guid: a502b20d22a87374eae7ecfdc128115d, type: 2}
+  SpawnPosition: 0

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e081a4569ff6834785aa3208bde2218, type: 3}
+  m_Name: Dragoon_SpinningSpear
+  m_EditorClassIdentifier: 
+  UID: 0
+  Name: 
+  Description: 
+  AnimationData:
+    MotionName: SpinningSpear
+    ReadyMotionTime: 0.2
+    ExecutionMotionTime: 0.2
+  ChargeTime: 0
+  Execution: {fileID: 11400000, guid: 70e511cc254099340be4e4a4980eea54, type: 2}
+  Finder: {fileID: 11400000, guid: c6cc22e730c278f46bfd1a665082b0ab, type: 2}
+  Trigger: {fileID: 11400000, guid: f35cfb31e9a7cd344b0142e677fd0538, type: 2}

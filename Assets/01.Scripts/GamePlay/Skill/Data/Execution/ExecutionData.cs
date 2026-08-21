@@ -5,6 +5,9 @@ namespace Skill.Data
 {
     public class ExecutionData : ScriptableObject, IEffectContainer
     {
+        [Header("실행 연출")]
+        public VFXData ExecutionVFX;
+
         [Header("이펙트")]
         public List<EffectBase> Effects;
 

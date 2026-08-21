@@ -169,6 +169,16 @@
                 "width": 284.0,
                 "height": 244.0
             }
+        },
+        {
+            "Key": "loose-a8eb2e77ca85ce44396aa02185ad0772",
+            "Position": {
+                "serializedVersion": "2",
+                "x": 420.0,
+                "y": 90.0,
+                "width": 275.0,
+                "height": 255.0
+            }
         }
     ],
     "AssetPositions": [
@@ -281,17 +291,29 @@
                 "width": 284.0,
                 "height": 244.0
             }
+        },
+        {
+            "Key": "asset-a8eb2e77ca85ce44396aa02185ad0772",
+            "Position": {
+                "serializedVersion": "2",
+                "x": 420.0,
+                "y": 90.0,
+                "width": 275.0,
+                "height": 255.0
+            }
         }
     ],
-    "LooseAssetGuids": [],
+    "LooseAssetGuids": [
+        "a8eb2e77ca85ce44396aa02185ad0772"
+    ],
     "ViewPosition": {
-        "x": 0.0,
-        "y": 0.0,
+        "x": -14.0,
+        "y": -128.0,
         "z": 0.0
     },
     "ViewScale": {
-        "x": 1.0,
-        "y": 1.0,
+        "x": 0.8695651888847351,
+        "y": 0.8695651888847351,
         "z": 1.0
     }
 }

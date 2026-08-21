@@ -42,6 +42,7 @@ namespace Skill
             Vector3 direction = ResolveCastDirection(pivotTarget);
 
             yield return SetReadyMotion(animationTimeScale);
+            yield return WaitForCharge();
 
             if (_finder.TryGetTargets(_owner.Position, out IReadOnlyList<ICombatant> impactTargets))
             {
@@ -57,7 +58,7 @@ namespace Skill
                 }
             }
 
-            yield return SetExecutionMotion(animationTimeScale);
+            yield return SetExecutionMotion(animationTimeScale, pivotTarget);
             SetIdleMotion();
         }
 

@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0573a7a9871ae0349851f0e4b44c1858, type: 3}
+  m_Name: MagicSwords
+  m_EditorClassIdentifier: 
+  UID: 101
+  Sets:
+  - Level: 0
+    Skill: {fileID: 11400000, guid: 34c9c5733e7c16745a9f412d97e947d6, type: 2}
+  - Level: 0
+    Skill: {fileID: 11400000, guid: f5be1b8c2fc21ea4eb1b39790a689959, type: 2}
+  - Level: 0
+    Skill: {fileID: 11400000, guid: bc284b9d88627db4a807675e17122ab0, type: 2}

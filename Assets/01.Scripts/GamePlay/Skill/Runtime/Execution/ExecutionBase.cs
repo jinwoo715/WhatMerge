@@ -11,6 +11,7 @@ namespace Skill
     public interface IExecute
     {
         float BaseAnimationDuration { get; }
+        float ChargeTime { get; }
         IEnumerator Execute(IReadOnlyList<ICombatant> targets, float animationTimeScale);
     }
 
@@ -21,6 +22,8 @@ namespace Skill
 
         private readonly SkillAnimationData _animaData;
         private readonly ISpriteChanger _spriteChanger;
+        private readonly VFXData _executionVfx;
+        private readonly IVFXService _vfxService;
         protected readonly ICombatService _attackRegister;
 
         private readonly int SkillUid;
@@ -29,9 +32,8 @@ namespace Skill
         private Enemy _previousEnemy;
         private int _previousEnemyLifeCycleVersion;
 
-        public virtual float BaseAnimationDuration => _animaData == null
-            ? 0f
-            : _animaData.ReadyMotionTime + _animaData.ExecutionMotionTime;
+        public virtual float BaseAnimationDuration => _animaData == null ? 0f : _animaData.ReadyMotionTime + _animaData.ExecutionMotionTime;
+        public float ChargeTime { get; }
 
         protected ExecutionBase(SkillExecutionContext executionContext, SkillRuntimeContext runtimeContext)
         {
@@ -39,8 +41,11 @@ namespace Skill
             _owner = executionContext.Hero;
             _spriteChanger = executionContext.SpriteChanger;
             _effects = executionContext.Effects;
+            _executionVfx = executionContext.ExecutionData.ExecutionVFX;
+            ChargeTime = ValidateChargeTime(executionContext.ChargeTime);
 
             _attackRegister = runtimeContext.Combat;
+            _vfxService = runtimeContext.VFX;
 
             SkillUid = executionContext.SkillUid;
             OwnerSpawnIndex = executionContext.Hero.SpawnIndex;
@@ -61,8 +66,12 @@ namespace Skill
                     yield return new WaitForSeconds(duration);
             }
         }
-        protected IEnumerator SetExecutionMotion(float animationTimeScale)
+        protected IEnumerator SetExecutionMotion(
+            float animationTimeScale,
+            ICombatant target = null)
         {
+            ShowExecutionVFX(target);
+
             if (_spriteChanger != null && _animaData != null)
             {
                 _spriteChanger.SetSprite(_animaData.MotionName);
@@ -72,6 +81,25 @@ namespace Skill
                     yield return new WaitForSeconds(duration);
             }
         }
+
+        private void ShowExecutionVFX(ICombatant target)
+        {
+            if (_executionVfx == null)
+                return;
+            if (_vfxService == null)
+            {
+                throw new System.InvalidOperationException(
+                    $"{nameof(ExecutionData.ExecutionVFX)} requires an {nameof(IVFXService)}.");
+            }
+
+            Vector3 targetPosition = target?.Position ?? _owner.Position;
+            _vfxService.ShowVFX(_executionVfx, targetPosition, _owner.Position);
+        }
+        protected IEnumerator WaitForCharge()
+        {
+            if (ChargeTime > 0f)
+                yield return new WaitForSeconds(ChargeTime);
+        }
         public void SetIdleMotion()
         {
             _spriteChanger?.SetIdle();
@@ -80,9 +108,7 @@ namespace Skill
         protected void ApplyEffectsToTarget(ICombatant target)
         {
             if (target == null || !target.IsActive || _owner == null || _attackRegister == null)
-            {
                 return;
-            }
 
             DamageContext context = new DamageContext(
                 _owner.CreateAttackPayload(),
@@ -187,6 +213,19 @@ namespace Skill
                     value,
                     "Animation time must be a finite number greater than or equal to zero.");
             }
+        }
+
+        private static float ValidateChargeTime(float value)
+        {
+            if (float.IsNaN(value) || float.IsInfinity(value) || value < 0f)
+            {
+                throw new System.ArgumentOutOfRangeException(
+                    nameof(SkillExecutionContext.ChargeTime),
+                    value,
+                    "Charge time must be a finite number greater than or equal to zero.");
+            }
+
+            return value;
         }
     }
 }
