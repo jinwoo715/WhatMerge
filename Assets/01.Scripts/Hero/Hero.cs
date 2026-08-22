@@ -26,7 +26,6 @@ namespace WhatMerge.Heros
         private SkillController _skillController;
         private HeroStats _stat = new HeroStats();
         private HeroData _heroData;
-        private ATKData _atkData;
 
         private int _upgradeLevel = 1;
         private IHeroVisual _heroVisual;
@@ -46,13 +45,12 @@ namespace WhatMerge.Heros
 
         public IElement Element => _element;
 
-        public void SetData(HeroData data, ATKData atkData, IHeroVisual heroVisual, int upgradeLevel, int evolutionLevel, int spawnIndex)
+        public void SetData(HeroData data, IHeroVisual heroVisual, int upgradeLevel, int evolutionLevel, int spawnIndex)
         {
             _stat.Reset();
 
             SpawnIndex = spawnIndex;
             _heroData = data;
-            _atkData = atkData;
             _upgradeLevel = upgradeLevel;
 
             _stat.SetBaseValue(HeroStatType.AttackPerSecond, data.AttackSpeed);
@@ -98,8 +96,8 @@ namespace WhatMerge.Heros
         }
         private void SetEvolution()
         {
-            int baseATK = StatCalculator.BaseATK(EvolutionLevel, _atkData);
-            float setAtk = StatCalculator.ATK(_upgradeLevel, baseATK, _atkData.GrowthRatio, _atkData.TierBonus);
+            int baseATK = StatCalculator.BaseATK(EvolutionLevel, _heroData);
+            float setAtk = StatCalculator.ATK(_upgradeLevel, baseATK, _heroData.GrowthRatio, _heroData.TierBonus);
             _stat.SetBaseValue(HeroStatType.Damage, setAtk);
 
             _heroVisual.SetEvolutionLevel(EvolutionLevel);
@@ -164,7 +162,6 @@ namespace WhatMerge.Heros
         private void ClearRuntimeState()
         {
             _heroData = null;
-            _atkData = null;
             _heroVisual = null;
             OccupiedTile = null;
             _upgradeLevel = 1;

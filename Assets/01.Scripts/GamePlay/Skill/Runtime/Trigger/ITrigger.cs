@@ -6,4 +6,9 @@ namespace Skill
         void UseTriggerResource(ISkillResourceModifier resourceModifier);
         void UseTriggerResourceOnFailure(ISkillResourceModifier resourceModifier);
     }
+
+    public interface ITriggerRequirementModifier
+    {
+        void AddRequirementReductionRatio(float ratio);
+    }
 }

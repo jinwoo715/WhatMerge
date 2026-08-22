@@ -53,11 +53,7 @@ namespace WhatMerge.Stage
         public event Action<Enemy, float, float> OnMimicTimeChanged;
         public event Action<Enemy> OnMimicChallengeEnded;
 
-        public void Init(
-            IEnemySpawnService enemySpawnService,
-            IFieldEnemyService fieldEnemyService,
-            IGameGoldService gameCurrencyService,
-            float startCountdown)
+        public void Init(IEnemySpawnService enemySpawnService, IFieldEnemyService fieldEnemyService, IGameGoldService gameCurrencyService, float startCountdown)
         {
             if (_initialized)
                 throw new InvalidOperationException($"{nameof(StageManager)} is already initialized.");

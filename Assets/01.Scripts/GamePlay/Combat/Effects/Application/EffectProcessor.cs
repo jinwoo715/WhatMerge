@@ -218,10 +218,7 @@ namespace WhatMerge.Combat.Effects
             foreach (var handler in _handlers)
             {
                 if (!handler.CanHandle(effect))
-                {
-                    Debug.Log("Continue");
                     continue;
-                }
 
                 handler.Handle(effect, damageContext);
                 return true;

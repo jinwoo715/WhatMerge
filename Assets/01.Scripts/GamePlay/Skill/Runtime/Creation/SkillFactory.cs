@@ -31,6 +31,7 @@ namespace Skill
 
             Queue<EffectValueEnhanceData> statEnhancerDatas = new Queue<EffectValueEnhanceData>();
             Queue<ActivationChanceEnhanceData> activationChanceEnhancers = new Queue<ActivationChanceEnhanceData>();
+            Queue<TriggerRequirementReductionData> triggerRequirementReductions = new Queue<TriggerRequirementReductionData>();
             Queue<ExtraEffectData> extraEffects = new Queue<ExtraEffectData>();
 
             foreach (var data in sets)
@@ -72,6 +73,10 @@ namespace Skill
                         activationChanceEnhancers.Enqueue(activationChanceEnhanceData);
                         break;
 
+                    case TriggerRequirementReductionData triggerRequirementReductionData:
+                        triggerRequirementReductions.Enqueue(triggerRequirementReductionData);
+                        break;
+
                     case ExtraEffectData extraEffectData:
                         extraEffects.Enqueue(extraEffectData);
                         break;
@@ -86,6 +91,7 @@ namespace Skill
             SkillEnhancementApplier.ApplyExtraEffect(runtimeExecutions, extraEffects);
             SkillEnhancementApplier.ApplyStatEnhance(runtimeExecutions, statEnhancerDatas);
             SkillEnhancementApplier.ApplyActivationChanceEnhance(runtimeActiveSkills, activationChanceEnhancers);
+            SkillEnhancementApplier.ApplyTriggerRequirementReduction(runtimeActiveSkills, triggerRequirementReductions);
 
             return returnSkillSet;
         }

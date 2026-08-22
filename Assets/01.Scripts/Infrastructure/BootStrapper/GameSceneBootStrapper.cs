@@ -126,7 +126,7 @@ namespace Core.BootStrapper
             #region Hero Init
 
             _heroController.Init(_heroSpawner, _heroOverlapProcessor, _map, _tileMarkerPresenter, _economy);
-            _heroSpawner.Init(_map, resource, data, playerData.GetSelectHeroDeck());
+            _heroSpawner.Init(_map, resource, data, deck);
             _mergeRepository.Init(GameManager.Data.MergeData);
             _heroOverlapProcessor.Init(_mergeRepository);
             _heroSummonPresenter.Init(_heroSpawner, _heroSummonViewer, _economy, economyConfig);
@@ -150,7 +150,6 @@ namespace Core.BootStrapper
             SpriteAtlas enemyAtlas = GameManager.Resource.GetAtlas($"Stage{stageUID}");
             _enemySpriteRepository.Init(enemyAtlas);
 
-            var stageConfig = GameManager.Data.StageConfig;
             _economy.Init(economyConfig.StartMoney);
 
             _stageInfoPresenter.Init(
@@ -161,11 +160,7 @@ namespace Core.BootStrapper
                 data,
                 _enemySpriteRepository);
             _enemyHealthBarManager.Init(_enemySpawner, _stage);
-            _stage.Init(
-                _enemySpawner,
-                _fieldEnemyService,
-                _economy,
-                stageConfig.StartCountdown);
+            _stage.Init(_enemySpawner, _fieldEnemyService, _economy, 3);
 
             _damageViewer.Init();
 
@@ -226,6 +221,8 @@ namespace Core.BootStrapper
 
             _heroController.OnSelectHero += _heroClickInteractViewer.ShowInteractUI;
             _heroController.OnSelectHero += _heroRangeViewer.ShowHeroRange;
+            _heroController.OnSellHeroEvent += _=> _heroClickInteractViewer.HideInteractUI();
+            _heroController.OnSellHeroEvent += _=> _heroRangeViewer.HideHeroRange();
 
             _enemySpawner.OnSpawnEnemy += _fieldEnemyService.AddFieldEnemy;
             _enemySpawner.OnDeathEnemy += _fieldEnemyService.DeathEnemy;

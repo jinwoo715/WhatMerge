@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace Skill
 {
@@ -18,45 +19,70 @@ namespace Skill
         {
         }
     }
-    public class ManaTrigger : ITrigger
+    public class ManaTrigger : ITrigger, ITriggerRequirementModifier
     {
-        private readonly float _requiredValue;
+        private readonly float _baseRequiredValue;
+        private float _requirementReductionRatio;
 
-        public float RequiredMana => _requiredValue;
+        public float RequiredMana => Mathf.Max(
+            1f,
+            _baseRequiredValue * (1f - _requirementReductionRatio));
 
         public ManaTrigger(float requiredValue)
         {
             if (float.IsNaN(requiredValue)
                 || float.IsInfinity(requiredValue)
-                || requiredValue <= 0f)
+                || requiredValue < 1f)
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(requiredValue),
                     requiredValue,
-                    "Mana requirement must be a finite number greater than zero.");
+                    "Mana requirement must be a finite number greater than or equal to one.");
             }
 
-            _requiredValue = requiredValue;
+            _baseRequiredValue = requiredValue;
         }
 
         public bool IsMeetTrigger(SkillTriggerContext context)
         {
-            return context.Mana >= _requiredValue;
+            return context.Mana >= RequiredMana;
         }
 
         public void UseTriggerResource(ISkillResourceModifier resourceModifier)
         {
-            resourceModifier.ConsumeMana(_requiredValue);
+            resourceModifier.ConsumeMana(RequiredMana);
         }
 
         public void UseTriggerResourceOnFailure(ISkillResourceModifier resourceModifier)
         {
-            resourceModifier.ConsumeMana(_requiredValue);
+            resourceModifier.ConsumeMana(RequiredMana);
+        }
+
+        public void AddRequirementReductionRatio(float ratio)
+        {
+            TriggerRequirementValidation.ValidateReductionRatio(ratio);
+            _requirementReductionRatio = Mathf.Clamp01(_requirementReductionRatio + ratio);
         }
     }
-    public class HitCountTrigger : ITrigger
+    public class HitCountTrigger : ITrigger, ITriggerRequirementModifier
     {
-        private int _requireHitCount;
+        private readonly int _baseRequiredHitCount;
+        private float _requirementReductionRatio;
+
+        public int RequiredHitCount
+        {
+            get
+            {
+                float reducedValue = _baseRequiredHitCount * (1f - _requirementReductionRatio);
+                int roundedValue = Mathf.RoundToInt(reducedValue);
+                int requiredValue = Mathf.Approximately(reducedValue, roundedValue)
+                    ? roundedValue
+                    : Mathf.CeilToInt(reducedValue);
+
+                return Mathf.Max(1, requiredValue);
+            }
+        }
+
         public HitCountTrigger(int requiredValue)
         {
             if (requiredValue <= 0)
@@ -67,21 +93,44 @@ namespace Skill
                     "Hit count requirement must be greater than zero.");
             }
 
-            _requireHitCount = requiredValue;
+            _baseRequiredHitCount = requiredValue;
         }
         public bool IsMeetTrigger(SkillTriggerContext context)
         {
-            return context.HitCount >= _requireHitCount;
+            return context.HitCount >= RequiredHitCount;
         }
 
         public void UseTriggerResource(ISkillResourceModifier resourceModifier)
         {
-            resourceModifier.ConsumeHitCount(_requireHitCount);
+            resourceModifier.ConsumeHitCount(RequiredHitCount);
         }
 
         public void UseTriggerResourceOnFailure(ISkillResourceModifier resourceModifier)
         {
-            resourceModifier.ConsumeHitCount(_requireHitCount);
+            resourceModifier.ConsumeHitCount(RequiredHitCount);
+        }
+
+        public void AddRequirementReductionRatio(float ratio)
+        {
+            TriggerRequirementValidation.ValidateReductionRatio(ratio);
+            _requirementReductionRatio = Mathf.Clamp01(_requirementReductionRatio + ratio);
+        }
+    }
+
+    internal static class TriggerRequirementValidation
+    {
+        public static void ValidateReductionRatio(float ratio)
+        {
+            if (float.IsNaN(ratio)
+                || float.IsInfinity(ratio)
+                || ratio < 0f
+                || ratio > 1f)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(ratio),
+                    ratio,
+                    "Trigger requirement reduction ratio must be between zero and one.");
+            }
         }
     }
 }

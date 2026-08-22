@@ -140,13 +140,12 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
 
 
         HeroData data = _heroDataRepo.GetHeroData(heroUid);
-        ATKData atkData = _heroDataRepo.GetATKData(data.ATKUID);
         SpriteAtlas heroAtlas = _spriteAtlasRepository.GetAtlas(data.SpriteKey);
 
         HeroSpriteController heroSpriteController = hero.GetComponent<HeroSpriteController>();
         heroSpriteController.Init(heroAtlas, data.SpriteKey);
 
-        hero.SetData(data, atkData, heroSpriteController, heroLevel, evolutionLevel, _spawnIndex++);
+        hero.SetData(data, heroSpriteController, heroLevel, evolutionLevel, _spawnIndex++);
 
         if (!dictionary.TryGetValue(hero.UID, out SkillSetContainer skillSetContainer))
             throw new InvalidOperationException($"Skill set for hero UID {hero.UID} is not registered.");

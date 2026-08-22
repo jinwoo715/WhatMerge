@@ -39,9 +39,6 @@ namespace WhatMerge.Heros
         public int Second;
         public int Result;
     }
-
-
-
     public class MergeRepository
     {
         Dictionary<(int, int), int> _mergeData = new Dictionary<(int, int), int>();
@@ -88,13 +85,11 @@ namespace WhatMerge.Heros
             return (min, max);
         }
     }
-
     public interface IHeroOverlapResult
     {
         public int GetMergeHeroUID(int first, int second);
         public EHeroOverlapResult OverlapHero(IHeroInfoProvider first, IHeroInfoProvider second);
     }
-
     public class HeroOverlapProcessor : IHeroOverlapResult
     {
         private MergeRepository _mergeRepository;
@@ -135,14 +130,12 @@ namespace WhatMerge.Heros
         Evolution,
         Merge
     }
-
     public class HeroController : IFieldHeroService, IFieldHeroSelecter
     {
         private Dictionary<ITileReadOnly, Hero> _fieldHeros = new Dictionary<ITileReadOnly, Hero>();
         private Dictionary<(int x,int y), Hero> _fieldHero = new Dictionary<(int, int), Hero>();
 
         private Hero _clickedHero = null;
-
         public IReadOnlyList<Hero> GetAllFieldHero => _fieldHeros.Values.ToList();
         public bool IsUsableBag => CurrentUsedBagItem < TotalBagItem;
         public int TotalBagItem => 3;
@@ -157,6 +150,7 @@ namespace WhatMerge.Heros
         public event Action OnChangedHeroPosition;
         public event Action<Hero> OnSpawnedHero;
         public event Action<Hero> OnDestroyHero;
+        public event Action<Hero> OnSellHeroEvent;
 
         public void Init(IHeroSummonService heroSpawnService, IHeroOverlapResult heroOverlapProcessor, IFieldTileService heroMapService, ITileIndicator markerPresenter, IGameGoldService gameGoldService)
         {
@@ -170,7 +164,6 @@ namespace WhatMerge.Heros
         {
             ClearHero(hero);
         }
-
         public void ClearHero(Hero hero)
         {
             ITileReadOnly tile = hero.OccupiedTile;
@@ -198,7 +191,6 @@ namespace WhatMerge.Heros
                 _heroSpawnService.ReturnHero(hero);
             }
         }
-
         public void SetHeroPosition(ITileReadOnly tile, Hero hero)
         {
             ITileReadOnly previousTile = hero.OccupiedTile;
@@ -237,7 +229,6 @@ namespace WhatMerge.Heros
             OnSpawnedHero?.Invoke(hero);
             OnChangedHeroPosition?.Invoke();
         }
-
         public void PointDownTile(Tile tile)
         {
             if (_fieldHeros.TryGetValue(tile, out var hero))
@@ -259,8 +250,6 @@ namespace WhatMerge.Heros
                 else
                 {
                     var result = _overlapProcessor.OverlapHero(_clickedHero, hero);
-                    Debug.Log(result);
-
                     switch (result)
                     {
                         case EHeroOverlapResult.None:
@@ -320,13 +309,10 @@ namespace WhatMerge.Heros
         }
         public void SellHero(Hero hero)
         {
-            Debug.Log("팔았다!");
-            //TODO 판매 금액 산정 방법
             ClearHero(hero);
             _gameGoldService.GainMoney(10);
+            OnSellHeroEvent?.Invoke(hero);
         }
-
-        //TODO 영웅 범위 탐색
         public List<Hero> GetNearHeros(ITileReadOnly pivot, HeroSearchType range)
         {
             List<Hero> heros = new List<Hero>();
@@ -360,7 +346,6 @@ namespace WhatMerge.Heros
 
             return heros;
         }
-
         private List<Hero> GetRowHeros(ITileReadOnly pivot)
         {
             List<Hero> heros = new List<Hero>();

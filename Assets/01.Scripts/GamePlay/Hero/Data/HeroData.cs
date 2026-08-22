@@ -5,8 +5,13 @@ public class HeroData : BaseData
     public string Description;
 
     public string SpriteKey;
-    
-    public int ATKUID;
+
+    public int BaseATK;
+    public float GrowthRatio;
+    public float TierBonus;
+    public float FirstEvolution;
+    public float SecondEvolution;
+
     public float AttackSpeed;
 
     public int Penetration;

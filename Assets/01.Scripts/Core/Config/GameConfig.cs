@@ -5,7 +5,6 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "GameConfig", menuName = "Config", order = 0)]
 public class GameConfig : ScriptableObject
 {
-    public StageSettingConfig StageConfig;
     public GameEconomyConfig GameEconomy;
     public PlayerInfoConfig PlayerConfig;
 }
@@ -16,26 +15,6 @@ public class GameEconomyConfig
     public int StartMoney;
     public int StartSpawnCost;
     public int IncreaseSpawnCost;
-}
-
-[System.Serializable]
-public class StageSettingConfig
-{
-    [Header("Time")]
-    [Min(0f)]
-    public float StartCountdown;
-    public int WaveTime;
-    public int BossWaveTime;
-
-    [Header("BossWave")]
-    public int BossWavePivot;
-
-    [Header("Enemy")]
-    public int MaxEnemy;
-
-    [Header("Player")]
-    public int StartMoney;
-
 }
 
 [System.Serializable]

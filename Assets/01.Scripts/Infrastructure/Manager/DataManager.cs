@@ -34,13 +34,11 @@ public class DataManager : MonoBehaviour, IEnemyDataRepository, IEnemyRewardRepo
     private Dictionary<int, HeroData> _heroDatas = new Dictionary<int, HeroData>();
     private Dictionary<int, EnemyData> _enemyDatas = new Dictionary<int, EnemyData>();
     private Dictionary<int, List<EnemyRewardData>> _enemyRewardsByGroup = new Dictionary<int, List<EnemyRewardData>>();
-    private Dictionary<int, ATKData> _atkDatas = new Dictionary<int, ATKData>();
 
     private Dictionary<int, HeroSaveData> _saveHeroData = new Dictionary<int, HeroSaveData>();
 
     private List<MergeData> _mergeDatas = new List<MergeData>();
 
-    public StageSettingConfig StageConfig => _gameConfig.StageConfig;
     public GameEconomyConfig GameEconomy => _gameConfig.GameEconomy;
     public PlayerInfoConfig PlayerConfig => _gameConfig.PlayerConfig;
 
@@ -58,7 +56,6 @@ public class DataManager : MonoBehaviour, IEnemyDataRepository, IEnemyRewardRepo
     public void Init(IResourcesReader resourcesReader)
     {
         InitDictionary(_heroDatas, resourcesReader.GetTextAsset("HeroData"));
-        InitDictionary(_atkDatas, resourcesReader.GetTextAsset("ATKData"));
         InitDictionary(_enemyDatas, resourcesReader.GetTextAsset("EnemyData"));
         InitRewardDictionary(resourcesReader.GetTextAsset("EnemyRewardData"));
 
@@ -118,11 +115,6 @@ public class DataManager : MonoBehaviour, IEnemyDataRepository, IEnemyRewardRepo
         }
     }
 
-    public ATKData GetATKData(int uid)
-    {
-        return _atkDatas[uid];
-    }
-   
     public EnemyData GetData(int uid)
     {
         if(_enemyDatas.TryGetValue(uid, out EnemyData data))

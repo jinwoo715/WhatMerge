@@ -23,20 +23,14 @@ MonoBehaviour:
     m_SerializedLabels:
     - TextData
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 4f1658ed29cf4aba88ba866d454d62e4
-    m_Address: EnemyRewardData
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - TextData
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4d6d5fee74871974798069f01dbb8106
     m_Address: HeroData
     m_ReadOnly: 0
     m_SerializedLabels:
     - TextData
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 8461cd8562da2c54b9cfc7249cf49d24
-    m_Address: ATKData
+  - m_GUID: 4f1658ed29cf4aba88ba866d454d62e4
+    m_Address: EnemyRewardData
     m_ReadOnly: 0
     m_SerializedLabels:
     - TextData

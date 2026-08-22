@@ -18,7 +18,6 @@ public class VFXSpriteRepository : ISpriteRepository
             Sprite sp = sprites[i];
             string key = sp.name.Replace("(Clone)", "");
             _sprites.Add(key, sp);
-            Debug.Log($"Sprite : {key}");
         }
     }
 
@@ -26,8 +25,6 @@ public class VFXSpriteRepository : ISpriteRepository
     {
         if (_sprites.TryGetValue(key, out var sp))
             return sp;
-
-        Debug.LogError($"Not Exist Key : {key}");
 
         return null;
     }

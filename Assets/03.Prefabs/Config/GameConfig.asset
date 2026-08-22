@@ -26,15 +26,15 @@ MonoBehaviour:
   PlayerConfig:
     SelectDeckIndex: 0
     HeroDecks:
-    - Heros: 010000000300000008000000090000000a000000
+    - Heros: 0200000004000000090000000a0000000b000000
     HaveHeros:
-    - HeroUID: 1
-      Level: 30
-    - HeroUID: 3
-      Level: 30
-    - HeroUID: 8
+    - HeroUID: 2
+      Level: 1
+    - HeroUID: 4
       Level: 1
     - HeroUID: 9
       Level: 1
     - HeroUID: 10
+      Level: 1
+    - HeroUID: 11
       Level: 1

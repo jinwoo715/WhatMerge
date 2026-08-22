@@ -2900,17 +2900,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _heroPrefab: {fileID: 5889065611879671908, guid: 37dc9494e2d06714398d7013306a74c0, type: 3}
   sets:
-  - {fileID: 11400000, guid: 98a7c797c9a98de489ab3b3aa265420e, type: 2}
+  - {fileID: 11400000, guid: 0e1e10d05c340084a94b59fb64e9db39, type: 2}
+  - {fileID: 11400000, guid: 281424f7959bc504ba37d8db948ba849, type: 2}
   - {fileID: 11400000, guid: fb38a87f401ba534bbf971ef57629038, type: 2}
-  - {fileID: 11400000, guid: ce05b1f2aed3f9a42be59f66adeb71cd, type: 2}
+  - {fileID: 11400000, guid: c894a6d0f8d3f3e4891d10d75a99b6b2, type: 2}
+  - {fileID: 11400000, guid: fe9e335c90967294e8b0c765388221d6, type: 2}
   - {fileID: 11400000, guid: 175fe7c6d8a5f4343a0970fef190c99e, type: 2}
+  - {fileID: 11400000, guid: 98a7c797c9a98de489ab3b3aa265420e, type: 2}
   - {fileID: 11400000, guid: ff454456915c8e74c8dc60a8d2985424, type: 2}
   - {fileID: 11400000, guid: 951c0d40b1ab0d348a613d579bea2335, type: 2}
-  - {fileID: 11400000, guid: fe9e335c90967294e8b0c765388221d6, type: 2}
-  - {fileID: 11400000, guid: 281424f7959bc504ba37d8db948ba849, type: 2}
-  - {fileID: 11400000, guid: 0e1e10d05c340084a94b59fb64e9db39, type: 2}
-  - {fileID: 11400000, guid: c894a6d0f8d3f3e4891d10d75a99b6b2, type: 2}
-  IsSelectHeroSpawn: 1
+  - {fileID: 11400000, guid: ce05b1f2aed3f9a42be59f66adeb71cd, type: 2}
+  IsSelectHeroSpawn: 0
   SpawnHeroUID: 107
   HeroLevel: 1
 --- !u!1 &619394800
@@ -7753,7 +7753,6 @@ MonoBehaviour:
   - {fileID: 100100200, guid: 20614ab51a80d1141ad976759eeee581, type: 3}
   - {fileID: 100100200, guid: dc483cd83f392d547a72a7bc908985be, type: 3}
   _textAssetList:
-  - {fileID: 4900000, guid: 8461cd8562da2c54b9cfc7249cf49d24, type: 3}
   - {fileID: 4900000, guid: 44c538a4a54898f43a71b5cbf8c4a95d, type: 3}
   - {fileID: 4900000, guid: 4f1658ed29cf4aba88ba866d454d62e4, type: 3}
   - {fileID: 4900000, guid: 4d6d5fee74871974798069f01dbb8106, type: 3}

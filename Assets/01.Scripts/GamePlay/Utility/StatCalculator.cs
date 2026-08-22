@@ -3,11 +3,11 @@ using UnityEngine;
 
 public static class StatCalculator
 {
-    public static int BaseATK(int evolution, ATKData atkData)
+    public static int BaseATK(int evolution, HeroData heroData)
     {
-        float[] multiple = { atkData.FirstEvolution, atkData.SecondEvolution};
+        float[] multiple = { heroData.FirstEvolution, heroData.SecondEvolution};
 
-        float finalBaseATK = atkData.BaseATK;
+        float finalBaseATK = heroData.BaseATK;
 
         for (int i = 0; i < evolution; i++)
         {

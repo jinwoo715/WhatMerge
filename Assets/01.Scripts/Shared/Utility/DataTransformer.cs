@@ -19,7 +19,6 @@ public class DataTransformer : EditorWindow
         ParseCsvDataToJson<EnemyRewardData>("EnemyRewardData");
         ParseCsvDataToJson<EnemyData>("EnemyData");
         ParseCsvDataToJson<HeroData>("HeroData");
-        ParseCsvDataToJson<ATKData>("ATKData");
 
         Debug.Log("DataTransformer Completed");
     }
