@@ -75,16 +75,23 @@ namespace Skill.Data
         private List<BuffData> _effects;
         HashSet<Hero> _appliedHeros = new HashSet<Hero>();
         private HeroSearchType _range;
+        private bool _includeSelf;
 
         private bool _isBind = false;
 
-        public NearHeroBuffPassive(IFieldHeroService fieldHeroService, Hero owner, List<BuffData> effects, HeroSearchType range)
+        public NearHeroBuffPassive(
+            IFieldHeroService fieldHeroService,
+            Hero owner,
+            List<BuffData> effects,
+            HeroSearchType range,
+            bool includeSelf)
         {
             _fieldHeroService = fieldHeroService;
             _owner = owner;
             _effects = effects;
 
             _range = range;
+            _includeSelf = includeSelf;
         }
 
         public override void Apply()
@@ -96,6 +103,11 @@ namespace Skill.Data
             }
 
             HashSet<Hero> nearHeros = _fieldHeroService.GetNearHeros(_owner.OccupiedTile, _range).ToHashSet();
+
+            if (_includeSelf)
+                nearHeros.Add(_owner);
+            else
+                nearHeros.Remove(_owner);
 
             var entered = nearHeros.Except(_appliedHeros);
             var exited = _appliedHeros.Except(nearHeros);

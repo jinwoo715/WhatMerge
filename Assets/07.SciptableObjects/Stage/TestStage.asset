@@ -17,7 +17,7 @@ MonoBehaviour:
   Description: "\uCCAB \uBC88\uC9F8 \uC2A4\uD14C\uC774\uC9C0"
   NormalWaveDuration: 20
   BossWaveDuration: 60
-  MaxEnemyCount: 1000
+  MaxEnemyCount: 100
   WaveCount: 60
   Waves:
   - WaveIndex: 0

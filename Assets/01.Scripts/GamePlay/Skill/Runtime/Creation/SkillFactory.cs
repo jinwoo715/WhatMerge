@@ -129,7 +129,12 @@ namespace Skill
             return passiveSkillSO.Target switch
             {
                 SelfTargetData => new SelfBuffPassive(owner.StatModify, effects),
-                NearHeroTargetData data => new NearHeroBuffPassive(_runtimeContext.FieldHero, owner, effects, data.TargetRange),
+                NearHeroTargetData data => new NearHeroBuffPassive(
+                    _runtimeContext.FieldHero,
+                    owner,
+                    effects,
+                    data.TargetRange,
+                    data.IncludeSelf),
                 AllHeroTargetData => new AllHeroBuffPassive(_runtimeContext.FieldHero, owner, effects),
                 _ => throw new InvalidOperationException($"Not Passive Target Exception {passiveSkillSO.Target}")
             };
