@@ -7,39 +7,34 @@ namespace WhatMerge.Enemies
 {
     public sealed class MimicTimerView : MonoBehaviour
     {
-        private static readonly Vector2 TimerSize = new Vector2(24f, 12f);
         private static readonly Vector2 TimerPosition = new Vector2(0f, -6f);
         private static readonly Color NormalColor = new Color(0.08f, 0.08f, 0.08f, 0.9f);
         private static readonly Color WarningColor = new Color(0.68f, 0.12f, 0.12f, 0.95f);
 
+        [SerializeField] private Image _background;
+        [SerializeField] private TMP_Text _timerText;
+
         private RectTransform _rectTransform;
-        private Image _background;
-        private TMP_Text _timerText;
         private Transform _inactiveParent;
         private Enemy _enemy;
         private int _lifeCycleVersion;
 
         public bool IsBound => _enemy != null;
 
-        public static MimicTimerView Create(Transform parent)
+        public void Initialize(Transform inactiveParent)
         {
-            if (parent == null)
-                throw new ArgumentNullException(nameof(parent));
+            if (inactiveParent == null)
+                throw new ArgumentNullException(nameof(inactiveParent));
+            if (_background == null)
+                throw new InvalidOperationException("Mimic timer background image is not assigned.");
+            if (_timerText == null)
+                throw new InvalidOperationException("Mimic timer text is not assigned.");
 
-            var root = new GameObject(
-                "MimicTimer",
-                typeof(RectTransform),
-                typeof(CanvasRenderer),
-                typeof(Image),
-                typeof(MimicTimerView));
-            root.layer = parent.gameObject.layer;
-            root.transform.SetParent(parent, false);
-
-            var view = root.GetComponent<MimicTimerView>();
-            view._inactiveParent = parent;
-            view.BuildVisuals();
-            root.SetActive(false);
-            return view;
+            _inactiveParent = inactiveParent;
+            _rectTransform = transform as RectTransform
+                ?? throw new InvalidOperationException("Mimic timer view requires a RectTransform.");
+            _rectTransform.anchoredPosition = TimerPosition;
+            gameObject.SetActive(false);
         }
 
         public void Bind(Enemy enemy, Transform healthBar)
@@ -87,46 +82,6 @@ namespace WhatMerge.Enemies
 
             float ratio = totalTime > 0f ? remainTime / totalTime : 0f;
             _background.color = ratio <= 0.2f ? WarningColor : NormalColor;
-        }
-
-        private void BuildVisuals()
-        {
-            _rectTransform = (RectTransform)transform;
-            SetRect(_rectTransform, TimerSize, TimerPosition);
-
-            _background = GetComponent<Image>();
-            _background.color = NormalColor;
-            _background.raycastTarget = false;
-
-            var textObject = new GameObject(
-                "TimeText",
-                typeof(RectTransform),
-                typeof(CanvasRenderer),
-                typeof(TextMeshProUGUI));
-            textObject.layer = gameObject.layer;
-            textObject.transform.SetParent(transform, false);
-
-            _timerText = textObject.GetComponent<TextMeshProUGUI>();
-            _timerText.raycastTarget = false;
-            _timerText.alignment = TextAlignmentOptions.Center;
-            _timerText.fontSize = 9f;
-            _timerText.color = Color.white;
-            _timerText.font = TMP_Settings.defaultFontAsset;
-
-            RectTransform textRect = _timerText.rectTransform;
-            textRect.anchorMin = Vector2.zero;
-            textRect.anchorMax = Vector2.one;
-            textRect.offsetMin = Vector2.zero;
-            textRect.offsetMax = Vector2.zero;
-        }
-
-        private static void SetRect(RectTransform rect, Vector2 size, Vector2 position)
-        {
-            rect.anchorMin = new Vector2(0.5f, 0.5f);
-            rect.anchorMax = new Vector2(0.5f, 0.5f);
-            rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.sizeDelta = size;
-            rect.anchoredPosition = position;
         }
     }
 }

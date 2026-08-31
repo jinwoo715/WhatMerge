@@ -36,9 +36,7 @@ namespace WhatMerge.Enemies
         public IStatusReader TemporaryAttributes => _status;
         public IStatusModifier TemporaryAttributeModifier => _status;
         public Vector3 Position => this.transform.position;
-        public Vector3 HealthBarPosition => _healthBarAnchor != null
-            ? _healthBarAnchor.position
-            : transform.position;
+        public Vector3 HealthBarPosition => _healthBarAnchor != null ? _healthBarAnchor.position : transform.position;
         public int LifeCycleVersion { get; private set; }
         public IEnemyStatModifier StatModifier => _stats;
         public IMoveable Move => _move;

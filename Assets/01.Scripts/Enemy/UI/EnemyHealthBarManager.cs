@@ -9,6 +9,8 @@ namespace WhatMerge.Enemies
     {
         [SerializeField, Min(0)] private int _prewarmCount = 20;
         [SerializeField] private Camera _worldCamera;
+        [SerializeField] private EnemyHealthBarView _healthBarPrefab;
+        [SerializeField] private MimicTimerView _mimicTimerPrefab;
 
         private readonly Dictionary<Enemy, EnemyHealthBarView> _activeViews = new();
         private readonly Stack<EnemyHealthBarView> _viewPool = new();
@@ -41,8 +43,12 @@ namespace WhatMerge.Enemies
 
             if (_worldCamera == null)
                 throw new InvalidOperationException("A world camera is required for enemy health bars.");
+            if (_healthBarPrefab == null)
+                throw new InvalidOperationException("Enemy health bar prefab is not assigned.");
+            if (_mimicTimerPrefab == null)
+                throw new InvalidOperationException("Mimic timer prefab is not assigned.");
 
-            _mimicTimerView = MimicTimerView.Create(_root);
+            _mimicTimerView = CreateMimicTimerView();
 
             for (int i = 0; i < _prewarmCount; i++)
                 _viewPool.Push(CreateView());
@@ -156,7 +162,16 @@ namespace WhatMerge.Enemies
 
         private EnemyHealthBarView CreateView()
         {
-            return EnemyHealthBarView.Create(_root);
+            EnemyHealthBarView view = Instantiate(_healthBarPrefab, _root, false);
+            view.gameObject.SetActive(false);
+            return view;
+        }
+
+        private MimicTimerView CreateMimicTimerView()
+        {
+            MimicTimerView view = Instantiate(_mimicTimerPrefab, _root, false);
+            view.Initialize(_root);
+            return view;
         }
 
         private void OnDestroy()
