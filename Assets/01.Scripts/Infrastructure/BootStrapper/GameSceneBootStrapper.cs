@@ -22,10 +22,16 @@ namespace Core.BootStrapper
         [SerializeField] private HeroSpawner _heroSpawner;
         [SerializeField] private HeroSummonViewer _heroSummonViewer;
         [SerializeField] private HeroClickInteractPresenter _heroClickInteractViewer;
+        [SerializeField] private MythicMergeViewer _mythicMergeViewer;
+        [SerializeField] private MythicMergePanelViewer _mythicMergePanelViewer;
 
         private HeroController _heroController = new HeroController();
-        private MergeRepository _mergeRepository = new MergeRepository();
+        private NomalMergeRepository _mergeRepository = new NomalMergeRepository();
         private HeroOverlapProcessor _heroOverlapProcessor = new HeroOverlapProcessor();
+        private MythicMergeRepository _mythicMergeRepository = new MythicMergeRepository();
+        private MythicMergeController _mythicMergeController = new MythicMergeController();
+        private MythicMergePresenter _mythicMergePresenter = new MythicMergePresenter();
+        private MythicMergePanelPresenter _mythicMergePanelPresenter = new MythicMergePanelPresenter();
         private HeroSummmonPresenter _heroSummonPresenter = new HeroSummmonPresenter();
         private HeroBag _heroBag = new HeroBag();
         private HeroBagPresenter _bagPresenter = new HeroBagPresenter();
@@ -129,6 +135,30 @@ namespace Core.BootStrapper
             _heroSpawner.Init(_map, resource, data, deck);
             _mergeRepository.Init(GameManager.Data.MergeData);
             _heroOverlapProcessor.Init(_mergeRepository);
+
+            _mythicMergeRepository.Init(GameManager.Data.MythicMergeData, data);
+            HashSet<int> mythicRecipeHeroUIDs = new HashSet<int>();
+            for (int i = 0; i < _mythicMergeRepository.Recipes.Count; i++)
+            {
+                MythicMergeData recipe = _mythicMergeRepository.Recipes[i];
+                mythicRecipeHeroUIDs.Add(recipe.ResultHeroUID);
+
+                for (int materialIndex = 0; materialIndex < recipe.Materials.Count; materialIndex++)
+                    mythicRecipeHeroUIDs.Add(recipe.Materials[materialIndex].HeroUID);
+            }
+
+            foreach (int heroUID in mythicRecipeHeroUIDs)
+                _heroSpawner.ValidateHeroDefinition(heroUID);
+
+            _mythicMergeController.Init(_mythicMergeRepository, _heroController, _heroController, data);
+            _mythicMergePresenter.Init(_heroController, _mythicMergeController, _mythicMergeViewer, data, resource);
+            _mythicMergePanelPresenter.Init(
+                _heroController,
+                _mythicMergeController,
+                _mythicMergePanelViewer,
+                data,
+                resource,
+                _timeController);
             _heroSummonPresenter.Init(_heroSpawner, _heroSummonViewer, _economy, economyConfig);
 
             _heroClickInteractViewer.Init(_heroBag, _heroController);
@@ -204,6 +234,12 @@ namespace Core.BootStrapper
             _projectileSpawner.Init(_projectileRepository, _combatService);
             _summonSpawner.Init(_projectileRepository, _combatService);
         }
+
+        private void OnDestroy()
+        {
+            _mythicMergePanelPresenter.Dispose();
+        }
+
         private void Bind()
         {
             _heroSpawner.OnSpawndRanHero += _heroController.AddFieldHero;
@@ -223,6 +259,8 @@ namespace Core.BootStrapper
             _heroController.OnSelectHero += _heroRangeViewer.ShowHeroRange;
             _heroController.OnSellHeroEvent += _=> _heroClickInteractViewer.HideInteractUI();
             _heroController.OnSellHeroEvent += _=> _heroRangeViewer.HideHeroRange();
+            _heroController.OnDestroyHero += _heroClickInteractViewer.HideIfSelected;
+            _heroController.OnDestroyHero += _heroRangeViewer.HideIfSelected;
 
             _enemySpawner.OnSpawnEnemy += _fieldEnemyService.AddFieldEnemy;
             _enemySpawner.OnDeathEnemy += _fieldEnemyService.DeathEnemy;

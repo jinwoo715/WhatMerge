@@ -17,6 +17,10 @@ namespace Skill.Data
         [Range(0f, 1f)]
         public float ActivationChance = 1f;
 
+        [Header("우선순위")]
+        [Min(0)]
+        public int Priority;
+
         [Header("방식")]
         public ExecutionData Execution;
 

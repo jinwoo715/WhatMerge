@@ -23,6 +23,7 @@ namespace Skill
         public SkillSet CreateSkill(Hero owner, int level, SkillSetContainer set)
         {
             List<HeroSkillSet> sets = set.GetSets(level);
+            ValidateBasicAttack(sets, set.name);
 
             SkillSet returnSkillSet = new SkillSet();
 
@@ -117,11 +118,49 @@ namespace Skill
                 trigger,
                 target,
                 execution,
-                skillSO.ActivationChance);
+                skillSO.ActivationChance,
+                skillSO.Priority);
+
             activeSkill.OnDispose += () => { runtimeExecution.Dispose(); };
 
             return activeSkill;
         }
+
+        private static void ValidateBasicAttack(IReadOnlyList<HeroSkillSet> sets, string setName)
+        {
+            ActiveSkillData basicAttack = null;
+
+            for (int i = 0; i < sets.Count; i++)
+            {
+                if (!(sets[i].Skill is ActiveSkillData activeSkill)
+                    || activeSkill.Priority != 0)
+                {
+                    continue;
+                }
+
+                if (basicAttack != null)
+                {
+                    throw new InvalidOperationException(
+                        $"Skill set '{setName}' has more than one basic attack: " +
+                        $"'{basicAttack.name}', '{activeSkill.name}'.");
+                }
+
+                if (!(activeSkill.Trigger is NoneTriggerData))
+                {
+                    throw new InvalidOperationException(
+                        $"Basic attack '{activeSkill.name}' must use a NoneTrigger.");
+                }
+
+                basicAttack = activeSkill;
+            }
+
+            if (basicAttack == null)
+            {
+                throw new InvalidOperationException(
+                    $"Skill set '{setName}' has no basic attack.");
+            }
+        }
+
         private PassiveSkill CreatePassiveSkill(PassiveSkillData passiveSkillSO, Hero owner)
         {
             var effects = passiveSkillSO.Effects;

@@ -11,10 +11,11 @@ namespace Skill
 
         public override IEnumerator Execute(IReadOnlyList<ICombatant> targets, float animationTimeScale)
         {
+            ICombatant combatant = SelectPrimaryTarget(targets);
+
             yield return SetReadyMotion(animationTimeScale);
             yield return WaitForCharge();
 
-            ICombatant combatant = SelectPrimaryTarget(targets);
             ApplyEffectsToTarget(combatant);
 
             yield return SetExecutionMotion(animationTimeScale, combatant);

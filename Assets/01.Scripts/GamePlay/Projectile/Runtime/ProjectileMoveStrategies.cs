@@ -1,4 +1,3 @@
-using Combat;
 using System;
 using UnityEngine;
 using WhatMerge.Combat;

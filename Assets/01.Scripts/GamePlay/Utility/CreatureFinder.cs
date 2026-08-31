@@ -1,6 +1,3 @@
-using Combat;
-using Enemies;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using WhatMerge.Combat;

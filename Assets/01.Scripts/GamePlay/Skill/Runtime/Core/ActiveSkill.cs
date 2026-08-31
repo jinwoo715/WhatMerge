@@ -19,6 +19,7 @@ namespace Skill
         public float BaseAnimationDuration => Execution.BaseAnimationDuration;
         public float ChargeTime => Execution.ChargeTime;
         public float ActivationChance { get; private set; }
+        public int Priority { get; }
 
         public int SkillUID { get; }
         public int SpawnIndex { get; }
@@ -31,7 +32,8 @@ namespace Skill
             ITrigger trigger,
             IFinder search,
             IExecute excution,
-            float activationChance)
+            float activationChance,
+            int priority)
         {
             SkillUID = uid;
             _owner = owner;
@@ -40,6 +42,7 @@ namespace Skill
             Execution = excution;
             SpawnIndex = owner.SpawnIndex;
             ActivationChance = ValidateActivationChance(activationChance);
+            Priority = ValidatePriority(priority);
         }
         public bool IsUsable(SkillTriggerContext context)
         {
@@ -96,6 +99,19 @@ namespace Skill
                     nameof(value),
                     value,
                     "Activation chance must be between zero and one.");
+            }
+
+            return value;
+        }
+
+        private static int ValidatePriority(int value)
+        {
+            if (value < 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(value),
+                    value,
+                    "Skill priority must be greater than or equal to zero.");
             }
 
             return value;

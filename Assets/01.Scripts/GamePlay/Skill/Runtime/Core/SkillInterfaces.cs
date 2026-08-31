@@ -15,6 +15,7 @@ namespace Skill
         float BaseAnimationDuration { get; }
         float ChargeTime { get; }
         float ActivationChance { get; }
+        int Priority { get; }
         bool IsUsable(SkillTriggerContext context);
         bool RollActivation();
         IEnumerator Execute(float animationTimeScale);

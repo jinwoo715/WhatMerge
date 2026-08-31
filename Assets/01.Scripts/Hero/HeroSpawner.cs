@@ -8,9 +8,9 @@ using UnityEngine;
 using UnityEngine.U2D;
 using Heros;
 
-//øµøı ¡§∫∏
-//∞¯∞›∑¬ ¡§∫∏
-//Ω∫≈≥ ¡§∫∏
+//ÏòÅÏõÖ Ï†ïÎ≥¥
+//Í≥µÍ≤©Î†• Ï†ïÎ≥¥
+//Ïä§ÌÇ¨ Ï†ïÎ≥¥
 
 public class HeroSpawner : MonoBehaviour, IHeroSummonService
 {
@@ -127,39 +127,68 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
     {
         Hero hero = _heroPool.GetItem(spawnPos);
 
-        hero.SetTile(tile, spawnPos);
+        try
+        {
+            hero.SetTile(tile, spawnPos);
 
-        int heroLevel = 0;
+            HeroSaveData saveData = GameManager.Data.GetSaveHeroData(heroUid);
+            int heroLevel = IsSelectHeroSpawn ? HeroLevel : saveData.Level;
 
-        HeroSaveData saveData = GameManager.Data.GetSaveHeroData(heroUid);
+            HeroData data = GetRequiredHeroData(heroUid);
+            SpriteAtlas heroAtlas = GetRequiredHeroAtlas(data);
 
-        if (IsSelectHeroSpawn)
-            heroLevel = HeroLevel;
-        else
-            heroLevel = saveData.Level;
+            hero.SpriteChanger.Init(heroAtlas, data.SpriteKey);
+            hero.SetData(data, heroLevel, evolutionLevel, _spawnIndex++);
 
+            if (!dictionary.TryGetValue(hero.UID, out SkillSetContainer skillSetContainer))
+                throw new InvalidOperationException($"Skill set for hero UID {hero.UID} is not registered.");
 
-        HeroData data = _heroDataRepo.GetHeroData(heroUid);
-        SpriteAtlas heroAtlas = _spriteAtlasRepository.GetAtlas(data.SpriteKey);
+            var skillSet = factory.CreateSkill(hero, heroLevel, skillSetContainer);
+            SkillController controller = new SkillController(
+                skillSet.ActiveSkills,
+                skillSet.PassiveSkills,
+                hero,
+                StatCalculator.AS(data.AttackSpeed));
 
-        HeroSpriteController heroSpriteController = hero.GetComponent<HeroSpriteController>();
-        heroSpriteController.Init(heroAtlas, data.SpriteKey);
+            hero.SetSkill(controller);
+            return hero;
+        }
+        catch
+        {
+            _heroPool.ReturnItem(hero);
+            throw;
+        }
+    }
 
-        hero.SetData(data, heroSpriteController, heroLevel, evolutionLevel, _spawnIndex++);
+    public void ValidateHeroDefinition(int heroUid)
+    {
+        HeroData data = GetRequiredHeroData(heroUid);
+        SpriteAtlas atlas = GetRequiredHeroAtlas(data);
 
-        if (!dictionary.TryGetValue(hero.UID, out SkillSetContainer skillSetContainer))
-            throw new InvalidOperationException($"Skill set for hero UID {hero.UID} is not registered.");
+        if (!dictionary.ContainsKey(heroUid))
+            throw new InvalidOperationException($"Skill set for hero UID {heroUid} is not registered.");
 
-        var skillSet = factory.CreateSkill(hero, heroLevel, skillSetContainer);
+        for (int evolutionLevel = 0; evolutionLevel <= 2; evolutionLevel++)
+        {
+            string spriteName = $"{data.SpriteKey}_{evolutionLevel + 1}_Idle";
+            if (atlas.GetSprite(spriteName) == null)
+            {
+                throw new InvalidOperationException(
+                    $"Sprite '{spriteName}' for hero UID {heroUid} is not registered.");
+            }
+        }
+    }
 
-        SkillController controller = new SkillController(
-            skillSet.ActiveSkills,
-            skillSet.PassiveSkills,
-            hero,
-            StatCalculator.AS(data.AttackSpeed));
+    private HeroData GetRequiredHeroData(int heroUid)
+    {
+        return _heroDataRepo.GetHeroData(heroUid)
+            ?? throw new InvalidOperationException($"Hero data for UID {heroUid} is not registered.");
+    }
 
-        hero.SetSkill(controller);
-        return hero;
+    private SpriteAtlas GetRequiredHeroAtlas(HeroData data)
+    {
+        return _spriteAtlasRepository.GetAtlas(data.SpriteKey)
+            ?? throw new InvalidOperationException($"Sprite atlas '{data.SpriteKey}' is not registered.");
     }
 
     public void ReturnHero(Hero hero)

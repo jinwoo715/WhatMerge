@@ -20,6 +20,7 @@ MonoBehaviour:
     ReadyMotionTime: 0.2
     ExecutionMotionTime: 0.2
   ChargeTime: 0
+  Priority: 20
   Execution: {fileID: 11400000, guid: 9241aad5fc949e6429515d2fe6d2ece1, type: 2}
   Finder: {fileID: 11400000, guid: c3fc2a0eda2e85a45a121a5bc86363de, type: 2}
   Trigger: {fileID: 11400000, guid: 56d1963ad02a29f41946d482f8ec269f, type: 2}

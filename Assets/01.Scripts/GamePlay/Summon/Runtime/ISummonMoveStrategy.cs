@@ -1,7 +1,4 @@
-using Combat;
 using System;
-using UnityEngine;
-using WhatMerge.Combat;
 using WhatMerge.Summons.Data;
 
 namespace WhatMerge.Summons
@@ -11,6 +8,4 @@ namespace WhatMerge.Summons
         event Action<TargetLostEventType> OnTargetLost;
         void Tick(float tick);
     }
-
-
 }

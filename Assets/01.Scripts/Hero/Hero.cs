@@ -22,13 +22,13 @@ namespace WhatMerge.Heros
 
     public class Hero : MonoBehaviour, ITileObject, IHeroInfoProvider, IAttacker, IPooledItem<Hero>, IAttackRangeProvider, IManaReceiver
     {
+        [SerializeField] private HeroSpriteController _spriteController;
         private CombatantElement _element = new CombatantElement();
         private SkillController _skillController;
         private HeroStats _stat = new HeroStats();
         private HeroData _heroData;
 
         private int _upgradeLevel = 1;
-        private IHeroVisual _heroVisual;
 
         public event Action<ICombatant> OnActiveOff;
 
@@ -42,10 +42,10 @@ namespace WhatMerge.Heros
         public IHeroStatModifier StatModify => _stat;
         public float BasicAttackRange => _skillController?.BasicAttackRange ?? 0f;
         public int SpawnIndex { get; private set; }
-
+        public ISpriteChanger SpriteChanger => _spriteController;
         public IElement Element => _element;
 
-        public void SetData(HeroData data, IHeroVisual heroVisual, int upgradeLevel, int evolutionLevel, int spawnIndex)
+        public void SetData(HeroData data, int upgradeLevel, int evolutionLevel, int spawnIndex)
         {
             _stat.Reset();
 
@@ -59,7 +59,6 @@ namespace WhatMerge.Heros
             _stat.SetBaseValue(HeroStatType.FlatPenetration, data.Penetration);
 
             EvolutionLevel = evolutionLevel;
-            _heroVisual = heroVisual;
 
             SetEvolution();
         }
@@ -82,9 +81,7 @@ namespace WhatMerge.Heros
 
             _skillController = skillController;
             _stat.OnStatChanged += UpdateAttackSpeed;
-            UpdateAttackSpeed(
-                HeroStatType.AttackPerSecond,
-                _stat.GetStat(HeroStatType.AttackPerSecond));
+            UpdateAttackSpeed(HeroStatType.AttackPerSecond, _stat.GetStat(HeroStatType.AttackPerSecond));
         }
         public void UpgradeEvolution()
         {
@@ -100,7 +97,7 @@ namespace WhatMerge.Heros
             float setAtk = StatCalculator.ATK(_upgradeLevel, baseATK, _heroData.GrowthRatio, _heroData.TierBonus);
             _stat.SetBaseValue(HeroStatType.Damage, setAtk);
 
-            _heroVisual.SetEvolutionLevel(EvolutionLevel);
+            _spriteController.SetEvolutionLevel(EvolutionLevel);
         }
         private void Update()
         {
@@ -162,7 +159,6 @@ namespace WhatMerge.Heros
         private void ClearRuntimeState()
         {
             _heroData = null;
-            _heroVisual = null;
             OccupiedTile = null;
             _upgradeLevel = 1;
             EvolutionLevel = 0;

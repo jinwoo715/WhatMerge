@@ -10,10 +10,10 @@ public interface ITimeService
 
 public class TimeController : ITimeService
 {
-    private int[] _gameTimes = { 1, 2, 3 };
+    private readonly int[] _gameTimes = { 1, 2, 3 };
 
     private int _speedIndex;
-    private int _gameSpeed;
+    private int _gameSpeed = 1;
 
     private bool _isPause;
 
@@ -22,10 +22,8 @@ public class TimeController : ITimeService
     public void SetPause(bool pause)
     {
         _isPause = pause;
-
-        int speed = _isPause ? 0 : _gameSpeed;
-
-        SetSpeed(speed);
+        ApplyTimeScale();
+        OnChangeGameSpeed?.Invoke(_gameSpeed);
     }
 
     public void SpeedUp()
@@ -35,13 +33,12 @@ public class TimeController : ITimeService
         _speedIndex = _speedIndex % _gameTimes.Length;
 
         _gameSpeed = _gameTimes[_speedIndex];
-
-        SetSpeed(_gameSpeed);
+        ApplyTimeScale();
+        OnChangeGameSpeed?.Invoke(_gameSpeed);
     }
 
-    private void SetSpeed(int speed)
+    private void ApplyTimeScale()
     {
-        Time.timeScale = speed;
-        OnChangeGameSpeed?.Invoke(speed);
+        Time.timeScale = _isPause ? 0 : _gameSpeed;
     }
 }

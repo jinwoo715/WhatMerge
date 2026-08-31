@@ -19,6 +19,7 @@ MonoBehaviour:
     MotionName: Attack
     ReadyMotionTime: 0.2
     ExecutionMotionTime: 0.2
+  Priority: 0
   Execution: {fileID: 11400000, guid: 9f51fbe8114d70e4cbc873c39fb01bb1, type: 2}
   Finder: {fileID: 11400000, guid: a2a3717e41f029445a58483fa48f2cb5, type: 2}
   Trigger: {fileID: 11400000, guid: 352d60d7aeaa5bb448dddbca64577260, type: 2}

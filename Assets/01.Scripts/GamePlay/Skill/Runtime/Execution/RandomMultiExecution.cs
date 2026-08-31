@@ -25,6 +25,8 @@ namespace Skill
         public override IEnumerator Execute(IReadOnlyList<ICombatant> targets, float animationTimeScale)
         {
             List<ICombatant> selectedTargets = SelectTargets(targets);
+            ICombatant vfxTarget = selectedTargets.Count > 0 ? selectedTargets[0] : null;
+            LookAtTarget(vfxTarget);
 
             yield return SetReadyMotion(animationTimeScale);
             yield return WaitForCharge();
@@ -34,7 +36,6 @@ namespace Skill
                 ApplyEffectsToTarget(target);
             }
 
-            ICombatant vfxTarget = selectedTargets.Count > 0 ? selectedTargets[0] : null;
             yield return SetExecutionMotion(animationTimeScale, vfxTarget);
 
             SetIdleMotion();

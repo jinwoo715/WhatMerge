@@ -153,12 +153,20 @@ namespace Skill
         {
             if (IsPreviousEnemyAvailable(targets))
             {
+                LookAtTarget(_previousEnemy);
                 return _previousEnemy;
             }
 
             ICombatant target = NearestTarget(targets);
             RememberPrimaryTarget(target);
+            LookAtTarget(target);
             return target;
+        }
+
+        protected void LookAtTarget(ICombatant target)
+        {
+            if (target != null)
+                _spriteChanger?.LookAt(target.Position);
         }
 
         private bool IsPreviousEnemyAvailable(IReadOnlyList<ICombatant> targets)

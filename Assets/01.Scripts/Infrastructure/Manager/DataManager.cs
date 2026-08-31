@@ -9,6 +9,7 @@ using WhatMerge.Heros;
 public interface IDataProvider
 {
     List<MergeData> MergeData {get;}
+    List<MythicMergeData> MythicMergeData { get; }
 }
 
 public class ItemData
@@ -38,11 +39,13 @@ public class DataManager : MonoBehaviour, IEnemyDataRepository, IEnemyRewardRepo
     private Dictionary<int, HeroSaveData> _saveHeroData = new Dictionary<int, HeroSaveData>();
 
     private List<MergeData> _mergeDatas = new List<MergeData>();
+    private List<MythicMergeData> _mythicMergeDatas = new List<MythicMergeData>();
 
     public GameEconomyConfig GameEconomy => _gameConfig.GameEconomy;
     public PlayerInfoConfig PlayerConfig => _gameConfig.PlayerConfig;
 
     public List<MergeData> MergeData => _mergeDatas;
+    public List<MythicMergeData> MythicMergeData => _mythicMergeDatas;
 
     internal HeroSaveData GetSaveHeroData(int heroUid)
     {
@@ -66,6 +69,9 @@ public class DataManager : MonoBehaviour, IEnemyDataRepository, IEnemyRewardRepo
 
         var mergeData = resourcesReader.GetTextAsset("MergeData");
         _mergeDatas = DeserializeTextData<MergeData>(mergeData);
+
+        var mythicMergeData = resourcesReader.GetTextAsset("MythicMergeData");
+        _mythicMergeDatas = DeserializeTextData<MythicMergeData>(mythicMergeData);
     }
 
     private void InitDictionary<T>(Dictionary<int, T> dic, TextAsset text) where T : BaseData
@@ -135,9 +141,9 @@ public class DataManager : MonoBehaviour, IEnemyDataRepository, IEnemyRewardRepo
             : Array.Empty<EnemyRewardData>();
     }
 
-    public HeroSaveData GetHeroSaveData(int uid)
+    public bool TryGetHeroSaveData(int uid, out HeroSaveData data)
     {
-        throw new System.NotImplementedException();
+        return _saveHeroData.TryGetValue(uid, out data);
     }
 
     public ItemData GetItemData(int uid)

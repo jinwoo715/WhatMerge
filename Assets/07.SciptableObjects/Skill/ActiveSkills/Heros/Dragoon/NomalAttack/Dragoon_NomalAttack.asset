@@ -21,6 +21,7 @@ MonoBehaviour:
     ExecutionMotionTime: 0.2
   ChargeTime: 0
   ActivationChance: 1
+  Priority: 0
   Execution: {fileID: 11400000, guid: 0b0a45f122050c64fae3b9dfc0cf0d5e, type: 2}
   Finder: {fileID: 11400000, guid: 0d759c588f03139469a51bd3e738edb8, type: 2}
   Trigger: {fileID: 11400000, guid: 2624f2c2c9a46ea46981938dc138d628, type: 2}

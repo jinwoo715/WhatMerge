@@ -25,10 +25,23 @@ namespace Skill
             }
         }
 
-        private List<IActiveSkill> _activeSkills;
-        private List<IPassiveSkill> _passiveSkills;
+        private readonly struct IndexedActiveSkill
+        {
+            public IActiveSkill Skill { get; }
+            public int OriginalIndex { get; }
+
+            public IndexedActiveSkill(IActiveSkill skill, int originalIndex)
+            {
+                Skill = skill;
+                OriginalIndex = originalIndex;
+            }
+        }
+
+        private readonly IActiveSkill _basicAttack;
+        private readonly List<IActiveSkill> _activeSkills;
+        private readonly List<IPassiveSkill> _passiveSkills;
         private readonly Dictionary<IActiveSkill, bool> _activationRolls = new();
-        private MonoBehaviour _coroutineRunner;
+        private readonly MonoBehaviour _coroutineRunner;
         private Coroutine _currentSkill;
 
         private float _attackInterval;
@@ -42,7 +55,7 @@ namespace Skill
 
         private float _manaChargeMultiple = 1;
 
-        public float BasicAttackRange => _activeSkills.Count > 0 ? _activeSkills[0].Target.Range : 0f;
+        public float BasicAttackRange => _basicAttack.Target.Range;
         public float CurrentMana => _mana;
         public float MaxMana { get; }
         public float AttackInterval => _attackInterval;
@@ -50,9 +63,10 @@ namespace Skill
 
         public SkillController(List<IActiveSkill> activeSkills, List<IPassiveSkill> passiveSkills, MonoBehaviour coroutineRunner, float delay)
         {
-            _activeSkills = activeSkills;
-            _passiveSkills = passiveSkills;
-            _coroutineRunner = coroutineRunner;
+            _basicAttack = FindBasicAttack(activeSkills);
+            _activeSkills = SortActiveSkills(activeSkills);
+            _passiveSkills = passiveSkills ?? throw new System.ArgumentNullException(nameof(passiveSkills));
+            _coroutineRunner = coroutineRunner ?? throw new System.ArgumentNullException(nameof(coroutineRunner));
             _attackInterval = ValidateAttackInterval(delay);
             _nextAttackTime = _attackInterval;
             MaxMana = CalculateMaxMana(_activeSkills);
@@ -98,12 +112,8 @@ namespace Skill
                 return;
 
             IActiveSkill executeSkill = selection.ExecuteSkill;
-            float animationTimeScale = executeSkill != null
-                ? CalculateAnimationTimeScale(executeSkill)
-                : 1f;
-            float scaledAnimationDuration = executeSkill != null
-                ? executeSkill.BaseAnimationDuration * animationTimeScale
-                : 0f;
+            float animationTimeScale = executeSkill != null ? CalculateAnimationTimeScale(executeSkill) : 1f;
+            float scaledAnimationDuration = executeSkill != null ? executeSkill.BaseAnimationDuration * animationTimeScale : 0f;
             float skillStartTime = _nextAttackTime - scaledAnimationDuration;
             if (_elapsedTime < skillStartTime)
                 return;
@@ -121,35 +131,35 @@ namespace Skill
         private SkillSelection GetSkillSelection()
         {
             SkillTriggerContext context = new SkillTriggerContext(_hitCount, _mana);
-            IActiveSkill basicAttack = _activeSkills.Count > 0 ? _activeSkills[0] : null;
+            IActiveSkill selectedSkill = null;
 
             int skillCount = _activeSkills.Count;
-            for (int i = skillCount - 1; i >= 0; i--)
+            for (int i = 0; i < skillCount; i++)
             {
                 IActiveSkill skill = _activeSkills[i];
-
-                if (!skill.IsUsable(context))
+                if (skill.IsUsable(context))
                 {
-                    continue;
+                    selectedSkill = skill;
+                    break;
                 }
-
-                if (GetOrRollActivation(skill))
-                {
-                    return new SkillSelection(skill, null);
-                }
-
-                IActiveSkill fallback = null;
-                if (!ReferenceEquals(skill, basicAttack)
-                    && basicAttack != null
-                    && basicAttack.IsUsable(context))
-                {
-                    fallback = basicAttack;
-                }
-
-                return new SkillSelection(fallback, skill);
             }
 
-            return default;
+            if (selectedSkill == null)
+                return default;
+
+            if (GetOrRollActivation(selectedSkill))
+            {
+                return new SkillSelection(selectedSkill, null);
+            }
+
+            IActiveSkill fallback = null;
+            if (!ReferenceEquals(selectedSkill, _basicAttack)
+                && _basicAttack.IsUsable(context))
+            {
+                fallback = _basicAttack;
+            }
+
+            return new SkillSelection(fallback, selectedSkill);
         }
 
         private bool GetOrRollActivation(IActiveSkill skill)
@@ -264,6 +274,62 @@ namespace Skill
             }
 
             return attackInterval;
+        }
+
+        private static IActiveSkill FindBasicAttack(IReadOnlyList<IActiveSkill> activeSkills)
+        {
+            if (activeSkills == null)
+                throw new System.ArgumentNullException(nameof(activeSkills));
+
+            IActiveSkill basicAttack = null;
+
+            for (int i = 0; i < activeSkills.Count; i++)
+            {
+                IActiveSkill skill = activeSkills[i]
+                    ?? throw new System.InvalidOperationException(
+                        $"Active skill at index {i} is null.");
+
+                if (skill.Priority != 0)
+                    continue;
+
+                if (basicAttack != null)
+                {
+                    throw new System.InvalidOperationException(
+                        "Active skill list has more than one basic attack.");
+                }
+
+                basicAttack = skill;
+            }
+
+            return basicAttack
+                ?? throw new System.InvalidOperationException(
+                    "Active skill list has no basic attack.");
+        }
+
+        private static List<IActiveSkill> SortActiveSkills(IReadOnlyList<IActiveSkill> activeSkills)
+        {
+            List<IndexedActiveSkill> indexedSkills = new(activeSkills.Count);
+
+            for (int i = 0; i < activeSkills.Count; i++)
+            {
+                indexedSkills.Add(new IndexedActiveSkill(activeSkills[i], i));
+            }
+
+            indexedSkills.Sort((left, right) =>
+            {
+                int priorityComparison = right.Skill.Priority.CompareTo(left.Skill.Priority);
+                return priorityComparison != 0
+                    ? priorityComparison
+                    : right.OriginalIndex.CompareTo(left.OriginalIndex);
+            });
+
+            List<IActiveSkill> sortedSkills = new(indexedSkills.Count);
+            for (int i = 0; i < indexedSkills.Count; i++)
+            {
+                sortedSkills.Add(indexedSkills[i].Skill);
+            }
+
+            return sortedSkills;
         }
 
         public void StopRunner()

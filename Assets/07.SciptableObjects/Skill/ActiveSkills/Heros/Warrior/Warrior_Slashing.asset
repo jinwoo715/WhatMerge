@@ -19,6 +19,7 @@ MonoBehaviour:
     MotionName: Slashing
     ReadyMotionTime: 0.2
     ExecutionMotionTime: 0.2
+  Priority: 10
   Execution: {fileID: 11400000, guid: 8497fcb05eb19cb43b7ac34d9c27284b, type: 2}
   Finder: {fileID: 11400000, guid: ceaa857075a7b354198d5d935b84816d, type: 2}
   Trigger: {fileID: 11400000, guid: 442183e457d6bbc49b8a944c0f51237b, type: 2}

@@ -8,6 +8,7 @@ public interface IFieldHeroService
 {
     event Action<Hero> OnSelectHero;
     event Action OnChangedHeroPosition;
+    event Action OnFieldHeroesChanged;
 
     event Action<Hero> OnSpawnedHero;
     event Action<Hero> OnDestroyHero;

@@ -8,5 +8,6 @@ public class TimePresenter
     {
         service.OnChangeGameSpeed += view.SetTime;
         view.OnClickChangeButton += service.SpeedUp;
+        service.SetPause(false);
     }
 }

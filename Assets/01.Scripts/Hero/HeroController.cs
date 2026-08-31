@@ -1,136 +1,13 @@
-using Combat;
 using WhatMerge.Map;
-using Skill;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
-using UnityEngine.U2D;
-using WhatMerge.Heros;
 using System.Linq;
 using Skill.Data;
 
-namespace Combat { }
-
 namespace WhatMerge.Heros
 {
-    public interface IHeroSummonService
-    {
-        int SpawnedCount { get; }
-        bool TrySpawnRandomHero();
-        bool TrySpawnHero(int uid, int evolutionLevel);
-        void SpawnHeroAtTile(int uid, int evolutionLevel, Tile tile);
-        void ReturnHero(Hero hero);
-
-        event Action<Tile, Hero> OnSpawndRanHero;
-    }
-
-    public interface IFieldHeroSelecter
-    {
-        void PointDownTile(Tile tile);
-        void PointUpTile(Tile tile);
-        void DragTile(Tile tile);
-    }
-
-    public class MergeData
-    {
-        public int First;
-        public int Second;
-        public int Result;
-    }
-    public class MergeRepository
-    {
-        Dictionary<(int, int), int> _mergeData = new Dictionary<(int, int), int>();
-
-        public void Init(List<MergeData> mergeDatas)
-        {
-            for (int i = 0; i < mergeDatas.Count; i++)
-            {
-                MergeData data = mergeDatas[i];
-
-                var key = SortUID(data.First, data.Second);
-
-                Debug.Log($"{key}");
-
-                _mergeData.Add(key, data.Result);
-            }
-        }
-
-        //Evolution Level이 같은가
-        public int GetMergeResult(int first, int second)
-        {
-            var key = SortUID(first, second);
-
-            if(_mergeData.TryGetValue(key, out int value))
-            {
-                return value;
-            }
-
-            return 0;
-        }
-        public bool IsCanMerge(int first, int second)
-        {
-            var key = SortUID(first, second);
-
-            Debug.Log($"{key}");
-            return _mergeData.ContainsKey(key);
-        }
-
-        public (int, int) SortUID(int first, int second)
-        {
-            int min = Mathf.Min(first, second);
-            int max = Mathf.Max(first, second);
-
-            return (min, max);
-        }
-    }
-    public interface IHeroOverlapResult
-    {
-        public int GetMergeHeroUID(int first, int second);
-        public EHeroOverlapResult OverlapHero(IHeroInfoProvider first, IHeroInfoProvider second);
-    }
-    public class HeroOverlapProcessor : IHeroOverlapResult
-    {
-        private MergeRepository _mergeRepository;
-
-        public void Init(MergeRepository mergeRepository)
-        {
-            _mergeRepository = mergeRepository;
-        }
-
-        public int GetMergeHeroUID(int first, int second)
-        {
-            return _mergeRepository.GetMergeResult(first, second);
-        }
-        public EHeroOverlapResult OverlapHero(IHeroInfoProvider first, IHeroInfoProvider second)
-        {
-            Debug.Log($"{first.EvolutionLevel} / {second.EvolutionLevel}");
-            if (first.EvolutionLevel != second.EvolutionLevel)
-                return EHeroOverlapResult.None;
-
-
-            Debug.Log($"{first.UID == second.UID && first.EvolutionLevel < 2}");
-            //게임 내에서 진화 레벨은 같다.
-            if (first.UID == second.UID && first.EvolutionLevel < 2)
-                return EHeroOverlapResult.Evolution;
-
-            
-            if (_mergeRepository.IsCanMerge(first.UID, second.UID))
-            {
-                return EHeroOverlapResult.Merge;
-            }
-
-            return EHeroOverlapResult.None;
-        }
-    }
-    public enum EHeroOverlapResult
-    {
-        None,
-        Evolution,
-        Merge
-    }
-    public class HeroController : IFieldHeroService, IFieldHeroSelecter
+    public class HeroController : IFieldHeroService, IFieldHeroSelecter, IHeroMergeExecutor
     {
         private Dictionary<ITileReadOnly, Hero> _fieldHeros = new Dictionary<ITileReadOnly, Hero>();
         private Dictionary<(int x,int y), Hero> _fieldHero = new Dictionary<(int, int), Hero>();
@@ -148,6 +25,7 @@ namespace WhatMerge.Heros
         private IHeroSummonService _heroSpawnService;
         public event Action<Hero> OnSelectHero;
         public event Action OnChangedHeroPosition;
+        public event Action OnFieldHeroesChanged;
         public event Action<Hero> OnSpawnedHero;
         public event Action<Hero> OnDestroyHero;
         public event Action<Hero> OnSellHeroEvent;
@@ -166,30 +44,8 @@ namespace WhatMerge.Heros
         }
         public void ClearHero(Hero hero)
         {
-            ITileReadOnly tile = hero.OccupiedTile;
-
-            if (tile == null)
-                throw new InvalidOperationException($"Hero '{hero.name}' has no occupied tile.");
-
-            if (!_fieldHeros.TryGetValue(tile, out Hero tileHero) || !ReferenceEquals(tileHero, hero))
-                throw new InvalidOperationException($"Hero '{hero.name}' is not registered at its occupied tile.");
-
-            if (!_fieldHero.TryGetValue((tile.X, tile.Y), out Hero positionHero) || !ReferenceEquals(positionHero, hero))
-                throw new InvalidOperationException($"Hero '{hero.name}' is not registered at ({tile.X}, {tile.Y}).");
-
-            _fieldHeros.Remove(tile);
-            _fieldHero.Remove((tile.X, tile.Y));
-            _heroMapService.FreeFieldTile(tile);
-            OnChangedHeroPosition?.Invoke();
-
-            try
-            {
-                OnDestroyHero?.Invoke(hero);
-            }
-            finally
-            {
-                _heroSpawnService.ReturnHero(hero);
-            }
+            RemoveHeroInternal(hero);
+            NotifyFieldStateChanged();
         }
         public void SetHeroPosition(ITileReadOnly tile, Hero hero)
         {
@@ -227,7 +83,7 @@ namespace WhatMerge.Heros
             _fieldHeros.Add(tile, hero);
             _fieldHero.Add((tile.X, tile.Y), hero);
             OnSpawnedHero?.Invoke(hero);
-            OnChangedHeroPosition?.Invoke();
+            NotifyFieldStateChanged();
         }
         public void PointDownTile(Tile tile)
         {
@@ -274,18 +130,16 @@ namespace WhatMerge.Heros
 
                             break;
                         case EHeroOverlapResult.Evolution:
-                            ReturnHero(_clickedHero);
+                            RemoveHeroInternal(_clickedHero);
                             hero.UpgradeEvolution();
+                            NotifyFieldStateChanged();
 
                             break;
                         case EHeroOverlapResult.Merge:
                             int uid = _overlapProcessor.GetMergeHeroUID(_clickedHero.UID, hero.UID);
                             int evolution = _clickedHero.EvolutionLevel;
 
-                            ReturnHero(_clickedHero);
-                            ReturnHero(hero);
-
-                            _heroSpawnService.SpawnHeroAtTile(uid, evolution, tile);
+                            TryMergeHeroes(new[] { _clickedHero, hero }, uid, evolution);
 
                             Debug.Log("합췌!!");
                             break;
@@ -312,6 +166,97 @@ namespace WhatMerge.Heros
             ClearHero(hero);
             _gameGoldService.GainMoney(10);
             OnSellHeroEvent?.Invoke(hero);
+        }
+
+        public bool TryMergeHeroes(
+            IReadOnlyList<Hero> materials,
+            int resultHeroUID,
+            int evolutionLevel)
+        {
+            if (materials == null)
+                throw new ArgumentNullException(nameof(materials));
+            if (materials.Count == 0)
+                throw new ArgumentException("Merge materials cannot be empty.", nameof(materials));
+            if (resultHeroUID <= 0)
+                throw new ArgumentOutOfRangeException(nameof(resultHeroUID));
+
+            HashSet<Hero> uniqueMaterials = new();
+            Hero spawnTileOwner = null;
+
+            for (int i = 0; i < materials.Count; i++)
+            {
+                Hero material = materials[i]
+                    ?? throw new ArgumentException($"Merge material at index {i} is null.", nameof(materials));
+
+                if (!uniqueMaterials.Add(material))
+                    throw new ArgumentException("Merge materials contain the same hero more than once.", nameof(materials));
+
+                if (material.EvolutionLevel != evolutionLevel || !IsRegisteredHero(material))
+                    return false;
+
+                if (spawnTileOwner == null || material.SpawnIndex < spawnTileOwner.SpawnIndex)
+                    spawnTileOwner = material;
+            }
+
+            Tile spawnTile = spawnTileOwner.OccupiedTile as Tile
+                ?? throw new InvalidOperationException("The selected merge spawn tile is not a Tile.");
+
+            for (int i = 0; i < materials.Count; i++)
+                RemoveHeroInternal(materials[i]);
+
+            _heroSpawnService.SpawnHeroAtTile(resultHeroUID, evolutionLevel, spawnTile);
+            return true;
+        }
+
+        private bool IsRegisteredHero(Hero hero)
+        {
+            ITileReadOnly tile = hero.OccupiedTile;
+            return tile != null
+                && _fieldHeros.TryGetValue(tile, out Hero tileHero)
+                && ReferenceEquals(tileHero, hero)
+                && _fieldHero.TryGetValue((tile.X, tile.Y), out Hero positionHero)
+                && ReferenceEquals(positionHero, hero);
+        }
+
+        private void RemoveHeroInternal(Hero hero)
+        {
+            if (hero == null)
+                throw new ArgumentNullException(nameof(hero));
+
+            ITileReadOnly tile = hero.OccupiedTile;
+            if (tile == null)
+                throw new InvalidOperationException($"Hero '{hero.name}' has no occupied tile.");
+
+            if (!_fieldHeros.TryGetValue(tile, out Hero tileHero) || !ReferenceEquals(tileHero, hero))
+                throw new InvalidOperationException($"Hero '{hero.name}' is not registered at its occupied tile.");
+
+            if (!_fieldHero.TryGetValue((tile.X, tile.Y), out Hero positionHero) || !ReferenceEquals(positionHero, hero))
+                throw new InvalidOperationException($"Hero '{hero.name}' is not registered at ({tile.X}, {tile.Y}).");
+
+            _fieldHeros.Remove(tile);
+            _fieldHero.Remove((tile.X, tile.Y));
+            _heroMapService.FreeFieldTile(tile);
+
+            if (ReferenceEquals(_clickedHero, hero))
+            {
+                _clickedHero = null;
+                _markerPresenter.HideTileMarker();
+            }
+
+            try
+            {
+                OnDestroyHero?.Invoke(hero);
+            }
+            finally
+            {
+                _heroSpawnService.ReturnHero(hero);
+            }
+        }
+
+        private void NotifyFieldStateChanged()
+        {
+            OnChangedHeroPosition?.Invoke();
+            OnFieldHeroesChanged?.Invoke();
         }
         public List<Hero> GetNearHeros(ITileReadOnly pivot, HeroSearchType range)
         {

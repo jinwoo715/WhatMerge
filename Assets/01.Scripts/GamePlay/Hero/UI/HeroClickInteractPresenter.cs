@@ -53,4 +53,10 @@ public class HeroClickInteractPresenter : MonoBehaviour
         _sellButton.gameObject.SetActive(false);
         _insertButton.gameObject.SetActive(false);
     }
+
+    public void HideIfSelected(Hero hero)
+    {
+        if (ReferenceEquals(_selectHero, hero))
+            HideInteractUI();
+    }
 }

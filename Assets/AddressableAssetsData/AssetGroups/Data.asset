@@ -41,6 +41,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - TextData
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 684cabd854844575b5f8f3457d1caf74
+    m_Address: MythicMergeData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - TextData
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: d617ab2fcc714644ba537f0019f7d517, type: 2}
   m_SchemaSet:

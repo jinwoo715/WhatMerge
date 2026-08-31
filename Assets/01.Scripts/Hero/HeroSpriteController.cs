@@ -8,6 +8,8 @@ public interface ISpriteChanger
 {
     void SetSprite(string spriteName);
     void SetIdle();
+    void Init(SpriteAtlas spriteAtlas, string heroName);
+    void LookAt(Vector3 targetPosition);
 }
 
 public interface IHeroVisual
@@ -17,6 +19,8 @@ public interface IHeroVisual
 
 public class HeroSpriteController : MonoBehaviour, ISpriteChanger, IHeroVisual
 {
+    private const float FacingEpsilon = 0.0001f;
+
     [SerializeField] private SpriteRenderer _spriteRenderer;
     private SpriteAtlas _spriteAtlas;
     private string _heroName;
@@ -50,6 +54,22 @@ public class HeroSpriteController : MonoBehaviour, ISpriteChanger, IHeroVisual
         _spriteRenderer.sprite = _spriteAtlas.GetSprite(_builder.ToString());
 
         _builder.Clear();
+    }
+
+    public void LookAt(Vector3 targetPosition)
+    {
+        if (_spriteRenderer == null)
+            throw new System.InvalidOperationException($"{nameof(SpriteRenderer)} is not assigned.");
+
+        float deltaX = targetPosition.x - transform.position.x;
+        if (Mathf.Abs(deltaX) <= FacingEpsilon)
+            return;
+
+        bool targetIsRight = deltaX > 0f;
+        bool transformMirrorsSprite = transform.lossyScale.x < 0f;
+        bool shouldMirrorSource = !targetIsRight;
+
+        _spriteRenderer.flipX = shouldMirrorSource ^ transformMirrorsSprite;
     }
 
     public void SetEvolutionLevel(int level)
