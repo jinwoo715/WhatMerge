@@ -14,7 +14,7 @@ namespace WhatMerge.Combat.Effects
 
     public class DotProcessBundle
     {
-        private readonly Dictionary<(int SkillUid, int OwnerSpawnIndex, int EffectInstanceId), DotProcess> _dotProcesses = new();
+        private readonly Dictionary<long, DotProcess> _dotProcesses = new();
 
         public int Dots => _dotProcesses.Count;
         public List<DotProcess> AllProcesses => new(_dotProcesses.Values);
@@ -54,17 +54,14 @@ namespace WhatMerge.Combat.Effects
 
     public class DotData
     {
-        public readonly int SkillUid;
-        public readonly int OwnerSpawnIndex;
-        public readonly int EffectInstanceId;
+        public readonly long EffectInstanceId;
         public readonly float Value;
         public readonly DotDamageType DotDamageType;
         public readonly bool IgnoreArmor;
         public readonly float Interval;
         public readonly DamageContext Context;
 
-        public (int SkillUid, int OwnerSpawnIndex, int EffectInstanceId) Key =>
-            (SkillUid, OwnerSpawnIndex, EffectInstanceId);
+        public long Key => EffectInstanceId;
 
         public DotData(DotEffect dotEffect, float duration, DamageContext context)
         {
@@ -87,9 +84,12 @@ namespace WhatMerge.Combat.Effects
                     "DOT duration must be a finite number greater than zero.");
             }
 
-            SkillUid = context.SkillUid;
-            OwnerSpawnIndex = context.OwnerSpawnIndex;
-            EffectInstanceId = dotEffect.GetInstanceID();
+            EffectInstanceId = dotEffect.RuntimeEffectInstanceId;
+            if (EffectInstanceId <= 0)
+            {
+                throw new InvalidOperationException(
+                    $"DOT effect '{dotEffect.name}' is not a RuntimeExecution clone.");
+            }
             Value = dotEffect.Value;
             DotDamageType = dotEffect.ApplyType;
             IgnoreArmor = dotEffect.IgnoreArmor;
@@ -103,13 +103,18 @@ namespace WhatMerge.Combat.Effects
         private readonly Dictionary<ICombatant, DotProcessBundle> _dots = new();
         private IDamageApplier _damageApplier;
         private DamageCalculator _damageCalculator;
+        private IFatalStopService _fatalStop;
 
-        public void Init(IDamageApplier damageApplier, DamageCalculator damageCalculator)
+        public void Init(
+            IDamageApplier damageApplier,
+            DamageCalculator damageCalculator,
+            IFatalStopService fatalStop)
         {
             _damageApplier = damageApplier
                 ?? throw new ArgumentNullException(nameof(damageApplier));
             _damageCalculator = damageCalculator
                 ?? throw new ArgumentNullException(nameof(damageCalculator));
+            _fatalStop = fatalStop ?? throw new ArgumentNullException(nameof(fatalStop));
         }
 
         public IRuntimeEffectHandle ApplyDotEffect(DotData dotData)
@@ -166,7 +171,16 @@ namespace WhatMerge.Combat.Effects
 
                 while (timer >= dotData.Interval)
                 {
-                    ApplyDot(dotData);
+                    try
+                    {
+                        ApplyDot(dotData);
+                    }
+                    catch (Exception exception)
+                    {
+                        RemoveDotTracking(dotData.Context.Target, dotData);
+                        _fatalStop.FatalStop(exception, "DOT effect execution failed.");
+                        throw;
+                    }
 
                     timer -= dotData.Interval;
                 }
@@ -241,6 +255,23 @@ namespace WhatMerge.Combat.Effects
             StopCoroutine(process.Coroutine);
             bundle.RemoveDotProcess(dotData);
 
+            if (bundle.Dots != 0)
+                return;
+
+            _dots.Remove(target);
+            target.OnActiveOff -= ReleaseCombatAllDot;
+        }
+
+        private void RemoveDotTracking(ICombatant target, DotData dotData)
+        {
+            if (target == null
+                || !_dots.TryGetValue(target, out DotProcessBundle bundle)
+                || !bundle.Contains(dotData))
+            {
+                return;
+            }
+
+            bundle.RemoveDotProcess(dotData);
             if (bundle.Dots != 0)
                 return;
 

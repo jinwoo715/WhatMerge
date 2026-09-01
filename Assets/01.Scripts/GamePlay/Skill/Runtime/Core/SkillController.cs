@@ -1,13 +1,21 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Skill
 {
-    public interface ISkillRunner
+    public interface ISkillRunner : IDisposable
     {
         void Tick(float tickValue);
-        void StopRunner();
+        void Activate();
+    }
+
+    public enum SkillControllerState
+    {
+        Created,
+        Active,
+        Disposed
     }
 
     public class SkillController : ISkillResourceModifier, ISkillRunner
@@ -42,7 +50,9 @@ namespace Skill
         private readonly List<IPassiveSkill> _passiveSkills;
         private readonly Dictionary<IActiveSkill, bool> _activationRolls = new();
         private readonly MonoBehaviour _coroutineRunner;
+        private readonly IFatalStopService _fatalStop;
         private Coroutine _currentSkill;
+        private int _startedPassiveCount;
 
         private float _attackInterval;
         private float _elapsedTime;
@@ -55,37 +65,54 @@ namespace Skill
 
         private float _manaChargeMultiple = 1;
 
+        public SkillControllerState State { get; private set; }
         public float BasicAttackRange => _basicAttack.Target.Range;
         public float CurrentMana => _mana;
         public float MaxMana { get; }
         public float AttackInterval => _attackInterval;
         public float NextAttackTime => _nextAttackTime;
 
-        public SkillController(List<IActiveSkill> activeSkills, List<IPassiveSkill> passiveSkills, MonoBehaviour coroutineRunner, float delay)
+        public SkillController(
+            List<IActiveSkill> activeSkills,
+            List<IPassiveSkill> passiveSkills,
+            MonoBehaviour coroutineRunner,
+            float delay,
+            IFatalStopService fatalStop)
         {
             _basicAttack = FindBasicAttack(activeSkills);
             _activeSkills = SortActiveSkills(activeSkills);
             _passiveSkills = passiveSkills ?? throw new System.ArgumentNullException(nameof(passiveSkills));
             _coroutineRunner = coroutineRunner ?? throw new System.ArgumentNullException(nameof(coroutineRunner));
+            _fatalStop = fatalStop ?? throw new ArgumentNullException(nameof(fatalStop));
             _attackInterval = ValidateAttackInterval(delay);
             _nextAttackTime = _attackInterval;
             MaxMana = CalculateMaxMana(_activeSkills);
-
-            ApplyPassive();
+            State = SkillControllerState.Created;
         }
 
-        public void ApplyPassive()
+        public void Activate()
         {
-            foreach (var passive in _passiveSkills)
+            if (State != SkillControllerState.Created)
             {
-                passive.Apply();
+                throw new InvalidOperationException(
+                    $"SkillController can only activate from Created state. Current: {State}.");
             }
-        }
-        private void ReleasePassive()
-        {
-            foreach (var passive in _passiveSkills)
+
+            try
             {
-                passive.Release();
+                for (int i = 0; i < _passiveSkills.Count; i++)
+                {
+                    _startedPassiveCount = i + 1;
+                    _passiveSkills[i].Apply();
+                }
+
+                State = SkillControllerState.Active;
+            }
+            catch (Exception exception)
+            {
+                TryDisposeAfterFailure();
+                _fatalStop.FatalStop(exception, "SkillController passive activation failed.");
+                throw;
             }
         }
 
@@ -96,6 +123,22 @@ namespace Skill
         }
 
         public void Tick(float tickValue)
+        {
+            if (State != SkillControllerState.Active || _fatalStop.IsFatalStopped)
+                return;
+
+            try
+            {
+                TickActive(tickValue);
+            }
+            catch (Exception exception)
+            {
+                _fatalStop.FatalStop(exception, "SkillController tick failed.");
+                throw;
+            }
+        }
+
+        private void TickActive(float tickValue)
         {
             _elapsedTime += tickValue;
             ChargeMana(tickValue);
@@ -125,7 +168,7 @@ namespace Skill
             _activationRolls.Clear();
 
             _currentSkill = _coroutineRunner.StartCoroutine(
-                CoExecuteSkill(selection, animationTimeScale));
+                RunGuarded(CoExecuteSkill(selection, animationTimeScale)));
         }
 
         private SkillSelection GetSkillSelection()
@@ -178,17 +221,87 @@ namespace Skill
         {
             _isUsingSkill = true;
 
-            selection.FailedSkill?.Trigger.UseTriggerResourceOnFailure(this);
-
-            if (selection.ExecuteSkill != null)
+            try
             {
-                selection.ExecuteSkill.Trigger.UseTriggerResource(this);
-                yield return selection.ExecuteSkill.Execute(animationTimeScale);
+                selection.FailedSkill?.Trigger.UseTriggerResourceOnFailure(this);
+
+                if (selection.ExecuteSkill != null)
+                {
+                    selection.ExecuteSkill.Trigger.UseTriggerResource(this);
+                    yield return selection.ExecuteSkill.Execute(animationTimeScale);
+                }
             }
+            finally
+            {
+                _isUsingSkill = false;
+                _currentSkill = null;
+            }
+        }
 
-            _isUsingSkill = false;
+        private IEnumerator RunGuarded(IEnumerator root)
+        {
+            Stack<IEnumerator> stack = new Stack<IEnumerator>();
+            stack.Push(root ?? throw new ArgumentNullException(nameof(root)));
 
-            _currentSkill = null;
+            try
+            {
+                while (stack.Count > 0)
+                {
+                    IEnumerator currentEnumerator = stack.Peek();
+                    bool hasNext;
+                    object current = null;
+
+                    try
+                    {
+                        hasNext = currentEnumerator.MoveNext();
+                        if (hasNext)
+                            current = currentEnumerator.Current;
+                    }
+                    catch (Exception exception)
+                    {
+                        _fatalStop.FatalStop(exception, "Active skill execution failed.");
+                        throw;
+                    }
+
+                    if (!hasNext)
+                    {
+                        try
+                        {
+                            (currentEnumerator as IDisposable)?.Dispose();
+                        }
+                        catch (Exception exception)
+                        {
+                            _fatalStop.FatalStop(exception, "Active skill enumerator cleanup failed.");
+                            throw;
+                        }
+
+                        stack.Pop();
+                        continue;
+                    }
+
+                    if (current is IEnumerator nested)
+                    {
+                        stack.Push(nested);
+                        continue;
+                    }
+
+                    yield return current;
+                }
+            }
+            finally
+            {
+                while (stack.Count > 0)
+                {
+                    try
+                    {
+                        (stack.Pop() as IDisposable)?.Dispose();
+                    }
+                    catch (Exception cleanupException)
+                    {
+                        Debug.LogException(cleanupException);
+                    }
+                }
+            }
         }
 
         private void ChargeMana(float manaAmount)
@@ -320,7 +433,7 @@ namespace Skill
                 int priorityComparison = right.Skill.Priority.CompareTo(left.Skill.Priority);
                 return priorityComparison != 0
                     ? priorityComparison
-                    : right.OriginalIndex.CompareTo(left.OriginalIndex);
+                    : left.OriginalIndex.CompareTo(right.OriginalIndex);
             });
 
             List<IActiveSkill> sortedSkills = new(indexedSkills.Count);
@@ -332,20 +445,85 @@ namespace Skill
             return sortedSkills;
         }
 
-        public void StopRunner()
+        public void Dispose()
         {
+            if (State == SkillControllerState.Disposed)
+                return;
+
+            State = SkillControllerState.Disposed;
+            Exception firstException = null;
+
             if (_currentSkill != null)
-                _coroutineRunner.StopCoroutine(_currentSkill);
+            {
+                try
+                {
+                    _coroutineRunner.StopCoroutine(_currentSkill);
+                }
+                catch (Exception exception)
+                {
+                    CaptureCleanupException(ref firstException, exception);
+                }
+            }
 
             _currentSkill = null;
             _isUsingSkill = false;
             _activationRolls.Clear();
-            ReleasePassive();
 
-            foreach (var activeSkill in _activeSkills)
+            for (int i = _startedPassiveCount - 1; i >= 0; i--)
             {
-                activeSkill.Dispose();
+                try
+                {
+                    _passiveSkills[i].Release();
+                }
+                catch (Exception exception)
+                {
+                    CaptureCleanupException(ref firstException, exception);
+                }
             }
+
+            _startedPassiveCount = 0;
+
+            for (int i = 0; i < _activeSkills.Count; i++)
+            {
+                try
+                {
+                    _activeSkills[i]?.Dispose();
+                }
+                catch (Exception exception)
+                {
+                    CaptureCleanupException(ref firstException, exception);
+                }
+            }
+
+            if (firstException != null)
+                throw firstException;
+        }
+
+        private void TryDisposeAfterFailure()
+        {
+            try
+            {
+                Dispose();
+            }
+            catch (Exception cleanupException)
+            {
+                Debug.LogException(new InvalidOperationException(
+                    "SkillController cleanup also failed after an earlier error.",
+                    cleanupException));
+            }
+        }
+
+        private static void CaptureCleanupException(
+            ref Exception firstException,
+            Exception exception)
+        {
+            if (firstException == null)
+            {
+                firstException = exception;
+                return;
+            }
+
+            Debug.LogException(exception);
         }
     }
 }

@@ -12,7 +12,6 @@ namespace Skill
         public SkillAnimationData AnimationData { get; }
         public ExecutionData ExecutionData { get; }
         public List<EffectBase> Effects { get; }
-        public int SkillUid { get; }
         public float ChargeTime { get; }
         public IRuntimeEffectLifetime EffectLifetime { get; }
         public IFinder Finder { get; }
@@ -21,7 +20,6 @@ namespace Skill
             Hero hero,
             SkillAnimationData animationData,
             ExecutionData executionData,
-            int skillUid,
             float chargeTime,
             IRuntimeEffectLifetime effectLifetime,
             IFinder finder)
@@ -31,7 +29,6 @@ namespace Skill
             ExecutionData = executionData;
             Effects = executionData.Effects;
             SpriteChanger = hero.GetComponent<ISpriteChanger>();
-            SkillUid = skillUid;
             ChargeTime = chargeTime;
             EffectLifetime = effectLifetime;
             Finder = finder;

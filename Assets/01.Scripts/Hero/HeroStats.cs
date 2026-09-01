@@ -26,7 +26,7 @@ namespace WhatMerge.Heros
         public void Reset()
         {
             foreach (StatValue stat in _stats.Values)
-                stat.SetBaseValue(0f);
+                stat.Reset();
         }
 
         public void AddFixedValue(HeroStatType type, float value)

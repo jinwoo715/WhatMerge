@@ -512,13 +512,6 @@ namespace WhatMerge.Combat.Effects
                 throw new ArgumentNullException(nameof(damageContext));
             if (damageContext.Target == null)
                 throw new InvalidOperationException("Projectile spawn effect requires a target.");
-            if (damageContext.Attacker is not Hero)
-            {
-                throw new InvalidOperationException(
-                    $"Projectile spawn effect requires a {nameof(Hero)} attacker. " +
-                    $"Received: {damageContext.Attacker?.GetType().Name ?? "null"}.");
-            }
-
             return damageContext.WithEffects(spawnItem.Effects);
         }
     }

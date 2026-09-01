@@ -1,6 +1,7 @@
 using Skill.Data;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using WhatMerge.Combat;
 using WhatMerge.Projectiles.Data;
@@ -10,6 +11,7 @@ namespace Skill
 {
     public class RuntimeExecution : IDisposable, IRuntimeEffectLifetime
     {
+        private static long _nextRuntimeEffectInstanceId;
         private sealed class RuntimeEffectLease : IDisposable
         {
             private RuntimeExecution _owner;
@@ -43,6 +45,9 @@ namespace Skill
 
         public RuntimeExecution(ExecutionData originExecutionData)
         {
+            if (originExecutionData == null)
+                throw new ArgumentNullException(nameof(originExecutionData));
+
             _runtimeEffects.Clear();
             _containers.Clear();
             _runtimeObjects.Clear();
@@ -120,6 +125,9 @@ namespace Skill
                     RangeEffect rangeEffect => CreateRangeEffect(rangeEffect),
                     _ => CreateRuntimeObject(origin)
                 };
+
+                runtimeEffect.RuntimeEffectInstanceId = Interlocked.Increment(
+                    ref _nextRuntimeEffectInstanceId);
 
                 _runtimeEffects.Add(origin, runtimeEffect);
                 return runtimeEffect;

@@ -17,7 +17,7 @@ namespace WhatMerge.Projectiles
         }
     }
 
-    public interface IProjectile
+    public interface IProjectile : IDisposable
     {
         event Action<ProjectileImpact> OnExecute;
         event Action OnExpired;

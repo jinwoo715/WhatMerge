@@ -7,6 +7,14 @@ public class GameConfig : ScriptableObject
 {
     public GameEconomyConfig GameEconomy;
     public PlayerInfoConfig PlayerConfig;
+    public HeroProgressionConfig HeroProgression = new HeroProgressionConfig();
+}
+
+[System.Serializable]
+public class HeroProgressionConfig
+{
+    [Min(1)]
+    public int MaxLevel = 150;
 }
 
 [System.Serializable]

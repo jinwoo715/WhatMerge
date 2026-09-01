@@ -11,6 +11,11 @@ namespace WhatMerge.Stats
         public void SetBaseValue(float value)
         {
             _baseValue = value;
+        }
+
+        public void Reset(float baseValue = 0f)
+        {
+            _baseValue = baseValue;
             _fixedValue = 0f;
             _multiplier = 1f;
         }

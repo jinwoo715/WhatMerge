@@ -56,9 +56,38 @@ public class ObjectPool<T> where T : MonoBehaviour, IPooledItem<T>
     {
         if (_itemPool.Contains(item)) return;
 
-        item.OnDespawn();
-        item.gameObject.SetActive(false);
+        Exception firstException = null;
+
+        try
+        {
+            item.OnDespawn();
+        }
+        catch (Exception exception)
+        {
+            firstException = exception;
+        }
+
+        try
+        {
+            item.gameObject.SetActive(false);
+        }
+        catch (Exception exception)
+        {
+            firstException ??= exception;
+        }
+
         _itemPool.Push(item);
-        OnReturnEvent?.Invoke(item);
+
+        try
+        {
+            OnReturnEvent?.Invoke(item);
+        }
+        catch (Exception exception)
+        {
+            firstException ??= exception;
+        }
+
+        if (firstException != null)
+            throw firstException;
     }
 }

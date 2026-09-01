@@ -310,6 +310,12 @@ public class TimeEffectManager : MonoBehaviour, ITimeEffectService
     private readonly HashSet<ICombatant> _trackedTargets = new();
 
     private long _nextToken;
+    private IFatalStopService _fatalStop;
+
+    public void Init(IFatalStopService fatalStop)
+    {
+        _fatalStop = fatalStop ?? throw new ArgumentNullException(nameof(fatalStop));
+    }
 
     public IRuntimeEffectHandle ApplySlow(float slowValue, ICombatant target)
     {
@@ -511,25 +517,47 @@ public class TimeEffectManager : MonoBehaviour, ITimeEffectService
         for (int i = _timedEffects.Count - 1; i >= 0; i--)
         {
             TimedEffectEntry entry = _timedEffects[i];
-            entry.RemainingTime -= deltaTime;
-
-            if (!entry.Handle.IsDisposed
-                && entry.RemainingTime > 0f
-                && entry.Target.IsActive)
+            try
             {
-                continue;
-            }
+                entry.RemainingTime -= deltaTime;
 
-            entry.Handle.Dispose();
-            _timedEffects.RemoveAt(i);
-            UntrackTargetIfUnused(entry.Target);
+                if (!entry.Handle.IsDisposed
+                    && entry.RemainingTime > 0f
+                    && entry.Target.IsActive)
+                {
+                    continue;
+                }
+
+                entry.Handle.Dispose();
+                _timedEffects.RemoveAt(i);
+                UntrackTargetIfUnused(entry.Target);
+            }
+            catch (Exception exception)
+            {
+                _timedEffects.RemoveAt(i);
+
+                try
+                {
+                    entry.Handle.Dispose();
+                    UntrackTargetIfUnused(entry.Target);
+                }
+                catch (Exception cleanupException)
+                {
+                    Debug.LogException(cleanupException);
+                }
+
+                _fatalStop?.FatalStop(exception, "Timed status effect update failed.");
+                throw;
+            }
         }
     }
 
     private void OnDisable()
     {
+        Exception firstException = null;
+
         for (int i = _timedEffects.Count - 1; i >= 0; i--)
-            _timedEffects[i].Handle.Dispose();
+            TryCleanup(_timedEffects[i].Handle.Dispose, ref firstException);
 
         _timedEffects.Clear();
 
@@ -539,25 +567,30 @@ public class TimeEffectManager : MonoBehaviour, ITimeEffectService
         _trackedTargets.Clear();
 
         foreach (StrongestStatGroup group in _slows.Values)
-            group.ReleaseAll();
+            TryCleanup(group.ReleaseAll, ref firstException);
         foreach (StrongestStatGroup group in _armorReductions.Values)
-            group.ReleaseAll();
+            TryCleanup(group.ReleaseAll, ref firstException);
         foreach (StunGroup group in _stuns.Values)
-            group.ReleaseAll();
+            TryCleanup(group.ReleaseAll, ref firstException);
         foreach (ElementGroup group in _elements.Values)
-            group.ReleaseAll();
+            TryCleanup(group.ReleaseAll, ref firstException);
         foreach (DamageTransferGroup group in _damageTransfers.Values)
-            group.ReleaseAll();
+            TryCleanup(group.ReleaseAll, ref firstException);
 
         _slows.Clear();
         _armorReductions.Clear();
         _stuns.Clear();
         _elements.Clear();
         _damageTransfers.Clear();
+
+        if (firstException != null)
+            Debug.LogException(firstException);
     }
 
     private void ReleaseTargetEffects(ICombatant target)
     {
+        Exception firstException = null;
+
         for (int i = _timedEffects.Count - 1; i >= 0; i--)
         {
             TimedEffectEntry entry = _timedEffects[i];
@@ -565,12 +598,18 @@ public class TimeEffectManager : MonoBehaviour, ITimeEffectService
             if (!ReferenceEquals(entry.Target, target))
                 continue;
 
-            entry.Handle.Dispose();
             _timedEffects.RemoveAt(i);
+            TryCleanup(entry.Handle.Dispose, ref firstException);
         }
 
         target.OnActiveOff -= ReleaseTargetEffects;
         _trackedTargets.Remove(target);
+
+        if (firstException != null)
+        {
+            _fatalStop?.FatalStop(firstException, "Timed status target cleanup failed.");
+            throw firstException;
+        }
     }
 
     private void UntrackTargetIfUnused(ICombatant target)
@@ -612,6 +651,21 @@ public class TimeEffectManager : MonoBehaviour, ITimeEffectService
                 parameterName,
                 value,
                 "Effect value must be a finite, non-negative number.");
+        }
+    }
+
+    private static void TryCleanup(Action cleanup, ref Exception firstException)
+    {
+        try
+        {
+            cleanup?.Invoke();
+        }
+        catch (Exception exception)
+        {
+            if (firstException == null)
+                firstException = exception;
+            else
+                Debug.LogException(exception);
         }
     }
 }

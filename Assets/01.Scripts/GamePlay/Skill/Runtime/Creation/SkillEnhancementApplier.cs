@@ -117,7 +117,7 @@ namespace Skill
         }
         public static string GetDataName(SkillBaseData data)
         {
-            return data == null ? "null" : $"{data.name}(UID:{data.UID})";
+            return data == null ? "null" : data.name;
         }
     }
 }

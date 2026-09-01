@@ -20,81 +20,108 @@ namespace Skill
             _runtimeContext = runtimeContext;
         }
 
-        public SkillSet CreateSkill(Hero owner, int level, SkillSetContainer set)
+        public SkillSet CreateSkill(
+            Hero owner,
+            HeroGrade grade,
+            int level,
+            SkillSetContainer set)
         {
-            List<HeroSkillSet> sets = set.GetSets(level);
+            if (owner == null)
+                throw new ArgumentNullException(nameof(owner));
+            if (set == null)
+                throw new ArgumentNullException(nameof(set));
+
+            List<HeroSkillSet> sets = set.GetSets(grade, level);
             ValidateBasicAttack(sets, set.name);
 
-            SkillSet returnSkillSet = new SkillSet();
-
+            SkillSet result = new SkillSet();
             Dictionary<ActiveSkillData, RuntimeExecution> runtimeExecutions = new();
             Dictionary<ActiveSkillData, ActiveSkill> runtimeActiveSkills = new();
+            Queue<EffectValueEnhanceData> statEnhancers = new();
+            Queue<ActivationChanceEnhanceData> activationChanceEnhancers = new();
+            Queue<TriggerRequirementReductionData> triggerRequirementReductions = new();
+            Queue<ExtraEffectData> extraEffects = new();
 
-            Queue<EffectValueEnhanceData> statEnhancerDatas = new Queue<EffectValueEnhanceData>();
-            Queue<ActivationChanceEnhanceData> activationChanceEnhancers = new Queue<ActivationChanceEnhanceData>();
-            Queue<TriggerRequirementReductionData> triggerRequirementReductions = new Queue<TriggerRequirementReductionData>();
-            Queue<ExtraEffectData> extraEffects = new Queue<ExtraEffectData>();
-
-            foreach (var data in sets)
+            try
             {
-                if (data.Skill == null)
+                foreach (HeroSkillSet entry in sets)
                 {
-                    throw new InvalidOperationException(
-                        $"SkillSet '{set.name}' has null or missing skill at level {data.Level}.");
+                    if (entry.Skill == null)
+                    {
+                        throw new InvalidOperationException(
+                            $"SkillSet '{set.name}' has null or missing skill at level {entry.Level}.");
+                    }
+
+                    switch (entry.Skill)
+                    {
+                        case ActiveSkillData activeSkillData:
+                            RuntimeExecution runtimeExecution = new RuntimeExecution(activeSkillData.Execution);
+
+                            try
+                            {
+                                runtimeExecutions.Add(activeSkillData, runtimeExecution);
+                                ActiveSkill activeSkill = CreateActiveSkill(
+                                    activeSkillData,
+                                    owner,
+                                    runtimeExecution);
+                                runtimeActiveSkills.Add(activeSkillData, activeSkill);
+                                result.ActiveSkills.Add(activeSkill);
+                            }
+                            catch
+                            {
+                                TryDispose(runtimeExecution);
+                                throw;
+                            }
+
+                            break;
+
+                        case PassiveSkillData passiveSkillData:
+                            result.PassiveSkills.Add(CreatePassiveSkill(passiveSkillData, owner));
+                            break;
+
+                        case EffectValueEnhanceData effectValueEnhanceData:
+                            statEnhancers.Enqueue(effectValueEnhanceData);
+                            break;
+
+                        case ActivationChanceEnhanceData activationChanceEnhanceData:
+                            activationChanceEnhancers.Enqueue(activationChanceEnhanceData);
+                            break;
+
+                        case TriggerRequirementReductionData triggerRequirementReductionData:
+                            triggerRequirementReductions.Enqueue(triggerRequirementReductionData);
+                            break;
+
+                        case ExtraEffectData extraEffectData:
+                            extraEffects.Enqueue(extraEffectData);
+                            break;
+
+                        default:
+                            throw new InvalidOperationException(
+                                $"Undefined skill data type: {entry.Skill.name}");
+                    }
                 }
 
-                var Skill = data.Skill;
+                SkillEnhancementApplier.ApplyExtraEffect(runtimeExecutions, extraEffects);
+                SkillEnhancementApplier.ApplyStatEnhance(runtimeExecutions, statEnhancers);
+                SkillEnhancementApplier.ApplyActivationChanceEnhance(
+                    runtimeActiveSkills,
+                    activationChanceEnhancers);
+                SkillEnhancementApplier.ApplyTriggerRequirementReduction(
+                    runtimeActiveSkills,
+                    triggerRequirementReductions);
 
-                switch (Skill)
-                {
-                    case ActiveSkillData activeSkill:
-
-                        RuntimeExecution runtimeSkillEffect = new RuntimeExecution(activeSkill.Execution);
-    
-                        runtimeExecutions.Add(activeSkill, runtimeSkillEffect);
-
-                        ActiveSkill skill = CreateActiveSkill(activeSkill, owner, runtimeSkillEffect);
-                        runtimeActiveSkills.Add(activeSkill, skill);
-                        returnSkillSet.ActiveSkills.Add(skill);
-
-                        break;
-                    case PassiveSkillData passiveSkill:
-
-                        PassiveSkill passive = CreatePassiveSkill(passiveSkill, owner);
-                        passive.SetUID(passiveSkill.UID);
-
-                        returnSkillSet.PassiveSkills.Add(passive);
-
-                        break;
-                    case EffectValueEnhanceData enhanceValueData:
-                        statEnhancerDatas.Enqueue(enhanceValueData);
-                        break;
-
-                    case ActivationChanceEnhanceData activationChanceEnhanceData:
-                        activationChanceEnhancers.Enqueue(activationChanceEnhanceData);
-                        break;
-
-                    case TriggerRequirementReductionData triggerRequirementReductionData:
-                        triggerRequirementReductions.Enqueue(triggerRequirementReductionData);
-                        break;
-
-                    case ExtraEffectData extraEffectData:
-                        extraEffects.Enqueue(extraEffectData);
-                        break;
-
-                    default:
-                        throw new InvalidOperationException($"Not Definition Skill Type : {Skill.name}");
-                }
+                return result;
             }
+            catch
+            {
+                for (int i = 0; i < result.ActiveSkills.Count; i++)
+                    TryDispose(result.ActiveSkills[i]);
 
-            //스킬 추가에 대한 처리가 가장먼저 되어야 함
+                foreach (RuntimeExecution runtimeExecution in runtimeExecutions.Values)
+                    TryDispose(runtimeExecution);
 
-            SkillEnhancementApplier.ApplyExtraEffect(runtimeExecutions, extraEffects);
-            SkillEnhancementApplier.ApplyStatEnhance(runtimeExecutions, statEnhancerDatas);
-            SkillEnhancementApplier.ApplyActivationChanceEnhance(runtimeActiveSkills, activationChanceEnhancers);
-            SkillEnhancementApplier.ApplyTriggerRequirementReduction(runtimeActiveSkills, triggerRequirementReductions);
-
-            return returnSkillSet;
+                throw;
+            }
         }
         public ActiveSkill CreateActiveSkill(ActiveSkillData skillSO, Hero owner, RuntimeExecution runtimeExecution)
         {
@@ -105,7 +132,6 @@ namespace Skill
                 owner,
                 skillSO.AnimationData,
                 runtimeExecution.RuntimeExecutionData,
-                skillSO.UID,
                 skillSO.ChargeTime,
                 runtimeExecution,
                 target);
@@ -113,7 +139,6 @@ namespace Skill
             IExecute execution = ExecutionFactory.CreateExecution(executionContext, _runtimeContext);
 
             ActiveSkill activeSkill = new ActiveSkill(
-                skillSO.UID,
                 owner,
                 trigger,
                 target,
@@ -151,6 +176,13 @@ namespace Skill
                         $"Basic attack '{activeSkill.name}' must use a NoneTrigger.");
                 }
 
+                if (sets[i].Level != 0
+                    || !Mathf.Approximately(activeSkill.ActivationChance, 1f))
+                {
+                    throw new InvalidOperationException(
+                        $"Basic attack '{activeSkill.name}' must be Level 0 with activation chance 1.");
+                }
+
                 basicAttack = activeSkill;
             }
 
@@ -158,6 +190,25 @@ namespace Skill
             {
                 throw new InvalidOperationException(
                     $"Skill set '{setName}' has no basic attack.");
+            }
+
+            for (int i = 0; i < sets.Count; i++)
+            {
+                HeroSkillSet entry = sets[i];
+
+                if (entry.Level == 0 && !ReferenceEquals(entry.Skill, basicAttack))
+                {
+                    throw new InvalidOperationException(
+                        $"Skill set '{setName}' has a non-basic entry at Level 0.");
+                }
+
+                if (entry.Skill is ActiveSkillData activeSkill
+                    && !ReferenceEquals(activeSkill, basicAttack)
+                    && activeSkill.Priority <= 0)
+                {
+                    throw new InvalidOperationException(
+                        $"Active skill '{activeSkill.name}' must have priority greater than zero.");
+                }
             }
         }
 
@@ -177,6 +228,18 @@ namespace Skill
                 AllHeroTargetData => new AllHeroBuffPassive(_runtimeContext.FieldHero, owner, effects),
                 _ => throw new InvalidOperationException($"Not Passive Target Exception {passiveSkillSO.Target}")
             };
+        }
+
+        private static void TryDispose(IDisposable disposable)
+        {
+            try
+            {
+                disposable?.Dispose();
+            }
+            catch (Exception cleanupException)
+            {
+                Debug.LogException(cleanupException);
+            }
         }
     }
 }

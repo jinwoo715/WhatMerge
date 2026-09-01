@@ -2,12 +2,7 @@ using System.Collections;
 
 namespace Skill
 {
-    public interface ISkill
-    {
-        int SkillUID { get; }
-    }
-
-    public interface IActiveSkill : ISkill
+    public interface IActiveSkill : System.IDisposable
     {
         public ITrigger Trigger { get; }
         public IFinder Target { get; }
@@ -19,9 +14,8 @@ namespace Skill
         bool IsUsable(SkillTriggerContext context);
         bool RollActivation();
         IEnumerator Execute(float animationTimeScale);
-        void Dispose();
     }
-    public interface IPassiveSkill : ISkill
+    public interface IPassiveSkill
     {
         void Apply();
         void Release();

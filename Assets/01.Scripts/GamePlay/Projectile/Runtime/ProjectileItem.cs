@@ -21,6 +21,7 @@ namespace WhatMerge.Projectiles
 
         private DamageContext _damageContext;
         private IDisposable _effectLifetimeLease;
+        private IFatalStopService _fatalStop;
         private bool _isReturning;
 
         public bool IsActive { get; private set; }
@@ -28,7 +29,8 @@ namespace WhatMerge.Projectiles
 
         public void Init(DamageContext damageContext, IProjectile stretagy, ProjectileDataBase soData, Sprite sprite,
             ICombatService combatService,
-            IDisposable effectLifetimeLease)
+            IDisposable effectLifetimeLease,
+            IFatalStopService fatalStop)
         {
             if (_effectLifetimeLease != null)
                 throw new InvalidOperationException("Projectile effect lifetime is already assigned.");
@@ -39,6 +41,7 @@ namespace WhatMerge.Projectiles
             _renderer.sprite = sprite;
             _soData = soData;
             _effectLifetimeLease = effectLifetimeLease;
+            _fatalStop = fatalStop ?? throw new ArgumentNullException(nameof(fatalStop));
             _currentTime = 0;
             _stretagy.OnExecute += Execute;
             _stretagy.OnExpired += Expired;
@@ -49,15 +52,21 @@ namespace WhatMerge.Projectiles
             if (!IsActive || _stretagy == null)
                 return;
 
-            _currentTime += Time.deltaTime;
-            _stretagy.Tick(Time.deltaTime);
-
-            if (!IsActive || _isReturning || _soData == null)
-                return;
-
-            if (_currentTime >= _soData.LifeTime)
+            try
             {
-                Expired();
+                _currentTime += Time.deltaTime;
+                _stretagy.Tick(Time.deltaTime);
+
+                if (!IsActive || _isReturning || _soData == null)
+                    return;
+
+                if (_currentTime >= _soData.LifeTime)
+                    Expired();
+            }
+            catch (Exception exception)
+            {
+                HandleFatal(exception, "Projectile update failed.");
+                throw;
             }
         }
 
@@ -84,18 +93,48 @@ namespace WhatMerge.Projectiles
         {
             IsActive = false;
             _currentTime = 0;
+            CleanupRuntime();
+        }
 
-            if (_stretagy != null)
+        private void CleanupRuntime()
+        {
+            Exception firstException = null;
+            IProjectile strategy = _stretagy;
+            _stretagy = null;
+
+            if (strategy != null)
             {
-                _stretagy.OnExecute -= Execute;
-                _stretagy.OnExpired -= Expired;
-                _stretagy = null;
+                strategy.OnExecute -= Execute;
+                strategy.OnExpired -= Expired;
+
+                try
+                {
+                    strategy.Dispose();
+                }
+                catch (Exception exception)
+                {
+                    firstException = exception;
+                }
             }
 
-            _effectLifetimeLease?.Dispose();
+            try
+            {
+                _effectLifetimeLease?.Dispose();
+            }
+            catch (Exception exception)
+            {
+                firstException ??= exception;
+                if (!ReferenceEquals(firstException, exception))
+                    Debug.LogException(exception);
+            }
+
             _effectLifetimeLease = null;
             _damageContext = null;
             _soData = null;
+            _fatalStop = null;
+
+            if (firstException != null)
+                throw firstException;
         }
         public void OnSpawn()
         {
@@ -109,24 +148,70 @@ namespace WhatMerge.Projectiles
             if (!IsActive || _isReturning || _stretagy == null)
                 return;
 
-            if (collision.TryGetComponent(out ICombatant target)
-                && IsCompatibleTarget(target))
+            try
             {
-                if (target.IsActive)
+                if (collision.TryGetComponent(out ICombatant target)
+                    && IsCompatibleTarget(target)
+                    && target.IsActive)
+                {
                     _stretagy.HitTarget(target);
+                }
+            }
+            catch (Exception exception)
+            {
+                HandleFatal(exception, "Projectile collision failed.");
+                throw;
             }
         }
 
         private bool IsCompatibleTarget(ICombatant target)
         {
-            ICombatant intendedTarget = _damageContext?.Target;
-
-            return intendedTarget switch
+            return _damageContext?.TargetKind switch
             {
-                Hero => target is Hero,
-                Enemy => target is Enemy,
-                _ => ReferenceEquals(target, intendedTarget),
+                CombatantTargetKind.Hero => target is Hero,
+                CombatantTargetKind.Enemy => target is Enemy,
+                CombatantTargetKind.Other => false,
+                _ => false,
             };
+        }
+
+        private void HandleFatal(Exception exception, string context)
+        {
+            IFatalStopService fatalStop = _fatalStop;
+
+            try
+            {
+                if (IsActive && !_isReturning)
+                {
+                    _isReturning = true;
+                    OnReturn?.Invoke(this);
+                }
+                else
+                {
+                    CleanupRuntime();
+                }
+            }
+            catch (Exception cleanupException)
+            {
+                Debug.LogException(cleanupException);
+            }
+
+            fatalStop?.FatalStop(exception, context);
+        }
+
+        private void OnDisable()
+        {
+            if (_stretagy == null && _effectLifetimeLease == null)
+                return;
+
+            try
+            {
+                CleanupRuntime();
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception);
+            }
         }
     }
 }

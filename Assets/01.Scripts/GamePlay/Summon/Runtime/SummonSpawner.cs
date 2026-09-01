@@ -16,12 +16,17 @@ namespace WhatMerge.Summons
 
         private ICombatService _combatService;
         private ISpriteRepository _spriteRepository;
+        private IFatalStopService _fatalStop;
 
-        public void Init(ISpriteRepository spriteRepository, ICombatService combatService)
+        public void Init(
+            ISpriteRepository spriteRepository,
+            ICombatService combatService,
+            IFatalStopService fatalStop)
         {
             _combatService = combatService;
 
             _spriteRepository = spriteRepository;
+            _fatalStop = fatalStop ?? throw new ArgumentNullException(nameof(fatalStop));
             _summonItemPool.OnCreateEvent += (item) => { item.OnReturn += ReturnToPool; }; 
             _summonItemPool.Init(this.transform, _originSummonItem, 5);
         }
@@ -50,22 +55,50 @@ namespace WhatMerge.Summons
 
             Vector3 spawnPosition = GetSpawnPosition(damageContext.ImpactPosition, dataSO.SpawnPosition);
             SummonItem summonObj = _summonItemPool.GetItem(spawnPosition);
-
-            ISummonMoveStrategy move = SummonMoveFactory.GetMoveStrategy(dataSO.Move, summonObj.transform, target, dataSO.DurationTime);
-            ISummonExecutionStrategy execution = SummonExecutionFactory.GetExecutionStrategy(dataSO.Execution, damageContext, _combatService, dataSO.DurationTime);
-            execution.OnExecuteEffect += ProcessSummonExecuteEffect;
-
-            IDisposable effectLifetimeLease = damageContext.RetainEffectLifetime();
+            ISummonMoveStrategy move = null;
+            ISummonExecutionStrategy execution = null;
+            IDisposable effectLifetimeLease = null;
 
             try
             {
+                move = SummonMoveFactory.GetMoveStrategy(
+                    dataSO.Move,
+                    summonObj.transform,
+                    target,
+                    dataSO.DurationTime);
+                execution = SummonExecutionFactory.GetExecutionStrategy(
+                    dataSO.Execution,
+                    damageContext.WithoutTarget(),
+                    _combatService,
+                    dataSO.DurationTime);
+                execution.OnExecuteEffect += ProcessSummonExecuteEffect;
+                effectLifetimeLease = damageContext.RetainEffectLifetime();
+
                 Sprite summonSprite = _spriteRepository.GetSprite(dataSO.SummonSpriteName);
-                summonObj.Init(move, execution, dataSO.DurationTime, effectLifetimeLease, summonSprite);
+                summonObj.Init(
+                    move,
+                    execution,
+                    dataSO.DurationTime,
+                    effectLifetimeLease,
+                    summonSprite,
+                    _fatalStop);
+
+                move = null;
+                execution = null;
                 effectLifetimeLease = null;
             }
-            finally
+            catch (Exception exception)
             {
-                effectLifetimeLease?.Dispose();
+                TryDispose(move);
+
+                if (execution != null)
+                    execution.OnExecuteEffect -= ProcessSummonExecuteEffect;
+                TryDispose(execution);
+                TryDispose(effectLifetimeLease);
+                TryReturnSummon(summonObj);
+
+                _fatalStop.FatalStop(exception, $"Summon spawn failed. Effect:{dataSO.name}.");
+                throw;
             }
         }
 
@@ -108,6 +141,31 @@ namespace WhatMerge.Summons
         private void ProcessSummonExecuteEffect(DamageContext damageContext)
         {
             _combatService.RegisterAttack(damageContext);
+        }
+
+        private void TryReturnSummon(SummonItem item)
+        {
+            try
+            {
+                if (item != null && item.IsActive)
+                    _summonItemPool.ReturnItem(item);
+            }
+            catch (Exception cleanupException)
+            {
+                Debug.LogException(cleanupException);
+            }
+        }
+
+        private static void TryDispose(IDisposable disposable)
+        {
+            try
+            {
+                disposable?.Dispose();
+            }
+            catch (Exception cleanupException)
+            {
+                Debug.LogException(cleanupException);
+            }
         }
     }
     public class SummonExecutionFactory

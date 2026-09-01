@@ -21,13 +21,12 @@ namespace Skill
         public float ActivationChance { get; private set; }
         public int Priority { get; }
 
-        public int SkillUID { get; }
         public int SpawnIndex { get; }
+        private bool _disposed;
 
         public event Action OnDispose;
 
         public ActiveSkill(
-            int uid,
             Hero owner,
             ITrigger trigger,
             IFinder search,
@@ -35,7 +34,6 @@ namespace Skill
             float activationChance,
             int priority)
         {
-            SkillUID = uid;
             _owner = owner;
             Trigger = trigger;
             Target = search;
@@ -84,8 +82,13 @@ namespace Skill
 
         public void Dispose()
         {
+            if (_disposed)
+                return;
+
+            _disposed = true;
             _cachedTargets = Array.Empty<ICombatant>();
             OnDispose?.Invoke();
+            OnDispose = null;
         }
 
         private static float ValidateActivationChance(float value)

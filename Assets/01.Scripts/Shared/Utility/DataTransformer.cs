@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
 using WhatMerge.Enemies;
+using WhatMerge.Heros;
 
 public class DataTransformer : EditorWindow
 {

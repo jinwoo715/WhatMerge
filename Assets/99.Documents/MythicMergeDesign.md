@@ -23,9 +23,9 @@
 
 - 모든 재료 영웅의 `EvolutionLevel`이 동일해야 한다.
 - 결과 신화 영웅은 재료의 `EvolutionLevel`을 그대로 계승한다.
-- 등급별 스킬 재구성은 신화 합성 구현 이후 별도 작업으로 진행한다.
-- 해당 작업 전까지 내부 값은 `EvolutionLevel 0/1/2`를 유지하고 UI에는 `1단계/2단계/3단계`로 표시한다.
-- 이후 등급 시스템이 추가되면 신화 버튼 표기를 B/A/S로 변경한다.
+- 등급별 스킬 재구성은 [HeroGradeSkillSetDesign.md](HeroGradeSkillSetDesign.md)의 확정 설계를 따른다.
+- 내부 값은 계속 `EvolutionLevel 0/1/2`를 사용하고 UI에는 등급과 관계없이 `1단계/2단계/3단계`로 표시한다.
+- 결과 신화 영웅은 자신의 `BaseGrade`, 계승한 `EvolutionLevel`, 저장 `Level`을 기준으로 현재 등급의 스킬 구성을 생성한다.
 
 ## 3. 데이터 구조
 
@@ -79,7 +79,7 @@ Addressables: MythicMergeData
 - 결과와 모든 재료 영웅의 EvolutionLevel 0~2 Idle Sprite 존재
 - 결과와 모든 재료 영웅의 `SkillSetContainer` 등록
 
-등급 시스템 구현 후에는 신화 결과 영웅의 `BaseGrade`가 B인지 추가 검증한다.
+신화 결과 영웅의 `BaseGrade`는 B여야 하며 게임 시작 검증에서 확인한다.
 
 ## 6. 합성 후보 계산
 
@@ -157,7 +157,7 @@ bool TryMergeHeroes(
 
 단순 위치 이동이나 자리 교환에는 발생시키지 않는다.
 
-일반 진화에서는 기존 재료 제거와 `UpgradeEvolution()` 처리가 모두 끝난 후 한 번 발생시킨다. 등급별 스킬 재구성이 추가되면 새 스킬 세팅 완료 후 발생시킨다.
+일반 진화에서는 새 등급의 SkillController 준비, 재료 제거, 기존 컨트롤러 정리, 진화 상태와 기본 스탯 갱신, 새 컨트롤러 활성화가 모두 성공한 뒤 한 번 발생시킨다.
 
 ## 11. 합성 실행 순서
 
@@ -180,7 +180,7 @@ bool TryMergeHeroes(
 
 재료 제거 후 결과 생성에 실패하면 재료만 사라질 수 있으므로 결과 영웅의 정적 구성을 게임 시작 시 검증한다.
 
-`HeroSpawner`는 풀에서 Hero를 꺼낸 이후 초기화 중 예외가 발생하면 해당 Hero를 풀에 다시 반환한 뒤 예외를 전달하도록 보강한다.
+`HeroSpawner`는 풀에서 꺼낸 Hero를 활성 목록에 기록한다. 결과 Hero의 SkillController 생성·활성화 또는 필드 등록 시작 전 타일 점유에서 예외가 발생하면 점유를 해제하고 컨트롤러를 정리한 뒤 Hero를 풀에 반환하고 FatalStop한 후 원래 예외를 전달한다. 필드 등록이 시작된 뒤 실패하면 부분 등록 가능성이 있으므로 롤백하지 않고 FatalStop하며, Scene 종료 시 HeroSpawner 활성 Snapshot을 통해 누락 없이 정리한다.
 
 합성 실행 중 복잡한 롤백 시스템은 추가하지 않는다. HeroData, SpriteAtlas, SkillSet 등록 오류를 시작 단계에서 실패시키는 방식으로 처리한다.
 
@@ -265,8 +265,6 @@ HeroData.SpriteKey
 
 ## 16. Scene 및 부트스트랩 연결
 
-- 기존 `LegendaryMergeController`, `LegendaryMergePresenter`, `LegendaryMergeViewer`를 `MythicMerge*`로 변경한다.
-- `LegendaryButton` UI를 신화 합성 버튼 영역으로 변경한다.
 - Scene에 버튼 슬롯을 총 3개 배치한다.
 - `GameSceneBootStrapper`에 Viewer 참조를 연결한다.
 - DataManager, Repository, Controller, Presenter 순서로 초기화한다.
@@ -330,6 +328,7 @@ HeroData.SpriteKey
 
 - 결과 영웅 이름
 - 결과 영웅의 `HeroSaveData.Level`
+- 선택한 EvolutionLevel로 계산한 결과 영웅의 `CurrentGrade`
 - 선택한 EvolutionLevel의 결과 영웅 이미지
 - `1단계 / 2단계 / 3단계` 선택 버튼
 - 재료 슬롯 최대 4개
@@ -341,7 +340,7 @@ HeroData.SpriteKey
 - 선택한 단계는 별도 표시한다.
 - 해당 단계가 합성 가능하면 단계 버튼에 체크 아이콘을 표시한다.
 - 단계 버튼에는 진행률을 표시하지 않는다.
-- 등급 시스템 구현 후 문구를 B/A/S로 변경한다.
+- 등급 시스템과 무관하게 단계 문구를 유지한다. 현재 등급은 별도 영웅 정보로 표시한다.
 
 재료 슬롯은 Scene에 4개를 고정 배치한다.
 
@@ -485,16 +484,14 @@ HeroData.SpriteKey
 
 데이터와 최종 UI 리소스가 준비되기 전에도 C# 컴파일과 직렬화 참조 검증은 가능하지만, 실제 조합 합성과 최종 화면 표시는 콘텐츠 입력 후 Play Mode에서 확인한다.
 
-## 26. 다음 작업: 등급별 스킬 재구성
+## 26. 등급별 스킬 재구성 연계
 
-신화 합성 구현 이후 다음 작업으로 진행한다.
+상세 규칙과 오류 정책은 [HeroGradeSkillSetDesign.md](HeroGradeSkillSetDesign.md)를 기준으로 한다.
 
-- `HeroGrade`: D, C, B, A, S 정의
-- `HeroData.BaseGrade` 추가
-- `CurrentGrade = BaseGrade + EvolutionLevel` 계산
-- `SkillSetContainer`를 등급별 스킬 목록으로 변경
-- 진화 시 기존 SkillController 정리
-- 현재 영웅 레벨과 새 등급 기준으로 SkillController 전체 재생성
-- 신화 버튼의 단계 표기를 EvolutionLevel에서 B/A/S로 변경
+- `CurrentGrade = BaseGrade + EvolutionLevel`로 계산한다.
+- 신화 합성 결과는 다른 UID의 신규 Hero이므로 재료의 스킬과 런타임 상태를 계승하지 않는다.
+- 결과 Hero는 자신의 저장 `Level`과 현재 등급에 맞는 SkillController를 생성한 뒤 필드에 등록한다.
+- 동일 UID 일반 진화는 새 등급 SkillController를 먼저 준비하고 기존 Hero의 컨트롤러를 교체한다.
+- 신화 조합과 후보 버튼의 단계 표기는 항상 `1단계/2단계/3단계`를 유지한다.
 
-40레벨 D 영웅이 C로 진화하는 경우, 기존 D등급 스킬 구성을 제거하고 C등급 표의 Lv1~Lv40 구성으로 다시 생성한다.
+예를 들어 40레벨 D 영웅이 C로 진화하면 기존 D등급 스킬 구성을 제거하고 C등급 표의 Lv1~Lv40 구성으로 다시 생성한다.

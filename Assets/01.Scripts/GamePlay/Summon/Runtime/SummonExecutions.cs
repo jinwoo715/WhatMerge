@@ -2,17 +2,18 @@ using System;
 using System.Collections.Generic;
 using WhatMerge.Combat;
 using WhatMerge.Combat.Effects;
+using UnityEngine;
 
 namespace WhatMerge.Summons
 {
-    public interface ISummonExecutionStrategy
+    public interface ISummonExecutionStrategy : IDisposable
     {
         event Action<DamageContext> OnExecuteEffect;
         void OnEnter(ICombatant combatant);
         void OnExpire();
         void OnTick(float tick);
         void OnExit(ICombatant combatant);
-        public void Dispose();
+        void SetSourcePosition(Vector3 position);
     }
 
     public abstract class SummonExecution : ISummonExecutionStrategy
@@ -24,12 +25,17 @@ namespace WhatMerge.Summons
         public virtual void OnExit(ICombatant combatant) { }
         public virtual void OnExpire() { }
         public virtual void OnTick(float tick) { }
+        public void SetSourcePosition(Vector3 position)
+        {
+            if (_damageContext != null)
+                _damageContext = _damageContext.WithSourcePosition(position);
+        }
         public void ExecuteEffect(DamageContext damageContext)
         {
             OnExecuteEffect?.Invoke(damageContext);
         }
 
-        public virtual void Dispose() { }
+        public virtual void Dispose() { OnExecuteEffect = null; }
     }
 
     public class OnTimeOncewExecution : SummonExecution
@@ -90,6 +96,7 @@ namespace WhatMerge.Summons
                 return;
 
             _isDisposed = true;
+            base.Dispose();
             var targets = new List<ICombatant>(_handles.Keys);
             Exception firstException = null;
 

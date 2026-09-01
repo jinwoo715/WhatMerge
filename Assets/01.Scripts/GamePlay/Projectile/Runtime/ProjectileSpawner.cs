@@ -1,7 +1,6 @@
 using UnityEngine;
 using System;
 using WhatMerge.Combat;
-using WhatMerge.Heros;
 using WhatMerge.Infrastructure;
 using WhatMerge.Projectiles.Data;
 
@@ -19,11 +18,16 @@ namespace WhatMerge.Projectiles
         private ISpriteRepository _spriteRepository;
         private ObjectPool<ProjectileItem> _projectileItemPool = new ObjectPool<ProjectileItem>();
         private ICombatService _combatService;
+        private IFatalStopService _fatalStop;
 
-        public void Init(ISpriteRepository spriteRepository, ICombatService combatService)
+        public void Init(
+            ISpriteRepository spriteRepository,
+            ICombatService combatService,
+            IFatalStopService fatalStop)
         {
             _spriteRepository = spriteRepository;
             _combatService = combatService;
+            _fatalStop = fatalStop ?? throw new ArgumentNullException(nameof(fatalStop));
 
             _projectileItemPool.OnCreateEvent += (item) => { item.OnReturn += ReturnToPool; };
             _projectileItemPool.Init(this.transform, _itemPrefab, 10);
@@ -39,33 +43,41 @@ namespace WhatMerge.Projectiles
             if (!context.Target.IsActive)
                 return;
 
-            if (context.Attacker is not Hero attacker)
-            {
-                throw new InvalidOperationException(
-                    $"Projectile requires a {nameof(Hero)} attacker. " +
-                    $"Received: {context.Attacker?.GetType().Name ?? "null"}.");
-            }
-
             ValidatePositiveFinite(data.Speed, nameof(data.Speed), data.name);
             ValidatePositiveFinite(data.LifeTime, nameof(data.LifeTime), data.name);
             ValidateFinite(data.RotationOffset, nameof(data.RotationOffset), data.name);
 
-            ProjectileItem obj = _projectileItemPool.GetItem(attacker.Position);
-
-            var move = GetMoveStretagy(data, obj.transform, context.Target);
-
-            var projectileSprite = GetProjectileSprite(data.Sprite, attacker.EvolutionLevel);
-
-            IDisposable effectLifetimeLease = context.RetainEffectLifetime();
+            ProjectileItem obj = _projectileItemPool.GetItem(context.SourcePosition);
+            IProjectile move = null;
+            IDisposable effectLifetimeLease = null;
 
             try
             {
-                obj.Init(context, move, data, projectileSprite, _combatService, effectLifetimeLease);
+                move = GetMoveStretagy(data, obj.transform, context.Target);
+                Sprite projectileSprite = GetProjectileSprite(
+                    data.Sprite,
+                    context.SourceEvolutionLevel);
+                effectLifetimeLease = context.RetainEffectLifetime();
+
+                obj.Init(
+                    context.WithoutTarget(),
+                    move,
+                    data,
+                    projectileSprite,
+                    _combatService,
+                    effectLifetimeLease,
+                    _fatalStop);
+
+                move = null;
                 effectLifetimeLease = null;
             }
-            finally
+            catch (Exception exception)
             {
-                effectLifetimeLease?.Dispose();
+                TryDispose(move);
+                TryDispose(effectLifetimeLease);
+                TryReturnProjectile(obj);
+                _fatalStop.FatalStop(exception, $"Projectile spawn failed. Data:{data.name}.");
+                throw;
             }
         }
         public IProjectile GetMoveStretagy(ProjectileDataBase data, Transform item, ICombatant target)
@@ -114,6 +126,31 @@ namespace WhatMerge.Projectiles
         private void ReturnToPool(ProjectileItem returnItem)
         {
             _projectileItemPool.ReturnItem(returnItem);
+        }
+
+        private void TryReturnProjectile(ProjectileItem item)
+        {
+            try
+            {
+                if (item != null && item.IsActive)
+                    _projectileItemPool.ReturnItem(item);
+            }
+            catch (Exception cleanupException)
+            {
+                Debug.LogException(cleanupException);
+            }
+        }
+
+        private static void TryDispose(IDisposable disposable)
+        {
+            try
+            {
+                disposable?.Dispose();
+            }
+            catch (Exception cleanupException)
+            {
+                Debug.LogException(cleanupException);
+            }
         }
     }
 }

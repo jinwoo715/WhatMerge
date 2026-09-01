@@ -12,9 +12,10 @@ using Heros;
 //공격력 정보
 //스킬 정보
 
-public class HeroSpawner : MonoBehaviour, IHeroSummonService
+public class HeroSpawner : MonoBehaviour, IHeroSummonService, IHeroSkillConfigurator
 {
-    private Dictionary<int, SkillSetContainer> dictionary = new Dictionary<int, SkillSetContainer>();
+    private readonly Dictionary<int, SkillSetContainer> _skillSets = new();
+    private readonly HashSet<Hero> _activeHeroes = new();
 
     public SkillFactory factory;
 
@@ -24,29 +25,50 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
     IFieldTileService _heroMapService;
     IResourcesReader _spriteAtlasRepository;
     IHeroInfoRepository _heroDataRepo;
+    private IFatalStopService _fatalStop;
+    private int _maxHeroLevel;
 
     private HeroDeck _heroDeck;
 
     public event Action<Tile, Hero> OnSpawndRanHero;
 
     public int SpawnedCount => _spawnedCount;
+    public IReadOnlyCollection<Hero> ActiveHeroes => _activeHeroes;
 
     private int _spawnIndex = 0;
     private int _spawnedCount = 0;
 
-    public void Init(IFieldTileService heroMapService, IResourcesReader spriteAtlasRepository, IHeroInfoRepository heroDataRepo, HeroDeck deck)
+    public void Init(
+        IFieldTileService heroMapService,
+        IResourcesReader spriteAtlasRepository,
+        IHeroInfoRepository heroDataRepo,
+        HeroDeck deck,
+        int maxHeroLevel,
+        IFatalStopService fatalStop)
     {
         _heroMapService = heroMapService;
         _spriteAtlasRepository = spriteAtlasRepository;
         _heroDataRepo = heroDataRepo;
         _heroDeck = deck;
+        _maxHeroLevel = maxHeroLevel > 0
+            ? maxHeroLevel
+            : throw new ArgumentOutOfRangeException(nameof(maxHeroLevel));
+        _fatalStop = fatalStop ?? throw new ArgumentNullException(nameof(fatalStop));
+
+        RegisterSkillSets();
+        _spawnIndex = 0;
+        _spawnedCount = 0;
+        _activeHeroes.Clear();
+        _heroPool.Init(this.transform, _heroPrefab, 10);
+    }
+
+    public void RegisterSkillSets()
+    {
 
         if (sets == null)
             throw new InvalidOperationException("HeroSpawner skill sets are not assigned.");
 
-        dictionary.Clear();
-        _spawnIndex = 0;
-        _spawnedCount = 0;
+        _skillSets.Clear();
 
         for (int i = 0; i < sets.Count; i++)
         {
@@ -55,13 +77,13 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
             if (set == null)
                 throw new InvalidOperationException($"HeroSpawner skill set at index {i} is null or missing.");
 
-            if (dictionary.ContainsKey(set.UID))
+            if (_skillSets.ContainsKey(set.UID))
                 throw new InvalidOperationException($"Duplicate skill set UID: {set.UID}.");
 
-            dictionary.Add(set.UID, set);
+            HeroData heroData = GetRequiredHeroData(set.UID);
+            SkillSetValidator.ValidateOrThrow(set, heroData, _maxHeroLevel);
+            _skillSets.Add(set.UID, set);
         }
-
-        _heroPool.Init(this.transform, _heroPrefab, 10);
     }
 
     [Header("Mock")]
@@ -72,6 +94,9 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
 
     public bool TrySpawnRandomHero()
     {
+        if (_fatalStop.IsFatalStopped)
+            return false;
+
         int heroUid = 0;
 
         if (IsSelectHeroSpawn)
@@ -93,16 +118,12 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
 
     public bool SpawnHero(int uid, int evolution)
     {
+        if (_fatalStop.IsFatalStopped)
+            return false;
+
         if (_heroMapService.TryGetNextFieldTile(out Tile tile))
         {
-            Vector3 pos = _heroMapService.GetTileWorldPosition(tile);
-            Hero hero = SpawnHero(uid, evolution, tile, pos);
-            hero.SetTile(tile, pos);
-
-            _heroMapService.OccupyFieldTile(tile);
-
-            OnSpawndRanHero?.Invoke(tile, hero);
-
+            SpawnHeroAtTile(uid, evolution, tile);
             return true;
         }
         return false;
@@ -113,26 +134,88 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
         return SpawnHero(uid, evolutionLevel);
     }
 
-    public void SpawnHeroAtTile(int uid, int evolutionLevel, Tile tile)
+    public bool CanSpawnHero(int uid)
     {
-        Vector3 pos = _heroMapService.GetTileWorldPosition(tile);
-        Hero hero = SpawnHero(uid, evolutionLevel, tile, pos);
-
-        _heroMapService.OccupyFieldTile(tile);
-
-        OnSpawndRanHero?.Invoke(tile, hero);
+        return !_fatalStop.IsFatalStopped
+            && _heroDataRepo.TryGetHeroSaveData(uid, out _);
     }
 
-    public Hero SpawnHero(int heroUid, int evolutionLevel, Tile tile, Vector3 spawnPos)
+    public void SpawnHeroAtTile(int uid, int evolutionLevel, Tile tile)
+    {
+        if (_fatalStop.IsFatalStopped)
+            return;
+        if (tile == null)
+            throw new ArgumentNullException(nameof(tile));
+
+        Vector3 pos = _heroMapService.GetTileWorldPosition(tile);
+        Hero hero = null;
+        bool tileOccupied = false;
+        bool fieldRegistrationStarted = false;
+
+        try
+        {
+            hero = CreateHero(uid, evolutionLevel, tile, pos);
+            _heroMapService.OccupyFieldTile(tile);
+            tileOccupied = true;
+
+            fieldRegistrationStarted = true;
+            OnSpawndRanHero?.Invoke(tile, hero);
+        }
+        catch (Exception exception)
+        {
+            if (!fieldRegistrationStarted)
+            {
+                try
+                {
+                    if (tileOccupied)
+                        _heroMapService.FreeFieldTile(tile);
+                }
+                catch (Exception cleanupException)
+                {
+                    Debug.LogException(cleanupException);
+                }
+
+                if (hero != null && _activeHeroes.Contains(hero))
+                {
+                    try
+                    {
+                        ReturnHero(hero);
+                    }
+                    catch (Exception cleanupException)
+                    {
+                        Debug.LogException(cleanupException);
+                    }
+                }
+            }
+
+            _fatalStop.FatalStop(
+                exception,
+                $"Hero spawn failed. UID:{uid}, Evolution:{evolutionLevel}.");
+            throw;
+        }
+    }
+
+    private Hero CreateHero(int heroUid, int evolutionLevel, Tile tile, Vector3 spawnPos)
     {
         Hero hero = _heroPool.GetItem(spawnPos);
+        _activeHeroes.Add(hero);
 
         try
         {
             hero.SetTile(tile, spawnPos);
 
-            HeroSaveData saveData = GameManager.Data.GetSaveHeroData(heroUid);
+            if (!_heroDataRepo.TryGetHeroSaveData(heroUid, out HeroSaveData saveData))
+            {
+                throw new InvalidOperationException(
+                    $"Hero save data does not exist. Hero UID: {heroUid}.");
+            }
+
             int heroLevel = IsSelectHeroSpawn ? HeroLevel : saveData.Level;
+            if (heroLevel < 1 || heroLevel > _maxHeroLevel)
+            {
+                throw new InvalidOperationException(
+                    $"Hero UID {heroUid} level {heroLevel} is outside 1-{_maxHeroLevel}.");
+            }
 
             HeroData data = GetRequiredHeroData(heroUid);
             SpriteAtlas heroAtlas = GetRequiredHeroAtlas(data);
@@ -140,22 +223,72 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
             hero.SpriteChanger.Init(heroAtlas, data.SpriteKey);
             hero.SetData(data, heroLevel, evolutionLevel, _spawnIndex++);
 
-            if (!dictionary.TryGetValue(hero.UID, out SkillSetContainer skillSetContainer))
-                throw new InvalidOperationException($"Skill set for hero UID {hero.UID} is not registered.");
-
-            var skillSet = factory.CreateSkill(hero, heroLevel, skillSetContainer);
-            SkillController controller = new SkillController(
-                skillSet.ActiveSkills,
-                skillSet.PassiveSkills,
-                hero,
-                StatCalculator.AS(data.AttackSpeed));
-
-            hero.SetSkill(controller);
+            SkillController controller = CreateSkillController(hero, hero.CurrentGrade);
+            hero.AttachSkillController(controller);
             return hero;
         }
         catch
         {
-            _heroPool.ReturnItem(hero);
+            try
+            {
+                ReturnHero(hero);
+            }
+            catch (Exception cleanupException)
+            {
+                Debug.LogException(cleanupException);
+            }
+
+            throw;
+        }
+    }
+
+    public SkillController CreateSkillController(Hero hero, HeroGrade targetGrade)
+    {
+        if (hero == null)
+            throw new ArgumentNullException(nameof(hero));
+        if (!_skillSets.TryGetValue(hero.UID, out SkillSetContainer skillSetContainer))
+            throw new InvalidOperationException($"Skill set for hero UID {hero.UID} is not registered.");
+
+        try
+        {
+            SkillSet skillSet = factory.CreateSkill(
+                hero,
+                targetGrade,
+                hero.Level,
+                skillSetContainer);
+
+            try
+            {
+                return new SkillController(
+                    skillSet.ActiveSkills,
+                    skillSet.PassiveSkills,
+                    hero,
+                    StatCalculator.AS(GetRequiredHeroData(hero.UID).AttackSpeed),
+                    _fatalStop);
+            }
+            catch
+            {
+                for (int i = 0; i < skillSet.ActiveSkills.Count; i++)
+                {
+                    try
+                    {
+                        skillSet.ActiveSkills[i]?.Dispose();
+                    }
+                    catch (Exception cleanupException)
+                    {
+                        Debug.LogException(cleanupException);
+                    }
+                }
+
+                throw;
+            }
+        }
+        catch (Exception exception)
+        {
+            exception.Data["HeroUID"] = hero.UID;
+            exception.Data["Grade"] = targetGrade;
+            exception.Data["Level"] = hero.Level;
+            exception.Data["SkillSet"] = skillSetContainer.name;
             throw;
         }
     }
@@ -165,7 +298,7 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
         HeroData data = GetRequiredHeroData(heroUid);
         SpriteAtlas atlas = GetRequiredHeroAtlas(data);
 
-        if (!dictionary.ContainsKey(heroUid))
+        if (!_skillSets.ContainsKey(heroUid))
             throw new InvalidOperationException($"Skill set for hero UID {heroUid} is not registered.");
 
         for (int evolutionLevel = 0; evolutionLevel <= 2; evolutionLevel++)
@@ -193,6 +326,9 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService
 
     public void ReturnHero(Hero hero)
     {
+        if (hero == null || !_activeHeroes.Remove(hero))
+            return;
+
         _heroPool.ReturnItem(hero);
     }
 }

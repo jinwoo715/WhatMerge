@@ -1,4 +1,4 @@
-namespace Heros
+namespace WhatMerge.Heros
 {
     public interface IHeroInfoRepository
     {

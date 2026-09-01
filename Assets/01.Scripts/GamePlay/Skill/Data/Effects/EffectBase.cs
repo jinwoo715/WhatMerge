@@ -8,6 +8,7 @@ namespace Skill.Data
         private static readonly EffectStatDefinition[] EmptyEnhanceableStats = { };
 
         public static readonly string ChanceKey = "Chance";
+        public long RuntimeEffectInstanceId { get; internal set; }
 
 
         [Range(0, 1)]

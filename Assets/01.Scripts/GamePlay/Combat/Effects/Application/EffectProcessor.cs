@@ -228,10 +228,13 @@ namespace WhatMerge.Combat.Effects
         }
         private void ShowEffectVFX(EffectBase effect, DamageContext damageContext)
         {
-            if (effect.VFX == null || damageContext.Attacker == null)
+            if (effect.VFX == null)
                 return;
 
-            _vfx.ShowVFX(effect.VFX, damageContext.ImpactPosition, damageContext.Attacker.Position);
+            _vfx.ShowVFX(
+                effect.VFX,
+                damageContext.ImpactPosition,
+                damageContext.SourcePosition);
         }
 
         private static void ValidateTargetRequirement(EffectBase effect, DamageContext damageContext)

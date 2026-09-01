@@ -1,22 +1,36 @@
-[System.Serializable]
-public class HeroData : BaseData
+namespace WhatMerge.Heros
 {
-    public string Name;
-    public string Description;
+    public enum HeroGrade
+    {
+        D = 0,
+        C = 1,
+        B = 2,
+        A = 3,
+        S = 4
+    }
 
-    public string SpriteKey;
+    [System.Serializable]
+    public class HeroData : BaseData
+    {
+        public string Name;
+        public string Description;
 
-    public int BaseATK;
-    public float GrowthRatio;
-    public float TierBonus;
-    public float FirstEvolution;
-    public float SecondEvolution;
+        public HeroGrade BaseGrade;
 
-    public float AttackSpeed;
+        public string SpriteKey;
 
-    public int Penetration;
+        public int BaseATK;
+        public float GrowthRatio;
+        public float TierBonus;
+        public float FirstEvolution;
+        public float SecondEvolution;
 
-    public float CriticalChance;
-    public float CriticalMultiplier;
+        public float AttackSpeed;
+
+        public int Penetration;
+
+        public float CriticalChance;
+        public float CriticalMultiplier;
+    }
+
 }
-

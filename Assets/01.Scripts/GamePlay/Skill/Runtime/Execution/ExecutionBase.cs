@@ -26,7 +26,6 @@ namespace Skill
         private readonly IVFXService _vfxService;
         protected readonly ICombatService _attackRegister;
 
-        private readonly int SkillUid;
         private readonly int OwnerSpawnIndex;
         private readonly IRuntimeEffectLifetime _effectLifetime;
         private Enemy _previousEnemy;
@@ -47,7 +46,6 @@ namespace Skill
             _attackRegister = runtimeContext.Combat;
             _vfxService = runtimeContext.VFX;
 
-            SkillUid = executionContext.SkillUid;
             OwnerSpawnIndex = executionContext.Hero.SpawnIndex;
             _effectLifetime = executionContext.EffectLifetime;
 
@@ -111,11 +109,12 @@ namespace Skill
                 return;
 
             DamageContext context = new DamageContext(
-                _owner.CreateAttackPayload(),
+                new AttackSourceSnapshot(
+                    _owner.CreateAttackPayload(),
+                    OwnerSpawnIndex,
+                    _owner.EvolutionLevel),
+                _owner.Position,
                 target,
-                _owner,
-                SkillUid,
-                OwnerSpawnIndex,
                 effectLifetime: _effectLifetime);
             context.Effects = _effects;
             _attackRegister.RegisterAttack(context);

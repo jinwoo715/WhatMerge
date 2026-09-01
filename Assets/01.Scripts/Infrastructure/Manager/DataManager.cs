@@ -43,18 +43,10 @@ public class DataManager : MonoBehaviour, IEnemyDataRepository, IEnemyRewardRepo
 
     public GameEconomyConfig GameEconomy => _gameConfig.GameEconomy;
     public PlayerInfoConfig PlayerConfig => _gameConfig.PlayerConfig;
+    public HeroProgressionConfig HeroProgression => _gameConfig.HeroProgression;
 
     public List<MergeData> MergeData => _mergeDatas;
     public List<MythicMergeData> MythicMergeData => _mythicMergeDatas;
-
-    internal HeroSaveData GetSaveHeroData(int heroUid)
-    {
-        if (_saveHeroData.TryGetValue(heroUid, out var data))
-        {
-            return data;
-        }
-        else return new HeroSaveData();
-    }
 
     public void Init(IResourcesReader resourcesReader)
     {
@@ -62,8 +54,24 @@ public class DataManager : MonoBehaviour, IEnemyDataRepository, IEnemyRewardRepo
         InitDictionary(_enemyDatas, resourcesReader.GetTextAsset("EnemyData"));
         InitRewardDictionary(resourcesReader.GetTextAsset("EnemyRewardData"));
 
+        if (HeroProgression == null || HeroProgression.MaxLevel < 1)
+            throw new InvalidOperationException("Hero progression MaxLevel must be greater than zero.");
+        if (PlayerConfig?.HaveHeros == null)
+            throw new InvalidOperationException("Player hero save list is null.");
+
         foreach (var item in PlayerConfig.HaveHeros)
         {
+            if (item == null)
+                throw new InvalidOperationException("Player hero save list contains a null entry.");
+            if (item.Level < 1 || item.Level > HeroProgression.MaxLevel)
+            {
+                throw new InvalidOperationException(
+                    $"Hero UID {item.HeroUID} level {item.Level} is outside " +
+                    $"1-{HeroProgression.MaxLevel}.");
+            }
+            if (!_heroDatas.ContainsKey(item.HeroUID))
+                throw new InvalidOperationException($"Hero save UID {item.HeroUID} has no HeroData.");
+
             _saveHeroData.Add(item.HeroUID, item);
         }
 

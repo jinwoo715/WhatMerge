@@ -54,6 +54,13 @@ namespace WhatMerge.Projectiles
             if (!_isPiercing)
                 OnExpired?.Invoke();
         }
+
+        public void Dispose()
+        {
+            _isCompleted = true;
+            OnExecute = null;
+            OnExpired = null;
+        }
     }
 
     public class HomingMove : IProjectile
@@ -61,10 +68,11 @@ namespace WhatMerge.Projectiles
         private const float ArrivalSqrDistance = 0.001f;
 
         private readonly Transform _owner;
-        private readonly ICombatant _target;
+        private ICombatant _target;
         private readonly float _speed;
         private readonly float _rotationOffset;
         private bool _isCompleted;
+        private bool _disposed;
 
         private readonly ProjectileRotate _rotateData;
 
@@ -79,6 +87,8 @@ namespace WhatMerge.Projectiles
             _rotationOffset = data.RotationOffset;
 
             _rotateData = data.RotateData;
+
+            _target.OnActiveOff += OnTargetInactive;
 
             ProjectileRotation.Apply(_owner, target.Position - owner.position, _rotationOffset);
         }
@@ -130,6 +140,7 @@ namespace WhatMerge.Projectiles
                 return;
 
             _isCompleted = true;
+            ReleaseTarget();
             OnExecute?.Invoke(new ProjectileImpact(target, position));
             OnExpired?.Invoke();
         }
@@ -140,6 +151,7 @@ namespace WhatMerge.Projectiles
                 return;
 
             _isCompleted = true;
+            ReleaseTarget();
             OnExpired?.Invoke();
         }
 
@@ -149,6 +161,35 @@ namespace WhatMerge.Projectiles
                 return;
 
             Complete(target, target.Position);
+        }
+
+        public void Dispose()
+        {
+            if (_disposed)
+                return;
+
+            _disposed = true;
+            _isCompleted = true;
+            ReleaseTarget();
+            OnExecute = null;
+            OnExpired = null;
+        }
+
+        private void OnTargetInactive(ICombatant target)
+        {
+            if (!ReferenceEquals(target, _target))
+                return;
+
+            ReleaseTarget();
+            Expire();
+        }
+
+        private void ReleaseTarget()
+        {
+            ICombatant target = _target;
+            _target = null;
+            if (target != null)
+                target.OnActiveOff -= OnTargetInactive;
         }
     }
 
@@ -217,6 +258,14 @@ namespace WhatMerge.Projectiles
         }
 
         public void HitTarget(ICombatant target) { }
+
+        public void Dispose()
+        {
+            _isCompleted = true;
+            OnArrived = null;
+            OnExecute = null;
+            OnExpired = null;
+        }
     }
 
     internal static class ProjectileRotation

@@ -7,7 +7,6 @@ namespace Skill.Data
     public class SkillBaseData : ScriptableObject
     {
         [Header("Info")]
-        public int UID;
         public string Name;
         public string Description;
     }

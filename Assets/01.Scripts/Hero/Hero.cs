@@ -38,6 +38,7 @@ namespace WhatMerge.Heros
         public int EvolutionLevel { get; private set; } = 0;
         public Vector3 Position => this.transform.position;
         public int UID => _heroData.UID;
+        public int Level => _upgradeLevel;
         public ITileReadOnly OccupiedTile { get; private set; }
         public IHeroStatModifier StatModify => _stat;
         public float BasicAttackRange => _skillController?.BasicAttackRange ?? 0f;
@@ -45,8 +46,38 @@ namespace WhatMerge.Heros
         public ISpriteChanger SpriteChanger => _spriteController;
         public IElement Element => _element;
 
+        public HeroGrade CurrentGrade
+        {
+            get
+            {
+                if (_heroData == null)
+                    throw new InvalidOperationException("Inactive hero has no current grade.");
+
+                int gradeValue = (int)_heroData.BaseGrade + EvolutionLevel;
+                if (gradeValue < (int)HeroGrade.D || gradeValue > (int)HeroGrade.S)
+                {
+                    throw new InvalidOperationException(
+                        $"Hero UID {_heroData.UID} has invalid grade value {gradeValue}.");
+                }
+
+                return (HeroGrade)gradeValue;
+            }
+        }
+
         public void SetData(HeroData data, int upgradeLevel, int evolutionLevel, int spawnIndex)
         {
+            if (data == null)
+                throw new ArgumentNullException(nameof(data));
+            if (upgradeLevel < 1)
+                throw new ArgumentOutOfRangeException(nameof(upgradeLevel));
+            if (evolutionLevel < 0 || evolutionLevel > 2)
+                throw new ArgumentOutOfRangeException(nameof(evolutionLevel));
+            if ((int)data.BaseGrade + evolutionLevel > (int)HeroGrade.S)
+            {
+                throw new InvalidOperationException(
+                    $"Hero UID {data.UID} grade exceeds S at evolution {evolutionLevel}.");
+            }
+
             _stat.Reset();
 
             SpawnIndex = spawnIndex;
@@ -71,7 +102,7 @@ namespace WhatMerge.Heros
             }
         }
 
-        public void SetSkill(SkillController skillController)
+        public void AttachSkillController(SkillController skillController)
         {
             if (skillController == null)
                 throw new ArgumentNullException(nameof(skillController));
@@ -79,17 +110,65 @@ namespace WhatMerge.Heros
             if (_skillController != null)
                 throw new InvalidOperationException($"Hero '{name}' already has a skill controller.");
 
-            _skillController = skillController;
-            _stat.OnStatChanged += UpdateAttackSpeed;
-            UpdateAttackSpeed(HeroStatType.AttackPerSecond, _stat.GetStat(HeroStatType.AttackPerSecond));
+            try
+            {
+                _skillController = skillController;
+                _stat.OnStatChanged += UpdateAttackSpeed;
+                UpdateAttackSpeed(
+                    HeroStatType.AttackPerSecond,
+                    _stat.GetStat(HeroStatType.AttackPerSecond));
+                skillController.Activate();
+            }
+            catch
+            {
+                _stat.OnStatChanged -= UpdateAttackSpeed;
+                _skillController = null;
+                TryDisposeController(skillController);
+                throw;
+            }
         }
-        public void UpgradeEvolution()
-        {
-            if (EvolutionLevel >= 2)
-                throw new InvalidOperationException($"InValide Evolution Level {EvolutionLevel}");
 
-            EvolutionLevel++;
-            SetEvolution();
+        public void UpgradeEvolution(SkillController nextController)
+        {
+            if (nextController == null)
+                throw new ArgumentNullException(nameof(nextController));
+            if (_skillController == null)
+                throw new InvalidOperationException($"Hero '{name}' has no current skill controller.");
+            if (EvolutionLevel >= 2)
+                throw new InvalidOperationException($"Invalid evolution level {EvolutionLevel}.");
+
+            HeroGrade expectedGrade = (HeroGrade)((int)CurrentGrade + 1);
+            SkillController previousController = _skillController;
+
+            _stat.OnStatChanged -= UpdateAttackSpeed;
+            _skillController = null;
+
+            try
+            {
+                previousController.Dispose();
+                EvolutionLevel++;
+                SetEvolution();
+
+                _skillController = nextController;
+                _stat.OnStatChanged += UpdateAttackSpeed;
+                UpdateAttackSpeed(
+                    HeroStatType.AttackPerSecond,
+                    _stat.GetStat(HeroStatType.AttackPerSecond));
+                nextController.Activate();
+
+                if (CurrentGrade != expectedGrade)
+                {
+                    throw new InvalidOperationException(
+                        $"Hero UID {UID} evolved to {CurrentGrade}, expected {expectedGrade}.");
+                }
+            }
+            catch
+            {
+                _stat.OnStatChanged -= UpdateAttackSpeed;
+                _skillController = null;
+                TryDisposeController(nextController);
+                throw;
+            }
         }
         private void SetEvolution()
         {
@@ -140,19 +219,46 @@ namespace WhatMerge.Heros
             Deactivate();
         }
 
+        public void DisposeSkillController()
+        {
+            _stat.OnStatChanged -= UpdateAttackSpeed;
+            SkillController controller = _skillController;
+            _skillController = null;
+            controller?.Dispose();
+        }
+
         private bool Deactivate()
         {
-            if (!IsActive)
+            if (!IsActive && _skillController == null)
                 return false;
 
             IsActive = false;
-            _stat.OnStatChanged -= UpdateAttackSpeed;
-            _skillController?.StopRunner();
-            _skillController = null;
-            _element.Clear();
-            OnActiveOff?.Invoke(this);
+            Exception firstException = null;
+
+            try
+            {
+                DisposeSkillController();
+            }
+            catch (Exception exception)
+            {
+                firstException = exception;
+            }
+
+            try
+            {
+                _element.Clear();
+                OnActiveOff?.Invoke(this);
+            }
+            catch (Exception exception)
+            {
+                firstException ??= exception;
+            }
 
             ClearRuntimeState();
+
+            if (firstException != null)
+                throw firstException;
+
             return true;
         }
 
@@ -163,6 +269,33 @@ namespace WhatMerge.Heros
             _upgradeLevel = 1;
             EvolutionLevel = 0;
             SpawnIndex = 0;
+        }
+
+        private void OnDisable()
+        {
+            if (_skillController == null)
+                return;
+
+            try
+            {
+                DisposeSkillController();
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception);
+            }
+        }
+
+        private static void TryDisposeController(SkillController controller)
+        {
+            try
+            {
+                controller?.Dispose();
+            }
+            catch (Exception cleanupException)
+            {
+                Debug.LogException(cleanupException);
+            }
         }
     }
 }

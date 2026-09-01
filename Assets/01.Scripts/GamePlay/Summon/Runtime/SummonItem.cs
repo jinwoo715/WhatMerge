@@ -13,6 +13,8 @@ namespace WhatMerge.Summons
         private ISummonMoveStrategy _move;
         private ISummonExecutionStrategy _execution;
         private IDisposable _effectLifetimeLease;
+        private IFatalStopService _fatalStop;
+        private bool _isReturning;
 
         public bool IsActive { get; private set; }
         public event Action<SummonItem> OnReturn;
@@ -20,7 +22,13 @@ namespace WhatMerge.Summons
         private float _currentTimer;
         private float _duration;
 
-        internal void Init(ISummonMoveStrategy move, ISummonExecutionStrategy execution, float duration, IDisposable effectLifetimeLease, Sprite sprite)
+        internal void Init(
+            ISummonMoveStrategy move,
+            ISummonExecutionStrategy execution,
+            float duration,
+            IDisposable effectLifetimeLease,
+            Sprite sprite,
+            IFatalStopService fatalStop)
         {
             if (_effectLifetimeLease != null)
                 throw new InvalidOperationException("Summon effect lifetime is already assigned.");
@@ -31,6 +39,7 @@ namespace WhatMerge.Summons
             _duration = duration;
             _move = move;
             _effectLifetimeLease = effectLifetimeLease;
+            _fatalStop = fatalStop ?? throw new ArgumentNullException(nameof(fatalStop));
             SetMove(_move);
         }
 
@@ -39,43 +48,116 @@ namespace WhatMerge.Summons
             if (!IsActive)
                 return;
 
-            float deltaTime = Time.deltaTime;
-            _currentTimer += deltaTime;
+            try
+            {
+                float deltaTime = Time.deltaTime;
+                _currentTimer += deltaTime;
 
-            _execution.OnTick(deltaTime);
-            _move?.Tick(deltaTime);
+                _execution.SetSourcePosition(transform.position);
+                _execution.OnTick(deltaTime);
+                _move?.Tick(deltaTime);
 
-            if (!IsActive)
-                return;
+                if (!IsActive || _isReturning)
+                    return;
 
-            if (_currentTimer >= _duration)
-                ExecuteAndExpire();
+                if (_currentTimer >= _duration)
+                    ExecuteAndExpire();
+            }
+            catch (Exception exception)
+            {
+                HandleFatal(exception, "Summon update failed.");
+                throw;
+            }
         }
         private void OnTriggerEnter2D(Collider2D other)
         {
-            if (other.CompareTag("Enemy")) 
+            if (!IsActive || _isReturning || !other.CompareTag("Enemy"))
+                return;
+
+            try
             {
+                _execution.SetSourcePosition(transform.position);
                 _execution.OnEnter(other.GetComponent<IDamageable>());
+            }
+            catch (Exception exception)
+            {
+                HandleFatal(exception, "Summon collision enter failed.");
+                throw;
             }
         }
         private void OnTriggerExit2D(Collider2D other)
         {
-            if (other.CompareTag("Enemy"))
+            if (!IsActive || _isReturning || !other.CompareTag("Enemy"))
+                return;
+
+            try
             {
+                _execution.SetSourcePosition(transform.position);
                 _execution.OnExit(other.GetComponent<IDamageable>());
+            }
+            catch (Exception exception)
+            {
+                HandleFatal(exception, "Summon collision exit failed.");
+                throw;
             }
         }
         public void OnDespawn()
         {
             IsActive = false;
+            _isReturning = true;
+            CleanupRuntime();
+        }
+
+        private void CleanupRuntime()
+        {
+            Exception firstException = null;
             UnbindMoveEvent();
+            ISummonMoveStrategy move = _move;
             _move = null;
-            _effectLifetimeLease?.Dispose();
+
+            try
+            {
+                move?.Dispose();
+            }
+            catch (Exception exception)
+            {
+                firstException = exception;
+            }
+
+            ISummonExecutionStrategy execution = _execution;
+            _execution = null;
+            try
+            {
+                execution?.Dispose();
+            }
+            catch (Exception exception)
+            {
+                firstException ??= exception;
+                if (!ReferenceEquals(firstException, exception))
+                    Debug.LogException(exception);
+            }
+
+            try
+            {
+                _effectLifetimeLease?.Dispose();
+            }
+            catch (Exception exception)
+            {
+                firstException ??= exception;
+                if (!ReferenceEquals(firstException, exception))
+                    Debug.LogException(exception);
+            }
+
             _effectLifetimeLease = null;
+            _fatalStop = null;
+
+            if (firstException != null)
+                throw firstException;
         }
         public void OnSpawn()
         {
             IsActive = true;
+            _isReturning = false;
         }
         private void SetMove(ISummonMoveStrategy move)
         {
@@ -105,13 +187,56 @@ namespace WhatMerge.Summons
         
         private void ExecuteAndExpire()
         {
+            _execution.SetSourcePosition(transform.position);
             _execution.OnExpire();
             Expire();
         }
         private void Expire()
         {
-            _execution.Dispose();
+            if (!IsActive || _isReturning)
+                return;
+
+            _isReturning = true;
             OnReturn?.Invoke(this);
+        }
+
+        private void HandleFatal(Exception exception, string context)
+        {
+            IFatalStopService fatalStop = _fatalStop;
+
+            try
+            {
+                if (IsActive && !_isReturning)
+                {
+                    _isReturning = true;
+                    OnReturn?.Invoke(this);
+                }
+                else
+                {
+                    CleanupRuntime();
+                }
+            }
+            catch (Exception cleanupException)
+            {
+                Debug.LogException(cleanupException);
+            }
+
+            fatalStop?.FatalStop(exception, context);
+        }
+
+        private void OnDisable()
+        {
+            if (_move == null && _execution == null && _effectLifetimeLease == null)
+                return;
+
+            try
+            {
+                CleanupRuntime();
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception);
+            }
         }
     }
 }

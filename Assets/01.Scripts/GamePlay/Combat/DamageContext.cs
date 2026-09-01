@@ -2,6 +2,8 @@ using Skill.Data;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using WhatMerge.Enemies;
+using WhatMerge.Heros;
 
 namespace WhatMerge.Combat
 {
@@ -49,46 +51,45 @@ namespace WhatMerge.Combat
 
     public class DamageContext
     {
-        public IAttacker Attacker;
+        public AttackSourceSnapshot Source { get; }
+        public AttackPayload AttackPayload => Source.AttackPayload;
+        public int OwnerSpawnIndex => Source.OwnerSpawnIndex;
+        public int SourceEvolutionLevel => Source.SourceEvolutionLevel;
+        public Vector3 SourcePosition { get; }
+        public CombatantTargetKind TargetKind { get; }
         public ICombatant Target;
-        public AttackPayload AttackPayload;
         public Vector3 ImpactPosition;
         public List<EffectBase> Effects;
-        public int SkillUid;
-        public int OwnerSpawnIndex;
         public IRuntimeEffectLifetime EffectLifetime { get; }
 
         public DamageContext(
-            AttackPayload attackPayload,
+            AttackSourceSnapshot source,
+            Vector3 sourcePosition,
             ICombatant target,
-            IAttacker attacker,
-            int skillUid,
-            int ownerSpawnIndex,
             List<EffectBase> effects = null,
             Vector3? impactPosition = null,
-            IRuntimeEffectLifetime effectLifetime = null)
+            IRuntimeEffectLifetime effectLifetime = null,
+            CombatantTargetKind? targetKind = null)
         {
-            AttackPayload = attackPayload;
+            Source = source;
+            SourcePosition = sourcePosition;
             Target = target;
-            Attacker = attacker;
+            TargetKind = targetKind ?? GetTargetKind(target);
             Effects = effects ?? new List<EffectBase>();
-            SkillUid = skillUid;
-            OwnerSpawnIndex = ownerSpawnIndex;
             EffectLifetime = effectLifetime;
-            ImpactPosition = impactPosition
-                ?? target?.Position
-                ?? attacker?.Position
-                ?? Vector3.zero;
+            ImpactPosition = impactPosition ?? target?.Position ?? sourcePosition;
         }
 
         public DamageContext(DamageContext context)
         {
-            AttackPayload = context.AttackPayload;
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+
+            Source = context.Source;
+            SourcePosition = context.SourcePosition;
             Target = context.Target;
-            Attacker = context.Attacker;
+            TargetKind = context.TargetKind;
             Effects = context.Effects ?? new List<EffectBase>();
-            SkillUid = context.SkillUid;
-            OwnerSpawnIndex = context.OwnerSpawnIndex;
             EffectLifetime = context.EffectLifetime;
             ImpactPosition = context.ImpactPosition;
         }
@@ -96,44 +97,101 @@ namespace WhatMerge.Combat
         public DamageContext WithTarget(ICombatant target)
         {
             return new DamageContext(
-                AttackPayload,
+                Source,
+                SourcePosition,
                 target,
-                Attacker,
-                SkillUid,
-                OwnerSpawnIndex,
                 Effects,
-                effectLifetime: EffectLifetime);
+                effectLifetime: EffectLifetime,
+                targetKind: TargetKind);
         }
 
         public DamageContext WithImpactPosition(Vector3 impactPosition)
         {
             return new DamageContext(
-                AttackPayload,
+                Source,
+                SourcePosition,
                 null,
-                Attacker,
-                SkillUid,
-                OwnerSpawnIndex,
                 Effects,
                 impactPosition,
-                EffectLifetime);
+                EffectLifetime,
+                TargetKind);
         }
 
         public DamageContext WithEffects(List<EffectBase> effects)
         {
             return new DamageContext(
-                AttackPayload,
+                Source,
+                SourcePosition,
                 Target,
-                Attacker,
-                SkillUid,
-                OwnerSpawnIndex,
                 effects,
                 ImpactPosition,
-                EffectLifetime);
+                EffectLifetime,
+                TargetKind);
+        }
+
+        public DamageContext WithSourcePosition(Vector3 sourcePosition)
+        {
+            return new DamageContext(
+                Source,
+                sourcePosition,
+                Target,
+                Effects,
+                Target == null ? sourcePosition : ImpactPosition,
+                EffectLifetime,
+                TargetKind);
+        }
+
+        public DamageContext WithoutTarget()
+        {
+            return new DamageContext(
+                Source,
+                SourcePosition,
+                null,
+                Effects,
+                ImpactPosition,
+                EffectLifetime,
+                TargetKind);
         }
 
         public IDisposable RetainEffectLifetime()
         {
             return EffectLifetime?.Retain();
         }
+
+        private static CombatantTargetKind GetTargetKind(ICombatant target)
+        {
+            return target switch
+            {
+                null => CombatantTargetKind.None,
+                Hero => CombatantTargetKind.Hero,
+                Enemy => CombatantTargetKind.Enemy,
+                _ => CombatantTargetKind.Other
+            };
+        }
+    }
+
+    public readonly struct AttackSourceSnapshot
+    {
+        public AttackPayload AttackPayload { get; }
+        public int OwnerSpawnIndex { get; }
+        public int SourceEvolutionLevel { get; }
+
+        public AttackSourceSnapshot(
+            AttackPayload attackPayload,
+            int ownerSpawnIndex,
+            int sourceEvolutionLevel)
+        {
+            AttackPayload = attackPayload;
+            OwnerSpawnIndex = ownerSpawnIndex;
+            SourceEvolutionLevel = sourceEvolutionLevel;
+        }
+    }
+
+    public enum CombatantTargetKind
+    {
+        None,
+        Hero,
+        Enemy,
+        Other
     }
 }

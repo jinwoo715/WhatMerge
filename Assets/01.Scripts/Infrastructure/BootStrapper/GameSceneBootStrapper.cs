@@ -5,6 +5,7 @@ using Core.Scene;
 using Skill;
 using UnityEngine.U2D;
 using System.Collections.Generic;
+using System;
 using WhatMerge.Enemies;
 using WhatMerge.Combat;
 using WhatMerge.Combat.Effects;
@@ -93,8 +94,16 @@ namespace Core.BootStrapper
 
         private void Start()
         {
-            Init();
-            Bind();
+            try
+            {
+                Init();
+                Bind();
+            }
+            catch (Exception exception)
+            {
+                _timeController.FatalStop(exception, "Game scene initialization failed.");
+                throw;
+            }
         }
 
         private void Init()
@@ -122,7 +131,8 @@ namespace Core.BootStrapper
                 _combatService,
                 _heroController,
                 _fieldEnemyService,
-                _vfxSpawner);
+                _vfxSpawner,
+                _timeController);
             _skillFactory.Init(_skillRuntimeContext);
             _heroSpawner.factory = _skillFactory;
 
@@ -131,24 +141,26 @@ namespace Core.BootStrapper
 
             #region Hero Init
 
-            _heroController.Init(_heroSpawner, _heroOverlapProcessor, _map, _tileMarkerPresenter, _economy);
-            _heroSpawner.Init(_map, resource, data, deck);
+            _heroController.Init(
+                _heroSpawner,
+                _heroSpawner,
+                _heroOverlapProcessor,
+                _map,
+                _tileMarkerPresenter,
+                _economy,
+                _timeController);
+            _heroSpawner.Init(
+                _map,
+                resource,
+                data,
+                deck,
+                data.HeroProgression.MaxLevel,
+                _timeController);
             _mergeRepository.Init(GameManager.Data.MergeData);
             _heroOverlapProcessor.Init(_mergeRepository);
 
             _mythicMergeRepository.Init(GameManager.Data.MythicMergeData, data);
-            HashSet<int> mythicRecipeHeroUIDs = new HashSet<int>();
-            for (int i = 0; i < _mythicMergeRepository.Recipes.Count; i++)
-            {
-                MythicMergeData recipe = _mythicMergeRepository.Recipes[i];
-                mythicRecipeHeroUIDs.Add(recipe.ResultHeroUID);
-
-                for (int materialIndex = 0; materialIndex < recipe.Materials.Count; materialIndex++)
-                    mythicRecipeHeroUIDs.Add(recipe.Materials[materialIndex].HeroUID);
-            }
-
-            foreach (int heroUID in mythicRecipeHeroUIDs)
-                _heroSpawner.ValidateHeroDefinition(heroUID);
+            ValidateHeroDefinitions(deck, data);
 
             _mythicMergeController.Init(_mythicMergeRepository, _heroController, _heroController, data);
             _mythicMergePresenter.Init(_heroController, _mythicMergeController, _mythicMergeViewer, data, resource);
@@ -219,7 +231,8 @@ namespace Core.BootStrapper
 
             var durationEffectApplier = new DurationEffectApplier(durationEffectHandlers);
 
-            _dotEffectManager.Init(_damageApplier, _damageCalculator);
+            _dotEffectManager.Init(_damageApplier, _damageCalculator, _timeController);
+            _timeEffectManager.Init(_timeController);
             _effectProcessor.Init(
                 _damageCalculator,
                 _vfxSpawner,
@@ -231,13 +244,83 @@ namespace Core.BootStrapper
 
             _rewardSystem.Init(_economy, data);
 
-            _projectileSpawner.Init(_projectileRepository, _combatService);
-            _summonSpawner.Init(_projectileRepository, _combatService);
+            _projectileSpawner.Init(_projectileRepository, _combatService, _timeController);
+            _summonSpawner.Init(_projectileRepository, _combatService, _timeController);
+        }
+
+        private void ValidateHeroDefinitions(HeroDeck deck, DataManager data)
+        {
+            if (deck?.Heros == null)
+                throw new InvalidOperationException("Selected hero deck is null.");
+
+            HashSet<int> referencedHeroUIDs = new HashSet<int>();
+            for (int i = 0; i < deck.Heros.Length; i++)
+            {
+                int heroUID = deck.Heros[i];
+                referencedHeroUIDs.Add(heroUID);
+
+                if (!data.TryGetHeroSaveData(heroUID, out _))
+                    throw new InvalidOperationException($"Deck hero UID {heroUID} has no save data.");
+            }
+
+            for (int i = 0; i < data.MergeData.Count; i++)
+            {
+                MergeData merge = data.MergeData[i]
+                    ?? throw new InvalidOperationException($"Normal merge data at index {i} is null.");
+                referencedHeroUIDs.Add(merge.First);
+                referencedHeroUIDs.Add(merge.Second);
+                referencedHeroUIDs.Add(merge.Result);
+
+                HeroData resultData = data.GetHeroData(merge.Result)
+                    ?? throw new InvalidOperationException(
+                        $"Normal merge result UID {merge.Result} has no HeroData.");
+                if (resultData.BaseGrade != HeroGrade.C)
+                {
+                    throw new InvalidOperationException(
+                        $"Normal merge result UID {merge.Result} must start at C grade.");
+                }
+            }
+
+            for (int i = 0; i < _mythicMergeRepository.Recipes.Count; i++)
+            {
+                MythicMergeData recipe = _mythicMergeRepository.Recipes[i];
+                referencedHeroUIDs.Add(recipe.ResultHeroUID);
+
+                HeroData resultData = data.GetHeroData(recipe.ResultHeroUID)
+                    ?? throw new InvalidOperationException(
+                        $"Mythic result UID {recipe.ResultHeroUID} has no HeroData.");
+                if (resultData.BaseGrade != HeroGrade.B)
+                {
+                    throw new InvalidOperationException(
+                        $"Mythic result UID {recipe.ResultHeroUID} must start at B grade.");
+                }
+
+                for (int materialIndex = 0; materialIndex < recipe.Materials.Count; materialIndex++)
+                    referencedHeroUIDs.Add(recipe.Materials[materialIndex].HeroUID);
+            }
+
+            foreach (int heroUID in referencedHeroUIDs)
+                _heroSpawner.ValidateHeroDefinition(heroUID);
         }
 
         private void OnDestroy()
         {
-            _mythicMergePanelPresenter.Dispose();
+            TrySceneCleanup(_mythicMergePanelPresenter.Dispose);
+            TrySceneCleanup(() => _heroController.CleanupSceneHeroes(_heroSpawner.ActiveHeroes));
+            TrySceneCleanup(_heroController.Dispose);
+            TrySceneCleanup(_timeController.Dispose);
+        }
+
+        private static void TrySceneCleanup(Action cleanup)
+        {
+            try
+            {
+                cleanup?.Invoke();
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception);
+            }
         }
 
         private void Bind()
