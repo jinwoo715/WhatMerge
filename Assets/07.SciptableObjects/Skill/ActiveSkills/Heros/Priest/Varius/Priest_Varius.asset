@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e081a4569ff6834785aa3208bde2218, type: 3}
   m_Name: Priest_Varius
   m_EditorClassIdentifier: 
-  UID: 0
   Name: 
   Description: 
   AnimationData:

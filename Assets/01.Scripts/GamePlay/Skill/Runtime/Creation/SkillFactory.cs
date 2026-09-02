@@ -39,8 +39,10 @@ namespace Skill
             Dictionary<ActiveSkillData, ActiveSkill> runtimeActiveSkills = new();
             Queue<EffectValueEnhanceData> statEnhancers = new();
             Queue<ActivationChanceEnhanceData> activationChanceEnhancers = new();
+            Queue<SequenceCountEnhanceData> sequenceCountEnhancers = new();
             Queue<TriggerRequirementReductionData> triggerRequirementReductions = new();
             Queue<ExtraEffectData> extraEffects = new();
+            List<PassiveGoldSkillData> goldPassiveData = new(3);
 
             try
             {
@@ -75,6 +77,10 @@ namespace Skill
 
                             break;
 
+                        case PassiveGoldSkillData gold:
+                            goldPassiveData.Add(gold);
+                            break;
+
                         case PassiveSkillData passiveSkillData:
                             result.PassiveSkills.Add(CreatePassiveSkill(passiveSkillData, owner));
                             break;
@@ -85,6 +91,10 @@ namespace Skill
 
                         case ActivationChanceEnhanceData activationChanceEnhanceData:
                             activationChanceEnhancers.Enqueue(activationChanceEnhanceData);
+                            break;
+
+                        case SequenceCountEnhanceData sequenceCountEnhanceData:
+                            sequenceCountEnhancers.Enqueue(sequenceCountEnhanceData);
                             break;
 
                         case TriggerRequirementReductionData triggerRequirementReductionData:
@@ -101,14 +111,12 @@ namespace Skill
                     }
                 }
 
+                AddPeriodicGoldPassive(result.PassiveSkills, goldPassiveData);
                 SkillEnhancementApplier.ApplyExtraEffect(runtimeExecutions, extraEffects);
                 SkillEnhancementApplier.ApplyStatEnhance(runtimeExecutions, statEnhancers);
-                SkillEnhancementApplier.ApplyActivationChanceEnhance(
-                    runtimeActiveSkills,
-                    activationChanceEnhancers);
-                SkillEnhancementApplier.ApplyTriggerRequirementReduction(
-                    runtimeActiveSkills,
-                    triggerRequirementReductions);
+                SkillEnhancementApplier.ApplyActivationChanceEnhance(runtimeActiveSkills, activationChanceEnhancers);
+                SkillEnhancementApplier.ApplySequenceCountEnhance(runtimeActiveSkills, sequenceCountEnhancers);
+                SkillEnhancementApplier.ApplyTriggerRequirementReduction(runtimeActiveSkills, triggerRequirementReductions);
 
                 return result;
             }
@@ -214,6 +222,17 @@ namespace Skill
 
         private PassiveSkill CreatePassiveSkill(PassiveSkillData passiveSkillSO, Hero owner)
         {
+            return passiveSkillSO switch
+            {
+                PassiveBuffSkillData buff => CreateBuffPassiveSkill(buff, owner),
+                PassiveDebuffSkillData debuff => CreateDebuffPassiveSkill(debuff, owner),
+                _ => throw new InvalidOperationException(
+                    $"Unsupported passive skill data: {passiveSkillSO.GetType().Name}")
+            };
+        }
+
+        private PassiveSkill CreateBuffPassiveSkill(PassiveBuffSkillData passiveSkillSO, Hero owner)
+        {
             var effects = passiveSkillSO.Effects;
 
             return passiveSkillSO.Target switch
@@ -228,6 +247,89 @@ namespace Skill
                 AllHeroTargetData => new AllHeroBuffPassive(_runtimeContext.FieldHero, owner, effects),
                 _ => throw new InvalidOperationException($"Not Passive Target Exception {passiveSkillSO.Target}")
             };
+        }
+
+        private PassiveSkill CreateDebuffPassiveSkill(PassiveDebuffSkillData passiveSkillSO, Hero owner)
+        {
+            var effects = passiveSkillSO.Effects;
+
+            return passiveSkillSO.Target switch
+            {
+                AllEnemyTargetData => new AllEnemyDebuffPassive(
+                    _runtimeContext.FieldEnemy,
+                    effects,
+                    _runtimeContext.FatalStop,
+                    passiveSkillSO.name),
+                NearEnemyTargetData data => new NearEnemyDebuffPassive(
+                    _runtimeContext.FieldEnemy,
+                    owner,
+                    effects,
+                    data.Radius,
+                    _runtimeContext.FatalStop,
+                    passiveSkillSO.name),
+                _ => throw new InvalidOperationException(
+                    $"Unsupported passive debuff target: {passiveSkillSO.Target?.name ?? "null"}")
+            };
+        }
+
+        private void AddPeriodicGoldPassive(
+            ICollection<IPassiveSkill> passiveSkills,
+            IReadOnlyList<PassiveGoldSkillData> dataList)
+        {
+            if (dataList.Count == 0)
+                return;
+            if (dataList.Count > 3)
+            {
+                throw new InvalidOperationException(
+                    $"A hero grade can contain at most three gold passive entries. Count: {dataList.Count}.");
+            }
+
+            float intervalTime = dataList[0].IntervalTime;
+            int totalGold = 0;
+
+            for (int i = 0; i < dataList.Count; i++)
+            {
+                PassiveGoldSkillData data = dataList[i];
+
+                if (float.IsNaN(data.IntervalTime)
+                    || float.IsInfinity(data.IntervalTime)
+                    || data.IntervalTime <= 0f)
+                {
+                    throw new InvalidOperationException(
+                        $"Gold passive '{data.name}' IntervalTime must be positive and finite. " +
+                        $"Current value: {data.IntervalTime}.");
+                }
+
+                if (!Mathf.Approximately(data.IntervalTime, intervalTime))
+                {
+                    throw new InvalidOperationException(
+                        $"Gold passive entries must use the same IntervalTime. " +
+                        $"Expected: {intervalTime}, '{data.name}': {data.IntervalTime}.");
+                }
+
+                if (data.GoldAmount <= 0)
+                {
+                    throw new InvalidOperationException(
+                        $"Gold passive '{data.name}' GoldAmount must be greater than zero. " +
+                        $"Current value: {data.GoldAmount}.");
+                }
+
+                try
+                {
+                    totalGold = checked(totalGold + data.GoldAmount);
+                }
+                catch (OverflowException exception)
+                {
+                    throw new InvalidOperationException(
+                        "The aggregated gold passive amount exceeds Int32.MaxValue.",
+                        exception);
+                }
+            }
+
+            passiveSkills.Add(new PeriodicGoldPassive(
+                _runtimeContext.Gold,
+                intervalTime,
+                totalGold));
         }
 
         private static void TryDispose(IDisposable disposable)

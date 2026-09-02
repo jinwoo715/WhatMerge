@@ -132,6 +132,7 @@ namespace Core.BootStrapper
                 _heroController,
                 _fieldEnemyService,
                 _vfxSpawner,
+                _economy,
                 _timeController);
             _skillFactory.Init(_skillRuntimeContext);
             _heroSpawner.factory = _skillFactory;

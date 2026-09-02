@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e081a4569ff6834785aa3208bde2218, type: 3}
   m_Name: Dragoon_SpinningSpear
   m_EditorClassIdentifier: 
-  UID: 0
   Name: 
   Description: 
   AnimationData:
@@ -20,6 +19,7 @@ MonoBehaviour:
     ReadyMotionTime: 0.2
     ExecutionMotionTime: 0.2
   ChargeTime: 0
+  ActivationChance: 1
   Priority: 10
   Execution: {fileID: 11400000, guid: 70e511cc254099340be4e4a4980eea54, type: 2}
   Finder: {fileID: 11400000, guid: c6cc22e730c278f46bfd1a665082b0ab, type: 2}

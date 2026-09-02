@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Chance: 1
   VFX: {fileID: 0}
-  DotCount: 7
+  DotCount: 5
   ApplyType: 1
   IgnoreArmor: 1
-  Value: 1.11
+  Value: 1.15

@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Chance: 1
   VFX: {fileID: 0}
-  ManaAmount: 0
+  ManaAmount: 5

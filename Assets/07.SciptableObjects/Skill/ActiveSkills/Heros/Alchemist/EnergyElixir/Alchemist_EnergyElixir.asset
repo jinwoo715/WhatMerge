@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e081a4569ff6834785aa3208bde2218, type: 3}
   m_Name: Alchemist_EnergyElixir
   m_EditorClassIdentifier: 
-  UID: 0
   Name: 
   Description: 
   AnimationData:
@@ -20,6 +19,7 @@ MonoBehaviour:
     ReadyMotionTime: 0.2
     ExecutionMotionTime: 0.2
   ChargeTime: 0
+  ActivationChance: 1
   Priority: 10
   Execution: {fileID: 11400000, guid: ef715cba577dbfe4f84a0cd829ddebb1, type: 2}
   Finder: {fileID: 11400000, guid: 1fe0c493935955d4f82f10cddffe09cf, type: 2}

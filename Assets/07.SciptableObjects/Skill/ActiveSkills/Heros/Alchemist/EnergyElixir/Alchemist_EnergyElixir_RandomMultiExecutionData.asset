@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15b3baed72550cf45826a0e59510fb06, type: 3}
   m_Name: Alchemist_EnergyElixir_RandomMultiExecutionData
   m_EditorClassIdentifier: 
+  ExecutionVFX: {fileID: 0}
   Effects:
   - {fileID: 11400000, guid: 862385e622db94a4293eaa0a9b740129, type: 2}
   MultiCount: 3

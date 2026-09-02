@@ -1,7 +1,14 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Skill.Data
 {
+    public enum TriggerRequirementReductionType
+    {
+        Ratio,
+        Fixed
+    }
+
     [CreateAssetMenu(
         fileName = "TriggerRequirementReduction",
         menuName = "Skill/SkillEnhancer/TriggerRequirementReduction",
@@ -11,9 +18,12 @@ namespace Skill.Data
         [Header("대상 Skill")]
         public ActiveSkillData TargetSkill;
 
-        [Header("요구량 감소 비율")]
-        [Tooltip("0.1은 원본 요구량의 10% 감소를 의미합니다.")]
-        [Range(0f, 1f)]
-        public float ReductionRatio;
+        [Header("요구량 감소")]
+        public TriggerRequirementReductionType ReductionType;
+
+        [FormerlySerializedAs("ReductionRatio")]
+        [Tooltip("Ratio는 0.1을 10%로, Fixed는 입력값을 고정 감소량으로 사용합니다.")]
+        [Min(0f)]
+        public float ReductionValue;
     }
 }

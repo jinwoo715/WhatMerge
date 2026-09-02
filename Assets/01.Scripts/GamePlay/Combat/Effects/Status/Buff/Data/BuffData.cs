@@ -1,5 +1,4 @@
 using WhatMerge.Heros;
-
 namespace WhatMerge.Combat.Effects
 {
     [System.Serializable]

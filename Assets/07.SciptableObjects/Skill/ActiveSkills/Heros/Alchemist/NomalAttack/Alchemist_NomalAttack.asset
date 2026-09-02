@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e081a4569ff6834785aa3208bde2218, type: 3}
   m_Name: Alchemist_NomalAttack
   m_EditorClassIdentifier: 
-  UID: 0
   Name: 
   Description: 
   AnimationData:
@@ -20,6 +19,7 @@ MonoBehaviour:
     ReadyMotionTime: 0.2
     ExecutionMotionTime: 0.2
   ChargeTime: 0
+  ActivationChance: 1
   Priority: 0
   Execution: {fileID: 11400000, guid: 46aa004c7b141764282fbb758d83237d, type: 2}
   Finder: {fileID: 11400000, guid: cb689b03bf24a1949b71951c5018d04e, type: 2}

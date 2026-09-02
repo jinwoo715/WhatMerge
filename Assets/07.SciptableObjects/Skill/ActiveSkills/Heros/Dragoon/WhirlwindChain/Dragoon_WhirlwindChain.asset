@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e081a4569ff6834785aa3208bde2218, type: 3}
   m_Name: Dragoon_WhirlwindChain
   m_EditorClassIdentifier: 
-  UID: 0
   Name: 
   Description: 
   AnimationData:
@@ -20,6 +19,7 @@ MonoBehaviour:
     ReadyMotionTime: 0.4
     ExecutionMotionTime: 0.4
   ChargeTime: 0
+  ActivationChance: 1
   Priority: 20
   Execution: {fileID: 11400000, guid: a0969148409fc9b45b5785dadb257407, type: 2}
   Finder: {fileID: 11400000, guid: 3a9ba509bcad85b4e99483cecef88fed, type: 2}

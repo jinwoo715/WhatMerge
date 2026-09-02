@@ -140,6 +140,9 @@ namespace Skill
 
         private void TickActive(float tickValue)
         {
+            for (int i = 0; i < _startedPassiveCount; i++)
+                _passiveSkills[i].Tick(tickValue);
+
             _elapsedTime += tickValue;
             ChargeMana(tickValue);
 

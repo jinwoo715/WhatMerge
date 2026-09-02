@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e081a4569ff6834785aa3208bde2218, type: 3}
   m_Name: Onmyomancer_TalismanOfMoon
   m_EditorClassIdentifier: 
-  UID: 0
   Name: 
   Description: 
   AnimationData:
@@ -20,6 +19,7 @@ MonoBehaviour:
     ReadyMotionTime: 0.2
     ExecutionMotionTime: 0.2
   ChargeTime: 0
+  ActivationChance: 1
   Priority: 10
   Execution: {fileID: 11400000, guid: e0873622cca6d5044a87149fe646b81a, type: 2}
   Finder: {fileID: 11400000, guid: 18ee4eeac3a52ba4caf3468dc07048bb, type: 2}

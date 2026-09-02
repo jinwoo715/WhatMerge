@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ExecutionVFX: {fileID: 0}
   Effects:
-  - {fileID: 11400000, guid: 08637aec0e185f44b87e6cca48720397, type: 2}
+  - {fileID: 11400000, guid: 79ff307f5f6c8824ab29d205cb28e2ae, type: 2}
   Angle: 60

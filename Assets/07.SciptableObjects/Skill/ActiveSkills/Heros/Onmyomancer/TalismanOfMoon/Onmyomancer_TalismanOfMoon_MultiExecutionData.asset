@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15b3baed72550cf45826a0e59510fb06, type: 3}
   m_Name: Onmyomancer_TalismanOfMoon_MultiExecutionData
   m_EditorClassIdentifier: 
+  ExecutionVFX: {fileID: 0}
   Effects:
   - {fileID: 11400000, guid: 5519d52b7e7d66e4bb7cba3bf7024877, type: 2}
-  MultiCount: 6
+  MultiCount: 3
   IsRandom: 1

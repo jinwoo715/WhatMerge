@@ -15,4 +15,4 @@ MonoBehaviour:
   ExecutionVFX: {fileID: 0}
   Effects:
   - {fileID: 11400000, guid: ba82ded9a42412f459a1b000088f3545, type: 2}
-  SequenceCount: 5
+  SequenceCount: 3

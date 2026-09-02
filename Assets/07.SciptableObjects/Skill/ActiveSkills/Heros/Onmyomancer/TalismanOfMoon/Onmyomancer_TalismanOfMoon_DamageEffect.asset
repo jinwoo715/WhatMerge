@@ -17,3 +17,4 @@ MonoBehaviour:
   DamageRatio: 1.11
   Attribute: 0
   ArmorIgnoreChance: 1
+  ArmorIgnoreRatio: 1

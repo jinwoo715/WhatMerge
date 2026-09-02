@@ -378,11 +378,11 @@ namespace WhatMerge.Combat.Effects
                 damageContext.AttackPayload,
                 damageEffect.DamageRatio,
                 damageEffect.Attribute,
-                RollArmorIgnore(damageEffect));
+                RollArmorIgnoreRatio(damageEffect));
             _damageApplier.TryApply(damageable, appliedDamage);
         }
 
-        private static bool RollArmorIgnore(DamageEffect damageEffect)
+        private static float RollArmorIgnoreRatio(DamageEffect damageEffect)
         {
             float chance = damageEffect.ArmorIgnoreChance;
             if (float.IsNaN(chance)
@@ -395,8 +395,20 @@ namespace WhatMerge.Combat.Effects
                     $"Current value: {chance}.");
             }
 
-            return chance >= 1f
+            float ratio = damageEffect.ArmorIgnoreRatio;
+            if (float.IsNaN(ratio)
+                || float.IsInfinity(ratio)
+                || ratio < 0f
+                || ratio > 1f)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(DamageEffect)} '{damageEffect.name}' armor ignore ratio must be between 0 and 1. " +
+                    $"Current value: {ratio}.");
+            }
+
+            bool activated = chance >= 1f
                 || chance > 0f && UnityEngine.Random.value < chance;
+            return activated ? ratio : 0f;
         }
 
     }

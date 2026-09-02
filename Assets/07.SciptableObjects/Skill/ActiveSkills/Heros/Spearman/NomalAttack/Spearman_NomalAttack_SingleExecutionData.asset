@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6f02a6d83a120d4fb18b17555cdc8e1, type: 3}
   m_Name: Spearman_NomalAttack_SingleExecutionData
   m_EditorClassIdentifier: 
+  ExecutionVFX: {fileID: 0}
   Effects:
   - {fileID: 11400000, guid: 59ec77520b819bb4fbf40e754292b8b9, type: 2}

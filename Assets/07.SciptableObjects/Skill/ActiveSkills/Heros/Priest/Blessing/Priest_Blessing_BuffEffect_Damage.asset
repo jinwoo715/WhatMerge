@@ -16,4 +16,4 @@ MonoBehaviour:
   VFX: {fileID: 0}
   BuffData:
     BuffType: 0
-    IncreaseRatio: 0.1
+    IncreaseRatio: 0.05

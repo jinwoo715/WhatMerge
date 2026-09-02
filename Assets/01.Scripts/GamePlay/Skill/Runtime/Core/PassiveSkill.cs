@@ -10,6 +10,7 @@ namespace Skill.Data
     public abstract class PassiveSkill : IPassiveSkill
     {
         public abstract void Apply();
+        public virtual void Tick(float deltaTime) { }
         public abstract void Release();
     }
 

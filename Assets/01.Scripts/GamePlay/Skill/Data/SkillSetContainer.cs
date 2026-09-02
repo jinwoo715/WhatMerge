@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using WhatMerge.Combat.Effects;
+using WhatMerge.Enemies;
 using WhatMerge.Heros;
 using WhatMerge.Projectiles.Data;
 using WhatMerge.Summons.Data;
@@ -214,6 +216,8 @@ namespace Skill.Data
 
             Dictionary<ActiveSkillData, int> activeUnlockLevels = new();
             Dictionary<ActiveSkillData, EffectGraph> activeGraphs = new();
+            HashSet<PassiveSkillData> passiveSkills = new();
+            List<PassiveGoldSkillData> goldPassiveData = new();
             int previousLevel = int.MinValue;
             int basicAttackCount = 0;
 
@@ -274,9 +278,20 @@ namespace Skill.Data
                 }
                 else if (entry.Skill is PassiveSkillData passiveSkill)
                 {
+                    if (!passiveSkills.Add(passiveSkill))
+                    {
+                        errors.Add(
+                            $"{prefix}: passive skill '{passiveSkill.name}' is registered more than once.");
+                    }
+
+                    if (passiveSkill is PassiveGoldSkillData gold)
+                        goldPassiveData.Add(gold);
+
                     ValidatePassive(passiveSkill, prefix, errors);
                 }
             }
+
+            ValidateGoldPassiveAggregation(goldPassiveData, prefix, errors);
 
             if (basicAttackCount != 1)
                 errors.Add($"{prefix}: exactly one basic attack is required. Count: {basicAttackCount}.");
@@ -309,6 +324,14 @@ namespace Skill.Data
             ValidateFinite(skill.ChargeTime, 0f, float.MaxValue, $"{skill.name}.ChargeTime", errors);
             ValidateFinite(skill.ActivationChance, 0f, 1f, $"{skill.name}.ActivationChance", errors);
 
+            if (skill.Execution is SequenceHitExecutionData sequenceExecution
+                && sequenceExecution.SequenceCount < 1)
+            {
+                errors.Add(
+                    $"{prefix}: active skill '{skill.name}' SequenceCount must be at least 1. " +
+                    $"Current value: {sequenceExecution.SequenceCount}.");
+            }
+
             if (skill.AnimationData != null)
             {
                 ValidateFinite(
@@ -334,8 +357,52 @@ namespace Skill.Data
             string prefix,
             List<string> errors)
         {
+            switch (passive)
+            {
+                case PassiveBuffSkillData buff:
+                    ValidateBuffPassive(buff, prefix, errors);
+                    break;
+
+                case PassiveDebuffSkillData debuff:
+                    ValidateDebuffPassive(debuff, prefix, errors);
+                    break;
+
+                case PassiveGoldSkillData gold:
+                    ValidateGoldPassive(gold, prefix, errors);
+                    break;
+
+                default:
+                    errors.Add(
+                        $"{prefix}: unsupported passive skill type '{passive.GetType().Name}'.");
+                    break;
+            }
+        }
+
+        private static void ValidateBuffPassive(
+            PassiveBuffSkillData passive,
+            string prefix,
+            List<string> errors)
+        {
             if (passive.Target == null)
+            {
                 errors.Add($"{prefix}: passive '{passive.name}' has no Target.");
+            }
+            else if (passive.Target is not SelfTargetData
+                and not NearHeroTargetData
+                and not AllHeroTargetData)
+            {
+                errors.Add(
+                    $"{prefix}: passive '{passive.name}' has unsupported Target " +
+                    $"'{passive.Target.GetType().Name}'.");
+            }
+
+            if (passive.Target is NearHeroTargetData near
+                && !Enum.IsDefined(typeof(HeroSearchType), near.TargetRange))
+            {
+                errors.Add(
+                    $"{prefix}: passive '{passive.name}' has invalid hero range {near.TargetRange}.");
+            }
+
             if (passive.Effects == null || passive.Effects.Count == 0)
             {
                 errors.Add($"{prefix}: passive '{passive.name}' has no Effects.");
@@ -344,9 +411,178 @@ namespace Skill.Data
 
             for (int i = 0; i < passive.Effects.Count; i++)
             {
-                if (passive.Effects[i] == null)
+                BuffData effect = passive.Effects[i];
+                if (effect == null)
+                {
                     errors.Add($"{prefix}: passive '{passive.name}' has a null Effect at index {i}.");
+                    continue;
+                }
+
+                if (!Enum.IsDefined(typeof(HeroStatType), effect.BuffType))
+                {
+                    errors.Add(
+                        $"{prefix}: passive '{passive.name}' has invalid BuffType " +
+                        $"at index {i}: {effect.BuffType}.");
+                }
+
+                if (float.IsNaN(effect.IncreaseRatio) || float.IsInfinity(effect.IncreaseRatio))
+                {
+                    errors.Add(
+                        $"{prefix}: passive '{passive.name}' IncreaseRatio at index {i} " +
+                        "must be finite.");
+                }
             }
+        }
+
+        private static void ValidateDebuffPassive(
+            PassiveDebuffSkillData passive,
+            string prefix,
+            List<string> errors)
+        {
+            if (passive.Target == null)
+            {
+                errors.Add($"{prefix}: passive '{passive.name}' has no Target.");
+            }
+            else if (passive.Target is NearEnemyTargetData near)
+            {
+                if (float.IsNaN(near.Radius)
+                    || float.IsInfinity(near.Radius)
+                    || near.Radius <= 0f)
+                {
+                    errors.Add(
+                        $"{prefix}: passive '{passive.name}' Radius must be positive and finite. " +
+                        $"Current value: {near.Radius}.");
+                }
+            }
+            else if (passive.Target is not AllEnemyTargetData)
+            {
+                errors.Add(
+                    $"{prefix}: passive '{passive.name}' has unsupported Target " +
+                    $"'{passive.Target.GetType().Name}'.");
+            }
+
+            if (passive.Effects == null || passive.Effects.Count == 0)
+            {
+                errors.Add($"{prefix}: passive '{passive.name}' has no Effects.");
+                return;
+            }
+
+            HashSet<EnemyStatType> statTypes = new();
+
+            for (int i = 0; i < passive.Effects.Count; i++)
+            {
+                DebuffData effect = passive.Effects[i];
+                if (effect == null)
+                {
+                    errors.Add($"{prefix}: passive '{passive.name}' has a null Effect at index {i}.");
+                    continue;
+                }
+
+                if (!Enum.IsDefined(typeof(EnemyStatType), effect.StatType))
+                {
+                    errors.Add(
+                        $"{prefix}: passive '{passive.name}' has invalid StatType " +
+                        $"at index {i}: {effect.StatType}.");
+                }
+                else
+                {
+                    if (effect.StatType == EnemyStatType.MaxHP)
+                    {
+                        errors.Add(
+                            $"{prefix}: passive '{passive.name}' cannot reduce MaxHP.");
+                    }
+
+                    if (!statTypes.Add(effect.StatType))
+                    {
+                        errors.Add(
+                            $"{prefix}: passive '{passive.name}' has duplicate StatType " +
+                            $"'{effect.StatType}'.");
+                    }
+                }
+
+                if (float.IsNaN(effect.ReductionRatio)
+                    || float.IsInfinity(effect.ReductionRatio)
+                    || effect.ReductionRatio <= 0f
+                    || effect.ReductionRatio > 1f)
+                {
+                    errors.Add(
+                        $"{prefix}: passive '{passive.name}' ReductionRatio at index {i} " +
+                        $"must be greater than 0 and at most 1. Current value: {effect.ReductionRatio}.");
+                }
+            }
+        }
+
+        private static void ValidateGoldPassive(
+            PassiveGoldSkillData passive,
+            string prefix,
+            List<string> errors)
+        {
+            if (float.IsNaN(passive.IntervalTime)
+                || float.IsInfinity(passive.IntervalTime)
+                || passive.IntervalTime <= 0f)
+            {
+                errors.Add(
+                    $"{prefix}: passive '{passive.name}' IntervalTime must be positive and finite. " +
+                    $"Current value: {passive.IntervalTime}.");
+            }
+
+            if (passive.GoldAmount <= 0)
+            {
+                errors.Add(
+                    $"{prefix}: passive '{passive.name}' GoldAmount must be greater than zero. " +
+                    $"Current value: {passive.GoldAmount}.");
+            }
+        }
+
+        private static void ValidateGoldPassiveAggregation(
+            IReadOnlyList<PassiveGoldSkillData> dataList,
+            string prefix,
+            List<string> errors)
+        {
+            if (dataList.Count == 0)
+                return;
+
+            if (dataList.Count > 3)
+            {
+                errors.Add(
+                    $"{prefix}: a grade can contain at most three gold passive entries. " +
+                    $"Count: {dataList.Count}.");
+            }
+
+            float intervalTime = dataList[0].IntervalTime;
+            bool validInterval = IsPositiveFinite(intervalTime);
+            long totalGold = 0;
+
+            for (int i = 0; i < dataList.Count; i++)
+            {
+                PassiveGoldSkillData data = dataList[i];
+
+                if (validInterval
+                    && IsPositiveFinite(data.IntervalTime)
+                    && !Mathf.Approximately(data.IntervalTime, intervalTime))
+                {
+                    errors.Add(
+                        $"{prefix}: gold passive entries must use the same IntervalTime. " +
+                        $"Expected: {intervalTime}, '{data.name}': {data.IntervalTime}.");
+                }
+
+                if (data.GoldAmount > 0)
+                    totalGold += data.GoldAmount;
+            }
+
+            if (totalGold > int.MaxValue)
+            {
+                errors.Add(
+                    $"{prefix}: aggregated gold passive amount exceeds Int32.MaxValue. " +
+                    $"Current value: {totalGold}.");
+            }
+        }
+
+        private static bool IsPositiveFinite(float value)
+        {
+            return !float.IsNaN(value)
+                && !float.IsInfinity(value)
+                && value > 0f;
         }
 
         private static void ValidateEnhancements(
@@ -357,10 +593,16 @@ namespace Skill.Data
             List<string> errors)
         {
             Dictionary<ActiveSkillData, float> chanceTotals = new();
-            Dictionary<ActiveSkillData, float> reductionTotals = new();
+            Dictionary<ActiveSkillData, long> sequenceCountTotals = new();
+            Dictionary<ActiveSkillData, float> reductionRatioTotals = new();
+            Dictionary<ActiveSkillData, float> reductionFixedTotals = new();
 
             foreach (ActiveSkillData activeSkill in unlockLevels.Keys)
+            {
                 chanceTotals[activeSkill] = activeSkill.ActivationChance;
+                if (activeSkill.Execution is SequenceHitExecutionData sequenceExecution)
+                    sequenceCountTotals[activeSkill] = sequenceExecution.SequenceCount;
+            }
 
             for (int i = 0; i < entries.Count; i++)
             {
@@ -428,20 +670,23 @@ namespace Skill.Data
                             errors.Add($"{prefix}: activation chance enhancements for '{target.name}' exceed 1.");
                         break;
 
-                    case TriggerRequirementReductionData reduction:
-                        if (target.Trigger is not ManaTriggerData and not HitCountTriggerData)
-                            errors.Add($"{prefix}: trigger reduction '{reduction.name}' targets an unsupported Trigger.");
-                        ValidateFinite(
-                            reduction.ReductionRatio,
-                            0f,
-                            1f,
-                            $"{reduction.name}.ReductionRatio",
+                    case SequenceCountEnhanceData sequenceCountEnhancer:
+                        ValidateSequenceCountEnhancement(
+                            sequenceCountEnhancer,
+                            target,
+                            prefix,
+                            sequenceCountTotals,
                             errors);
-                        reductionTotals.TryGetValue(target, out float total);
-                        total += reduction.ReductionRatio;
-                        reductionTotals[target] = total;
-                        if (total > 1f + Mathf.Epsilon)
-                            errors.Add($"{prefix}: trigger reductions for '{target.name}' exceed 1.");
+                        break;
+
+                    case TriggerRequirementReductionData reduction:
+                        ValidateTriggerRequirementReduction(
+                            reduction,
+                            target,
+                            prefix,
+                            reductionRatioTotals,
+                            reductionFixedTotals,
+                            errors);
                         break;
 
                     default:
@@ -451,12 +696,118 @@ namespace Skill.Data
             }
         }
 
+        private static void ValidateSequenceCountEnhancement(
+            SequenceCountEnhanceData enhancer,
+            ActiveSkillData target,
+            string prefix,
+            Dictionary<ActiveSkillData, long> sequenceCountTotals,
+            List<string> errors)
+        {
+            if (target.Execution is not SequenceHitExecutionData)
+            {
+                errors.Add(
+                    $"{prefix}: sequence count enhancer '{enhancer.name}' targets a skill " +
+                    "without SequenceHitExecutionData.");
+                return;
+            }
+
+            if (enhancer.AddCount < 1)
+            {
+                errors.Add(
+                    $"{prefix}: sequence count enhancer '{enhancer.name}' AddCount must be at least 1. " +
+                    $"Current value: {enhancer.AddCount}.");
+                return;
+            }
+
+            sequenceCountTotals.TryGetValue(target, out long total);
+            total += enhancer.AddCount;
+            sequenceCountTotals[target] = total;
+
+            if (total > int.MaxValue)
+            {
+                errors.Add(
+                    $"{prefix}: sequence count enhancements for '{target.name}' exceed Int32.MaxValue. " +
+                    $"Current value: {total}.");
+            }
+        }
+
+        private static void ValidateTriggerRequirementReduction(
+            TriggerRequirementReductionData reduction,
+            ActiveSkillData target,
+            string prefix,
+            Dictionary<ActiveSkillData, float> ratioTotals,
+            Dictionary<ActiveSkillData, float> fixedTotals,
+            List<string> errors)
+        {
+            if (target.Trigger is not ManaTriggerData and not HitCountTriggerData)
+            {
+                errors.Add($"{prefix}: trigger reduction '{reduction.name}' targets an unsupported Trigger.");
+                return;
+            }
+
+            float value = reduction.ReductionValue;
+            if (float.IsNaN(value) || float.IsInfinity(value) || value <= 0f)
+            {
+                errors.Add(
+                    $"{prefix}: {reduction.name}.ReductionValue must be finite and greater than 0. " +
+                    $"Current value: {value}.");
+                return;
+            }
+
+            switch (reduction.ReductionType)
+            {
+                case TriggerRequirementReductionType.Ratio:
+                    if (value > 1f)
+                    {
+                        errors.Add(
+                            $"{prefix}: {reduction.name}.ReductionValue must be at most 1 for Ratio. " +
+                            $"Current value: {value}.");
+                        return;
+                    }
+
+                    ratioTotals.TryGetValue(target, out float ratioTotal);
+                    ratioTotal += value;
+                    ratioTotals[target] = ratioTotal;
+                    if (ratioTotal > 1f + Mathf.Epsilon)
+                        errors.Add($"{prefix}: ratio trigger reductions for '{target.name}' exceed 1.");
+                    break;
+
+                case TriggerRequirementReductionType.Fixed:
+                    if (target.Trigger is HitCountTriggerData
+                        && !Mathf.Approximately(value, Mathf.Round(value)))
+                    {
+                        errors.Add(
+                            $"{prefix}: fixed trigger reduction for HitCount skill '{target.name}' " +
+                            $"must be a whole number. Current value: {value}.");
+                        return;
+                    }
+
+                    fixedTotals.TryGetValue(target, out float fixedTotal);
+                    fixedTotal += value;
+                    if (float.IsInfinity(fixedTotal))
+                    {
+                        errors.Add($"{prefix}: fixed trigger reductions for '{target.name}' exceed float range.");
+                        return;
+                    }
+
+                    fixedTotals[target] = fixedTotal;
+                    break;
+
+                default:
+                    errors.Add(
+                        $"{prefix}: trigger reduction '{reduction.name}' has unsupported reduction type " +
+                        $"'{reduction.ReductionType}'.");
+                    break;
+            }
+        }
+
         private static ActiveSkillData GetEnhancementTarget(SkillBaseData skill)
         {
             return skill switch
             {
                 Enhancer enhancer => enhancer.TargetSkill,
                 ActivationChanceEnhanceData enhancer => enhancer.TargetSkill,
+                SequenceCountEnhanceData enhancer => enhancer.TargetSkill,
                 TriggerRequirementReductionData enhancer => enhancer.TargetSkill,
                 ExtraEffectData enhancer => enhancer.TargetSkill,
                 _ => null
@@ -596,6 +947,13 @@ namespace Skill.Data
             }
 
             ValidateFinite(effect.Chance, 0f, 1f, $"{effect.name}.Chance", errors);
+
+            if (effect is DamageEffect damageEffect)
+            {
+                ValidateFinite(damageEffect.DamageRatio, 0f, float.MaxValue, $"{effect.name}.DamageRatio", errors);
+                ValidateFinite(damageEffect.ArmorIgnoreChance, 0f, 1f, $"{effect.name}.ArmorIgnoreChance", errors);
+                ValidateFinite(damageEffect.ArmorIgnoreRatio, 0f, 1f, $"{effect.name}.ArmorIgnoreRatio", errors);
+            }
 
             if (effect is IEffectContainer)
                 WalkContainer(effect, graph, visiting, prefix, errors);

@@ -36,6 +36,26 @@ namespace Skill
             }
         }
 
+        public static void ApplySequenceCountEnhance(
+            Dictionary<ActiveSkillData, ActiveSkill> activeSkills,
+            Queue<SequenceCountEnhanceData> enhancers)
+        {
+            foreach (SequenceCountEnhanceData enhancer in enhancers)
+            {
+                ActiveSkill activeSkill = GetRuntimeActiveSkill(activeSkills, enhancer.TargetSkill, enhancer);
+
+                if (activeSkill.Execution is not ISequenceCountModifier modifier)
+                {
+                    throw new InvalidOperationException(
+                        $"Enhancer '{GetDataName(enhancer)}' targets skill " +
+                        $"'{GetDataName(enhancer.TargetSkill)}' whose execution does not support " +
+                        "sequence count enhancement.");
+                }
+
+                modifier.AddSequenceCount(enhancer.AddCount);
+            }
+        }
+
         public static void ApplyTriggerRequirementReduction(
             Dictionary<ActiveSkillData, ActiveSkill> activeSkills,
             Queue<TriggerRequirementReductionData> enhancers)
@@ -51,7 +71,21 @@ namespace Skill
                         $"'{GetDataName(enhancer.TargetSkill)}' whose trigger does not support requirement reduction.");
                 }
 
-                modifier.AddRequirementReductionRatio(enhancer.ReductionRatio);
+                switch (enhancer.ReductionType)
+                {
+                    case TriggerRequirementReductionType.Ratio:
+                        modifier.AddRequirementReductionRatio(enhancer.ReductionValue);
+                        break;
+
+                    case TriggerRequirementReductionType.Fixed:
+                        modifier.AddRequirementReductionFixed(enhancer.ReductionValue);
+                        break;
+
+                    default:
+                        throw new InvalidOperationException(
+                            $"Enhancer '{GetDataName(enhancer)}' has unsupported reduction type " +
+                            $"'{enhancer.ReductionType}'.");
+                }
             }
         }
 

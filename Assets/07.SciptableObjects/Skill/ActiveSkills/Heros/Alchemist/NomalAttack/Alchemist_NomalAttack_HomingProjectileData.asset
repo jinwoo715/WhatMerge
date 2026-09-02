@@ -20,4 +20,4 @@ MonoBehaviour:
     RotateType: 1
     RotateSpeed: 360
   Effects:
-  - {fileID: 11400000, guid: 2a365e4867017f946876a14d9f93c211, type: 2}
+  - {fileID: 11400000, guid: 933b5cbb2c1ae6e45be1fa2225486f6a, type: 2}

@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Chance: 1
   VFX: {fileID: 0}
-  DamageRatio: 2.4
+  DamageRatio: 2.5
   Attribute: 0
   ArmorIgnoreChance: 0
+  ArmorIgnoreRatio: 0

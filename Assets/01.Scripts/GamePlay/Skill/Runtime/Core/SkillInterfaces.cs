@@ -18,6 +18,7 @@ namespace Skill
     public interface IPassiveSkill
     {
         void Apply();
+        void Tick(float deltaTime);
         void Release();
     }
 }

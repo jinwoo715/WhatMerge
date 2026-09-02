@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e081a4569ff6834785aa3208bde2218, type: 3}
   m_Name: Onmyomancer_NomalAttack
   m_EditorClassIdentifier: 
-  UID: 0
   Name: 
   Description: 
   AnimationData:
@@ -20,6 +19,7 @@ MonoBehaviour:
     ReadyMotionTime: 0.2
     ExecutionMotionTime: 0.2
   ChargeTime: 0
+  ActivationChance: 1
   Priority: 0
   Execution: {fileID: 11400000, guid: 09474ef73dc7e7a43a05653617c55e8b, type: 2}
   Finder: {fileID: 11400000, guid: 2fb3d509b7b9a7d4794fd303b2ae6cb5, type: 2}

@@ -10,5 +10,6 @@ namespace Skill
     public interface ITriggerRequirementModifier
     {
         void AddRequirementReductionRatio(float ratio);
+        void AddRequirementReductionFixed(float value);
     }
 }

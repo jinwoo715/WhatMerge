@@ -7,7 +7,7 @@
                 "x": 40.0,
                 "y": 160.0,
                 "width": 266.0,
-                "height": 423.0
+                "height": 497.0
             }
         },
         {
@@ -124,10 +124,30 @@
             "Key": "effect-0::projectile-spawn-projectile::projectile-effect::0",
             "Position": {
                 "serializedVersion": "2",
-                "x": -1560.0,
-                "y": 312.0,
+                "x": -2006.0,
+                "y": 341.0,
                 "width": 348.0,
-                "height": 244.0
+                "height": 264.0
+            }
+        },
+        {
+            "Key": "loose-933b5cbb2c1ae6e45be1fa2225486f6a",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -1604.0,
+                "y": 325.0,
+                "width": 338.0,
+                "height": 287.0
+            }
+        },
+        {
+            "Key": "loose-933b5cbb2c1ae6e45be1fa2225486f6a::range-effect::0",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -2006.0,
+                "y": 341.0,
+                "width": 348.0,
+                "height": 264.0
             }
         }
     ],
@@ -149,7 +169,7 @@
                 "x": 40.0,
                 "y": 160.0,
                 "width": 266.0,
-                "height": 423.0
+                "height": 497.0
             }
         },
         {
@@ -206,22 +226,32 @@
             "Key": "asset-2a365e4867017f946876a14d9f93c211",
             "Position": {
                 "serializedVersion": "2",
-                "x": -1560.0,
-                "y": 312.0,
+                "x": -2006.0,
+                "y": 341.0,
                 "width": 348.0,
-                "height": 244.0
+                "height": 264.0
+            }
+        },
+        {
+            "Key": "asset-933b5cbb2c1ae6e45be1fa2225486f6a",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -1604.0,
+                "y": 325.0,
+                "width": 338.0,
+                "height": 287.0
             }
         }
     ],
     "LooseAssetGuids": [],
     "ViewPosition": {
-        "x": 1704.0,
-        "y": -67.0,
+        "x": 1458.0,
+        "y": -91.0,
         "z": 0.0
     },
     "ViewScale": {
-        "x": 1.0,
-        "y": 1.0,
+        "x": 0.7561436891555786,
+        "y": 0.7561436891555786,
         "z": 1.0
     }
 }

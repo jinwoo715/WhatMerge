@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: Onmyomancer_TalismanOfMoon_VFXData
   m_EditorClassIdentifier: 
   VFXName: Moon
+  IsApplyDir: 0
   PositionType: 1

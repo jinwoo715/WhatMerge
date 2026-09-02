@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1f8c851fb8e2214c887f0f5a1042d48, type: 3}
+  m_Name: Onmyomance_TalismanOfSun_EffectStatEnhancer_Passive_2
+  m_EditorClassIdentifier: 
+  Name: 
+  Description: 
+  TargetSkill: {fileID: 11400000, guid: 5e03ed6e0dbd8ac45ad3fecd0031e158, type: 2}
+  TargetEffect: {fileID: 11400000, guid: 847df0e71d305ed448a6503862a0a816, type: 2}
+  TargetStatKey: DotCount
+  AddValue: 1

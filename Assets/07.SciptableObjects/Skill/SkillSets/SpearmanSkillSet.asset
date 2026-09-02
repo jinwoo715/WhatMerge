@@ -13,14 +13,80 @@ MonoBehaviour:
   m_Name: SpearmanSkillSet
   m_EditorClassIdentifier: 
   UID: 4
-  Sets:
-  - Level: 0
-    Skill: {fileID: 11400000, guid: 33a6988fadf597149a71817325050ee9, type: 2}
-  - Level: 0
-    Skill: {fileID: 11400000, guid: 4a0fcfa1b2f65a44a80b510b68de8247, type: 2}
-  - Level: 0
-    Skill: {fileID: 11400000, guid: 8e80ab7bba6f554408121ac1dbed5c24, type: 2}
-  - Level: 10
-    Skill: {fileID: 11400000, guid: 8f4fdc877bb92884480e08f55fee98f6, type: 2}
-  - Level: 10
-    Skill: {fileID: 11400000, guid: d03983fbb6650dd45b63afa17be09531, type: 2}
+  GradeSets:
+  - Grade: 0
+    Sets:
+    - Level: 0
+      Skill: {fileID: 11400000, guid: 33a6988fadf597149a71817325050ee9, type: 2}
+    - Level: 1
+      Skill: {fileID: 11400000, guid: 4a0fcfa1b2f65a44a80b510b68de8247, type: 2}
+    - Level: 10
+      Skill: {fileID: 11400000, guid: 548daa7f939f6834b8bd6bbf9fdec186, type: 2}
+    - Level: 20
+      Skill: {fileID: 11400000, guid: 6b594601abe0e7348af4a846690d3749, type: 2}
+    - Level: 30
+      Skill: {fileID: 11400000, guid: 82dc485b56593704eb8699195ead43d0, type: 2}
+    - Level: 40
+      Skill: {fileID: 11400000, guid: ba291443fdab1094fa156272a93e244b, type: 2}
+    - Level: 60
+      Skill: {fileID: 11400000, guid: 0a00f6d9231b94846952c8c81cf44a73, type: 2}
+    - Level: 100
+      Skill: {fileID: 11400000, guid: 247824cc3555a494fb37ebf27ba88177, type: 2}
+    - Level: 150
+      Skill: {fileID: 11400000, guid: 247824cc3555a494fb37ebf27ba88177, type: 2}
+  - Grade: 1
+    Sets:
+    - Level: 0
+      Skill: {fileID: 11400000, guid: 33a6988fadf597149a71817325050ee9, type: 2}
+    - Level: 1
+      Skill: {fileID: 11400000, guid: 4a0fcfa1b2f65a44a80b510b68de8247, type: 2}
+    - Level: 10
+      Skill: {fileID: 11400000, guid: 548daa7f939f6834b8bd6bbf9fdec186, type: 2}
+    - Level: 20
+      Skill: {fileID: 11400000, guid: 8e80ab7bba6f554408121ac1dbed5c24, type: 2}
+    - Level: 30
+      Skill: {fileID: 11400000, guid: 6b594601abe0e7348af4a846690d3749, type: 2}
+    - Level: 40
+      Skill: {fileID: 11400000, guid: 82dc485b56593704eb8699195ead43d0, type: 2}
+    - Level: 60
+      Skill: {fileID: 11400000, guid: 85385896d28a4ba4b88edb4947267891, type: 2}
+    - Level: 70
+      Skill: {fileID: 11400000, guid: ba291443fdab1094fa156272a93e244b, type: 2}
+    - Level: 80
+      Skill: {fileID: 11400000, guid: 0a00f6d9231b94846952c8c81cf44a73, type: 2}
+    - Level: 90
+      Skill: {fileID: 11400000, guid: 0f15f1d08db14c346bb4c01c9793068f, type: 2}
+    - Level: 100
+      Skill: {fileID: 11400000, guid: 247824cc3555a494fb37ebf27ba88177, type: 2}
+    - Level: 150
+      Skill: {fileID: 11400000, guid: 705e065a0d71a384bbeb3fcab4c623f5, type: 2}
+  - Grade: 2
+    Sets:
+    - Level: 0
+      Skill: {fileID: 11400000, guid: 33a6988fadf597149a71817325050ee9, type: 2}
+    - Level: 1
+      Skill: {fileID: 11400000, guid: 4a0fcfa1b2f65a44a80b510b68de8247, type: 2}
+    - Level: 10
+      Skill: {fileID: 11400000, guid: 548daa7f939f6834b8bd6bbf9fdec186, type: 2}
+    - Level: 20
+      Skill: {fileID: 11400000, guid: 8e80ab7bba6f554408121ac1dbed5c24, type: 2}
+    - Level: 30
+      Skill: {fileID: 11400000, guid: 5b1c315d1903d944cb98d2620c8b657e, type: 2}
+    - Level: 40
+      Skill: {fileID: 11400000, guid: 6b594601abe0e7348af4a846690d3749, type: 2}
+    - Level: 60
+      Skill: {fileID: 11400000, guid: 82dc485b56593704eb8699195ead43d0, type: 2}
+    - Level: 70
+      Skill: {fileID: 11400000, guid: 85385896d28a4ba4b88edb4947267891, type: 2}
+    - Level: 80
+      Skill: {fileID: 11400000, guid: 5b1c315d1903d944cb98d2620c8b657e, type: 2}
+    - Level: 90
+      Skill: {fileID: 11400000, guid: ba291443fdab1094fa156272a93e244b, type: 2}
+    - Level: 100
+      Skill: {fileID: 11400000, guid: 247824cc3555a494fb37ebf27ba88177, type: 2}
+    - Level: 110
+      Skill: {fileID: 11400000, guid: 0a00f6d9231b94846952c8c81cf44a73, type: 2}
+    - Level: 120
+      Skill: {fileID: 11400000, guid: 0f15f1d08db14c346bb4c01c9793068f, type: 2}
+    - Level: 150
+      Skill: {fileID: 11400000, guid: 705e065a0d71a384bbeb3fcab4c623f5, type: 2}

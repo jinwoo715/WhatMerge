@@ -6,9 +6,9 @@ using WhatMerge.Combat;
 
 namespace Skill
 {
-    public class SequenceExecution : ExecutionBase
+    public class SequenceExecution : ExecutionBase, ISequenceCountModifier
     {
-        private readonly int _sequenceCount;
+        private int _sequenceCount;
 
         public override float BaseAnimationDuration => base.BaseAnimationDuration;
 
@@ -31,13 +31,36 @@ namespace Skill
             _sequenceCount = sequenceExecution.SequenceCount;
         }
 
+        public void AddSequenceCount(int count)
+        {
+            if (count <= 0)
+            {
+                throw new System.ArgumentOutOfRangeException(
+                    nameof(count),
+                    count,
+                    "Sequence count increment must be greater than zero.");
+            }
+
+            try
+            {
+                _sequenceCount = checked(_sequenceCount + count);
+            }
+            catch (System.OverflowException exception)
+            {
+                throw new System.InvalidOperationException(
+                    $"Sequence count overflow. Current: {_sequenceCount}, Add: {count}.",
+                    exception);
+            }
+        }
+
         public override IEnumerator Execute(IReadOnlyList<ICombatant> targets, float animationTimeScale)
         {
             ICombatant combatant = SelectPrimaryTarget(targets);
+            int sequenceCount = _sequenceCount;
 
-            float perTimeScale = animationTimeScale / _sequenceCount;
+            float perTimeScale = animationTimeScale / sequenceCount;
 
-            for (int i = 0; i < _sequenceCount; i++)
+            for (int i = 0; i < sequenceCount; i++)
             {
                 yield return SetReadyMotion(perTimeScale);
 

@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6f02a6d83a120d4fb18b17555cdc8e1, type: 3}
   m_Name: Alchemist_NomalAttack_SingleExecutionData
   m_EditorClassIdentifier: 
+  ExecutionVFX: {fileID: 0}
   Effects:
   - {fileID: 11400000, guid: ad968a5a7deda304eace5a3fc01b90e5, type: 2}

@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e081a4569ff6834785aa3208bde2218, type: 3}
   m_Name: Paladin_Radiance
   m_EditorClassIdentifier: 
-  UID: 0
   Name: 
   Description: 
   AnimationData:
@@ -20,6 +19,7 @@ MonoBehaviour:
     ReadyMotionTime: 0.2
     ExecutionMotionTime: 0.2
   ChargeTime: 0
+  ActivationChance: 1
   Priority: 10
   Execution: {fileID: 11400000, guid: 399687d6e18ff2544b46df1114beb8f9, type: 2}
   Finder: {fileID: 11400000, guid: 09aa8d7fec6a06b44bb72dffca800d9a, type: 2}

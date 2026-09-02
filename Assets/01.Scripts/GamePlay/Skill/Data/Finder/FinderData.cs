@@ -6,4 +6,5 @@ namespace Skill.Data
     public class FinderData : ScriptableObject { }
 
     public class HeroTargetData : FinderData { }
+    public class EnemyTargetData : FinderData { }
 }

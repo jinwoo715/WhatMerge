@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Chance: 1
   VFX: {fileID: 0}
-  Duration: 7
+  Duration: 5
   Effects:
   - {fileID: 11400000, guid: 9815b341e246e5e4082fec8a0158300b, type: 2}
-  - {fileID: 11400000, guid: 2b7d94897ee27e9488957c8e320b0a62, type: 2}

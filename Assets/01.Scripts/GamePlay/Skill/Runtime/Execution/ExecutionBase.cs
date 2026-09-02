@@ -15,6 +15,11 @@ namespace Skill
         IEnumerator Execute(IReadOnlyList<ICombatant> targets, float animationTimeScale);
     }
 
+    public interface ISequenceCountModifier
+    {
+        void AddSequenceCount(int count);
+    }
+
     public abstract class ExecutionBase : IExecute
     {
         protected readonly List<EffectBase> _effects;

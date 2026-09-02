@@ -13,10 +13,80 @@ MonoBehaviour:
   m_Name: WizardSkillSet
   m_EditorClassIdentifier: 
   UID: 10
-  Sets:
-  - Level: 0
-    Skill: {fileID: 11400000, guid: cf2d76fd436b3ff4687e972293454bd5, type: 2}
-  - Level: 0
-    Skill: {fileID: 11400000, guid: eb61ef205d76bed4aa25adebc07b9476, type: 2}
-  - Level: 0
-    Skill: {fileID: 11400000, guid: cbc2a53faa7abcd4aaca1b567f56ec42, type: 2}
+  GradeSets:
+  - Grade: 0
+    Sets:
+    - Level: 0
+      Skill: {fileID: 11400000, guid: cf2d76fd436b3ff4687e972293454bd5, type: 2}
+    - Level: 1
+      Skill: {fileID: 11400000, guid: eb61ef205d76bed4aa25adebc07b9476, type: 2}
+    - Level: 10
+      Skill: {fileID: 11400000, guid: 5f365a79e12e8654faabb917ed1a4ee0, type: 2}
+    - Level: 20
+      Skill: {fileID: 11400000, guid: abf1df1ee8a31514c98c2dce5627253e, type: 2}
+    - Level: 30
+      Skill: {fileID: 11400000, guid: 5f365a79e12e8654faabb917ed1a4ee0, type: 2}
+    - Level: 40
+      Skill: {fileID: 11400000, guid: 80a4ba5629928224aaa25b6c075b6517, type: 2}
+    - Level: 60
+      Skill: {fileID: 11400000, guid: 5f365a79e12e8654faabb917ed1a4ee0, type: 2}
+    - Level: 100
+      Skill: {fileID: 11400000, guid: 9391a1d12b7af4749b52e9080910778a, type: 2}
+    - Level: 150
+      Skill: {fileID: 11400000, guid: 9391a1d12b7af4749b52e9080910778a, type: 2}
+  - Grade: 1
+    Sets:
+    - Level: 0
+      Skill: {fileID: 11400000, guid: cf2d76fd436b3ff4687e972293454bd5, type: 2}
+    - Level: 1
+      Skill: {fileID: 11400000, guid: eb61ef205d76bed4aa25adebc07b9476, type: 2}
+    - Level: 10
+      Skill: {fileID: 11400000, guid: 5f365a79e12e8654faabb917ed1a4ee0, type: 2}
+    - Level: 20
+      Skill: {fileID: 11400000, guid: cbc2a53faa7abcd4aaca1b567f56ec42, type: 2}
+    - Level: 30
+      Skill: {fileID: 11400000, guid: abf1df1ee8a31514c98c2dce5627253e, type: 2}
+    - Level: 40
+      Skill: {fileID: 11400000, guid: 5f365a79e12e8654faabb917ed1a4ee0, type: 2}
+    - Level: 60
+      Skill: {fileID: 11400000, guid: d989451cd558ce946905dcf37905416d, type: 2}
+    - Level: 70
+      Skill: {fileID: 11400000, guid: 80a4ba5629928224aaa25b6c075b6517, type: 2}
+    - Level: 80
+      Skill: {fileID: 11400000, guid: 5f365a79e12e8654faabb917ed1a4ee0, type: 2}
+    - Level: 90
+      Skill: {fileID: 11400000, guid: d5b61de2dc724cb45b2378341d9d93af, type: 2}
+    - Level: 100
+      Skill: {fileID: 11400000, guid: 9391a1d12b7af4749b52e9080910778a, type: 2}
+    - Level: 150
+      Skill: {fileID: 11400000, guid: 7d5287e747f91f249a0f0356115fad26, type: 2}
+  - Grade: 2
+    Sets:
+    - Level: 0
+      Skill: {fileID: 11400000, guid: cf2d76fd436b3ff4687e972293454bd5, type: 2}
+    - Level: 1
+      Skill: {fileID: 11400000, guid: eb61ef205d76bed4aa25adebc07b9476, type: 2}
+    - Level: 10
+      Skill: {fileID: 11400000, guid: 5f365a79e12e8654faabb917ed1a4ee0, type: 2}
+    - Level: 20
+      Skill: {fileID: 11400000, guid: cbc2a53faa7abcd4aaca1b567f56ec42, type: 2}
+    - Level: 30
+      Skill: {fileID: 11400000, guid: e6d058f3c3296b64f9d2eb789ab34b65, type: 2}
+    - Level: 40
+      Skill: {fileID: 11400000, guid: abf1df1ee8a31514c98c2dce5627253e, type: 2}
+    - Level: 60
+      Skill: {fileID: 11400000, guid: 5f365a79e12e8654faabb917ed1a4ee0, type: 2}
+    - Level: 70
+      Skill: {fileID: 11400000, guid: d989451cd558ce946905dcf37905416d, type: 2}
+    - Level: 80
+      Skill: {fileID: 11400000, guid: 43d3ea1d472038c4badf143253326dba, type: 2}
+    - Level: 90
+      Skill: {fileID: 11400000, guid: 80a4ba5629928224aaa25b6c075b6517, type: 2}
+    - Level: 100
+      Skill: {fileID: 11400000, guid: 9391a1d12b7af4749b52e9080910778a, type: 2}
+    - Level: 110
+      Skill: {fileID: 11400000, guid: 5f365a79e12e8654faabb917ed1a4ee0, type: 2}
+    - Level: 120
+      Skill: {fileID: 11400000, guid: d5b61de2dc724cb45b2378341d9d93af, type: 2}
+    - Level: 150
+      Skill: {fileID: 11400000, guid: 7d5287e747f91f249a0f0356115fad26, type: 2}

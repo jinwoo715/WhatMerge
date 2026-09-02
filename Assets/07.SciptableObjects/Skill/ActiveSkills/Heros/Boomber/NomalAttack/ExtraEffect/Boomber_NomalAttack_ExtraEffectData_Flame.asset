@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a780f0439648b04194cbd815fc1b73d, type: 3}
+  m_Name: Boomber_NomalAttack_ExtraEffectData_Flame
+  m_EditorClassIdentifier: 
+  Name: 
+  Description: 
+  TargetSkill: {fileID: 11400000, guid: addc3d25fd7d80040a5504a11d4c5756, type: 2}
+  EffectContainer: {fileID: 11400000, guid: 00a2575b0d6503249810f76d07b18cef, type: 2}
+  Effect: {fileID: 11400000, guid: ec72106cd55c5414ca0acf3a2be147d6, type: 2}

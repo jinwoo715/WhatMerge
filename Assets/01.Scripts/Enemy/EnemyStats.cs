@@ -37,7 +37,11 @@ namespace WhatMerge.Enemies
 
         public float GetStat(EnemyStatType type)
         {
-            return _stats[type].Value;
+            float value = _stats[type].Value;
+
+            return type is EnemyStatType.MoveSpeed or EnemyStatType.Armor
+                ? Math.Max(0f, value)
+                : value;
         }
     }
 }

@@ -184,15 +184,18 @@ namespace WhatMerge.Combat
             AttackPayload payload,
             float multipleValue,
             ElementType attackAttribute = ElementType.None,
-            bool ignoreArmor = false)
+            float armorIgnoreRatio = 0f)
         {
             int armor = target.Armor;
-            float reduceRatio = ignoreArmor
-                ? 1f
-                : 1 - StatCalculator.GetDamageReductionRate(
-                    armor,
-                    payload.PercentPenetration,
-                    payload.FlatPenetration);
+            ValidateRatio(payload.PercentPenetration, nameof(payload.PercentPenetration));
+            ValidateRatio(armorIgnoreRatio, nameof(armorIgnoreRatio));
+
+            float percentPenetration = 1f
+                - (1f - payload.PercentPenetration) * (1f - armorIgnoreRatio);
+            float reduceRatio = 1f - StatCalculator.GetDamageReductionRate(
+                armor,
+                percentPenetration,
+                payload.FlatPenetration);
             float attributeMultiplier = _attributeDamageRule.GetMultiplier(
                 attackAttribute,
                 target.BaseAttribute,
@@ -223,6 +226,17 @@ namespace WhatMerge.Combat
                     * multipleValue
                     * reduceRatio
                     * attributeMultiplier);
+            }
+        }
+
+        private static void ValidateRatio(float value, string parameterName)
+        {
+            if (float.IsNaN(value) || float.IsInfinity(value) || value < 0f || value > 1f)
+            {
+                throw new ArgumentOutOfRangeException(
+                    parameterName,
+                    value,
+                    "Ratio must be between 0 and 1.");
             }
         }
 

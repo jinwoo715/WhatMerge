@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d626e6ebbe6fd14ab734ab627b2dda3, type: 3}
   m_Name: Paladin_Lunginus_ManaTriggerData
   m_EditorClassIdentifier: 
-  Mana: 120
+  Mana: 550

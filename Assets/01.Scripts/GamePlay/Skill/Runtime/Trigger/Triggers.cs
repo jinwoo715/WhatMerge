@@ -23,10 +23,12 @@ namespace Skill
     {
         private readonly float _baseRequiredValue;
         private float _requirementReductionRatio;
+        private float _requirementReductionFixed;
 
         public float RequiredMana => Mathf.Max(
             1f,
-            _baseRequiredValue * (1f - _requirementReductionRatio));
+            _baseRequiredValue * (1f - _requirementReductionRatio)
+            - _requirementReductionFixed);
 
         public ManaTrigger(float requiredValue)
         {
@@ -63,17 +65,25 @@ namespace Skill
             TriggerRequirementValidation.ValidateReductionRatio(ratio);
             _requirementReductionRatio = Mathf.Clamp01(_requirementReductionRatio + ratio);
         }
+
+        public void AddRequirementReductionFixed(float value)
+        {
+            TriggerRequirementValidation.ValidateFixedReduction(value);
+            _requirementReductionFixed += value;
+        }
     }
     public class HitCountTrigger : ITrigger, ITriggerRequirementModifier
     {
         private readonly int _baseRequiredHitCount;
         private float _requirementReductionRatio;
+        private float _requirementReductionFixed;
 
         public int RequiredHitCount
         {
             get
             {
-                float reducedValue = _baseRequiredHitCount * (1f - _requirementReductionRatio);
+                float reducedValue = _baseRequiredHitCount * (1f - _requirementReductionRatio)
+                    - _requirementReductionFixed;
                 int roundedValue = Mathf.RoundToInt(reducedValue);
                 int requiredValue = Mathf.Approximately(reducedValue, roundedValue)
                     ? roundedValue
@@ -115,6 +125,20 @@ namespace Skill
             TriggerRequirementValidation.ValidateReductionRatio(ratio);
             _requirementReductionRatio = Mathf.Clamp01(_requirementReductionRatio + ratio);
         }
+
+        public void AddRequirementReductionFixed(float value)
+        {
+            TriggerRequirementValidation.ValidateFixedReduction(value);
+
+            if (!Mathf.Approximately(value, Mathf.Round(value)))
+            {
+                throw new ArgumentException(
+                    "Hit count fixed reduction must be a whole number.",
+                    nameof(value));
+            }
+
+            _requirementReductionFixed += value;
+        }
     }
 
     internal static class TriggerRequirementValidation
@@ -130,6 +154,19 @@ namespace Skill
                     nameof(ratio),
                     ratio,
                     "Trigger requirement reduction ratio must be between zero and one.");
+            }
+        }
+
+        public static void ValidateFixedReduction(float value)
+        {
+            if (float.IsNaN(value)
+                || float.IsInfinity(value)
+                || value <= 0f)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(value),
+                    value,
+                    "Fixed trigger requirement reduction must be positive and finite.");
             }
         }
     }
