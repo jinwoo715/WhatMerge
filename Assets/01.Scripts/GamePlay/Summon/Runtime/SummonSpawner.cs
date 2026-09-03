@@ -69,6 +69,7 @@ namespace WhatMerge.Summons
                 execution = SummonExecutionFactory.GetExecutionStrategy(
                     dataSO.Execution,
                     damageContext.WithoutTarget(),
+                    move as ISummonTargetProvider,
                     _combatService,
                     dataSO.DurationTime);
                 execution.OnExecuteEffect += ProcessSummonExecuteEffect;
@@ -170,14 +171,22 @@ namespace WhatMerge.Summons
     }
     public class SummonExecutionFactory
     {
-        public static ISummonExecutionStrategy GetExecutionStrategy(SummonExecutionData execution, DamageContext damageContext, ICombatService combatService, float duration)
+        public static ISummonExecutionStrategy GetExecutionStrategy(
+            SummonExecutionData execution,
+            DamageContext damageContext,
+            ISummonTargetProvider targetProvider,
+            ICombatService combatService,
+            float duration)
         {
             return execution switch
             {
                 OnEnterExecutionSummon => new OnEnterExecution(damageContext),
                 OnTickExecutionSummon tickExecution => new OnTickExecution(damageContext, tickExecution.TickTime),
                 SummonOnStayExecution => new OnStayExecution(damageContext, combatService),
-                OnExpireExecutionSummon => new OnExpireExecution(damageContext),
+                OnExpireExecutionSummon expireExecution => new OnExpireExecution(
+                    damageContext,
+                    expireExecution.TargetSource,
+                    targetProvider),
                 OnTimeOnceExecutionSummon onceExecution => new OnTimeOncewExecution(damageContext, duration, onceExecution.ExecutionTiming),
                 _ => throw new System.InvalidOperationException(
                     $"Unsupported summon execution type: {execution?.GetType().Name ?? "null"}.")

@@ -468,9 +468,12 @@ DamageContext
 - 대상이 한 번 비활성화되면 해당 참조를 영구 무효화하고, 효과 정책에 따라 종료하거나 타겟을 해제한다.
 - 풀에서 같은 대상 객체가 다시 활성화되더라도 기존 효과의 대상으로 재인식하지 않는다. 현재 `IsActive` 값만 재검사하는 방식은 사용하지 않는다.
 - 전략의 정상 완료와 만료 시 `Dispose()`하고, `ProjectileItem`과 `SummonItem`의 풀 반환 및 `OnDisable()`에서도 같은 멱등 `Dispose()`를 호출한다.
-- 직선·포물선 투사체와 비추적 소환물은 생성 시 필요한 대상 종류와 위치만 값으로 복사하고 저장하는 `DamageContext.Target`는 null로 변경한다.
+- 투사체와 소환물의 장기 실행용 `DamageContext.Target`는 null로 변경하고, 생성 시 필요한 대상 종류와 위치만 값으로 복사한다.
+- 추적 Summon의 예약 실행이 단일 대상을 요구하면 이동 전략이 소유한 현재 활성 Target을 실행 시점에만 조회해 새 `DamageContext`에 결합한다.
 - 충돌 대상 제한에 필요한 Hero/Enemy 구분은 내부 값 타입으로 스냅샷하며 원래 `ICombatant` 참조로 판정하지 않는다.
 - DOT와 상태 효과는 기존 대상 비활성화 정리 경로를 동일한 원칙으로 유지한다.
+
+Summon 예약 실행의 대상 출처와 금지 조합은 [SummonExecutionTargetDesign.md](SummonExecutionTargetDesign.md)를 따른다.
 
 ## 18. RuntimeEffectInstanceId
 

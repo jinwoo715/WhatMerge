@@ -35,7 +35,6 @@ namespace WhatMerge.Heros
         {
             var key = SortUID(first, second);
 
-            Debug.Log($"{key}");
             return _mergeData.ContainsKey(key);
         }
 

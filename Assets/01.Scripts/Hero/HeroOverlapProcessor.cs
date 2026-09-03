@@ -18,11 +18,9 @@ namespace WhatMerge.Heros
 
         public EHeroOverlapResult OverlapHero(IHeroInfoProvider first, IHeroInfoProvider second)
         {
-            Debug.Log($"{first.EvolutionLevel} / {second.EvolutionLevel}");
             if (first.EvolutionLevel != second.EvolutionLevel)
                 return EHeroOverlapResult.None;
 
-            Debug.Log($"{first.UID == second.UID && first.EvolutionLevel < 2}");
             if (first.UID == second.UID && first.EvolutionLevel < 2)
                 return EHeroOverlapResult.Evolution;
 

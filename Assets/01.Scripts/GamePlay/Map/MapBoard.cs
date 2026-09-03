@@ -21,6 +21,7 @@ namespace WhatMerge.Map
         public int MaxRow => _ySize;
 
         public int MaxCol => _xSize;
+        public int DestinationCount => _enemyDestinations.Count;
 
         public void Init()
         {

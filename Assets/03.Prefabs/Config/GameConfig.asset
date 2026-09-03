@@ -12,15 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98d0a0c936e912e47ba5eb988613a2ef, type: 3}
   m_Name: GameConfig
   m_EditorClassIdentifier: 
-  StageConfig:
-    StartCountdown: 5
-    WaveTime: 2000
-    BossWaveTime: 1000
-    BossWavePivot: 10
-    MaxEnemy: 100
-    StartMoney: 10
   GameEconomy:
-    StartMoney: 1000
+    StartMoney: 2000
     StartSpawnCost: 30
     IncreaseSpawnCost: 5
   PlayerConfig:
@@ -38,3 +31,15 @@ MonoBehaviour:
       Level: 1
     - HeroUID: 11
       Level: 1
+    - HeroUID: 101
+      Level: 1
+    - HeroUID: 102
+      Level: 1
+    - HeroUID: 103
+      Level: 1
+    - HeroUID: 107
+      Level: 1
+    - HeroUID: 112
+      Level: 1
+  HeroProgression:
+    MaxLevel: 150

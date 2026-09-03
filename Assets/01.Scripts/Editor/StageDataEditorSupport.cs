@@ -32,6 +32,7 @@ namespace WhatMerge.Stage.Editor
     internal sealed class StageEditorCatalog
     {
         private readonly List<EnemyData> _enemies = new List<EnemyData>();
+        private readonly List<EnemyData> _normalWaveEnemies = new List<EnemyData>();
         private readonly Dictionary<int, EnemyData> _enemyByUID = new Dictionary<int, EnemyData>();
         private readonly Dictionary<EnemyType, List<EnemyData>> _enemiesByType =
             new Dictionary<EnemyType, List<EnemyData>>();
@@ -44,6 +45,7 @@ namespace WhatMerge.Stage.Editor
         public void Reload()
         {
             _enemies.Clear();
+            _normalWaveEnemies.Clear();
             _enemyByUID.Clear();
             _enemiesByType.Clear();
             _rewardsByGroup.Clear();
@@ -64,6 +66,9 @@ namespace WhatMerge.Stage.Editor
                         throw new InvalidOperationException($"Enemy UID {enemy.UID} is duplicated.");
 
                     _enemies.Add(enemy);
+                    if (IsEnemyAllowedInWave(WaveType.Normal, enemy.EnemyType))
+                        _normalWaveEnemies.Add(enemy);
+
                     if (!_enemiesByType.TryGetValue(enemy.EnemyType, out List<EnemyData> typedEnemies))
                     {
                         typedEnemies = new List<EnemyData>();
@@ -74,6 +79,7 @@ namespace WhatMerge.Stage.Editor
                 }
 
                 _enemies.Sort((left, right) => left.UID.CompareTo(right.UID));
+                _normalWaveEnemies.Sort((left, right) => left.UID.CompareTo(right.UID));
                 foreach (List<EnemyData> typedEnemies in _enemiesByType.Values)
                     typedEnemies.Sort((left, right) => left.UID.CompareTo(right.UID));
 
@@ -105,6 +111,20 @@ namespace WhatMerge.Stage.Editor
             return _enemiesByType.TryGetValue(enemyType, out List<EnemyData> enemies)
                 ? enemies
                 : Array.Empty<EnemyData>();
+        }
+
+        public IReadOnlyList<EnemyData> GetWaveEnemies(WaveType waveType)
+        {
+            return waveType == WaveType.Boss
+                ? GetEnemies(EnemyType.Boss)
+                : _normalWaveEnemies;
+        }
+
+        public static bool IsEnemyAllowedInWave(WaveType waveType, EnemyType enemyType)
+        {
+            return waveType == WaveType.Boss
+                ? enemyType == EnemyType.Boss
+                : enemyType == EnemyType.Normal || enemyType == EnemyType.Special;
         }
 
         public string GetEnemyLabel(int uid)
@@ -212,7 +232,7 @@ namespace WhatMerge.Stage.Editor
 
             ValidateStageSettings(stage, messages);
             ValidateWaves(stage, catalog, messages);
-            ValidateMiddleBoss(stage, catalog, messages);
+            ValidateMimic(stage, catalog, messages);
 
             if (!catalog.IsLoaded)
                 messages.Add(Warning($"Enemy catalog unavailable: {catalog.LoadError}"));
@@ -301,10 +321,6 @@ namespace WhatMerge.Stage.Editor
                         continue;
                     }
 
-                    EnemyType expectedType = wave.WaveType == WaveType.Boss
-                        ? EnemyType.Boss
-                        : EnemyType.Normal;
-
                     for (int spawnIndex = 0; spawnIndex < wave.SpawnDatas.Count; spawnIndex++)
                     {
                         EnemySpawnData spawn = wave.SpawnDatas[spawnIndex];
@@ -325,7 +341,7 @@ namespace WhatMerge.Stage.Editor
                             messages.Add(Error($"Wave {wave.WaveIndex + 1} references missing enemy {spawn.EnemyUID}."));
                             enemyTypesValid = false;
                         }
-                        else if (enemy.EnemyType != expectedType)
+                        else if (!StageEditorCatalog.IsEnemyAllowedInWave(wave.WaveType, enemy.EnemyType))
                         {
                             messages.Add(Error(
                                 $"Wave {wave.WaveIndex + 1} is {wave.WaveType}, but enemy {enemy.UID} is {enemy.EnemyType}."));
@@ -354,7 +370,7 @@ namespace WhatMerge.Stage.Editor
                 messages.Add(Success("Enemy types valid"));
         }
 
-        private static void ValidateMiddleBoss(
+        private static void ValidateMimic(
             StageData stage,
             StageEditorCatalog catalog,
             ICollection<StageValidationMessage> messages)
@@ -362,26 +378,26 @@ namespace WhatMerge.Stage.Editor
             MimicChallengeData challenge = stage.MimicChallenge;
             if (challenge == null || !challenge.IsEnabled)
             {
-                messages.Add(Info("Middle boss not configured"));
+                messages.Add(Info("Mimic not configured"));
                 return;
             }
 
             bool valid = true;
             if (challenge.Cooldown <= 0f)
             {
-                messages.Add(Error("Middle boss cooldown must be greater than zero."));
+                messages.Add(Error("Mimic cooldown must be greater than zero."));
                 valid = false;
             }
 
             if (challenge.TimeLimit <= 0f)
             {
-                messages.Add(Error("Middle boss time limit must be greater than zero."));
+                messages.Add(Error("Mimic time limit must be greater than zero."));
                 valid = false;
             }
 
             if (challenge.BonusBattleCurrency < 0)
             {
-                messages.Add(Error("Middle boss bonus currency cannot be negative."));
+                messages.Add(Error("Mimic bonus currency cannot be negative."));
                 valid = false;
             }
 
@@ -390,18 +406,18 @@ namespace WhatMerge.Stage.Editor
                 MimicEntryData entry = challenge.Entries[i];
                 if (entry == null || !catalog.TryGetEnemy(entry.EnemyUID, out EnemyData enemy))
                 {
-                    messages.Add(Error($"Middle boss entry {i + 1} references a missing enemy."));
+                    messages.Add(Error($"Mimic entry {i + 1} references a missing enemy."));
                     valid = false;
                 }
                 else if (enemy.EnemyType != EnemyType.Mimic)
                 {
-                    messages.Add(Error($"Enemy {enemy.UID} is {enemy.EnemyType}, not MiddleBoss."));
+                    messages.Add(Error($"Enemy {enemy.UID} is {enemy.EnemyType}, not Mimic."));
                     valid = false;
                 }
             }
 
             if (valid)
-                messages.Add(Success($"{challenge.Entries.Count} middle boss entry(s) valid"));
+                messages.Add(Success($"{challenge.Entries.Count} Mimic entry(s) valid"));
         }
 
         private static StageValidationMessage Success(string text)

@@ -299,7 +299,10 @@ public class HeroSpawner : MonoBehaviour, IHeroSummonService, IHeroSkillConfigur
         SpriteAtlas atlas = GetRequiredHeroAtlas(data);
 
         if (!_skillSets.ContainsKey(heroUid))
-            throw new InvalidOperationException($"Skill set for hero UID {heroUid} is not registered.");
+        {
+            Debug.Log($"Skill set for hero UID {heroUid} is not registered.");
+            return;
+        }
 
         for (int evolutionLevel = 0; evolutionLevel <= 2; evolutionLevel++)
         {

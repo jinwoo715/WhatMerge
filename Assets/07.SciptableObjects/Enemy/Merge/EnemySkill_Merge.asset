@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c6880fa93064dcda8d13575a4c72ff6, type: 3}
+  m_Name: EnemySkill_Merge
+  m_EditorClassIdentifier: 
+  Name: "\uD569\uCCB4"
+  Description: 
+  Trigger: {fileID: 11400000, guid: acb51e552e7b767479d5d86708c51546, type: 2}
+  ExecutionPolicy:
+    Priority: 0
+    Cooldown: 0
+    MaxActivationCount: 1
+  Actions:
+  - Target: {fileID: 11400000, guid: 7228ee99ddc573046a72ae7ca2fda9ed, type: 2}
+    Effects:
+    - {fileID: 11400000, guid: 2f35f987e564a07478be117675f34816, type: 2}

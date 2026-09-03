@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -33,6 +34,19 @@ namespace Skill.Data
         public virtual IReadOnlyList<EffectStatDefinition> GetEnhanceableStats()
         {
             return EmptyEnhanceableStats;
+        }
+    }
+
+    public static class EffectTargetPolicy
+    {
+        public static bool RequiresDirectTarget(EffectBase effect)
+        {
+            if (effect == null)
+                throw new ArgumentNullException(nameof(effect));
+
+            return effect is not RangeEffect
+                and not GoldEffect
+                and not SummonSpawnEffect;
         }
     }
 }

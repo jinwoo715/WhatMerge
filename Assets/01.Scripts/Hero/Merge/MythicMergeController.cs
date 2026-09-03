@@ -106,15 +106,10 @@ namespace WhatMerge.Heros
             if (materials == null)
                 return false;
 
-            return _mergeExecutor.TryMergeHeroes(
-                materials,
-                candidate.ResultHeroUID,
-                candidate.EvolutionLevel);
+            return _mergeExecutor.TryMergeHeroes(materials, candidate.ResultHeroUID, candidate.EvolutionLevel);
         }
 
-        private MythicMergeRecipeSummary BuildSummary(
-            MythicMergeData recipe,
-            IReadOnlyDictionary<int, Dictionary<int, int>> countsByEvolution)
+        private MythicMergeRecipeSummary BuildSummary(MythicMergeData recipe, IReadOnlyDictionary<int, Dictionary<int, int>> countsByEvolution)
         {
             bool[] canMergeByEvolution = new bool[EvolutionLevelCount];
             int recommendedEvolutionLevel = 0;

@@ -11,4 +11,8 @@
 10,타이탄,,Titan,Boss,10,0,1,None,0,10,0
 11,엘리멘탈,,Elemental,Normal,10,0,1,None,0,10,0
 12,가디언,,Guardian,Boss,10,0,1,None,0,10,0
-13,가디언,,Guardian,Mimic,10,0,1,None,0,10,0
+13,미믹,,Guardian,Mimic,10,0,1,None,0,10,0
+14,머지키퍼,,MergeKeeper,Special,10,0,1,None,1,0,1
+15,X,,SchizontX,Normal,1000,0,1,None,0,0,0
+16,Y,,SchizontY,Special,1000,0,1,None,2,0,2
+17,Z,,AmalgamZ,Normal,10,0,1,None,0,0,0

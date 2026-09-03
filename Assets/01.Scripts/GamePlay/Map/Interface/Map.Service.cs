@@ -14,6 +14,7 @@ namespace WhatMerge.Map
 
     public interface IPathProvider
     {
+        public int DestinationCount { get; }
         public Vector3 GetDestination(int index);
         public int GetNextIndex(int currentIndex);
     }

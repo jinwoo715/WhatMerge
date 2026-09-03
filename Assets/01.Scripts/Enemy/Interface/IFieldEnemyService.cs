@@ -11,6 +11,7 @@ namespace WhatMerge.Enemies
 
         event Action<Enemy> OnEnemyDeath;
         event Action<Enemy> OnSpawnEnemy;
+        event Action<Enemy> OnEnemyRemoved;
 
         event Action<int> OnChangedActiveEnemyCount;
 
@@ -20,6 +21,8 @@ namespace WhatMerge.Enemies
 
         void AddFieldEnemy(Enemy enemy);
         void RemoveFieldEnemy(Enemy enemy);
+        IReadOnlyList<Enemy> GetEnemiesByUID(int enemyUID);
+        IDisposable DeferEnemyCountNotifications();
 
         void AddFixedValueToAllEnemies(EnemyStatType statType, float value);
         void AddMultiplierToAllEnemies(EnemyStatType statType, float value);

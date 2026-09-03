@@ -177,25 +177,7 @@ namespace WhatMerge.Heros
                     switch (result)
                     {
                         case EHeroOverlapResult.None:
-                            var startTile = _clickedHero.OccupiedTile;
-                            var endTile = hero.OccupiedTile;
-
-                            _fieldHeros.Remove(startTile);
-                            _fieldHeros.Remove(endTile);
-
-                            _fieldHero.Remove((endTile.X, endTile.Y));
-                            _fieldHero.Remove((startTile.X, startTile.Y));
-
-                            _fieldHeros.Add(endTile, _clickedHero);
-                            _fieldHeros.Add(startTile, hero);
-
-                            _fieldHero.Add((endTile.X, endTile.Y), _clickedHero);
-                            _fieldHero.Add((startTile.X, startTile.Y), hero);
-
-                            _clickedHero.SetTile(endTile, _heroMapService.GetTileWorldPosition(endTile));
-                            hero.SetTile(startTile, _heroMapService.GetTileWorldPosition(startTile));
-                            InvokeFatal(OnChangedHeroPosition, "Hero swap event failed.");
-
+                            SwapHeroes(_clickedHero, hero);
                             break;
                         case EHeroOverlapResult.Evolution:
                             EvolveHero(_clickedHero, hero);
@@ -204,6 +186,14 @@ namespace WhatMerge.Heros
                         case EHeroOverlapResult.Merge:
                             int uid = _overlapProcessor.GetMergeHeroUID(_clickedHero.UID, hero.UID);
                             int evolution = _clickedHero.EvolutionLevel;
+
+                            if (!_heroSpawnService.CanSpawnHero(uid))
+                            {
+                                if (!IsCommandBlocked())
+                                    SwapHeroes(_clickedHero, hero);
+
+                                break;
+                            }
 
                             TryMergeHeroes(new[] { _clickedHero, hero }, uid, evolution);
                             break;
@@ -216,6 +206,29 @@ namespace WhatMerge.Heros
             }
 
         }
+
+        private void SwapHeroes(Hero first, Hero second)
+        {
+            var firstTile = first.OccupiedTile;
+            var secondTile = second.OccupiedTile;
+
+            _fieldHeros.Remove(firstTile);
+            _fieldHeros.Remove(secondTile);
+
+            _fieldHero.Remove((firstTile.X, firstTile.Y));
+            _fieldHero.Remove((secondTile.X, secondTile.Y));
+
+            _fieldHeros.Add(secondTile, first);
+            _fieldHeros.Add(firstTile, second);
+
+            _fieldHero.Add((secondTile.X, secondTile.Y), first);
+            _fieldHero.Add((firstTile.X, firstTile.Y), second);
+
+            first.SetTile(secondTile, _heroMapService.GetTileWorldPosition(secondTile));
+            second.SetTile(firstTile, _heroMapService.GetTileWorldPosition(firstTile));
+            InvokeFatal(OnChangedHeroPosition, "Hero swap event failed.");
+        }
+
         public void DragTile(Tile tile)
         {
             if (IsCommandBlocked())
@@ -286,10 +299,7 @@ namespace WhatMerge.Heros
             }
         }
 
-        public bool TryMergeHeroes(
-            IReadOnlyList<Hero> materials,
-            int resultHeroUID,
-            int evolutionLevel)
+        public bool TryMergeHeroes(IReadOnlyList<Hero> materials, int resultHeroUID, int evolutionLevel)
         {
             if (IsCommandBlocked())
                 return false;
@@ -316,12 +326,14 @@ namespace WhatMerge.Heros
                 if (material.EvolutionLevel != evolutionLevel || !IsRegisteredHero(material))
                     return false;
 
-                if (spawnTileOwner == null || material.SpawnIndex < spawnTileOwner.SpawnIndex)
-                    spawnTileOwner = material;
+                //if (spawnTileOwner == null || material.SpawnIndex > spawnTileOwner.SpawnIndex)
+                //    spawnTileOwner = material;
             }
 
-            Tile spawnTile = spawnTileOwner.OccupiedTile as Tile
-                ?? throw new InvalidOperationException("The selected merge spawn tile is not a Tile.");
+            int lastIndex = materials.Count - 1;
+            spawnTileOwner = materials[lastIndex];
+
+            Tile spawnTile = spawnTileOwner.OccupiedTile as Tile;
 
             try
             {

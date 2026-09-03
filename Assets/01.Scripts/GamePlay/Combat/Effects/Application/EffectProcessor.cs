@@ -239,10 +239,7 @@ namespace WhatMerge.Combat.Effects
 
         private static void ValidateTargetRequirement(EffectBase effect, DamageContext damageContext)
         {
-            if (damageContext.Target != null
-                || effect is RangeEffect
-                || effect is GoldEffect
-                || effect is SummonSpawnEffect)
+            if (damageContext.Target != null || !EffectTargetPolicy.RequiresDirectTarget(effect))
             {
                 return;
             }

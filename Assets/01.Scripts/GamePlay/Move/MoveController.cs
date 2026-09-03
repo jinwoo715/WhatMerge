@@ -39,6 +39,7 @@ public class MoveController : IMoveable
     private bool _hasHitWall = false;
 
     private float _speed;
+    private int _segmentStartIndex;
     private int _moveIndex;
     private Vector3 _deltaDestination;
     private Vector3 _destination;
@@ -50,6 +51,8 @@ public class MoveController : IMoveable
     private IPathProvider _provider;
 
     public event Action<EMoveDirection> OnDirectionChanged;
+    public EnemyPathPosition CurrentPathPosition =>
+        new EnemyPathPosition(_segmentStartIndex, _currentDistance);
 
     public void ActiveOn()
     {
@@ -64,6 +67,7 @@ public class MoveController : IMoveable
         _knockbackDistance = 0;
         _totalDistance = 0;
         _currentDistance = 0;
+        _segmentStartIndex = 0;
         _moveIndex = 0;
         _speed = 0; 
     }
@@ -74,16 +78,26 @@ public class MoveController : IMoveable
     }
     public void Init(float speed)
     {
+        Init(speed, EnemyPathPosition.Start);
+    }
+    public void Init(float speed, EnemyPathPosition pathPosition)
+    {
         _speed = speed;
-        _moveIndex = 0;
-        
-        Vector3 start = _provider.GetDestination(_moveIndex++);
+        EnemyPathPosition normalized = EnemyPathPositionUtility.Normalize(_provider, pathPosition);
+        _segmentStartIndex = normalized.SegmentStartIndex;
+        _moveIndex = _provider.GetNextIndex(_segmentStartIndex);
+
+        Vector3 start = _provider.GetDestination(_segmentStartIndex);
         Vector3 next = _provider.GetDestination(_moveIndex);
         _deltaDestination = start;
         _destination = next;
 
-        _currentDistance = 0f;
+        _currentDistance = normalized.DistanceFromSegmentStart;
         _totalDistance = CalcuateProgress(start, next);
+        _owner.position = Vector3.Lerp(
+            _deltaDestination,
+            _destination,
+            _currentDistance / _totalDistance);
         UpdateMoveDirection();
 
         _isMoveable = true;
@@ -121,12 +135,14 @@ public class MoveController : IMoveable
 
         _currentDistance = Mathf.Max(0, _currentDistance);
 
-        float progress = _currentDistance / _totalDistance;
-
-        if (progress >= 1)
+        while (_currentDistance >= _totalDistance)
+        {
+            _currentDistance -= _totalDistance;
             UpdateDestination();
-        else
-            _owner.position = Vector3.Lerp(_deltaDestination, _destination, progress);
+        }
+
+        float progress = _currentDistance / _totalDistance;
+        _owner.position = Vector3.Lerp(_deltaDestination, _destination, progress);
     }
     private float CalcuateProgress(Vector3 start, Vector3 end)
     {
@@ -138,14 +154,12 @@ public class MoveController : IMoveable
     }
     private void UpdateDestination()
     {
-        _owner.position = _destination;
-
+        _segmentStartIndex = _moveIndex;
         _moveIndex = _provider.GetNextIndex(_moveIndex);
 
         _deltaDestination = _destination;
         _destination = _provider.GetDestination(_moveIndex);
 
-        _currentDistance = 0;
         _totalDistance = CalcuateProgress(_deltaDestination, _destination);
         UpdateMoveDirection();
     }

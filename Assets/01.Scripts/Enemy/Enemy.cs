@@ -28,6 +28,7 @@ namespace WhatMerge.Enemies
 
         public int UID => _data.UID;
         public EnemyType Type => _data.EnemyType;
+        public int SkillSetUID => _data.SkillSetUID;
         public bool IsActive { get; private set; }
         public int Armor => Mathf.RoundToInt(_stats.GetStat(EnemyStatType.Armor));
         public int CurrentHP => _currentHP;
@@ -38,6 +39,10 @@ namespace WhatMerge.Enemies
         public Vector3 Position => this.transform.position;
         public Vector3 HealthBarPosition => _healthBarAnchor != null ? _healthBarAnchor.position : transform.position;
         public int LifeCycleVersion { get; private set; }
+        public EnemyPathPosition LastActivePathPosition { get; private set; }
+        public EnemyPathPosition CurrentPathPosition => IsActive
+            ? _move.CurrentPathPosition
+            : LastActivePathPosition;
         public IEnemyStatModifier StatModifier => _stats;
         public IMoveable Move => _move;
         public IElement Element => _element;
@@ -63,6 +68,10 @@ namespace WhatMerge.Enemies
         }
         public void Init(EnemyData data, List<Sprite> sprites)
         {
+            Init(data, sprites, EnemyPathPosition.Start);
+        }
+        public void Init(EnemyData data, List<Sprite> sprites, EnemyPathPosition pathPosition)
+        {
             ValidateInitializationData(data, sprites);
 
             if (_move == null)
@@ -83,7 +92,8 @@ namespace WhatMerge.Enemies
             _stats.SetBaseValue(EnemyStatType.MoveSpeed, data.MoveSpeed);
 
             _currentHP = Mathf.RoundToInt(_stats.GetStat(EnemyStatType.MaxHP));
-            _move.Init(_stats.GetStat(EnemyStatType.MoveSpeed));
+            _move.Init(_stats.GetStat(EnemyStatType.MoveSpeed), pathPosition);
+            LastActivePathPosition = _move.CurrentPathPosition;
             
             _spriteController.Init(sprites, 0.25f);
             UpdateHealthBarAnchor();
@@ -145,6 +155,7 @@ namespace WhatMerge.Enemies
             if (!IsActive)
                 return false;
 
+            LastActivePathPosition = _move.CurrentPathPosition;
             IsActive = false;
             _status.Clear();
             _element.Clear();

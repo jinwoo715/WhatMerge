@@ -16,7 +16,7 @@ namespace WhatMerge.Stage.Editor
         {
             Stage,
             Waves,
-            MiddleBoss
+            Mimic
         }
 
         private const string StageAssetDirectory = "Assets/07.SciptableObjects/Stage";
@@ -233,7 +233,7 @@ namespace WhatMerge.Stage.Editor
             _tabButtons.Clear();
             AddTabButton(tabBar, StageEditorTab.Stage, "Stage");
             AddTabButton(tabBar, StageEditorTab.Waves, "Waves");
-            AddTabButton(tabBar, StageEditorTab.MiddleBoss, "Middle Boss");
+            AddTabButton(tabBar, StageEditorTab.Mimic, "Mimic");
             UpdateTabStyles();
 
             return tabBar;
@@ -364,8 +364,8 @@ namespace WhatMerge.Stage.Editor
                 case StageEditorTab.Waves:
                     BuildWavesTab();
                     break;
-                case StageEditorTab.MiddleBoss:
-                    BuildMiddleBossTab();
+                case StageEditorTab.Mimic:
+                    BuildMimicTab();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -425,7 +425,7 @@ namespace WhatMerge.Stage.Editor
             metrics.Add(CreateMetric("Normal Waves", CountWaves(WaveType.Normal).ToString()));
             metrics.Add(CreateMetric("Boss Waves", CountWaves(WaveType.Boss).ToString()));
             metrics.Add(CreateMetric(
-                "Middle Boss",
+                "Mimic",
                 _selectedStage.MimicChallenge != null && _selectedStage.MimicChallenge.IsEnabled
                     ? "Configured"
                     : "Not configured"));
@@ -616,9 +616,9 @@ namespace WhatMerge.Stage.Editor
             _mainContent.Add(section);
         }
 
-        private void BuildMiddleBossTab()
+        private void BuildMimicTab()
         {
-            EnsureMiddleBossData();
+            EnsureMimicData();
             MimicChallengeData challenge = _selectedStage.MimicChallenge;
 
             VisualElement settings = CreateSection("Challenge Settings");
@@ -653,15 +653,15 @@ namespace WhatMerge.Stage.Editor
             _mainContent.Add(settings);
 
             VisualElement entries = CreateSection("Summon Order");
-            IReadOnlyList<EnemyData> middleBossEnemies = _catalog.GetEnemies(EnemyType.Mimic);
-            if (middleBossEnemies.Count == 0)
+            IReadOnlyList<EnemyData> mimicEnemies = _catalog.GetEnemies(EnemyType.Mimic);
+            if (mimicEnemies.Count == 0)
             {
                 entries.Add(CreateNotice(
-                    "EnemyData has no MiddleBoss entry. Add one before configuring this list.",
+                    "EnemyData has no Mimic entry. Add one before configuring this list.",
                     StageValidationSeverity.Info));
             }
 
-            entries.Add(CreateMiddleBossList());
+            entries.Add(CreateMimicList());
             _mainContent.Add(entries);
         }
 
@@ -703,7 +703,7 @@ namespace WhatMerge.Stage.Editor
             return container;
         }
 
-        private IMGUIContainer CreateMiddleBossList()
+        private IMGUIContainer CreateMimicList()
         {
             SerializedProperty challengeProperty = _serializedStage.FindProperty(nameof(StageData.MimicChallenge));
             SerializedProperty entriesProperty = challengeProperty.FindPropertyRelative(nameof(MimicChallengeData.Entries));
@@ -714,9 +714,9 @@ namespace WhatMerge.Stage.Editor
             };
             list.drawHeaderCallback = rect => EditorGUI.LabelField(rect, "Order     Enemy / Preview / Base Reward");
             list.drawElementCallback = (rect, index, active, focused) =>
-                DrawMiddleBossElement(rect, entriesProperty, index);
+                DrawMimicElement(rect, entriesProperty, index);
             list.onCanAddCallback = _ => _catalog.GetEnemies(EnemyType.Mimic).Count > 0;
-            list.onAddCallback = _ => AddMiddleBossEntry(entriesProperty);
+            list.onAddCallback = _ => AddMimicEntry(entriesProperty);
             list.onRemoveCallback = target =>
             {
                 ReorderableList.defaultBehaviours.DoRemoveButton(target);
@@ -773,14 +773,16 @@ namespace WhatMerge.Stage.Editor
             Rect countRect = new Rect(delayRect.xMax + gap, rect.y, numericWidth, rect.height);
             Rect intervalRect = new Rect(countRect.xMax + gap, rect.y, numericWidth, rect.height);
 
-            EnemyType expectedType = waveType == WaveType.Boss ? EnemyType.Boss : EnemyType.Normal;
-            enemyUID.intValue = DrawEnemyPopup(enemyRect, enemyUID.intValue, expectedType);
+            enemyUID.intValue = DrawEnemyPopup(
+                enemyRect,
+                enemyUID.intValue,
+                GetExpectedEnemies(waveType));
             EditorGUI.PropertyField(delayRect, startDelay, GUIContent.none);
             EditorGUI.PropertyField(countRect, spawnCount, GUIContent.none);
             EditorGUI.PropertyField(intervalRect, spawnInterval, GUIContent.none);
         }
 
-        private void DrawMiddleBossElement(Rect rect, SerializedProperty entries, int index)
+        private void DrawMimicElement(Rect rect, SerializedProperty entries, int index)
         {
             SerializedProperty entry = entries.GetArrayElementAtIndex(index);
             SerializedProperty enemyUID = entry.FindPropertyRelative(nameof(MimicEntryData.EnemyUID));
@@ -793,7 +795,10 @@ namespace WhatMerge.Stage.Editor
 
             float contentX = previewRect.xMax + 8f;
             Rect popupRect = new Rect(contentX, rect.y + 4f, rect.xMax - contentX, EditorGUIUtility.singleLineHeight);
-            enemyUID.intValue = DrawEnemyPopup(popupRect, enemyUID.intValue, EnemyType.Mimic);
+            enemyUID.intValue = DrawEnemyPopup(
+                popupRect,
+                enemyUID.intValue,
+                _catalog.GetEnemies(EnemyType.Mimic));
 
             Rect rewardRect = new Rect(
                 contentX,
@@ -803,9 +808,11 @@ namespace WhatMerge.Stage.Editor
             EditorGUI.LabelField(rewardRect, _catalog.GetRewardSummary(enemyUID.intValue), EditorStyles.miniLabel);
         }
 
-        private int DrawEnemyPopup(Rect rect, int currentUID, EnemyType enemyType)
+        private int DrawEnemyPopup(
+            Rect rect,
+            int currentUID,
+            IReadOnlyList<EnemyData> candidates)
         {
-            IReadOnlyList<EnemyData> candidates = _catalog.GetEnemies(enemyType);
             if (candidates.Count == 0)
                 return EditorGUI.IntField(rect, currentUID);
 
@@ -876,7 +883,7 @@ namespace WhatMerge.Stage.Editor
             ApplySerializedChanges();
         }
 
-        private void AddMiddleBossEntry(SerializedProperty entries)
+        private void AddMimicEntry(SerializedProperty entries)
         {
             IReadOnlyList<EnemyData> candidates = _catalog.GetEnemies(EnemyType.Mimic);
             if (candidates.Count == 0)
@@ -1051,12 +1058,12 @@ namespace WhatMerge.Stage.Editor
             ApplyChange("Delete Wave", () => _selectedStage.Waves.Remove(wave), true);
         }
 
-        private void EnsureMiddleBossData()
+        private void EnsureMimicData()
         {
             if (_selectedStage.MimicChallenge != null)
                 return;
 
-            Undo.RecordObject(_selectedStage, "Initialize Middle Boss Data");
+            Undo.RecordObject(_selectedStage, "Initialize Mimic Data");
             _selectedStage.MimicChallenge = new MimicChallengeData();
             EditorUtility.SetDirty(_selectedStage);
             _hasUnsavedChanges = true;
@@ -1342,7 +1349,7 @@ namespace WhatMerge.Stage.Editor
 
         private IReadOnlyList<EnemyData> GetExpectedEnemies(WaveType waveType)
         {
-            return _catalog.GetEnemies(waveType == WaveType.Boss ? EnemyType.Boss : EnemyType.Normal);
+            return _catalog.GetWaveEnemies(waveType);
         }
 
         private void HandleUndoRedo()

@@ -1,4 +1,5 @@
 using System;
+using WhatMerge.Combat;
 using WhatMerge.Summons.Data;
 
 namespace WhatMerge.Summons
@@ -7,5 +8,10 @@ namespace WhatMerge.Summons
     {
         event Action<TargetLostEventType> OnTargetLost;
         void Tick(float tick);
+    }
+
+    public interface ISummonTargetProvider
+    {
+        bool TryGetActiveTarget(out ICombatant target);
     }
 }

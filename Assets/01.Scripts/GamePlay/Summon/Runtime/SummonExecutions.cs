@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using WhatMerge.Combat;
 using WhatMerge.Combat.Effects;
+using WhatMerge.Summons.Data;
 using UnityEngine;
 
 namespace WhatMerge.Summons
@@ -67,14 +68,62 @@ namespace WhatMerge.Summons
     }
     public class OnExpireExecution : SummonExecution
     {
-        public OnExpireExecution(DamageContext damageContext)
+        private readonly SummonExecutionTargetSource _targetSource;
+        private ISummonTargetProvider _targetProvider;
+
+        public OnExpireExecution(
+            DamageContext damageContext,
+            SummonExecutionTargetSource targetSource,
+            ISummonTargetProvider targetProvider)
         {
-            _damageContext = damageContext;
+            _damageContext = damageContext ?? throw new ArgumentNullException(nameof(damageContext));
+            if (!Enum.IsDefined(typeof(SummonExecutionTargetSource), targetSource))
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(targetSource),
+                    targetSource,
+                    "Unsupported summon execution target source.");
+            }
+
+            if (targetSource == SummonExecutionTargetSource.TrackedTarget && targetProvider == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(SummonExecutionTargetSource.TrackedTarget)} requires an " +
+                    $"{nameof(ISummonTargetProvider)} move strategy.");
+            }
+
+            _targetSource = targetSource;
+            _targetProvider = targetSource == SummonExecutionTargetSource.TrackedTarget
+                ? targetProvider
+                : null;
         }
 
         public override void OnExpire()
         {
-            ExecuteEffect(_damageContext);
+            switch (_targetSource)
+            {
+                case SummonExecutionTargetSource.SummonPosition:
+                    ExecuteEffect(_damageContext.WithImpactPosition(_damageContext.SourcePosition));
+                    break;
+
+                case SummonExecutionTargetSource.TrackedTarget:
+                    if (_targetProvider != null
+                        && _targetProvider.TryGetActiveTarget(out ICombatant target))
+                    {
+                        ExecuteEffect(_damageContext.WithTarget(target));
+                    }
+                    break;
+
+                default:
+                    throw new InvalidOperationException(
+                        $"Unsupported summon execution target source: {_targetSource}.");
+            }
+        }
+
+        public override void Dispose()
+        {
+            _targetProvider = null;
+            base.Dispose();
         }
     }
 

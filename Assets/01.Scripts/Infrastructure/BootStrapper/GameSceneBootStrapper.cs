@@ -7,6 +7,8 @@ using UnityEngine.U2D;
 using System.Collections.Generic;
 using System;
 using WhatMerge.Enemies;
+using WhatMerge.Enemies.Skills.Data;
+using WhatMerge.Enemies.Skills.Runtime;
 using WhatMerge.Combat;
 using WhatMerge.Combat.Effects;
 using WhatMerge.Heros;
@@ -45,8 +47,10 @@ namespace Core.BootStrapper
         [Header("Enemy")]
         [SerializeField] private EnemySpawner _enemySpawner;
         [SerializeField] private EnemyHealthBarManager _enemyHealthBarManager;
+        [SerializeField] private EnemySkillCatalog _enemySkillCatalog;
         private EnemySpriteRepository _enemySpriteRepository = new EnemySpriteRepository();
         private FieldEnemyService _fieldEnemyService = new FieldEnemyService();
+        private EnemySkillSystem _enemySkillSystem;
 
         [Header("Skill")]
         [SerializeField] private BuffManager _buff;
@@ -96,8 +100,8 @@ namespace Core.BootStrapper
         {
             try
             {
-                Init();
                 Bind();
+                Init();
             }
             catch (Exception exception)
             {
@@ -209,6 +213,18 @@ namespace Core.BootStrapper
 
             _vfxSpawner.Init(_vfxRepository);
 
+            if (_enemySkillCatalog != null)
+            {
+                _enemySkillSystem = new EnemySkillSystem();
+                _enemySkillSystem.Init(
+                    _enemySkillCatalog,
+                    _fieldEnemyService,
+                    _enemySpawner,
+                    _map,
+                    _vfxSpawner,
+                    _timeController);
+            }
+
 
             List<IEffectHandler> effectHandlers = new List<IEffectHandler>
             {
@@ -306,10 +322,16 @@ namespace Core.BootStrapper
 
         private void OnDestroy()
         {
+            TrySceneCleanup(() => _enemySkillSystem?.Dispose());
             TrySceneCleanup(_mythicMergePanelPresenter.Dispose);
             TrySceneCleanup(() => _heroController.CleanupSceneHeroes(_heroSpawner.ActiveHeroes));
             TrySceneCleanup(_heroController.Dispose);
             TrySceneCleanup(_timeController.Dispose);
+        }
+
+        private void LateUpdate()
+        {
+            _enemySkillSystem?.LateTick(Time.time);
         }
 
         private static void TrySceneCleanup(Action cleanup)

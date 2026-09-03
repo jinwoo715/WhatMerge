@@ -216,7 +216,6 @@ namespace Skill.Data
 
             Dictionary<ActiveSkillData, int> activeUnlockLevels = new();
             Dictionary<ActiveSkillData, EffectGraph> activeGraphs = new();
-            HashSet<PassiveSkillData> passiveSkills = new();
             List<PassiveGoldSkillData> goldPassiveData = new();
             int previousLevel = int.MinValue;
             int basicAttackCount = 0;
@@ -278,12 +277,6 @@ namespace Skill.Data
                 }
                 else if (entry.Skill is PassiveSkillData passiveSkill)
                 {
-                    if (!passiveSkills.Add(passiveSkill))
-                    {
-                        errors.Add(
-                            $"{prefix}: passive skill '{passiveSkill.name}' is registered more than once.");
-                    }
-
                     if (passiveSkill is PassiveGoldSkillData gold)
                         goldPassiveData.Add(gold);
 
@@ -972,7 +965,73 @@ namespace Skill.Data
                 if (summonEffect.Execution == null)
                     errors.Add($"{prefix}: summon effect '{effect.name}' has no Execution data.");
                 else
+                {
+                    ValidateSummonExecution(summonEffect, prefix, errors);
                     WalkContainer(summonEffect.Execution, graph, visiting, prefix, errors);
+                }
+            }
+        }
+
+        private static void ValidateSummonExecution(
+            SummonSpawnEffect summonEffect,
+            string prefix,
+            List<string> errors)
+        {
+            if (summonEffect.Execution is not OnExpireExecutionSummon execution)
+                return;
+
+            if (!Enum.IsDefined(typeof(SummonExecutionTargetSource), execution.TargetSource))
+            {
+                errors.Add(
+                    $"{prefix}: summon effect '{summonEffect.name}' has an unsupported " +
+                    $"TargetSource value: {(int)execution.TargetSource}.");
+                return;
+            }
+
+            if (execution.TargetSource == SummonExecutionTargetSource.TrackedTarget)
+            {
+                if (summonEffect.Move is not SummonMoveable moveable)
+                {
+                    errors.Add(
+                        $"{prefix}: summon effect '{summonEffect.name}' uses TrackedTarget " +
+                        $"but its Move does not track a target.");
+                    return;
+                }
+
+                if (moveable.LostTargetEvent == TargetLostEventType.OnExecute)
+                {
+                    errors.Add(
+                        $"{prefix}: summon effect '{summonEffect.name}' cannot combine " +
+                        $"TrackedTarget with LostTargetEvent.OnExecute.");
+                }
+
+                return;
+            }
+
+            if (execution.Effects == null)
+                return;
+
+            for (int i = 0; i < execution.Effects.Count; i++)
+            {
+                EffectBase rootEffect = execution.Effects[i];
+                if (rootEffect == null)
+                    continue;
+
+                if (EffectTargetPolicy.RequiresDirectTarget(rootEffect))
+                {
+                    errors.Add(
+                        $"{prefix}: summon execution '{execution.name}' uses SummonPosition " +
+                        $"but root effect '{rootEffect.name}' requires a direct target.");
+                    continue;
+                }
+
+                if (rootEffect is SummonSpawnEffect childSummon
+                    && childSummon.Move is SummonMoveable)
+                {
+                    errors.Add(
+                        $"{prefix}: summon execution '{execution.name}' uses SummonPosition " +
+                        $"but child summon '{childSummon.name}' requires a target-tracking Move.");
+                }
             }
         }
 

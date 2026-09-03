@@ -4,9 +4,6 @@ namespace WhatMerge.Heros
 {
     public interface IHeroMergeExecutor
     {
-        bool TryMergeHeroes(
-            IReadOnlyList<Hero> materials,
-            int resultHeroUID,
-            int evolutionLevel);
+        bool TryMergeHeroes(IReadOnlyList<Hero> materials, int resultHeroUID, int evolutionLevel);
     }
 }

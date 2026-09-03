@@ -1,5 +1,6 @@
 using System;
 using WhatMerge.Stage;
+using WhatMerge.Map;
 
 namespace WhatMerge.Enemies
 {
@@ -12,6 +13,7 @@ namespace WhatMerge.Enemies
 
         int StartWaveEnemySpawn(EnemySpawnData data);
         Enemy SpawnEnemy(int enemyUID);
+        Enemy SpawnEnemy(int enemyUID, EnemyPathPosition pathPosition);
         void DespawnEnemy(Enemy enemy);
         void CancelWaveSpawn();
     }

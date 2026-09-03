@@ -12,7 +12,7 @@ namespace WhatMerge.Summons
         public void Tick(float tick) { }
         public void Dispose() { OnTargetLost = null; }
     }
-    public class AttachMoveStrategy : ISummonMoveStrategy
+    public class AttachMoveStrategy : ISummonMoveStrategy, ISummonTargetProvider
     {
         public event Action<TargetLostEventType> OnTargetLost;
 
@@ -34,6 +34,18 @@ namespace WhatMerge.Summons
         {
             if (_target != null && _target.IsActive)
                 _owner.transform.position = _target.Position;
+        }
+
+        public bool TryGetActiveTarget(out ICombatant target)
+        {
+            target = _target;
+            if (_disposed || target == null || !target.IsActive)
+            {
+                target = null;
+                return false;
+            }
+
+            return true;
         }
 
         public void Dispose()
@@ -63,7 +75,7 @@ namespace WhatMerge.Summons
                 target.OnActiveOff -= OnTargetInactive;
         }
     }
-    public class ApproachMoveStrategy : ISummonMoveStrategy
+    public class ApproachMoveStrategy : ISummonMoveStrategy, ISummonTargetProvider
     {
         private ICombatant _target;
         private Transform _owner;
@@ -113,6 +125,18 @@ namespace WhatMerge.Summons
 
             float lerp = Mathf.Clamp01(_current / _duration);
             _owner.position = Vector3.Lerp(_origin, _target.Position, lerp);
+        }
+
+        public bool TryGetActiveTarget(out ICombatant target)
+        {
+            target = _target;
+            if (_disposed || target == null || !target.IsActive)
+            {
+                target = null;
+                return false;
+            }
+
+            return true;
         }
 
         public void Dispose()

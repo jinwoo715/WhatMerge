@@ -700,7 +700,6 @@ Transform:
   m_Children:
   - {fileID: 1915751787}
   - {fileID: 1077765580}
-  - {fileID: 990700997}
   - {fileID: 1006936468}
   - {fileID: 452779306}
   - {fileID: 1002024229}
@@ -3289,6 +3288,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1312197270}
+  - {fileID: 990700997}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &648540192
@@ -5331,11 +5331,11 @@ Transform:
   m_GameObject: {fileID: 990700996}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 124.99531, y: -1191.4019, z: 7.5871353}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 101721221}
+  m_Father: {fileID: 627957904}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &990700998
 MonoBehaviour:
@@ -9354,6 +9354,7 @@ MonoBehaviour:
   _tileMarkerPresenter: {fileID: 321040850}
   _enemySpawner: {fileID: 1847714454}
   _enemyHealthBarManager: {fileID: 1574889362}
+  _enemySkillCatalog: {fileID: 11400000, guid: fbab9e0de81d42240b1be852df07748f, type: 2}
   _buff: {fileID: 1647833017}
   _projectileSpawner: {fileID: 1315662176}
   _summonSpawner: {fileID: 146673673}

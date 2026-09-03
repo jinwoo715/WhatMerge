@@ -27,6 +27,7 @@ namespace WhatMerge.Enemies
                 if (!_enemySpriteByName.ContainsKey(spriteNames[0]))
                 {
                     _enemySpriteByName.Add(spriteNames[0], new List<Sprite>());
+                    Debug.Log(spriteNames[0]);
                 }
 
                 _enemySpriteByName[spriteNames[0]].Add(sprite);

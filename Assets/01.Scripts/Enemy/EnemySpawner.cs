@@ -12,6 +12,7 @@ namespace WhatMerge.Enemies
     {
         Normal,
         Mimic,
+        Special,
         Boss
     }
 
@@ -94,23 +95,35 @@ namespace WhatMerge.Enemies
 
         public Enemy SpawnEnemy(int enemyUID)
         {
+            return SpawnEnemy(enemyUID, EnemyPathPosition.Start);
+        }
+
+        public Enemy SpawnEnemy(int enemyUID, EnemyPathPosition pathPosition)
+        {
             EnsureInitialized();
 
             EnemyData enemyData = _enemyDataRepository.GetData(enemyUID);
-            return SpawnEnemy(enemyData);
+            return SpawnEnemy(enemyData, pathPosition);
         }
 
         private Enemy SpawnEnemy(EnemyData enemyData)
+        {
+            return SpawnEnemy(enemyData, EnemyPathPosition.Start);
+        }
+
+        private Enemy SpawnEnemy(EnemyData enemyData, EnemyPathPosition pathPosition)
         {
             if (enemyData == null)
                 throw new ArgumentNullException(nameof(enemyData));
 
             var sprites = _spriteRepository.GetSprites(enemyData.SpriteKey);
-            Enemy enemy = _enemyPool.GetItem(_pathProvider.GetDestination(0));
+            EnemyPathPosition normalized = EnemyPathPositionUtility.Normalize(_pathProvider, pathPosition);
+            Vector3 worldPosition = EnemyPathPositionUtility.GetWorldPosition(_pathProvider, normalized);
+            Enemy enemy = _enemyPool.GetItem(worldPosition);
 
             try
             {
-                enemy.Init(enemyData, sprites);
+                enemy.Init(enemyData, sprites, normalized);
             }
             catch
             {
