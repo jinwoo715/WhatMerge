@@ -144,10 +144,7 @@ namespace Skill.Data
             return errors;
         }
 
-        public static void ValidateOrThrow(
-            SkillSetContainer container,
-            HeroData heroData,
-            int maxLevel)
+        public static void ValidateOrThrow(SkillSetContainer container, HeroData heroData, int maxLevel)
         {
             IReadOnlyList<string> errors = Validate(container, heroData, maxLevel);
             if (errors.Count == 0)
@@ -158,11 +155,7 @@ namespace Skill.Data
                 string.Join("\n- ", errors));
         }
 
-        private static void ValidateGradeGroups(
-            SkillSetContainer container,
-            HeroData heroData,
-            int maxLevel,
-            List<string> errors)
+        private static void ValidateGradeGroups(SkillSetContainer container, HeroData heroData, int maxLevel, List<string> errors)
         {
             if (container.GradeSets == null)
             {
@@ -1035,12 +1028,7 @@ namespace Skill.Data
             }
         }
 
-        private static void ValidateFinite(
-            float value,
-            float min,
-            float max,
-            string name,
-            List<string> errors)
+        private static void ValidateFinite(float value, float min, float max, string name, List<string> errors)
         {
             if (float.IsNaN(value) || float.IsInfinity(value) || value < min || value > max)
                 errors.Add($"{name} must be a finite value between {min} and {max}.");

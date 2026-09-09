@@ -14,7 +14,6 @@ namespace WhatMerge.Heros
                 MergeData data = mergeDatas[i];
                 var key = SortUID(data.First, data.Second);
 
-                Debug.Log($"{key}");
                 _mergeData.Add(key, data.Result);
             }
         }

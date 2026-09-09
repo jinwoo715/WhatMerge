@@ -7,7 +7,7 @@
                 "x": 40.0,
                 "y": 160.0,
                 "width": 266.0,
-                "height": 423.0
+                "height": 497.0
             }
         },
         {
@@ -147,7 +147,7 @@
                 "x": -1916.0,
                 "y": 307.0,
                 "width": 324.0,
-                "height": 244.0
+                "height": 264.0
             }
         },
         {
@@ -229,6 +229,26 @@
                 "width": 314.0,
                 "height": 319.0
             }
+        },
+        {
+            "Key": "effect-0::projectile-spawn-projectile::projectile-effect::0::range-effect::1::duration-effect0",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -2379.0,
+                "y": 512.0,
+                "width": 306.0,
+                "height": 204.0
+            }
+        },
+        {
+            "Key": "effect-0::projectile-spawn-projectile::projectile-effect::0::range-effect::1::duration-effect1",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -2396.0,
+                "y": 716.0,
+                "width": 323.0,
+                "height": 204.0
+            }
         }
     ],
     "AssetPositions": [
@@ -239,7 +259,7 @@
                 "x": 40.0,
                 "y": 160.0,
                 "width": 266.0,
-                "height": 423.0
+                "height": 497.0
             }
         },
         {
@@ -309,7 +329,7 @@
                 "x": -1916.0,
                 "y": 307.0,
                 "width": 324.0,
-                "height": 244.0
+                "height": 264.0
             }
         },
         {
@@ -353,20 +373,15 @@
             }
         }
     ],
-    "LooseAssetGuids": [
-        "2d4395677d2d7f44b9c15d8b41d8c71b",
-        "6f6b247a0ab5f1a4bbd3108734782844",
-        "98411c44a908fd1449e09523da30d46c",
-        "279ee997de995364b913d04ebc89be56"
-    ],
+    "LooseAssetGuids": [],
     "ViewPosition": {
-        "x": 1834.0,
-        "y": -38.0,
+        "x": 964.0,
+        "y": -253.0,
         "z": 0.0
     },
     "ViewScale": {
-        "x": 1.0,
-        "y": 1.0,
+        "x": 0.7561436891555786,
+        "y": 0.7561436891555786,
         "z": 1.0
     }
 }

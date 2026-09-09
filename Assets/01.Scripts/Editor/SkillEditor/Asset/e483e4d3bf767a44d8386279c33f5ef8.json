@@ -1,0 +1,37 @@
+{
+    "NodePositions": [
+        {
+            "Key": "active",
+            "Position": {
+                "serializedVersion": "2",
+                "x": 40.0,
+                "y": 160.0,
+                "width": 306.0,
+                "height": 497.0
+            }
+        }
+    ],
+    "AssetPositions": [
+        {
+            "Key": "asset-e483e4d3bf767a44d8386279c33f5ef8",
+            "Position": {
+                "serializedVersion": "2",
+                "x": 40.0,
+                "y": 160.0,
+                "width": 306.0,
+                "height": 497.0
+            }
+        }
+    ],
+    "LooseAssetGuids": [],
+    "ViewPosition": {
+        "x": 648.0,
+        "y": -3.0,
+        "z": 0.0
+    },
+    "ViewScale": {
+        "x": 0.5717532634735107,
+        "y": 0.5717532634735107,
+        "z": 1.0
+    }
+}

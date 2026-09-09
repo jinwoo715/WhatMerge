@@ -126,8 +126,8 @@
                 "serializedVersion": "2",
                 "x": -2006.0,
                 "y": 341.0,
-                "width": 348.0,
-                "height": 264.0
+                "width": 338.0,
+                "height": 287.0
             }
         },
         {
@@ -142,6 +142,16 @@
         },
         {
             "Key": "loose-933b5cbb2c1ae6e45be1fa2225486f6a::range-effect::0",
+            "Position": {
+                "serializedVersion": "2",
+                "x": -2006.0,
+                "y": 341.0,
+                "width": 348.0,
+                "height": 264.0
+            }
+        },
+        {
+            "Key": "effect-0::projectile-spawn-projectile::projectile-effect::0::range-effect::0",
             "Position": {
                 "serializedVersion": "2",
                 "x": -2006.0,
@@ -236,8 +246,8 @@
             "Key": "asset-933b5cbb2c1ae6e45be1fa2225486f6a",
             "Position": {
                 "serializedVersion": "2",
-                "x": -1604.0,
-                "y": 325.0,
+                "x": -2006.0,
+                "y": 341.0,
                 "width": 338.0,
                 "height": 287.0
             }
@@ -245,13 +255,13 @@
     ],
     "LooseAssetGuids": [],
     "ViewPosition": {
-        "x": 1458.0,
-        "y": -91.0,
+        "x": 583.0,
+        "y": -200.0,
         "z": 0.0
     },
     "ViewScale": {
-        "x": 0.7561436891555786,
-        "y": 0.7561436891555786,
+        "x": 0.8695651888847351,
+        "y": 0.8695651888847351,
         "z": 1.0
     }
 }

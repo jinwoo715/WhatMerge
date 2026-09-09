@@ -1,1 +1,36 @@
-[]
+[
+  {
+    "ResultHeroUID": 1003,
+    "Materials": [
+      {
+        "HeroUID": 4,
+        "Count": 1
+      },
+      {
+        "HeroUID": 11,
+        "Count": 2
+      },
+      {
+        "HeroUID": 107,
+        "Count": 1
+      }
+    ]
+  },
+  {
+    "ResultHeroUID": 1009,
+    "Materials": [
+      {
+        "HeroUID": 10,
+        "Count": 2
+      },
+      {
+        "HeroUID": 11,
+        "Count": 1
+      },
+      {
+        "HeroUID": 103,
+        "Count": 1
+      }
+    ]
+  }
+]
